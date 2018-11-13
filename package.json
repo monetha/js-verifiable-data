@@ -2,7 +2,7 @@
 	"name": "ico-sdk",
 	"version": "1.0.0",
 	"description": "",
-	"main": "index.js",
+	"main": "./lib/proto.js",
 	"scripts": {
 		"test": "mocha --timeout 200000"
 	},
