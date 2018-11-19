@@ -2,20 +2,21 @@ import fetchEvents from '../providers/fetchEvents';
 
 interface IFilteredFact {
   blockNumber: Number;
-  blockHash: string;
-  passportAddress: string;
-  ownerAddress: string;
+  transactionHash: string;
+  factProviderAddress: string;
+  key: string;
 }
 
+var globalWindow: any = window;
 var readPassportHistory = async function (factoryAddress: string) {
 
   var facts  = await fetchEvents(factoryAddress);
   facts = (facts as Array<any>).map((fact) => {
     var filteredFact: IFilteredFact;
     filteredFact.blockNumber = fact.blockNumber;
-    filteredFact.blockHash = fact.blockHash;
-    filteredFact.passportAddress = '0x' + fact.topics[1].slice(26);
-    filteredFact.ownerAddress = '0x' + fact.topics[2].slice(26);
+    filteredFact.transactionHash = fact.transactionHash;
+    filteredFact.factProviderAddress = '0x' + fact.topics[1].slice(26);
+    filteredFact.key = globalWindow.web3.toAscii(fact.topics[2].slice(0,23));
   
     return filteredFact;
   });
