@@ -97,6 +97,15 @@ Let's try to store string  `hello` under the key `greetings` as `string` in pass
 writePassportFacts(<passportLogicAbi>, <passportAddress>, "string", {"key": "greetings", "value": "hello"})
 ```
 
+Also user can delete the data stored from the passport.
+
+Let's try to delete string  `hello` under the key `greetings` as `string` in passport
+`<passportAddress>`:
+
+```
+deletePassportFacts(<passportLogicAbi>, <passportAddress>, "string", "greetings"})
+```
+
 ### Reading facts
 
 After the fact provider has written the public data to the passport, the data can be read by anyone.
@@ -121,6 +130,13 @@ Consider an example of how owner of a passport `<ownerAddress>` adds fact provid
 
 ```
 addFactProviderToWhitelist(<passportLogicAbi>, <passportAddress>, <factProvider>)
+```
+Also the passportOwner can delete the factProvider from the list.
+Consider an example of how owner of a passport `<ownerAddress>` deletes fact provider 
+`<factProviderAddress>` to the whitelist in Ropsten network:
+
+```
+removeFactProviderFromWhitelist(<passportLogicAbi>, <passportAddress>, <factProvider>)
 ```
 
 Please note that the passport owner only can call this method.
@@ -147,8 +163,17 @@ readPassportHistory(<passportAddress>)
 
 
 
-| fact_provider | key | data_type | change_type | block_number | tx_hash |
-|---------------|-----|-----------|-------------|--------------|---------|
-| 0x5b2AE3b3A801469886Bb8f5349fc3744cAa6348d | monetha.jpg | TxData | Updated | 4177015 | 0x627913f620990ec12360a6f1fda4887ea837b41e2f6cbae90e24322dc8cf8b1a |
-| 0x5b2AE3b3A801469886Bb8f5349fc3744cAa6348d | monetha.jpg | TxData | Updated | 4337297 | 0x31e06af4e04450333d468835c995fc02622c1b07ae0feeb4c7afe73c5a2e3ed8 |
+| fact_provider | key | block_number | tx_hash |
+|---------------|-----|--------------|---------|
+| 0x5b2AE3b3A801469886Bb8f5349fc3744cAa6348d | monetha.jpg | 4177015 | 0x627913f620990ec12360a6f1fda4887ea837b41e2f6cbae90e24322dc8cf8b1a |
+| 0x5b2AE3b3A801469886Bb8f5349fc3744cAa6348d | monetha.jpg | 4337297 | 0x31e06af4e04450333d468835c995fc02622c1b07ae0feeb4c7afe73c5a2e3ed8 |
 
+As we can see, there were only two fact updates under the same key `monetha.jpg` by the same data provider `0x5b2AE3b3A801469886Bb8f5349fc3744cAa6348d`.
+The `block_number` and `tx_hash` columns allow us to understand in which block and in which transaction the changes were made.
+Even if the value of a fact has been deleted or changed, we can read its value as it was before the deletion.
+
+Let's read what the value of the fact was during the first update. To do this, we need to specify the transaction hash `0x627913f620990ec12360a6f1fda4887ea837b41e2f6cbae90e24322dc8cf8b1a`:
+
+```
+readTransactionData(<passportLogicAbi>, <transaction Hash got from the above>)
+```
