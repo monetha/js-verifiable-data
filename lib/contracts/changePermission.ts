@@ -15,6 +15,19 @@ export var addFactProviderToWhitelist = async function (abi: any, passportAddres
   return result;
 };
 
+export var removeFactProviderFromWhitelist = async function (abi: any, passportAddress: string, factProvider: string) {
+  var contract = createInstance(abi, passportAddress);
+  var trxHash: any;
+  try {
+    trxHash = await performAsync(contract.removeFactProviderFromWhitelist.bind(null, factProvider));
+  } catch (err) {
+    return err;
+  }
+  var result: any = await loader(trxHash);
+
+  return result;
+};
+
 export var changePermission = async function (abi: any, passportAddress: string, value) {
   var contract = createInstance(abi, passportAddress);
   var trxHash: any;
