@@ -1,5 +1,5 @@
 
-export default performAsync = function (promise) {
+var performAsync = function (promise) {
   return new Promise((resolve, reject) => {
     promise((err, res) => {
       if (err) {
@@ -10,3 +10,5 @@ export default performAsync = function (promise) {
     })
   });
 }
+
+export default performAsync;

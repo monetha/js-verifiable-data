@@ -1,10 +1,13 @@
+import performAsync from './performAsync';
 
-export default loader = function (trxHash) {
+var globalWindow: any = window;
+
+var loader = function (trxHash: string) {
   return new Promise((resolve, reject) => {
     let result;
     const timeInterval = setInterval(async function () {
       try {
-        result = await performAsync(window.web3.eth.getTransactionReceipt.bind(null, trxHash));
+        result = await performAsync(globalWindow.web3.eth.getTransactionReceipt.bind(null, trxHash));
       } catch (err) {
         reject(err);
       }
@@ -15,3 +18,5 @@ export default loader = function (trxHash) {
     }, 1000);
   })
 }
+
+export default loader

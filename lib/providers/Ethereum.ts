@@ -1,6 +1,9 @@
+var globalWindow: any = window;
+
 class Ethereum {
+  contract: any;
   constructor(abi) {
-    web3 = window.web3;
+    var web3: any = globalWindow.web3;
     this.contract = web3.eth.contract(abi);
   }
 
@@ -9,4 +12,4 @@ class Ethereum {
   }
 }
 
-module.exports = Ethereum;
+export default Ethereum;

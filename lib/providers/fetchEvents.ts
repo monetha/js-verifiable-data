@@ -1,7 +1,9 @@
 
-export default fetchEvents = async function (address) {
+var globalWindow: any = window;
 
-  var filter = window.web3.eth.filter({
+var fetchEvents = async function (address) {
+
+  var filter = globalWindow.web3.eth.filter({
     fromBlock: 0,
     toBlock: 'latest',
     address: address
@@ -21,3 +23,5 @@ export default fetchEvents = async function (address) {
  
   return events;
 };
+
+export default fetchEvents;

@@ -1,10 +1,11 @@
 import createInstance from '../providers/createInstance';
 import performAsync from '../providers/performAsync';
 
-export default readPassportFacts = async function (abi, passportAddress, factProviderAddress, dataType, key) {
+var globalWindow: any = window;
+var readPassportFacts = async function (abi: any, passportAddress: string, factProviderAddress: string, dataType: string, key: string) {
   var contract = createInstance(abi, passportAddress);
-  key = window.web3.fromAscii(key);
-  var selectedMethod;
+  key = globalWindow.web3.fromAscii(key);
+  var selectedMethod: any;
   switch (dataType) {
     case "string": {
       selectedMethod = contract.getString.bind(null, factProviderAddress, key);
@@ -35,6 +36,8 @@ export default readPassportFacts = async function (abi, passportAddress, factPro
     }
       break;
   }
-  result = await performAsync(selectedMethod);
+  var result: any = await performAsync(selectedMethod);
   return result;
 }
+
+export default readPassportFacts;

@@ -2,12 +2,18 @@ import createInstance from '../providers/createInstance';
 import performAsync from '../providers/performAsync';
 import loader from '../providers/loader';
 
-export default writePassportFacts = async function (abi, passportAddress, dataType, data) {
+interface IData {
+  key: string;
+  value: any;
+}
 
+var globalWindow: any = window;
+var writePassportFacts = async function (abi: any, passportAddress: string, dataType: string, data: IData) {
+  
   var contract = createInstance(abi, passportAddress);
-  var key = window.web3.fromAscii(data.key);
-  var selectedMethod;
-  var trxHash;
+  var key: string = globalWindow.web3.fromAscii(data.key);
+  var selectedMethod: any;
+  var trxHash: any;
 
   switch (dataType) {
     case "string": {
@@ -41,10 +47,12 @@ export default writePassportFacts = async function (abi, passportAddress, dataTy
   }
 
   try {
-    var trxHash = await performAsync(selectedMethod);
+    trxHash = await performAsync(selectedMethod);
   } catch (err) {
     return err;
   }
   var result = await loader(trxHash);
   return result;
 }
+
+export default writePassportFacts;
