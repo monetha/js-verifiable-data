@@ -2,20 +2,18 @@
 	"name": "ico-sdk",
 	"version": "1.0.0",
 	"description": "",
-	"main": "./lib/proto.js",
+	"main": "./dist/proto.js",
 	"scripts": {
-		"test": "mocha --timeout 200000"
+		"test": "mocha --timeout 200000",
+		"postinstall": "./node_modules/.bin/tsc"
 	},
 	"devDependencies": {
+		"@types/es6-shim": "^0.31.39",
 		"@types/node": "^10.12.2",
 		"chai": "^3.5.0",
-		"mocha": "^3.3.0",
-		"replay": "^2.1.2",
-		"sinon": "^2.2.0"
+		"mocha": "^3.3.0"
 	},
 	"dependencies": {
-		"async": "^2.4.0",
-		"lodash": "^4.17.4",
 		"typescript": "^3.1.6",
 		"web3": "^1.0.0-beta.36"
 	},
