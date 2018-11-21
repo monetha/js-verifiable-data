@@ -1,9 +1,9 @@
 
-var globalWindow: any = window;
+const globalWindow: any = window;
 
-var fetchEvents = async function (address) {
+const fetchEvents = async function (address) {
 
-  var filter = globalWindow.web3.eth.filter({
+  const filter = globalWindow.web3.eth.filter({
     fromBlock: 0,
     toBlock: 'latest',
     address: address
@@ -19,7 +19,7 @@ var fetchEvents = async function (address) {
     })
   })
 
-  var events = await getAsync();
+  const events = await getAsync();
  
   return events;
 };

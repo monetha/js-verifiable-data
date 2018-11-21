@@ -1,9 +1,9 @@
-var globalWindow: any = window;
+const globalWindow: any = window;
 
 class Ethereum {
   contract: any;
   constructor(abi) {
-    var web3: any = globalWindow.web3;
+    const web3: any = globalWindow.web3;
     this.contract = web3.eth.contract(abi);
   }
 

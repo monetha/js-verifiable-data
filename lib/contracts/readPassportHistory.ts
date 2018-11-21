@@ -7,12 +7,12 @@ interface IFilteredFact {
   key: string;
 }
 
-var globalWindow: any = window;
-var readPassportHistory = async function (factoryAddress: string) {
+const globalWindow: any = window;
+const readPassportHistory = async function (factoryAddress: string) {
 
-  var facts  = await fetchEvents(factoryAddress);
+  let facts  = await fetchEvents(factoryAddress);
   facts = (facts as Array<any>).map((fact) => {
-    var filteredFact: IFilteredFact;
+    let filteredFact: IFilteredFact;
     filteredFact.blockNumber = fact.blockNumber;
     filteredFact.transactionHash = fact.transactionHash;
     filteredFact.factProviderAddress = '0x' + fact.topics[1].slice(26);

@@ -2,13 +2,13 @@ import createInstance from '../providers/createInstance';
 import performAsync from '../providers/performAsync';
 import loader from '../providers/loader';
 
-var globalWindow: any = window;
-var deletePassportFacts = async function (abi: any, passportAddress: string, dataType: string, key: string) {
+const globalWindow: any = window;
+const deletePassportFacts = async function (abi: any, passportAddress: string, dataType: string, key: string) {
   
-  var contract = createInstance(abi, passportAddress);
+  const contract = createInstance(abi, passportAddress);
   key = globalWindow.web3.fromAscii(key);
-  var selectedMethod: any;
-  var trxHash: any;
+  let selectedMethod: any;
+  let trxHash: any;
 
   switch (dataType) {
     case "string": {
@@ -46,7 +46,7 @@ var deletePassportFacts = async function (abi: any, passportAddress: string, dat
   } catch (err) {
     return err;
   }
-  var result = await loader(trxHash);
+  const result = await loader(trxHash);
   return result;
 }
 

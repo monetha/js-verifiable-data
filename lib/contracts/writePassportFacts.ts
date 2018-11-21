@@ -7,13 +7,13 @@ interface IData {
   value: any;
 }
 
-var globalWindow: any = window;
-var writePassportFacts = async function (abi: any, passportAddress: string, dataType: string, data: IData) {
+const globalWindow: any = window;
+const writePassportFacts = async function (abi: any, passportAddress: string, dataType: string, data: IData) {
   
-  var contract = createInstance(abi, passportAddress);
-  var key: string = globalWindow.web3.fromAscii(data.key);
-  var selectedMethod: any;
-  var trxHash: any;
+  const contract = createInstance(abi, passportAddress);
+  const key: string = globalWindow.web3.fromAscii(data.key);
+  let selectedMethod: any;
+  let trxHash: any;
 
   switch (dataType) {
     case "string": {
@@ -51,7 +51,7 @@ var writePassportFacts = async function (abi: any, passportAddress: string, data
   } catch (err) {
     return err;
   }
-  var result = await loader(trxHash);
+  const result = await loader(trxHash);
   return result;
 }
 

@@ -1,8 +1,8 @@
 import performAsync from './performAsync';
 
-var globalWindow: any = window;
+const globalWindow: any = window;
 
-var loader = function (trxHash: string) {
+const loader = function (trxHash: string) {
   return new Promise((resolve, reject) => {
     let result;
     const timeInterval = setInterval(async function () {

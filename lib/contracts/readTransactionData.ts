@@ -1,11 +1,11 @@
 import * as abiDecoder from 'abi-decoder';
 import performAsync from '../providers/performAsync';
 
-var globalWindow: any = window;
-var readTransactionData = async function (abi: any, trxHash: string) {
+const globalWindow: any = window;
+const readTransactionData = async function (abi: any, trxHash: string) {
 
   abiDecoder.addABI(abi);
-  var result: any;
+  let result: any;
   try {
     result = await performAsync(globalWindow.web3.eth.getTransaction.bind(null, trxHash));
   } catch(err) {

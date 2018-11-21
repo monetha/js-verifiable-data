@@ -6,12 +6,12 @@ interface IFilteredEvents {
   passportAddress: string;
   ownerAddress: string;
 }
-var getPassportLists = async function (factoryAddress: string) {
+const getPassportLists = async function (factoryAddress: string) {
 
-  var events = await fetchEvents(factoryAddress);
+  let events = await fetchEvents(factoryAddress);
   events = (events as Array<any>).map((event) => {
 
-    var filteredEvent: IFilteredEvents;
+    let filteredEvent: IFilteredEvents;
 
     filteredEvent.blockNumber = event.blockNumber;
     filteredEvent.blockHash = event.blockHash;

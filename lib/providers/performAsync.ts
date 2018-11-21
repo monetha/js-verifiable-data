@@ -1,5 +1,5 @@
 
-var performAsync = function (promise) {
+const performAsync = function (promise) {
   return new Promise((resolve, reject) => {
     promise((err, res) => {
       if (err) {
