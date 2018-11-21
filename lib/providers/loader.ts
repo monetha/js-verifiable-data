@@ -9,6 +9,7 @@ var loader = function (trxHash: string) {
       try {
         result = await performAsync(globalWindow.web3.eth.getTransactionReceipt.bind(null, trxHash));
       } catch (err) {
+        clearInterval(timeInterval);
         reject(err);
       }
       if (result) {
