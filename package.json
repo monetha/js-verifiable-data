@@ -8,7 +8,6 @@
 		"postinstall": "./node_modules/.bin/tsc"
 	},
 	"devDependencies": {
-		"@types/es6-shim": "^0.31.39",
 		"@types/node": "^10.12.2",
 		"chai": "^3.5.0",
 		"mocha": "^3.3.0"
