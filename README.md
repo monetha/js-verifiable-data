@@ -37,6 +37,9 @@ Prepare in advance the address that will be the owner of the deployed contracts.
 
 ## Usage
 
+`import sdk from 'protocol-sdk'`
+`sdk.createPassport()`
+
 In order to create a passport and start using it, you need to use auxiliary reputation protocol contracts: PassportLogic, PassportLogicRegistry, PassportFactory.
 
 ### Deploying passport
