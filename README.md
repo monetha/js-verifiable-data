@@ -1,7 +1,9 @@
-# Ico-sdk
+# Monetha: Decentralized Reputation Framework
+
+# Reputation Layer: js-sdk
 
 * [Introduction](#introduction)
-* [Bootstrap reputation protocol](#bootstrap-reputation-protocol)
+* [Bootstrap reputation layer](#bootstrap-reputation-layer)
 * [Usage](#usage)
     * [Deploying passport](#deploying-passport)
     * [Passport list](#passport-list)
@@ -14,9 +16,9 @@
 
 Ico-sdk is a fully featured promise library with focus on inetracting with Ico analyzing contracts on ethereum.
 
-## Bootstrap reputation protocol
+## Bootstrap reputation layer
 
-Monetha has already deployed this set of auxiliary reputation protocol contracts on Ropsten test network. The contract addresses deployed on Ropsten:
+Monetha has already deployed this set of auxiliary reputation contracts on Ropsten test network. The contract addresses deployed on Ropsten:
 
 | Contract      | Address                                      |
 |---------------|----------------------------------------------|
