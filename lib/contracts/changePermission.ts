@@ -15,6 +15,40 @@ export const addFactProviderToWhitelist = async function (abi: any, passportAddr
   return result;
 };
 
+
+export const isFactProviderInWhitelist = async function (abi: any, passportAddress: string, factProvider: string) {
+  const contract = createInstance(abi, passportAddress);
+  let result: any;
+  try {
+    result = await performAsync(contract.isFactProviderInWhitelist.bind(null, factProvider));
+  } catch (err) {
+    return err;
+  }
+  return result;
+};
+
+export const isWhitelistOnlyPermissionSet = async function (abi: any, passportAddress: string) {
+  const contract = createInstance(abi, passportAddress);
+  let result: any;
+  try {
+    result = await performAsync(contract.isWhitelistOnlyPermissionSet.bind(null));
+  } catch (err) {
+    return err;
+  }
+  return result;
+};
+
+export const isAllowedFactProvider = async function (abi: any, passportAddress: string, factProvider: string) {
+  const contract = createInstance(abi, passportAddress);
+  let result: any;
+  try {
+    result = await performAsync(contract.isAllowedFactProvider.bind(null, factProvider));
+  } catch (err) {
+    return err;
+  }
+  return result;
+};
+
 export const removeFactProviderFromWhitelist = async function (abi: any, passportAddress: string, factProvider: string) {
   const contract = createInstance(abi, passportAddress);
   let trxHash: any;
