@@ -9,12 +9,18 @@ interface IReturn {
   "err": any;
 }
 
+// Class to change and check permissions for factProviders to any specific passport
+// constructor(passportAddress)
 export class Permissions {
   contract: any;
 
   constructor(atAddress: string) {
     this.contract = createInstance(abi.PassportLogic.abi, atAddress);
   }
+
+  //method to add factProvider to whitelist
+  //addFactProviderToWhitelist(factProvider Address)
+
   async addFactProviderToWhitelist(factProvider: string): Promise<IReturn> {
     let trxHash: any;
     let result: IReturn = {"res": true, "err": null};
@@ -33,6 +39,8 @@ export class Permissions {
     return result;
   }
 
+  //method to check if factProvider is in whitelist
+  //isFactProviderInWhitelist(factProvider Address)
   async isFactProviderInWhitelist(factProvider: string): Promise<IReturn> {
     let result: any;
     let txResult: IReturn = {"res": true, "err": null};
@@ -47,6 +55,7 @@ export class Permissions {
     return txResult;
   };
   
+  //method to check if whitelist permission is set.
   async isWhitelistOnlyPermissionSet(): Promise<IReturn> {
     let result: any;
     let txResult: IReturn = {"res": true, "err": null};
@@ -61,6 +70,8 @@ export class Permissions {
     return txResult;
   };
   
+  //method to check if factProvider is in whitelist
+  //isFactProviderInWhitelist(factProvider Address)
   async isAllowedFactProvider(factProvider: string): Promise<IReturn> {
     let result: any;
     let txResult: IReturn = {"res": true, "err": null};
@@ -75,6 +86,9 @@ export class Permissions {
     return txResult;
   };
   
+  //method to remove factProvider to whitelist
+  //removeFactProviderFromWhitelist(factProvider Address)
+
   async removeFactProviderFromWhitelist(factProvider: string): Promise<IReturn> {
     let trxHash: any;
     let result: IReturn = {"res": true, "err": null};
@@ -93,6 +107,9 @@ export class Permissions {
     return result;
   };
   
+  //method to change permission of writing fats to passport
+  //changePermission(true/false)
+
   async changePermission(value: Boolean): Promise<IReturn> {
     let trxHash: any;
     let result: IReturn = {"res": true, "err": null};
