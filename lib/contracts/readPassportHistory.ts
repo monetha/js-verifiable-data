@@ -8,10 +8,11 @@ interface IFilteredFact {
 }
 
 const globalWindow: any = window;
-const readPassportHistory = async function (factoryAddress: string) {
+const readPassportHistory = async function (factoryAddress: string): Promise<Array<IFilteredFact>> {
 
   let facts  = await fetchEvents(factoryAddress);
-  facts = (facts as Array<any>).map((fact) => {
+  let filteredFacts: Array<IFilteredFact>;
+  filteredFacts = (facts as Array<any>).map((fact) => {
     let filteredFact: IFilteredFact;
     filteredFact.blockNumber = fact.blockNumber;
     filteredFact.transactionHash = fact.transactionHash;
@@ -20,8 +21,7 @@ const readPassportHistory = async function (factoryAddress: string) {
   
     return filteredFact;
   });
-
-  return facts;
+  return filteredFacts;
 }
 
 export default readPassportHistory;

@@ -1,6 +1,7 @@
 import createInstance from '../providers/createInstance';
 import performAsync from '../providers/performAsync';
 import loader from '../providers/loader';
+import abi from '../../config/abis';
 
 
 interface IReturn {
@@ -8,14 +9,14 @@ interface IReturn {
   "err": any;
 }
 
-export class CreatePassport {
+export class PassportGenerator {
   contract: any;
 
-  constructor(abi: any, atAddress: string) {
-    this.contract = createInstance(abi, atAddress);
+  constructor() {
+    this.contract = createInstance(abi.PassportFactory.abi, abi.PassportFactory.at);
   }
 
-  async generateEmptyPassport(): Promise<IReturn> {
+  async createPassport(): Promise<IReturn> {
     let trxHash: any;
     let result: IReturn = {"res": null, "err": null};
     try {
@@ -36,4 +37,4 @@ export class CreatePassport {
   }
 }
 
-export default CreatePassport;
+export default PassportGenerator;

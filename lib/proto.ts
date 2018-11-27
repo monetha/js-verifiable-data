@@ -1,21 +1,19 @@
-import createPassport from './contracts/createPassport';
-import readPassportFacts from './contracts/readPassportFacts';
+import PassportGenerator from './contracts/createPassport';
+import FactReader from './contracts/readPassportFacts';
 import getPassportLists from './contracts/getPassportLists';
-import writePassportFacts from './contracts/writePassportFacts';
-import deletePassportFacts from './contracts/deletePassportFacts';
-import readTransactionData from './contracts/readTransactionData';
-import { addFactProviderToWhitelist, changePermission, removeFactProviderFromWhitelist } from './contracts/changePermission';
+import FactWriter from './contracts/writePassportFacts';
+import FactRemover from './contracts/deletePassportFacts';
+import TransactionReader from './contracts/readTransactionData';
+import Permissions from './contracts/changePermission';
 import readPassportHistory  from './contracts/readPassportHistory';
 
 export default {
-  createPassport,
-  readPassportFacts,
+  PassportGenerator,
+  FactReader,
   getPassportLists,
-  writePassportFacts,
-  addFactProviderToWhitelist,
-  changePermission,
+  FactWriter,
+  Permissions,
   readPassportHistory,
-  removeFactProviderFromWhitelist,
-  deletePassportFacts,
-  readTransactionData
+  FactRemover,
+  TransactionReader
 };

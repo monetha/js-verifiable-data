@@ -1,6 +1,7 @@
 import createInstance from '../providers/createInstance';
 import performAsync from '../providers/performAsync';
 import loader from '../providers/loader';
+import abi from '../../config/abis';
 
 interface IReturn {
   "res": Boolean;
@@ -8,11 +9,11 @@ interface IReturn {
 }
 const globalWindow: any = window;
 
-export class deletePassportFacts {
+export class FactRemover {
   contract: any;
 
-  constructor(abi: any, atAddress?: string) {
-    this.contract = createInstance(abi, atAddress);
+  constructor(atAddress: string) {
+    this.contract = createInstance(abi.PassportLogic.abi, atAddress);
   }
 
   async deleteString(key: string): Promise<IReturn> {
@@ -137,4 +138,4 @@ export class deletePassportFacts {
   }
 }
 
-export default deletePassportFacts;
+export default FactRemover;

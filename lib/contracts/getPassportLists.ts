@@ -9,8 +9,8 @@ interface IFilteredEvents {
 const getPassportLists = async function (factoryAddress: string): Promise<Array<IFilteredEvents>> {
 
   let events = await fetchEvents(factoryAddress);
-  let fileteredEvents: Array<IFilteredEvents>;
-  fileteredEvents = (events as Array<any>).map((event) => {
+  let filteredEvents: Array<IFilteredEvents>;
+  filteredEvents = (events as Array<any>).map((event) => {
 
     let filteredEvent: IFilteredEvents;
 
@@ -22,7 +22,7 @@ const getPassportLists = async function (factoryAddress: string): Promise<Array<
     return filteredEvent;
   });
 
-  return fileteredEvents;
+  return filteredEvents;
 }
 
 export default getPassportLists;

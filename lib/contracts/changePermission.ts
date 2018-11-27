@@ -1,76 +1,116 @@
 import createInstance from '../providers/createInstance';
 import performAsync from '../providers/performAsync';
 import loader from '../providers/loader';
-
-export const addFactProviderToWhitelist = async function (abi: any, passportAddress: string, factProvider: string) {
-  const contract = createInstance(abi, passportAddress);
-  let trxHash: any;
-  try {
-    trxHash = await performAsync(contract.addFactProviderToWhitelist.bind(null, factProvider));
-  } catch (err) {
-    return err;
-  }
-  const result: any = await loader(trxHash);
-
-  return result;
-};
+import abi from '../../config/abis';
 
 
-export const isFactProviderInWhitelist = async function (abi: any, passportAddress: string, factProvider: string) {
-  const contract = createInstance(abi, passportAddress);
-  let result: any;
-  try {
-    result = await performAsync(contract.isFactProviderInWhitelist.bind(null, factProvider));
-  } catch (err) {
-    return err;
-  }
-  return result;
-};
-
-export const isWhitelistOnlyPermissionSet = async function (abi: any, passportAddress: string) {
-  const contract = createInstance(abi, passportAddress);
-  let result: any;
-  try {
-    result = await performAsync(contract.isWhitelistOnlyPermissionSet.bind(null));
-  } catch (err) {
-    return err;
-  }
-  return result;
-};
-
-export const isAllowedFactProvider = async function (abi: any, passportAddress: string, factProvider: string) {
-  const contract = createInstance(abi, passportAddress);
-  let result: any;
-  try {
-    result = await performAsync(contract.isAllowedFactProvider.bind(null, factProvider));
-  } catch (err) {
-    return err;
-  }
-  return result;
-};
-
-export const removeFactProviderFromWhitelist = async function (abi: any, passportAddress: string, factProvider: string) {
-  const contract = createInstance(abi, passportAddress);
-  let trxHash: any;
-  try {
-    trxHash = await performAsync(contract.removeFactProviderFromWhitelist.bind(null, factProvider));
-  } catch (err) {
-    return err;
-  }
-  const result: any = await loader(trxHash);
-
-  return result;
-};
-
-export const changePermission = async function (abi: any, passportAddress: string, value) {
-  const contract = createInstance(abi, passportAddress);
-  let trxHash: any;
-  try {
-    trxHash = await performAsync(contract.setWhitelistOnlyPermission.bind(null, value));
-  } catch (err) {
-    return err;
-  }
-  const result: any = await loader(trxHash);
-
-  return result;
+interface IReturn {
+  "res": Boolean;
+  "err": any;
 }
+
+export class Permissions {
+  contract: any;
+
+  constructor(atAddress: string) {
+    this.contract = createInstance(abi.PassportLogic.abi, atAddress);
+  }
+  async addFactProviderToWhitelist(factProvider: string): Promise<IReturn> {
+    let trxHash: any;
+    let result: IReturn = {"res": true, "err": null};
+    try {
+      trxHash = await performAsync(this.contract.addFactProviderToWhitelist.bind(null, factProvider));
+    } catch (err) {
+      result.res = false;
+      result.err = err;
+      return result;
+    }
+    const txResult = await loader(trxHash);
+    if(txResult.err) {
+      result.res = false;
+      result.err = txResult.err;
+    } 
+    return result;
+  }
+
+  async isFactProviderInWhitelist(factProvider: string): Promise<IReturn> {
+    let result: any;
+    let txResult: IReturn = {"res": true, "err": null};
+    try {
+      result = await performAsync(this.contract.isFactProviderInWhitelist.bind(null, factProvider));
+    } catch (err) {
+      txResult.res = null;
+      txResult.err = err;
+      return err;
+    }
+    txResult.res = result;
+    return txResult;
+  };
+  
+  async isWhitelistOnlyPermissionSet(): Promise<IReturn> {
+    let result: any;
+    let txResult: IReturn = {"res": true, "err": null};
+    try {
+      result = await performAsync(this.contract.isWhitelistOnlyPermissionSet.bind(null));
+    } catch (err) {
+      txResult.res = null;
+      txResult.err = err;
+      return err;
+    }
+    txResult.res = result;
+    return txResult;
+  };
+  
+  async isAllowedFactProvider(factProvider: string): Promise<IReturn> {
+    let result: any;
+    let txResult: IReturn = {"res": true, "err": null};
+    try {
+      result = await performAsync(this.contract.isAllowedFactProvider.bind(null, factProvider));
+    } catch (err) {
+      txResult.res = null;
+      txResult.err = err;
+      return err;
+    }
+    txResult.res = result;
+    return txResult;
+  };
+  
+  async removeFactProviderFromWhitelist(factProvider: string): Promise<IReturn> {
+    let trxHash: any;
+    let result: IReturn = {"res": true, "err": null};
+    try {
+      trxHash = await performAsync(this.contract.removeFactProviderFromWhitelist.bind(null, factProvider));
+    } catch (err) {
+      result.res = false;
+      result.err = err;
+      return result;
+    }
+    const txResult = await loader(trxHash);
+    if(txResult.err) {
+      result.res = false;
+      result.err = txResult.err;
+    } 
+    return result;
+  };
+  
+  async changePermission(value: Boolean): Promise<IReturn> {
+    let trxHash: any;
+    let result: IReturn = {"res": true, "err": null};
+    try {
+      trxHash = await performAsync(this.contract.setWhitelistOnlyPermission.bind(null, value));
+    } catch (err) {
+      result.res = false;
+      result.err = err;
+      return result;
+    }
+    const txResult = await loader(trxHash);
+    if(txResult.err) {
+      result.res = false;
+      result.err = txResult.err;
+    } 
+    return result;
+  }
+  
+}
+
+export default Permissions;

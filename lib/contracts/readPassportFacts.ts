@@ -1,6 +1,6 @@
 import createInstance from '../providers/createInstance';
 import performAsync from '../providers/performAsync';
-
+import abi from '../../config/abis';
 
 interface IReturnString {
   "res": string;
@@ -15,16 +15,16 @@ interface IReturnBool {
   "err": any;
 }
 interface IReturnBytes {
-  "res": ByteLengthChunk;
+  "res": Array<Number>;
   "err": any;
 }
 const globalWindow: any = window;
 
-export class readPassportFacts {
+export class FactReader {
   contract: any;
 
-  constructor(abi: any, atAddress?: string) {
-    this.contract = createInstance(abi, atAddress);
+  constructor(atAddress: string) {
+    this.contract = createInstance(abi.PassportLogic.abi, atAddress);
   }
 
   async getString(factProviderAddress: string, key: string): Promise<IReturnString> {
@@ -126,4 +126,4 @@ export class readPassportFacts {
   }
 }
 
-export default readPassportFacts;
+export default FactReader;

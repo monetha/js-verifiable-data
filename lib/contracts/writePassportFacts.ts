@@ -1,6 +1,7 @@
 import createInstance from '../providers/createInstance';
 import performAsync from '../providers/performAsync';
 import loader from '../providers/loader';
+import abi from '../../config/abis';
 
 interface IReturn {
   "res": Boolean;
@@ -8,11 +9,11 @@ interface IReturn {
 }
 const globalWindow: any = window;
 
-export class writePassportFacts {
+export class FactWriter {
   contract: any;
 
-  constructor(abi: any, atAddress?: string) {
-    this.contract = createInstance(abi, atAddress);
+  constructor(atAddress: string) {
+    this.contract = createInstance(abi.PassportLogic.abi, atAddress);
   }
 
   async setString(key: string, value: string): Promise<IReturn> {
@@ -34,7 +35,7 @@ export class writePassportFacts {
     return result;
   }
 
-  async setBytes(key: string, value: ByteLengthChunk): Promise<IReturn> {
+  async setBytes(key: string, value: Array<Number>): Promise<IReturn> {
     let trxHash: any;
     let result: IReturn = {"res": true, "err": null};
     key = globalWindow.web3.fromAscii(key);
@@ -119,7 +120,7 @@ export class writePassportFacts {
     return result;
   }
 
-  async setTxdata(key: string, value: ByteLengthChunk): Promise<IReturn> {
+  async setTxdata(key: string, value:  Array<Number>): Promise<IReturn> {
     let trxHash: any;
     let result: IReturn = {"res": true, "err": null};
     key = globalWindow.web3.fromAscii(key);
@@ -137,4 +138,4 @@ export class writePassportFacts {
   }
 }
 
-export default writePassportFacts;
+export default FactWriter;
