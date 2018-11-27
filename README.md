@@ -14,7 +14,7 @@
 
 ## Introduction
 
-Ico-sdk is a fully featured promise library with focus on inetracting with Ico analyzing contracts on ethereum.
+Reputation-sdk is a fully featured promise library with focus on inetracting with Ico analyzing contracts on ethereum.
 
 ## Bootstrap reputation layer
 
@@ -38,7 +38,7 @@ Prepare in advance the address that will be the owner of the deployed contracts.
 ## Usage
 
 `import sdk from 'protocol-sdk'`
-`sdk.createPassport()`
+`const generator = new sdk.PassportGenerator()`
 
 In order to create a passport and start using it, you need to use auxiliary reputation protocol contracts: PassportLogic, PassportLogicRegistry, PassportFactory.
 
@@ -52,7 +52,9 @@ using the `PassportFactory` contract deployed by Monetha ([`0x87b7Ec2602Da6C9e4D
 
 
 ```
-createPassport()
+import sdk from 'protocol-sdk'
+const generator = new sdk.PassportGenerator()
+generator.createPassport()
 ```
 
 You will get the contractAddress of passport in output of the function.
@@ -66,7 +68,8 @@ Let's try to get a list of all passports using the address of `PassportFactory` 
 in Ropsten network:
 
 ```
-getPassportLists("0x87b7Ec2602Da6C9e4D563d788e1e29C064A364a2")
+import sdk from 'protocol-sdk'
+sdk.getPassportLists("0x87b7Ec2602Da6C9e4D563d788e1e29C064A364a2")
 ```
 
 You should get something like this Array of objects:
@@ -98,8 +101,11 @@ using the SDK, within the contracts this data is not available.
 Let's try to store string  `hello` under the key `greetings` as `string` in passport
 `<passportAddress>`:
 
+
 ```
-writePassportFacts(<passportLogicAbi>, <passportAddress>, "string", {"key": "greetings", "value": "hello"})
+import sdk from 'protocol-sdk'
+const writer = new sdk.FactWriter(<passportAddress>)
+writer.setString("greetings", "hello")
 ```
 
 Also user can delete the data stored from the passport.
@@ -108,7 +114,9 @@ Let's try to delete string  `hello` under the key `greetings` as `string` in pas
 `<passportAddress>`:
 
 ```
-deletePassportFacts(<passportLogicAbi>, <passportAddress>, "string", "greetings"})
+import sdk from 'protocol-sdk'
+const remover = new sdk.FactRemover(<passportAddress>)
+remover.deleteString("greetings")
 ```
 
 ### Reading facts
@@ -121,7 +129,9 @@ Let's try to retrieve string from passport `<passportAddress>` that was stored b
 `<factProviderAddress>` under the key `greetings` as `string` data type:
 
 ```
-readPassportFacts(<passportLogicAbi>, <passportAddress>, <factProviderAddress>, "string", "greetings")
+import sdk from 'protocol-sdk'
+const reader = new sdk.FactReader(<passportAddress>)
+reader.getString(<factProviderAddress>, "greetings")
 ```
 
 ### Changing passport permissions
