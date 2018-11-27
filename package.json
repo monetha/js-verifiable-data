@@ -1,0 +1,25 @@
+{
+	"name": "ico-sdk",
+	"version": "1.0.0",
+	"description": "",
+	"main": "./dist/proto.js",
+	"scripts": {
+		"test": "mocha --timeout 200000",
+		"postinstall": "./node_modules/.bin/tsc"
+	},
+	"devDependencies": {
+		"@types/node": "^10.12.2",
+		"chai": "^3.5.0",
+		"mocha": "^3.3.0"
+	},
+	"dependencies": {
+		"abi-decoder": "^1.2.0",
+		"typescript": "^3.1.6",
+		"web3": "^1.0.0-beta.36"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://gitlab.com/monetha/protocol-js-sdk.git"
+	},
+	"author": "Shanu Goyanka"
+}
