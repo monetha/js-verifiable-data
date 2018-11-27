@@ -2,52 +2,139 @@ import createInstance from '../providers/createInstance';
 import performAsync from '../providers/performAsync';
 import loader from '../providers/loader';
 
+interface IReturn {
+  "res": Boolean;
+  "err": any;
+}
 const globalWindow: any = window;
-const deletePassportFacts = async function (abi: any, passportAddress: string, dataType: string, key: string) {
-  
-  const contract = createInstance(abi, passportAddress);
-  key = globalWindow.web3.fromAscii(key);
-  let selectedMethod: any;
-  let trxHash: any;
 
-  switch (dataType) {
-    case "string": {
-      selectedMethod = contract.deleteString.bind(null, key);
-    }
-      break;
-    case "bytes": {
-      selectedMethod = contract.deleteBytes.bind(null, key);
-    }
-      break;
-    case "address": {
-      selectedMethod = contract.deleteAddress.bind(null, key);
-    }
-      break;
-    case "uint": {
-      selectedMethod = contract.deleteUint.bind(null, key);
-    }
-      break;
-    case "int": {
-      selectedMethod = contract.deleteInt.bind(null, key);
-    }
-      break;
-    case "bool": {
-      selectedMethod = contract.deleteBool.bind(null, key);
-    }
-      break;
-    case "txdata": {
-      selectedMethod = contract.deleteTxDataBlockNumber.bind(null, key);
-    }
-      break;
+export class deletePassportFacts {
+  contract: any;
+
+  constructor(abi: any, atAddress?: string) {
+    this.contract = createInstance(abi, atAddress);
   }
 
-  try {
-    trxHash = await performAsync(selectedMethod);
-  } catch (err) {
-    return err;
+  async deleteString(key: string): Promise<IReturn> {
+    let trxHash: any;
+    let result: IReturn = {"res": true, "err": null};
+    key = globalWindow.web3.fromAscii(key);
+    try {
+      trxHash = await performAsync(this.contract.deleteString.bind(null, key));
+    } catch (err) {
+      result.res = false;
+      result.err = err;
+      return result;
+    }
+    const txResult = await loader(trxHash);
+    if(txResult.err) {
+      result.res = false;
+      result.err = txResult.err;
+    } 
+    return result;
   }
-  const result = await loader(trxHash);
-  return result;
+
+  async deleteBytes(key: string): Promise<IReturn> {
+    let trxHash: any;
+    let result: IReturn = {"res": true, "err": null};
+    key = globalWindow.web3.fromAscii(key);
+    try {
+      trxHash = await performAsync(this.contract.deleteBytes.bind(null, key));
+    } catch (err) {
+      return err;
+    }
+    const txResult = await loader(trxHash);
+    if(txResult.err) {
+      result.res = false;
+      result.err = txResult.err;
+    } 
+    return result;
+  }
+
+  async deleteAddress(key: string): Promise<IReturn> {
+    let trxHash: any;
+    let result: IReturn = {"res": true, "err": null};
+    key = globalWindow.web3.fromAscii(key);
+    try {
+      trxHash = await performAsync(this.contract.deleteAddress.bind(null, key));
+    } catch (err) {
+      return err;
+    }
+    const txResult = await loader(trxHash);
+    if(txResult.err) {
+      result.res = false;
+      result.err = txResult.err;
+    } 
+    return result;
+  }
+
+  async deleteUint(key: string): Promise<IReturn> {
+    let trxHash: any;
+    let result: IReturn = {"res": true, "err": null};
+    key = globalWindow.web3.fromAscii(key);
+    try {
+      trxHash = await performAsync(this.contract.deleteUint.bind(null, key));
+    } catch (err) {
+      return err;
+    }
+    const txResult = await loader(trxHash);
+    if(txResult.err) {
+      result.res = false;
+      result.err = txResult.err;
+    } 
+    return result;
+  }
+
+  async deleteInt(key: string): Promise<IReturn> {
+    let trxHash: any;
+    let result: IReturn = {"res": true, "err": null};
+    key = globalWindow.web3.fromAscii(key);
+    try {
+      trxHash = await performAsync(this.contract.deleteInt.bind(null, key));
+    } catch (err) {
+      return err;
+    }
+    const txResult = await loader(trxHash);
+    if(txResult.err) {
+      result.res = false;
+      result.err = txResult.err;
+    } 
+    return result;
+  }
+
+  async deleteBool(key: string): Promise<IReturn> {
+    let trxHash: any;
+    let result: IReturn = {"res": true, "err": null};
+    key = globalWindow.web3.fromAscii(key);
+    try {
+      trxHash = await performAsync(this.contract.deleteBool.bind(null, key));
+    } catch (err) {
+      return err;
+    }
+    const txResult = await loader(trxHash);
+    if(txResult.err) {
+      result.res = false;
+      result.err = txResult.err;
+    } 
+    return result;
+  }
+
+  async deleteTxdata(key: string): Promise<IReturn> {
+    let trxHash: any;
+    let result: IReturn = {"res": true, "err": null};
+    key = globalWindow.web3.fromAscii(key);
+    try {
+      trxHash = await performAsync(this.contract.deleteTxDataBlockNumber.bind(null, key));
+    } catch (err) {
+      return err;
+    }
+    const txResult = await loader(trxHash);
+    if(txResult.err) {
+      result.res = false;
+      result.err = txResult.err;
+    } 
+    return result;
+  }
 }
 
 export default deletePassportFacts;

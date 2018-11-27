@@ -6,10 +6,11 @@ interface IFilteredEvents {
   passportAddress: string;
   ownerAddress: string;
 }
-const getPassportLists = async function (factoryAddress: string) {
+const getPassportLists = async function (factoryAddress: string): Promise<Array<IFilteredEvents>> {
 
   let events = await fetchEvents(factoryAddress);
-  events = (events as Array<any>).map((event) => {
+  let fileteredEvents: Array<IFilteredEvents>;
+  fileteredEvents = (events as Array<any>).map((event) => {
 
     let filteredEvent: IFilteredEvents;
 
@@ -21,7 +22,7 @@ const getPassportLists = async function (factoryAddress: string) {
     return filteredEvent;
   });
 
-  return events;
+  return fileteredEvents;
 }
 
 export default getPassportLists;
