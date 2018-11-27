@@ -9,6 +9,7 @@ interface IReturn {
 }
 const globalWindow: any = window;
 
+//Class to wirte facts to a particular passport for FactWriter
 export class FactWriter {
   contract: any;
 
@@ -16,6 +17,8 @@ export class FactWriter {
     this.contract = createInstance(abi.PassportLogic.abi, atAddress);
   }
 
+  //method to write string type from passport
+  //setString(key on which the string is to be stored, value)
   async setString(key: string, value: string): Promise<IReturn> {
     let trxHash: any;
     let result: IReturn = {"res": true, "err": null};
@@ -35,6 +38,8 @@ export class FactWriter {
     return result;
   }
 
+  //method to write bytes type from passport
+  //setBytes(key on which the bytes is to be stored, value)
   async setBytes(key: string, value: Array<Number>): Promise<IReturn> {
     let trxHash: any;
     let result: IReturn = {"res": true, "err": null};
@@ -52,6 +57,8 @@ export class FactWriter {
     return result;
   }
 
+  //method to write address type from passport
+  //setAddress(key on which the address is to be stored, value)
   async setAddress(key: string, value: string): Promise<IReturn> {
     let trxHash: any;
     let result: IReturn = {"res": true, "err": null};
@@ -69,6 +76,8 @@ export class FactWriter {
     return result;
   }
 
+  //method to write uint type from passport
+  //setUint(key on which the uint is to be stored, value)
   async setUint(key: string, value: Number): Promise<IReturn> {
     let trxHash: any;
     let result: IReturn = {"res": true, "err": null};
@@ -86,6 +95,8 @@ export class FactWriter {
     return result;
   }
 
+  //method to write int type from passport
+  //setInt(key on which the int is to be stored, value)
   async setInt(key: string, value: Number): Promise<IReturn> {
     let trxHash: any;
     let result: IReturn = {"res": true, "err": null};
@@ -103,6 +114,8 @@ export class FactWriter {
     return result;
   }
 
+  //method to write bool type from passport
+  //setBool(key on which the bool is to be stored, value)
   async setBool(key: string, value: Boolean): Promise<IReturn> {
     let trxHash: any;
     let result: IReturn = {"res": true, "err": null};
@@ -120,6 +133,8 @@ export class FactWriter {
     return result;
   }
 
+  //method to write big data type from passport
+  //setTxdata(key on which the big data is to be stored, value)
   async setTxdata(key: string, value:  Array<Number>): Promise<IReturn> {
     let trxHash: any;
     let result: IReturn = {"res": true, "err": null};

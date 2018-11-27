@@ -16,6 +16,7 @@ export class PassportGenerator {
     this.contract = createInstance(abi.PassportFactory.abi, abi.PassportFactory.at);
   }
 
+  //method to return the create an empty passport and return the passport Address
   async createPassport(): Promise<IReturn> {
     let trxHash: any;
     let result: IReturn = {"res": null, "err": null};

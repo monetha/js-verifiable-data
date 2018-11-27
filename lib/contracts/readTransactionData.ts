@@ -5,6 +5,7 @@ import abi from '../../config/abis';
 
 const globalWindow: any = window;
 
+//Class to read the data of transactions related to passort contracts
 export class TransactionReader {
   abiDecoder: any;
 
@@ -12,6 +13,7 @@ export class TransactionReader {
     this.abiDecoder = abiDecoder.addABI(abi.PassportLogic.abi);
   }
 
+  //method to return the transaction data using the transaction hash
   async getTrxData(trxHash: string): Promise<any> {
     let result: any;
     try {

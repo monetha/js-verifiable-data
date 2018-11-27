@@ -6,6 +6,8 @@ interface IFilteredEvents {
   passportAddress: string;
   ownerAddress: string;
 }
+
+//method to fetch all the passport created by a particular passportFactory address
 const getPassportLists = async function (factoryAddress: string): Promise<Array<IFilteredEvents>> {
 
   let events = await fetchEvents(factoryAddress);
