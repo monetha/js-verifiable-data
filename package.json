@@ -5,7 +5,7 @@
 	"main": "./dist/proto.js",
 	"scripts": {
 		"test": "mocha --timeout 200000",
-		"postinstall": "./node_modules/.bin/tsc && npm run test"
+		"postinstall": "./node_modules/.bin/tsc"
 	},
 	"devDependencies": {
 		"@types/node": "^10.12.2",
