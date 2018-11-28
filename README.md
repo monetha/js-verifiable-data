@@ -2,7 +2,10 @@
 
 # Reputation Layer: js-sdk
 
-* [Introduction](#introduction)
+* [Building the source](#building-the-source)
+    * [Prerequisites](#prerequisites)
+    * [Build](#build)
+    * [Executables](#executables)
 * [Bootstrap reputation layer](#bootstrap-reputation-layer)
 * [Usage](#usage)
     * [Deploying passport](#deploying-passport)
@@ -12,35 +15,42 @@
     * [Changing passport permissions](#changing-passport-permissions)
     * [Reading facts history](#reading-facts-history)
 
-## Introduction
+## Building the source
 
-Reputation-sdk is a fully featured promise library with focus on inetracting with Ico analyzing contracts on ethereum.
+### Prerequisites
+_TBD_
+
+### Build
+_TBD_
+
+### Executables
+_TBD_
 
 ## Bootstrap reputation layer
 
-Monetha has already deployed this set of auxiliary reputation contracts on Ropsten test network. The contract addresses deployed on Ropsten:
+Monetha has already deployed this set of auxiliary reputation layer contracts on Ropsten test network. The contract addresses deployed on Ropsten:
 
 | Contract      | Address                                      |
 |---------------|----------------------------------------------|
-| `PassportLogic` | [`0x4FBF5019E0B7B2470810e67E10aAA75A57319a9b`](https://ropsten.etherscan.io/address/0x4FBF5019E0B7B2470810e67E10aAA75A57319a9b) |
+| `PassportLogic` | [`0x0361a024040E7020251fF0756Bb40B8e136B9c9f`](https://ropsten.etherscan.io/address/0x0361a024040E7020251fF0756Bb40B8e136B9c9f) |
 | `PassportLogicRegistry`  | [`0xabA015Fc83E9B88e8334bD9b536257db75e05295`](https://ropsten.etherscan.io/address/0xabA015Fc83E9B88e8334bD9b536257db75e05295) |
 | `PassportFactory` | [`0x87b7Ec2602Da6C9e4D563d788e1e29C064A364a2`](https://ropsten.etherscan.io/address/0x87b7Ec2602Da6C9e4D563d788e1e29C064A364a2) |
 
-Consider the process of deploying your own set of auxiliary repoutation protocol contracts to experiment with our implementation. If you are going to deploy your contracts, then you will have to support them yourself.
+Consider the process of deploying your own set of auxiliary repoutation layer contracts to experiment with our implementation. If you are going to deploy your contracts, then you will have to support them yourself.
 
-This means that if the reputation protocol logic of the passport is updated by Monetha developers, you'll need to deploy a new `PassportLogic` contract, register it 
+This means that if the reputation layer logic of the passport is updated by Monetha developers, you'll need to deploy a new `PassportLogic` contract, register it 
 in an existing `PassportLogicRegistry` contract (by calling `addPassportLogic` method) and finally make it active (by calling `setCurrentPassportLogic`).
 
-If you use a set of Monetha deployed reputation protocol contracts, then the reputation passport logic is always up-to-date with latest fixes and features.
+If you use a set of Monetha deployed reputation layer contracts, then the reputation passport logic is always up-to-date with latest fixes and features.
 
 Prepare in advance the address that will be the owner of the deployed contracts. Make sure that it has enough funds to deploy contracts (1 ETH should be enough).
 
 ## Usage
 
-`import sdk from 'protocol-sdk'`
+`import sdk from 'reputation-js-sdk'`
 `const generator = new sdk.PassportGenerator()`
 
-In order to create a passport and start using it, you need to use auxiliary reputation protocol contracts: PassportLogic, PassportLogicRegistry, PassportFactory.
+In order to create a passport and start using it, you need to use auxiliary reputation layer contracts: PassportLogic, PassportLogicRegistry, PassportFactory.
 
 ### Deploying passport
 
@@ -52,7 +62,7 @@ using the `PassportFactory` contract deployed by Monetha ([`0x87b7Ec2602Da6C9e4D
 
 
 ```
-import sdk from 'protocol-sdk'
+import sdk from 'reputation-js-sdk'
 const generator = new sdk.PassportGenerator()
 generator.createPassport()
 ```
@@ -68,7 +78,7 @@ Let's try to get a list of all passports using the address of `PassportFactory` 
 in Ropsten network:
 
 ```
-import sdk from 'protocol-sdk'
+import sdk from 'reputation-js-sdk'
 sdk.getPassportLists("0x87b7Ec2602Da6C9e4D563d788e1e29C064A364a2")
 ```
 
@@ -103,7 +113,7 @@ Let's try to store string  `hello` under the key `greetings` as `string` in pass
 
 
 ```
-import sdk from 'protocol-sdk'
+import sdk from 'reputation-js-sdk'
 const writer = new sdk.FactWriter(<passportAddress>)
 writer.setString("greetings", "hello")
 ```
@@ -114,7 +124,7 @@ Let's try to delete string  `hello` under the key `greetings` as `string` in pas
 `<passportAddress>`:
 
 ```
-import sdk from 'protocol-sdk'
+import sdk from 'reputation-js-sdk'
 const remover = new sdk.FactRemover(<passportAddress>)
 remover.deleteString("greetings")
 ```
@@ -129,7 +139,7 @@ Let's try to retrieve string from passport `<passportAddress>` that was stored b
 `<factProviderAddress>` under the key `greetings` as `string` data type:
 
 ```
-import sdk from 'protocol-sdk'
+import sdk from 'reputation-js-sdk'
 const reader = new sdk.FactReader(<passportAddress>)
 reader.getString(<factProviderAddress>, "greetings")
 ```

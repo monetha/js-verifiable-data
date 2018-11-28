@@ -1,5 +1,5 @@
 {
-	"name": "ico-sdk",
+	"name": "reputation-js-sdk",
 	"version": "1.0.0",
 	"description": "",
 	"main": "./dist/proto.js",
@@ -19,7 +19,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://gitlab.com/monetha/protocol-js-sdk.git"
+		"url": "git+https://gitlab.com/monetha/reputation-js-sdk.git"
 	},
 	"author": "Shanu Goyanka"
 }
