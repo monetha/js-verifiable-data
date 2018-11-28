@@ -1,5 +1,5 @@
 {
-	"name": "reputation-js-sdk",
+	"name": "reputation-sdk",
 	"version": "1.0.0",
 	"description": "",
 	"main": "./dist/proto.js",
@@ -19,7 +19,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://gitlab.com/monetha/reputation-js-sdk.git"
+		"url": "git+https://gitlab.com/monetha/reputation-sdk.git"
 	},
 	"author": "Shanu Goyanka"
 }

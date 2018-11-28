@@ -1,6 +1,6 @@
 # Monetha: Decentralized Reputation Framework
 
-# Reputation Layer: js-sdk
+# Reputation Layer: reputation-sdk
 
 * [Building the source](#building-the-source)
     * [Prerequisites](#prerequisites)
@@ -42,7 +42,7 @@ Monetha has already deployed this set of auxiliary reputation layer contracts on
 
 Consider the process of deploying your own set of auxiliary repoutation layer contracts to experiment with our implementation. If you are going to deploy your contracts, then you will have to support them yourself.
 
-This means that if the reputation layer logic of the passport is updated by Monetha developers, you'll need to deploy a new `PassportLogic` contract, register it 
+This means that if the reputation layer logic of the passport is updated by Monetha developers, you'll need to deploy a new `PassportLogic` contract, register it
 in an existing `PassportLogicRegistry` contract (by calling `addPassportLogic` method) and finally make it active (by calling `setCurrentPassportLogic`).
 
 If you use a set of Monetha deployed reputation layer contracts, then the reputation passport logic is always up-to-date with latest fixes and features.
@@ -51,7 +51,7 @@ Prepare in advance the address that will be the owner of the deployed contracts.
 
 ## Usage
 
-`import sdk from 'reputation-js-sdk'`
+`import sdk from 'reputation-sdk'`
 `const generator = new sdk.PassportGenerator()`
 
 In order to create a passport and start using it, you need to use auxiliary reputation layer contracts: PassportLogic, PassportLogicRegistry, PassportFactory.
@@ -66,7 +66,7 @@ using the `PassportFactory` contract deployed by Monetha ([`0x87b7Ec2602Da6C9e4D
 
 
 ```
-import sdk from 'reputation-js-sdk'
+import sdk from 'reputation-sdk'
 const generator = new sdk.PassportGenerator()
 generator.createPassport()
 ```
@@ -82,7 +82,7 @@ Let's try to get a list of all passports using the address of `PassportFactory` 
 in Ropsten network:
 
 ```
-import sdk from 'reputation-js-sdk'
+import sdk from 'reputation-sdk'
 sdk.getPassportLists("0x87b7Ec2602Da6C9e4D563d788e1e29C064A364a2")
 ```
 
@@ -105,11 +105,11 @@ After the passport is created, any fact provider can start writing data to the p
 
 Make sure that the fact provider has enough funds to write the facts. Check [gas usage table](cmd/write-fact#gas-usage) to estimate the required amount of funds.
 
-You can write up to 100KB of data in passport under one key when `txdata` data type is used. Supported data types that 
-can be written to the passport: `string`, `bytes`, `address`, `uint`, `int`, `bool`, `txdata`. All types except `txdata` 
-use Ethereum storage to store the data. `txdata` uses Ethereum storage only to save the block number, the data itself 
-remains in the transaction input data and can be read later using the SDK. Therefore, if you need to save a large amount 
-of data, it is better to use `txdata` type of data. The disadvantage of the `txdata` type of data is the data can only be read 
+You can write up to 100KB of data in passport under one key when `txdata` data type is used. Supported data types that
+can be written to the passport: `string`, `bytes`, `address`, `uint`, `int`, `bool`, `txdata`. All types except `txdata`
+use Ethereum storage to store the data. `txdata` uses Ethereum storage only to save the block number, the data itself
+remains in the transaction input data and can be read later using the SDK. Therefore, if you need to save a large amount
+of data, it is better to use `txdata` type of data. The disadvantage of the `txdata` type of data is the data can only be read
 using the SDK, within the contracts this data is not available.
 
 Let's try to store string  `hello` under the key `greetings` as `string` in passport
@@ -117,7 +117,7 @@ Let's try to store string  `hello` under the key `greetings` as `string` in pass
 
 
 ```
-import sdk from 'reputation-js-sdk'
+import sdk from 'reputation-sdk'
 const writer = new sdk.FactWriter(<passportAddress>)
 writer.setString("greetings", "hello")
 ```
@@ -128,7 +128,7 @@ Let's try to delete string  `hello` under the key `greetings` as `string` in pas
 `<passportAddress>`:
 
 ```
-import sdk from 'reputation-js-sdk'
+import sdk from 'reputation-sdk'
 const remover = new sdk.FactRemover(<passportAddress>)
 remover.deleteString("greetings")
 ```
@@ -136,14 +136,14 @@ remover.deleteString("greetings")
 ### Reading facts
 
 After the fact provider has written the public data to the passport, the data can be read by anyone.
-To read the data you need to know: the address of the passport, the address of the fact provider who stored the data, 
+To read the data you need to know: the address of the passport, the address of the fact provider who stored the data,
 the key under which the data was stored and the type of data.
 
 Let's try to retrieve string from passport `<passportAddress>` that was stored by the fact provider
 `<factProviderAddress>` under the key `greetings` as `string` data type:
 
 ```
-import sdk from 'reputation-js-sdk'
+import sdk from 'reputation-sdk'
 const reader = new sdk.FactReader(<passportAddress>)
 reader.getString(<factProviderAddress>, "greetings")
 ```
@@ -151,17 +151,17 @@ reader.getString(<factProviderAddress>, "greetings")
 ### Changing passport permissions
 
 By default any fact provider can write to a passport, but a passport owner can change permissions that allow only
-fact providers from the whitelist to write to a passport. To do this, the passport owner must add the authorized fact providers 
+fact providers from the whitelist to write to a passport. To do this, the passport owner must add the authorized fact providers
 to the whitelist and then allow to store the facts only to fact providers from the whitelist.
 
-Consider an example of how owner of a passport `<ownerAddress>` adds fact provider 
+Consider an example of how owner of a passport `<ownerAddress>` adds fact provider
 `<factProviderAddress>` to the whitelist in Ropsten network:
 
 ```
 addFactProviderToWhitelist(<passportLogicAbi>, <passportAddress>, <factProvider>)
 ```
 Also the passportOwner can delete the factProvider from the list.
-Consider an example of how owner of a passport `<ownerAddress>` deletes fact provider 
+Consider an example of how owner of a passport `<ownerAddress>` deletes fact provider
 `<factProviderAddress>` to the whitelist in Ropsten network:
 
 ```
@@ -172,7 +172,7 @@ Please note that the passport owner only can call this method.
 
 After executing the command, any fact provider is still allowed to store the facts in the passport. Let's fix it!
 
-Owner of a passport `<ownerAddress>` may allow to store the facts only to fact providers 
+Owner of a passport `<ownerAddress>` may allow to store the facts only to fact providers
 from the whitelist by running the command:
 
 ```
