@@ -1,11 +1,10 @@
 # Monetha: Decentralized Reputation Framework
 
-# Reputation Layer: reputation-sdk
+# Reputation Layer: js-sdk
 
 * [Building the source](#building-the-source)
     * [Prerequisites](#prerequisites)
     * [Build](#build)
-    * [Executables](#executables)
 * [Bootstrap reputation layer](#bootstrap-reputation-layer)
 * [Usage](#usage)
     * [Deploying passport](#deploying-passport)
