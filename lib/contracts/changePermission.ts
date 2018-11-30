@@ -1,4 +1,4 @@
-import createInstance from '../providers/createInstance';
+import Ethereum from '../transactionHelpers/Ethereum';
 import performAsync from '../providers/performAsync';
 import loader from '../providers/loader';
 import abi from '../../config/abis';
@@ -14,18 +14,22 @@ interface IReturn {
 export class Permissions {
   contract: any;
 
-  constructor(atAddress: string) {
-    this.contract = createInstance(abi.PassportLogic.abi, atAddress);
+  constructor(atAddress: string, network: string) {
+    this.contract = new Ethereum(abi.PassportLogic.abi, atAddress, network);
   }
 
   //method to add factProvider to whitelist
   //addFactProviderToWhitelist(factProvider Address)
 
-  async addFactProviderToWhitelist(factProvider: string): Promise<IReturn> {
+  async addFactProviderToWhitelist(factProvider: string, privateKey: string): Promise<IReturn> {
     let trxHash: any;
+    let signedRawTransaction
+    let contractArguments = []
+    contractArguments.push(factProvider);
     let result: IReturn = {"res": true, "err": null};
     try {
-      trxHash = await performAsync(this.contract.addFactProviderToWhitelist.bind(null, factProvider));
+      signedRawTransaction = this.contract.generateSignedRawTransactionForSmartContractInteraction("addFactProviderToWhitelist", contractArguments, privateKey)
+      trxHash = await this.contract.web3.eth.sendRawTransaction(signedRawTransaction);
     } catch (err) {
       result.res = false;
       result.err = err;
@@ -89,16 +93,21 @@ export class Permissions {
   //method to remove factProvider to whitelist
   //removeFactProviderFromWhitelist(factProvider Address)
 
-  async removeFactProviderFromWhitelist(factProvider: string): Promise<IReturn> {
+  async removeFactProviderFromWhitelist(factProvider: string, privateKey: string): Promise<IReturn> {
     let trxHash: any;
+    let signedRawTransaction
+    let contractArguments = []
+    contractArguments.push(factProvider);
     let result: IReturn = {"res": true, "err": null};
     try {
-      trxHash = await performAsync(this.contract.removeFactProviderFromWhitelist.bind(null, factProvider));
+      signedRawTransaction = this.contract.generateSignedRawTransactionForSmartContractInteraction("removeFactProviderFromWhitelist", contractArguments, privateKey)
+      trxHash = await this.contract.web3.eth.sendRawTransaction(signedRawTransaction);
     } catch (err) {
       result.res = false;
       result.err = err;
       return result;
     }
+
     const txResult = await loader(trxHash);
     if(txResult.err) {
       result.res = false;
@@ -110,16 +119,21 @@ export class Permissions {
   //method to change permission of writing fats to passport
   //changePermission(true/false)
 
-  async changePermission(value: Boolean): Promise<IReturn> {
+  async changePermission(value: Boolean, privateKey: string): Promise<IReturn> {
     let trxHash: any;
+    let signedRawTransaction
+    let contractArguments = []
+    contractArguments.push(value);
     let result: IReturn = {"res": true, "err": null};
     try {
-      trxHash = await performAsync(this.contract.setWhitelistOnlyPermission.bind(null, value));
+      signedRawTransaction = this.contract.generateSignedRawTransactionForSmartContractInteraction("setWhitelistOnlyPermission", contractArguments, privateKey)
+      trxHash = await this.contract.web3.eth.sendRawTransaction(signedRawTransaction);
     } catch (err) {
       result.res = false;
       result.err = err;
       return result;
     }
+
     const txResult = await loader(trxHash);
     if(txResult.err) {
       result.res = false;

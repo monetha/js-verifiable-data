@@ -1,5 +1,4 @@
-import createInstance from '../providers/createInstance';
-import performAsync from '../providers/performAsync';
+import Ethereum from '../transactionHelpers/Ethereum';
 import loader from '../providers/loader';
 import abi from '../../config/abis';
 
@@ -12,16 +11,21 @@ interface IReturn {
 export class PassportGenerator {
   contract: any;
 
-  constructor() {
-    this.contract = createInstance(abi.PassportFactory.abi, abi.PassportFactory.at);
+  constructor(network: string) {
+    this.contract = new Ethereum(abi.PassportLogic.abi, abi.PassportFactory.at, network);
   }
 
   //method to return the create an empty passport and return the passport Address
-  async createPassport(): Promise<IReturn> {
+  async createPassport(privateKey: string): Promise<IReturn> {
+
     let trxHash: any;
+    let signedRawTransaction
+    let contractArguments = []
     let result: IReturn = {"res": null, "err": null};
+
     try {
-      trxHash = await performAsync(this.contract.createPassport.bind(null));
+      signedRawTransaction = this.contract.generateSignedRawTransactionForSmartContractInteraction("createPassport", contractArguments, privateKey)
+      trxHash = await this.contract.web3.eth.sendRawTransaction(signedRawTransaction);
     } catch (err) {
       return err;
     }
