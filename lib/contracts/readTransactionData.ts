@@ -1,15 +1,15 @@
 import * as abiDecoder from 'abi-decoder';
-import performAsync from '../providers/performAsync';
 import abi from '../../config/abis';
+import Ethereum from '../transactionHelpers/Ethereum';
 
-
-const globalWindow: any = window;
 
 //Class to read the data of transactions related to passort contracts
-export class TransactionReader {
+export class FetchEvents {
   abiDecoder: any;
+  contract: any
 
-  constructor() {
+  constructor(network: string) {
+    this.contract = new Ethereum(abi.PassportLogic.abi, atAddress, network);
     this.abiDecoder = abiDecoder.addABI(abi.PassportLogic.abi);
   }
 
@@ -17,13 +17,13 @@ export class TransactionReader {
   async getTrxData(trxHash: string): Promise<any> {
     let result: any;
     try {
-      result = await performAsync(globalWindow.web3.eth.getTransaction.bind(null, trxHash));
+      result = await this.contract.web3.eth.getTransaction.bind(null, trxHash);
     } catch(err) {
       return err;
     }
-    result = abiDecoder.decodeMethod(result.input);
+    result = this.abiDecoder.decodeMethod(result.input);
     return result;
   } 
 }
 
-export default TransactionReader;
+export default FetchEvents;

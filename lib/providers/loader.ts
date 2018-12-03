@@ -1,18 +1,15 @@
-import performAsync from './performAsync';
-
-const globalWindow: any = window;
 interface IReturn {
   "res": any;
   "err": any;
 }
-const loader = function (trxHash: string): Promise<IReturn> {
+const loader = function (trxHash: string, web4: any): Promise<IReturn> {
   return new Promise((resolve, reject) => {
     let txResult;
     let result: IReturn = {"res": null, "err": null};
 
     const timeInterval = setInterval(async function () {
       try {
-        txResult = await performAsync(globalWindow.web3.eth.getTransactionReceipt.bind(null, trxHash));
+        txResult = await web4.eth.getTransactionReceipt.bind(null, trxHash);
       } catch (err) {
         clearInterval(timeInterval);
         result.err = err;

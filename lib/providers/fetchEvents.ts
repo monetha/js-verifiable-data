@@ -1,9 +1,6 @@
+const fetchEvents = async function (address, web4) {
 
-const globalWindow: any = window;
-
-const fetchEvents = async function (address) {
-
-  const filter = globalWindow.web3.eth.filter({
+  const filter = web4.eth.filter({
     fromBlock: 0,
     toBlock: 'latest',
     address: address

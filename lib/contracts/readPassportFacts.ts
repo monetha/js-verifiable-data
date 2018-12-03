@@ -1,5 +1,4 @@
 import Ethereum from '../transactionHelpers/Ethereum';
-import performAsync from '../providers/performAsync';
 import abi from '../../config/abis';
 
 interface IReturnString {
