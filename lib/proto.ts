@@ -6,6 +6,7 @@ import FactRemover from './contracts/deletePassportFacts';
 import TransactionReader from './contracts/readTransactionData';
 import Permissions from './contracts/changePermission';
 import readPassportHistory  from './contracts/readPassportHistory';
+export { PassportReader } from './contracts/PassportReader';
 
 export default {
   PassportGenerator,

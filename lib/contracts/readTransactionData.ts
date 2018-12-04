@@ -9,20 +9,20 @@ export class FetchEvents {
   contract: any
 
   constructor(network: string) {
-    this.contract = new Ethereum(abi.PassportLogic.abi, atAddress, network);
-    this.abiDecoder = abiDecoder.addABI(abi.PassportLogic.abi);
+    // this.contract = new Ethereum(abi.PassportLogic.abi, atAddress, network);
+    // this.abiDecoder = abiDecoder.addABI(abi.PassportLogic.abi);
   }
 
   //method to return the transaction data using the transaction hash
   async getTrxData(trxHash: string): Promise<any> {
-    let result: any;
-    try {
-      result = await this.contract.web3.eth.getTransaction.bind(null, trxHash);
-    } catch(err) {
-      return err;
-    }
-    result = this.abiDecoder.decodeMethod(result.input);
-    return result;
+  //   let result: any;
+  //   try {
+  //     result = await this.contract.web3.eth.getTransaction.bind(null, trxHash);
+  //   } catch(err) {
+  //     return err;
+  //   }
+  //   result = this.abiDecoder.decodeMethod(result.input);
+  //   return result;
   } 
 }
 

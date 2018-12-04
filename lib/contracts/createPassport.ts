@@ -30,7 +30,7 @@ export class PassportGenerator {
       return err;
     }
 
-    const txResult = await loader(trxHash);
+    const txResult = await loader(trxHash, this.contract.web3);
     if(txResult.err) {
       result.err = txResult.err;
     } else {

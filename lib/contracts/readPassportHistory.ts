@@ -12,16 +12,16 @@ const globalWindow: any = window;
 //method to fetch all the events(history) of a particular passportFactory address
 const readPassportHistory = async function (factoryAddress: string): Promise<Array<IFilteredFact>> {
 
-  const facts  = await fetchEvents(factoryAddress);
-  let filteredFacts: Array<IFilteredFact>;
-  filteredFacts = (facts as Array<any>).map(fact => ({
-    blockNumber: fact.blockNumber,
-    transactionHash: fact.transactionHash,
-    factProviderAddress: '0x' + fact.topics[1].slice(26),
-    key: globalWindow.web3.toAscii(fact.topics[2].slice(0,23)),
-  }));
+  // const facts  = await fetchEvents(factoryAddress);
+  // let filteredFacts: Array<IFilteredFact>;
+  // filteredFacts = (facts as Array<any>).map(fact => ({
+  //   blockNumber: fact.blockNumber,
+  //   transactionHash: fact.transactionHash,
+  //   factProviderAddress: '0x' + fact.topics[1].slice(26),
+  //   key: globalWindow.web3.toAscii(fact.topics[2].slice(0,23)),
+  // }));
 
-  return filteredFacts;
+  return undefined;
 }
 
 export default readPassportHistory;

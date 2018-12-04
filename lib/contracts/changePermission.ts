@@ -35,7 +35,7 @@ export class Permissions {
       result.err = err;
       return result;
     }
-    const txResult = await loader(trxHash);
+    const txResult = await loader(trxHash, this.contract.web3);
     if(txResult.err) {
       result.res = false;
       result.err = txResult.err;
@@ -108,7 +108,7 @@ export class Permissions {
       return result;
     }
 
-    const txResult = await loader(trxHash);
+    const txResult = await loader(trxHash, this.contract.web3);
     if(txResult.err) {
       result.res = false;
       result.err = txResult.err;
@@ -134,7 +134,7 @@ export class Permissions {
       return result;
     }
 
-    const txResult = await loader(trxHash);
+    const txResult = await loader(trxHash, this.contract.web3);
     if(txResult.err) {
       result.res = false;
       result.err = txResult.err;
