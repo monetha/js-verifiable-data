@@ -18,7 +18,7 @@ export class PassportReader {
 
   //method to fetch all the passport created by a particular passportFactory address
   async getPassportLists (factoryAddress: string): Promise<Array<IFilteredEvents>> {
-  
+
     const events = await fetchEvents(factoryAddress, this.contract.web3);
     let filteredEvents: Array<IFilteredEvents>;
     filteredEvents = (events as Array<any>).map((event) => ({
