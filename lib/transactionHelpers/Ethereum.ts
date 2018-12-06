@@ -94,7 +94,7 @@ export class Ethereum {
   async getDataFromSmartContract (
     contractFunctionName,
     contractArguments) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) => {
       contractArguments = contractArguments || []
       this.contractInstance[contractFunctionName].call(...contractArguments, { from: ""}, function (err, data) {
         if (err) {
