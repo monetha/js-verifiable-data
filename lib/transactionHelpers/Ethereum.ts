@@ -1,32 +1,31 @@
-import EthereumTx from 'ethereumjs-tx';
-import EthereumWallet from 'ethereumjs-wallet';
-const Web3 = require('web3');
+const EthereumTx = require('ethereumjs-tx');
+const EthereumWallet = require('ethereumjs-wallet');
+import Web4 from './Web4';
 
 export class Ethereum {
-  web3: any;
+  web4: any;
   Contract: any;
   contractInstance: any;
   contractAddress: any;
   constructor(abi, contractAddress, network) {
-    const url = network == "mainnet" ? 'https://mainnet.infura.io/v3/1f09dda6cce44da68213cacb1ea9bb90' : 'https://ropsten.infura.io/v3/1f09dda6cce44da68213cacb1ea9bb90'
-    this.web3 = new Web3(new Web3.providers.HttpProvider(url))
-    this.Contract = this.web3.eth.contract(abi)
+    this.web4 = new Web4(network).web4;
+    this.Contract = this.web4.eth.contract(abi)
     this.contractInstance = this.Contract.at(contractAddress)
     this.contractAddress = contractAddress
   }
 
   getEstimatedGas (data, from, to) {
-    const gas = this.web3.eth.estimateGas({ data, from, to })
+    const gas = this.web4.eth.estimateGas({ data, from, to })
     return gas
   }
 
   getGasPriceFromBlockChain () {
-    return this.web3.toHex(this.web3.eth.gasPrice)
+    return this.web4.toHex(this.web4.eth.gasPrice)
   }
 
   getNonceFromBlockChain (fromAddress) {
-    const count = this.web3.eth.getTransactionCount(fromAddress)
-    return this.web3.toHex(count)
+    const count = this.web4.eth.getTransactionCount(fromAddress)
+    return this.web4.toHex(count)
   }
 
   async generateRawTransaction (fromAddress, toAddress, value, data) {

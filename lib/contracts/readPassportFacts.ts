@@ -32,13 +32,13 @@ export class FactReader {
   async getString(factProviderAddress: string, key: string): Promise<IReturnString> {
     let contractArguments = []
     let result: IReturnString = {"res": null, "err": null};
-    key = this.contract.web3.fromAscii(key);
+    key = this.contract.web4.fromAscii(key);
     contractArguments.push(factProviderAddress);
     contractArguments.push(key);
     let txResult: any;
     
     try {
-      txResult = this.contract.getDataFromSmartContract("getString", contractArguments)
+      txResult = await this.contract.getDataFromSmartContract("getString", contractArguments)
     } catch (err) {
       return err;
     }    
@@ -54,13 +54,13 @@ export class FactReader {
   async getBytes(factProviderAddress: string, key: string): Promise<IReturnBytes> {
     let result: IReturnBytes = {"res": null, "err": null};
     let contractArguments = []
-    key = this.contract.web3.fromAscii(key);
+    key = this.contract.web4.fromAscii(key);
     contractArguments.push(factProviderAddress);
     contractArguments.push(key);
     let txResult: any;
     
     try {
-      txResult = this.contract.getDataFromSmartContract("getBytes", contractArguments)
+      txResult = await this.contract.getDataFromSmartContract("getBytes", contractArguments)
     } catch (err) {
       return err;
     }    
@@ -76,13 +76,13 @@ export class FactReader {
   async getAddress(factProviderAddress: string, key: string): Promise<IReturnString> {
     let result: IReturnString = {"res": null, "err": null};
     let contractArguments = []
-    key = this.contract.web3.fromAscii(key);
+    key = this.contract.web4.fromAscii(key);
     contractArguments.push(factProviderAddress);
     contractArguments.push(key);
     let txResult: any;
     
     try {
-      txResult = this.contract.getDataFromSmartContract("getAddress", contractArguments)
+      txResult = await this.contract.getDataFromSmartContract("getAddress", contractArguments)
     } catch (err) {
       return err;
     }    
@@ -98,13 +98,13 @@ export class FactReader {
   async getUint(factProviderAddress: string, key: string): Promise<IReturnNumber> {
     let result: IReturnNumber = {"res": null, "err": null};
     let contractArguments = []
-    key = this.contract.web3.fromAscii(key);
+    key = this.contract.web4.fromAscii(key);
     contractArguments.push(factProviderAddress);
     contractArguments.push(key);
     let txResult: any;
     
     try {
-      txResult = this.contract.getDataFromSmartContract("getUint", contractArguments)
+      txResult = await this.contract.getDataFromSmartContract("getUint", contractArguments)
     } catch (err) {
       return err;
     }    
@@ -120,13 +120,13 @@ export class FactReader {
   async getInt(factProviderAddress: string, key: string): Promise<IReturnNumber> {
     let result: IReturnNumber = {"res": null, "err": null};
     let contractArguments = []
-    key = this.contract.web3.fromAscii(key);
+    key = this.contract.web4.fromAscii(key);
     contractArguments.push(factProviderAddress);
     contractArguments.push(key);
     let txResult: any;
     
     try {
-      txResult = this.contract.getDataFromSmartContract("getInt", contractArguments)
+      txResult = await this.contract.getDataFromSmartContract("getInt", contractArguments)
     } catch (err) {
       return err;
     }    
@@ -142,13 +142,13 @@ export class FactReader {
   async getBool(factProviderAddress: string, key: string): Promise<IReturnBool> {
     let result: IReturnBool = {"res": null, "err": null};
     let contractArguments = []
-    key = this.contract.web3.fromAscii(key);
+    key = this.contract.web4.fromAscii(key);
     contractArguments.push(factProviderAddress);
     contractArguments.push(key);
     let txResult: any;
     
     try {
-      txResult = this.contract.getDataFromSmartContract("getBool", contractArguments)
+      txResult = await this.contract.getDataFromSmartContract("getBool", contractArguments)
     } catch (err) {
       return err;
     }    
@@ -164,13 +164,13 @@ export class FactReader {
   async getTxDataBlockNumber(factProviderAddress: string, key: string): Promise<IReturnBytes> {
     let result: IReturnBytes = {"res": null, "err": null};
     let contractArguments = []
-    key = this.contract.web3.fromAscii(key);
+    key = this.contract.web4.fromAscii(key);
     contractArguments.push(factProviderAddress);
     contractArguments.push(key);
     let txResult: any;
     
     try {
-      txResult = this.contract.getDataFromSmartContract("getTxDataBlockNumber", contractArguments)
+      txResult = await this.contract.getDataFromSmartContract("getTxDataBlockNumber", contractArguments)
     } catch (err) {
       return err;
     }    

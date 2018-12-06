@@ -28,14 +28,14 @@ export class Permissions {
     contractArguments.push(factProvider);
     let result: IReturn = {"res": true, "err": null};
     try {
-      signedRawTransaction = this.contract.generateSignedRawTransactionForSmartContractInteraction("addFactProviderToWhitelist", contractArguments, privateKey)
-      trxHash = await this.contract.web3.eth.sendRawTransaction(signedRawTransaction);
+      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("addFactProviderToWhitelist", contractArguments, privateKey)
+      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
     } catch (err) {
       result.res = false;
       result.err = err;
       return result;
     }
-    const txResult = await loader(trxHash, this.contract.web3);
+    const txResult = await loader(trxHash, this.contract.web4);
     if(txResult.err) {
       result.res = false;
       result.err = txResult.err;
@@ -49,7 +49,7 @@ export class Permissions {
     let result: any;
     let txResult: IReturn = {"res": true, "err": null};
     try {
-      result = await performAsync(this.contract.isFactProviderInWhitelist.bind(null, factProvider));
+      result = await this.contract.getDataFromSmartContract("isFactProviderInWhitelist", [factProvider])
     } catch (err) {
       txResult.res = null;
       txResult.err = err;
@@ -64,7 +64,7 @@ export class Permissions {
     let result: any;
     let txResult: IReturn = {"res": true, "err": null};
     try {
-      result = await performAsync(this.contract.isWhitelistOnlyPermissionSet.bind(null));
+      result = await this.contract.getDataFromSmartContract("isWhitelistOnlyPermissionSet", [])
     } catch (err) {
       txResult.res = null;
       txResult.err = err;
@@ -80,7 +80,7 @@ export class Permissions {
     let result: any;
     let txResult: IReturn = {"res": true, "err": null};
     try {
-      result = await performAsync(this.contract.isAllowedFactProvider.bind(null, factProvider));
+      result = await this.contract.getDataFromSmartContract("isAllowedFactProvider", [factProvider])
     } catch (err) {
       txResult.res = null;
       txResult.err = err;
@@ -100,15 +100,15 @@ export class Permissions {
     contractArguments.push(factProvider);
     let result: IReturn = {"res": true, "err": null};
     try {
-      signedRawTransaction = this.contract.generateSignedRawTransactionForSmartContractInteraction("removeFactProviderFromWhitelist", contractArguments, privateKey)
-      trxHash = await this.contract.web3.eth.sendRawTransaction(signedRawTransaction);
+      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("removeFactProviderFromWhitelist", contractArguments, privateKey)
+      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
     } catch (err) {
       result.res = false;
       result.err = err;
       return result;
     }
 
-    const txResult = await loader(trxHash, this.contract.web3);
+    const txResult = await loader(trxHash, this.contract.web4);
     if(txResult.err) {
       result.res = false;
       result.err = txResult.err;
@@ -126,15 +126,15 @@ export class Permissions {
     contractArguments.push(value);
     let result: IReturn = {"res": true, "err": null};
     try {
-      signedRawTransaction = this.contract.generateSignedRawTransactionForSmartContractInteraction("setWhitelistOnlyPermission", contractArguments, privateKey)
-      trxHash = await this.contract.web3.eth.sendRawTransaction(signedRawTransaction);
+      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("setWhitelistOnlyPermission", contractArguments, privateKey)
+      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
     } catch (err) {
       result.res = false;
       result.err = err;
       return result;
     }
 
-    const txResult = await loader(trxHash, this.contract.web3);
+    const txResult = await loader(trxHash, this.contract.web4);
     if(txResult.err) {
       result.res = false;
       result.err = txResult.err;

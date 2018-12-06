@@ -23,18 +23,18 @@ export class FactWriter {
     let signedRawTransaction
     let contractArguments = []
     let result: IReturn = {"res": true, "err": null};
-    key = this.contract.web3.fromAscii(key);
+    key = this.contract.web4.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
     
     try {
-      signedRawTransaction = this.contract.generateSignedRawTransactionForSmartContractInteraction("setString", contractArguments, privateKey)
-      trxHash = await this.contract.web3.eth.sendRawTransaction(signedRawTransaction);
+      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("setString", contractArguments, privateKey)
+      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
     } catch (err) {
       return err;
     }
 
-    const txResult = await loader(trxHash, this.contract.web3);
+    const txResult = await loader(trxHash, this.contract.web4);
     if(txResult.err) {
       result.res = false;
       result.err = txResult.err;
@@ -49,18 +49,18 @@ export class FactWriter {
     let signedRawTransaction
     let contractArguments = []
     let result: IReturn = {"res": true, "err": null};
-    key = this.contract.web3.fromAscii(key);
+    key = this.contract.web4.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
     
     try {
-      signedRawTransaction = this.contract.generateSignedRawTransactionForSmartContractInteraction("setBytes", contractArguments, privateKey)
-      trxHash = await this.contract.web3.eth.sendRawTransaction(signedRawTransaction);
+      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("setBytes", contractArguments, privateKey)
+      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
     } catch (err) {
       return err;
     }
 
-    const txResult = await loader(trxHash, this.contract.web3);
+    const txResult = await loader(trxHash, this.contract.web4);
     if(txResult.err) {
       result.res = false;
       result.err = txResult.err;
@@ -75,18 +75,18 @@ export class FactWriter {
     let signedRawTransaction
     let contractArguments = []
     let result: IReturn = {"res": true, "err": null};
-    key = this.contract.web3.fromAscii(key);
+    key = this.contract.web4.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
     
     try {
-      signedRawTransaction = this.contract.generateSignedRawTransactionForSmartContractInteraction("setAddress", contractArguments, privateKey)
-      trxHash = await this.contract.web3.eth.sendRawTransaction(signedRawTransaction);
+      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("setAddress", contractArguments, privateKey)
+      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
     } catch (err) {
       return err;
     }
 
-    const txResult = await loader(trxHash, this.contract.web3);
+    const txResult = await loader(trxHash, this.contract.web4);
     if(txResult.err) {
       result.res = false;
       result.err = txResult.err;
@@ -101,18 +101,18 @@ export class FactWriter {
     let signedRawTransaction
     let contractArguments = []
     let result: IReturn = {"res": true, "err": null};
-    key = this.contract.web3.fromAscii(key);
+    key = this.contract.web4.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
     
     try {
-      signedRawTransaction = this.contract.generateSignedRawTransactionForSmartContractInteraction("setUint", contractArguments, privateKey)
-      trxHash = await this.contract.web3.eth.sendRawTransaction(signedRawTransaction);
+      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("setUint", contractArguments, privateKey)
+      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
     } catch (err) {
       return err;
     }
 
-    const txResult = await loader(trxHash, this.contract.web3);
+    const txResult = await loader(trxHash, this.contract.web4);
     if(txResult.err) {
       result.res = false;
       result.err = txResult.err;
@@ -127,18 +127,18 @@ export class FactWriter {
     let signedRawTransaction
     let contractArguments = []
     let result: IReturn = {"res": true, "err": null};
-    key = this.contract.web3.fromAscii(key);
+    key = this.contract.web4.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
     
     try {
-      signedRawTransaction = this.contract.generateSignedRawTransactionForSmartContractInteraction("setInt", contractArguments, privateKey)
-      trxHash = await this.contract.web3.eth.sendRawTransaction(signedRawTransaction);
+      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("setInt", contractArguments, privateKey)
+      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
     } catch (err) {
       return err;
     }
 
-    const txResult = await loader(trxHash, this.contract.web3);
+    const txResult = await loader(trxHash, this.contract.web4);
     if(txResult.err) {
       result.res = false;
       result.err = txResult.err;
@@ -153,18 +153,18 @@ export class FactWriter {
     let signedRawTransaction
     let contractArguments = []
     let result: IReturn = {"res": true, "err": null};
-    key = this.contract.web3.fromAscii(key);
+    key = this.contract.web4.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
     
     try {
-      signedRawTransaction = this.contract.generateSignedRawTransactionForSmartContractInteraction("setBool", contractArguments, privateKey)
-      trxHash = await this.contract.web3.eth.sendRawTransaction(signedRawTransaction);
+      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("setBool", contractArguments, privateKey)
+      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
     } catch (err) {
       return err;
     }
 
-    const txResult = await loader(trxHash, this.contract.web3);
+    const txResult = await loader(trxHash, this.contract.web4);
     if(txResult.err) {
       result.res = false;
       result.err = txResult.err;
@@ -179,18 +179,18 @@ export class FactWriter {
     let signedRawTransaction
     let contractArguments = []
     let result: IReturn = {"res": true, "err": null};
-    key = this.contract.web3.fromAscii(key);
+    key = this.contract.web4.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
     
     try {
-      signedRawTransaction = this.contract.generateSignedRawTransactionForSmartContractInteraction("setTxdata", contractArguments, privateKey)
-      trxHash = await this.contract.web3.eth.sendRawTransaction(signedRawTransaction);
+      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("setTxdata", contractArguments, privateKey)
+      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
     } catch (err) {
       return err;
     }
 
-    const txResult = await loader(trxHash, this.contract.web3);
+    const txResult = await loader(trxHash, this.contract.web4);
     if(txResult.err) {
       result.res = false;
       result.err = txResult.err;

@@ -9,7 +9,7 @@ const loader = function (trxHash: string, web4: any): Promise<IReturn> {
 
     const timeInterval = setInterval(async function () {
       try {
-        txResult = await web4.eth.getTransactionReceipt.bind(null, trxHash);
+        txResult = await web4.eth.getTransactionReceipt(trxHash);
       } catch (err) {
         clearInterval(timeInterval);
         result.err = err;

@@ -24,13 +24,13 @@ export class PassportGenerator {
     let result: IReturn = {"res": null, "err": null};
 
     try {
-      signedRawTransaction = this.contract.generateSignedRawTransactionForSmartContractInteraction("createPassport", contractArguments, privateKey)
-      trxHash = await this.contract.web3.eth.sendRawTransaction(signedRawTransaction);
+      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("createPassport", contractArguments, privateKey)
+      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
     } catch (err) {
       return err;
     }
 
-    const txResult = await loader(trxHash, this.contract.web3);
+    const txResult = await loader(trxHash, this.contract.web4);
     if(txResult.err) {
       result.err = txResult.err;
     } else {
