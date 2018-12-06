@@ -1,6 +1,6 @@
 import EthereumTx from 'ethereumjs-tx';
 import EthereumWallet from 'ethereumjs-wallet';
-import Web3 from 'web3';
+const Web3 = require('web3');
 
 export class Ethereum {
   web3: any;

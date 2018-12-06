@@ -2,7 +2,7 @@
 	"name": "reputation-sdk",
 	"version": "1.0.0",
 	"description": "",
-	"main": "./dist/proto.js",
+	"main": "./dist/lib/proto.js",
 	"engines": {
 		"npm": ">=5",
 		"node": ">=8.10.0"
@@ -12,11 +12,11 @@
 		"postinstall": "./node_modules/.bin/tsc"
 	},
 	"devDependencies": {
-		"@types/node": "^10.12.2",
 		"chai": "^3.5.0",
 		"mocha": "^5.2.0"
 	},
 	"dependencies": {
+		"@types/node": "^10.12.2",
 		"abi-decoder": "^1.2.0",
 		"ethereumjs-tx": "^1.3.3",
 		"ethereumjs-wallet": "^0.6.0",

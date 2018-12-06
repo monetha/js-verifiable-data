@@ -7,7 +7,6 @@ interface IFilteredFact {
   key: string;
 }
 
-const globalWindow: any = window;
 
 //method to fetch all the events(history) of a particular passportFactory address
 const readPassportHistory = async function (factoryAddress: string): Promise<Array<IFilteredFact>> {

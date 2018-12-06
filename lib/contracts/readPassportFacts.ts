@@ -17,7 +17,6 @@ interface IReturnBytes {
   "res": Array<Number>;
   "err": any;
 }
-const globalWindow: any = window;
 
 //Class to read facts from the passport for factReader
 //FactReader(passportAddress)
