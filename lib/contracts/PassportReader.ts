@@ -55,14 +55,14 @@ export class PassportReader {
 
     //method to return the transaction data using the transaction hash
   async getTrxData(trxHash: string): Promise<any> {
-    const decoder = abiDecoder.addABI(abi.PassportLogic.abi)
+    abiDecoder.addABI(abi.PassportLogic.abi)
     let result: any;
     try {
       result = await this.web4.eth.getTransaction(trxHash);
     } catch(err) {
       return err;
     }
-    result = decoder.decodeMethod(result.input);
+    result = abiDecoder.decodeMethod(result.input);
     return result;
   } 
 }
