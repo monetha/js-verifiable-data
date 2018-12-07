@@ -874,7 +874,7 @@ export default {
     ]
   },
   "PassportFactory": {
-    "at": "0x816447ba7a187159f29a7a374313bba2a77d91f8",
+    "at": "0x87b7Ec2602Da6C9e4D563d788e1e29C064A364a2",
     "abi": [
       {
         "constant": false,
