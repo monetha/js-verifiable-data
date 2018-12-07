@@ -1,4 +1,5 @@
 import fetchEvents from '../providers/fetchEvents';
+import abi from '../../config/abis';
 
 interface IFilteredEvents {
   blockNumber: Number;
@@ -10,7 +11,7 @@ interface IFilteredEvents {
 //method to fetch all the passport created by a particular passportFactory address
 const getPassportLists = async function (factoryAddress: string): Promise<Array<IFilteredEvents>> {
 
-  const events = await fetchEvents(factoryAddress);
+  const events = await fetchEvents(abi.PassportFactory.at);
   let filteredEvents: Array<IFilteredEvents>;
   filteredEvents = (events as Array<any>).map((event) => ({
     blockNumber: event.blockNumber,
