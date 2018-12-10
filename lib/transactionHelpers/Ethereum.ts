@@ -1,5 +1,3 @@
-const EthereumTx = require('ethereumjs-tx');
-const EthereumWallet = require('ethereumjs-wallet');
 import Web4 from './Web4';
 
 export class Ethereum {
@@ -44,15 +42,6 @@ export class Ethereum {
     }
   }
 
-  async generateSignedTransaction (rawTx, privateKey) {
-    const userWallet = EthereumWallet.fromPrivateKey(
-      Buffer.from(privateKey.replace(/^(0x)/, ''), 'hex')
-    )
-    const tx:any = new EthereumTx(rawTx)
-    tx.sign(userWallet.getPrivateKey())
-    return `0x${tx.serialize().toString('hex')}`
-  }
-
   async generateDataForSmartContractInteraction (
     contractFunctionName,
     contractArguments
@@ -61,33 +50,25 @@ export class Ethereum {
     return this.contractInstance[contractFunctionName].getData(...contractArguments)
   }
 
-  async generateSignedRawTransactionForSmartContractInteraction (
+  async generateRawTransactionForSmartContractInteraction (
     contractFunctionName,
     contractArguments,
-    privateKey
+    userAddress
   ) {
-    const userWallet = EthereumWallet.fromPrivateKey(
-      Buffer.from(privateKey.replace(/^(0x)/, ''), 'hex')
-    )
-
+   
     const contractData = await this.generateDataForSmartContractInteraction(
       contractFunctionName,
       contractArguments
     )
 
     const rawTx = await this.generateRawTransaction(
-      userWallet.getAddressString(),
+      userAddress,
       this.contractAddress,
       0,
       contractData
     )
 
-    const signedTransaction = await this.generateSignedTransaction(
-      rawTx,
-      userWallet.getPrivateKey().toString('hex')
-    )
-
-    return signedTransaction
+    return rawTx
   }
 
 

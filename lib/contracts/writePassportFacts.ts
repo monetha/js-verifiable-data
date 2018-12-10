@@ -2,10 +2,16 @@ import Ethereum from '../transactionHelpers/Ethereum';
 import loader from '../providers/loader';
 import abi from '../../config/abis';
 
-interface IReturn {
-  "res": Boolean;
-  "err": any;
+interface IReturnWrite {
+  from: string;
+  nonce: Number;
+  gasPrice: string;
+  gasLimit: Number;
+  to: string;
+  value: Number;
+  data: string;
 }
+
 
 //Class to wirte facts to a particular passport for FactWriter
 export class FactWriter {
@@ -17,185 +23,126 @@ export class FactWriter {
 
   //method to write string type from passport
   //setString(key on which the string is to be stored, value)
-  async setString(key: string, value: string, privateKey: string): Promise<IReturn> {
+  async setString(key: string, value: string, userAddress: string): Promise<IReturnWrite> {
 
-    let trxHash: any;
-    let signedRawTransaction
     let contractArguments = []
-    let result: IReturn = {"res": true, "err": null};
+    let rawTransaction: IReturnWrite
     key = this.contract.web4.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
     
     try {
-      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("setString", contractArguments, privateKey)
-      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
+      rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setString", contractArguments, userAddress)
+      return rawTransaction
     } catch (err) {
       return err;
     }
 
-    const txResult = await loader(trxHash, this.contract.web4);
-    if(txResult.err) {
-      result.res = false;
-      result.err = txResult.err;
-    } 
-    return result;
   }
 
   //method to write bytes type from passport
   //setBytes(key on which the bytes is to be stored, value)
-  async setBytes(key: string, value: Array<Number>, privateKey: string): Promise<IReturn> {
-    let trxHash: any;
-    let signedRawTransaction
+  async setBytes(key: string, value: Array<Number>, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
-    let result: IReturn = {"res": true, "err": null};
+    let rawTransaction: IReturnWrite
     key = this.contract.web4.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
     
     try {
-      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("setBytes", contractArguments, privateKey)
-      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
+      rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setBytes", contractArguments, userAddress)
+      return rawTransaction
     } catch (err) {
       return err;
     }
 
-    const txResult = await loader(trxHash, this.contract.web4);
-    if(txResult.err) {
-      result.res = false;
-      result.err = txResult.err;
-    } 
-    return result;
   }
 
   //method to write address type from passport
   //setAddress(key on which the address is to be stored, value)
-  async setAddress(key: string, value: string, privateKey: string): Promise<IReturn> {
-    let trxHash: any;
-    let signedRawTransaction
+  async setAddress(key: string, value: string, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
-    let result: IReturn = {"res": true, "err": null};
+    let rawTransaction: IReturnWrite
     key = this.contract.web4.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
     
     try {
-      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("setAddress", contractArguments, privateKey)
-      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
+      rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setAddress", contractArguments, userAddress)
+      return rawTransaction
     } catch (err) {
       return err;
     }
 
-    const txResult = await loader(trxHash, this.contract.web4);
-    if(txResult.err) {
-      result.res = false;
-      result.err = txResult.err;
-    } 
-    return result;
   }
 
   //method to write uint type from passport
   //setUint(key on which the uint is to be stored, value)
-  async setUint(key: string, value: Number, privateKey: string): Promise<IReturn> {
-    let trxHash: any;
-    let signedRawTransaction
+  async setUint(key: string, value: Number, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
-    let result: IReturn = {"res": true, "err": null};
+    let rawTransaction: IReturnWrite
     key = this.contract.web4.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
     
     try {
-      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("setUint", contractArguments, privateKey)
-      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
+      rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setUint", contractArguments, userAddress)
+      return rawTransaction
     } catch (err) {
       return err;
     }
 
-    const txResult = await loader(trxHash, this.contract.web4);
-    if(txResult.err) {
-      result.res = false;
-      result.err = txResult.err;
-    } 
-    return result;
   }
 
   //method to write int type from passport
   //setInt(key on which the int is to be stored, value)
-  async setInt(key: string, value: Number, privateKey: string): Promise<IReturn> {
-    let trxHash: any;
-    let signedRawTransaction
+  async setInt(key: string, value: Number, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
-    let result: IReturn = {"res": true, "err": null};
+    let rawTransaction: IReturnWrite
     key = this.contract.web4.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
     
     try {
-      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("setInt", contractArguments, privateKey)
-      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
+      rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setInt", contractArguments, userAddress)
+      return rawTransaction
     } catch (err) {
       return err;
     }
 
-    const txResult = await loader(trxHash, this.contract.web4);
-    if(txResult.err) {
-      result.res = false;
-      result.err = txResult.err;
-    } 
-    return result;
   }
 
   //method to write bool type from passport
   //setBool(key on which the bool is to be stored, value)
-  async setBool(key: string, value: Boolean, privateKey: string): Promise<IReturn> {
-    let trxHash: any;
-    let signedRawTransaction
+  async setBool(key: string, value: Boolean, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
-    let result: IReturn = {"res": true, "err": null};
+    let rawTransaction: IReturnWrite
     key = this.contract.web4.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
     
     try {
-      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("setBool", contractArguments, privateKey)
-      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
-    } catch (err) {
+      rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setBool", contractArguments, userAddress)
+    } catch (err) {return rawTransaction
       return err;
     }
-
-    const txResult = await loader(trxHash, this.contract.web4);
-    if(txResult.err) {
-      result.res = false;
-      result.err = txResult.err;
-    } 
-    return result;
   }
 
   //method to write big data type from passport
   //setTxdata(key on which the big data is to be stored, value)
-  async setTxdata(key: string, value:  Array<Number>, privateKey: string): Promise<IReturn> {
-    let trxHash: any;
-    let signedRawTransaction
+  async setTxdata(key: string, value:  Array<Number>, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
-    let result: IReturn = {"res": true, "err": null};
+    let rawTransaction: IReturnWrite
     key = this.contract.web4.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
     
     try {
-      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("setTxdata", contractArguments, privateKey)
-      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
+      rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setTxdata", contractArguments, userAddress)
+      return rawTransaction
     } catch (err) {
       return err;
     }
-
-    const txResult = await loader(trxHash, this.contract.web4);
-    if(txResult.err) {
-      result.res = false;
-      result.err = txResult.err;
-    } 
-    return result;
   }
 }
 

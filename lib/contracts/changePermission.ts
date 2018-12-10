@@ -1,14 +1,21 @@
 import Ethereum from '../transactionHelpers/Ethereum';
-import performAsync from '../providers/performAsync';
-import loader from '../providers/loader';
 import abi from '../../config/abis';
 
 
-interface IReturn {
+interface IReturnWrite {
+  from: string;
+  nonce: Number;
+  gasPrice: string;
+  gasLimit: Number;
+  to: string;
+  value: Number;
+  data: string;
+}
+
+interface IReturnRead {
   "res": Boolean;
   "err": any;
 }
-
 // Class to change and check permissions for factProviders to any specific passport
 // constructor(passportAddress)
 export class Permissions {
@@ -21,33 +28,23 @@ export class Permissions {
   //method to add factProvider to whitelist
   //addFactProviderToWhitelist(factProvider Address)
 
-  async addFactProviderToWhitelist(factProvider: string, privateKey: string): Promise<IReturn> {
-    let trxHash: any;
-    let signedRawTransaction
+  async addFactProviderToWhitelist(factProvider: string, userAddress: string): Promise<IReturnWrite> {
+    let rawTransaction: IReturnWrite
     let contractArguments = []
     contractArguments.push(factProvider);
-    let result: IReturn = {"res": true, "err": null};
     try {
-      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("addFactProviderToWhitelist", contractArguments, privateKey)
-      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
+      rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("addFactProviderToWhitelist", contractArguments, userAddress)
+      return rawTransaction
     } catch (err) {
-      result.res = false;
-      result.err = err;
-      return result;
+      throw new Error(err)
     }
-    const txResult = await loader(trxHash, this.contract.web4);
-    if(txResult.err) {
-      result.res = false;
-      result.err = txResult.err;
-    } 
-    return result;
   }
 
   //method to check if factProvider is in whitelist
   //isFactProviderInWhitelist(factProvider Address)
-  async isFactProviderInWhitelist(factProvider: string): Promise<IReturn> {
+  async isFactProviderInWhitelist(factProvider: string): Promise<IReturnRead> {
     let result: any;
-    let txResult: IReturn = {"res": true, "err": null};
+    let txResult: IReturnRead = {"res": true, "err": null};
     try {
       result = await this.contract.getDataFromSmartContract("isFactProviderInWhitelist", [factProvider])
     } catch (err) {
@@ -60,9 +57,9 @@ export class Permissions {
   };
   
   //method to check if whitelist permission is set.
-  async isWhitelistOnlyPermissionSet(): Promise<IReturn> {
+  async isWhitelistOnlyPermissionSet(): Promise<IReturnRead> {
     let result: any;
-    let txResult: IReturn = {"res": true, "err": null};
+    let txResult: IReturnRead = {"res": true, "err": null};
     try {
       result = await this.contract.getDataFromSmartContract("isWhitelistOnlyPermissionSet", [])
     } catch (err) {
@@ -76,9 +73,9 @@ export class Permissions {
   
   //method to check if factProvider is in whitelist
   //isFactProviderInWhitelist(factProvider Address)
-  async isAllowedFactProvider(factProvider: string): Promise<IReturn> {
+  async isAllowedFactProvider(factProvider: string): Promise<IReturnRead> {
     let result: any;
-    let txResult: IReturn = {"res": true, "err": null};
+    let txResult: IReturnRead = {"res": true, "err": null};
     try {
       result = await this.contract.getDataFromSmartContract("isAllowedFactProvider", [factProvider])
     } catch (err) {
@@ -93,53 +90,31 @@ export class Permissions {
   //method to remove factProvider to whitelist
   //removeFactProviderFromWhitelist(factProvider Address)
 
-  async removeFactProviderFromWhitelist(factProvider: string, privateKey: string): Promise<IReturn> {
-    let trxHash: any;
-    let signedRawTransaction
+  async removeFactProviderFromWhitelist(factProvider: string, userAddress: string): Promise<IReturnWrite> {
+    let rawTransaction: IReturnWrite
     let contractArguments = []
     contractArguments.push(factProvider);
-    let result: IReturn = {"res": true, "err": null};
     try {
-      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("removeFactProviderFromWhitelist", contractArguments, privateKey)
-      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
+      rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("removeFactProviderFromWhitelist", contractArguments, userAddress)
+      return rawTransaction
     } catch (err) {
-      result.res = false;
-      result.err = err;
-      return result;
+      throw new Error(err)
     }
-
-    const txResult = await loader(trxHash, this.contract.web4);
-    if(txResult.err) {
-      result.res = false;
-      result.err = txResult.err;
-    } 
-    return result;
   };
   
   //method to change permission of writing fats to passport
   //changePermission(true/false)
 
-  async changePermission(value: Boolean, privateKey: string): Promise<IReturn> {
-    let trxHash: any;
-    let signedRawTransaction
+  async changePermission(value: Boolean, userAddress: string): Promise<IReturnWrite> {
+    let rawTransaction: IReturnWrite
     let contractArguments = []
     contractArguments.push(value);
-    let result: IReturn = {"res": true, "err": null};
     try {
-      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("setWhitelistOnlyPermission", contractArguments, privateKey)
-      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
+      rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setWhitelistOnlyPermission", contractArguments, userAddress)
+      return rawTransaction
     } catch (err) {
-      result.res = false;
-      result.err = err;
-      return result;
+      throw new Error(err)
     }
-
-    const txResult = await loader(trxHash, this.contract.web4);
-    if(txResult.err) {
-      result.res = false;
-      result.err = txResult.err;
-    } 
-    return result;
   }
   
 }

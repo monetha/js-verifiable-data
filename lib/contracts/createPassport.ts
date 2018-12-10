@@ -1,12 +1,17 @@
 import Ethereum from '../transactionHelpers/Ethereum';
-import loader from '../providers/loader';
 import abi from '../../config/abis';
 
 
-interface IReturn {
-  "res": string;
-  "err": any;
+interface IReturnWrite {
+  from: string;
+  nonce: Number;
+  gasPrice: string;
+  gasLimit: Number;
+  to: string;
+  value: Number;
+  data: string;
 }
+
 
 export class PassportGenerator {
   contract: any;
@@ -16,30 +21,15 @@ export class PassportGenerator {
   }
 
   //method to return the create an empty passport and return the passport Address
-  async createPassport(privateKey: string): Promise<IReturn> {
-
-    let trxHash: any;
-    let signedRawTransaction
+  async createPassport(userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
-    let result: IReturn = {"res": null, "err": null};
-
+    let rawTransaction: IReturnWrite
     try {
-      signedRawTransaction = await this.contract.generateSignedRawTransactionForSmartContractInteraction("createPassport", contractArguments, privateKey)
-      trxHash = await this.contract.web4.eth.sendRawTransaction(signedRawTransaction);
+      rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("createPassport", contractArguments, userAddress)
+      return rawTransaction
     } catch (err) {
-      return err;
+      throw new Error(err)
     }
-
-    const txResult = await loader(trxHash, this.contract.web4);
-    if(txResult.err) {
-      result.err = txResult.err;
-    } else {
-      result.res = txResult.res.logs[0].topics[1];
-      result.res = '0x' + result.res.slice(26);
-    }
-
-    return result;    
   }
 }
-
-export default PassportGenerator;
+  export default PassportGenerator;
