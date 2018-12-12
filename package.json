@@ -2,7 +2,7 @@
 	"name": "reputation-sdk",
 	"version": "1.0.0",
 	"description": "",
-	"main": "./dist/proto.js",
+	"main": "./dist/lib/proto.js",
 	"engines": {
 		"npm": ">=5",
 		"node": ">=8.10.0"
