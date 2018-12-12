@@ -1,27 +1,23 @@
+import axios from 'axios';
 
-const globalWindow: any = window;
-
-const fetchEvents = async function (address) {
-
-  const filter = globalWindow.web3.eth.filter({
-    fromBlock: 0,
-    toBlock: 'latest',
-    address: address
-  });
-
-  const getAsync = () => new Promise((resolve, reject) => {
-    filter.get((err, res) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(res);
+//method to fetch all the vents corresponding to specific address from block 0 to latest
+const fetchEvents = async function (address, url) {
+  const requestData = {
+    id:1,
+    jsonrpc: "2.0",
+    method: "eth_getLogs",
+    params: [
+      {
+        fromBlock: "0x0",
+        toBlock: "0x6c6174657374",
+        address,
       }
-    })
-  })
+    ],
+  };
 
-  const events = await getAsync();
+  const response = await axios.post(url, requestData);
  
-  return events;
+  return response.data.result;
 };
 
 export default fetchEvents;

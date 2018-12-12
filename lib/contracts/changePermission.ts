@@ -1,51 +1,52 @@
-import createInstance from '../providers/createInstance';
-import performAsync from '../providers/performAsync';
-import loader from '../providers/loader';
+import Ethereum from '../transactionHelpers/Ethereum';
 import abi from '../../config/abis';
 
 
-interface IReturn {
+interface IReturnWrite {
+  from: string;
+  nonce: string;
+  gasPrice: string;
+  gasLimit: Number;
+  to: string;
+  value: Number;
+  data: string;
+}
+
+interface IReturnRead {
   "res": Boolean;
   "err": any;
 }
-
 // Class to change and check permissions for factProviders to any specific passport
-// constructor(passportAddress)
+// constructor(passportAddress, node url)
 export class Permissions {
   contract: any;
 
-  constructor(atAddress: string) {
-    this.contract = createInstance(abi.PassportLogic.abi, atAddress);
+  constructor(atAddress: string, network: string) {
+    this.contract = new Ethereum(abi.PassportLogic.abi, atAddress, network);
   }
 
   //method to add factProvider to whitelist
-  //addFactProviderToWhitelist(factProvider Address)
+  //addFactProviderToWhitelist(factProvider Address, fromUser Address)
 
-  async addFactProviderToWhitelist(factProvider: string): Promise<IReturn> {
-    let trxHash: any;
-    let result: IReturn = {"res": true, "err": null};
+  async addFactProviderToWhitelist(factProvider: string, userAddress: string): Promise<IReturnWrite> {
+    let rawTransaction: IReturnWrite
+    let contractArguments = []
+    contractArguments.push(factProvider);
     try {
-      trxHash = await performAsync(this.contract.addFactProviderToWhitelist.bind(null, factProvider));
+      rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("addFactProviderToWhitelist", contractArguments, userAddress)
+      return rawTransaction
     } catch (err) {
-      result.res = false;
-      result.err = err;
-      return result;
+      throw new Error(err)
     }
-    const txResult = await loader(trxHash);
-    if(txResult.err) {
-      result.res = false;
-      result.err = txResult.err;
-    } 
-    return result;
   }
 
   //method to check if factProvider is in whitelist
   //isFactProviderInWhitelist(factProvider Address)
-  async isFactProviderInWhitelist(factProvider: string): Promise<IReturn> {
+  async isFactProviderInWhitelist(factProvider: string): Promise<IReturnRead> {
     let result: any;
-    let txResult: IReturn = {"res": true, "err": null};
+    let txResult: IReturnRead = {"res": true, "err": null};
     try {
-      result = await performAsync(this.contract.isFactProviderInWhitelist.bind(null, factProvider));
+      result = await this.contract.getDataFromSmartContract("isFactProviderInWhitelist", [factProvider])
     } catch (err) {
       txResult.res = null;
       txResult.err = err;
@@ -56,11 +57,11 @@ export class Permissions {
   };
   
   //method to check if whitelist permission is set.
-  async isWhitelistOnlyPermissionSet(): Promise<IReturn> {
+  async isWhitelistOnlyPermissionSet(): Promise<IReturnRead> {
     let result: any;
-    let txResult: IReturn = {"res": true, "err": null};
+    let txResult: IReturnRead = {"res": true, "err": null};
     try {
-      result = await performAsync(this.contract.isWhitelistOnlyPermissionSet.bind(null));
+      result = await this.contract.getDataFromSmartContract("isWhitelistOnlyPermissionSet", [])
     } catch (err) {
       txResult.res = null;
       txResult.err = err;
@@ -72,11 +73,11 @@ export class Permissions {
   
   //method to check if factProvider is in whitelist
   //isFactProviderInWhitelist(factProvider Address)
-  async isAllowedFactProvider(factProvider: string): Promise<IReturn> {
+  async isAllowedFactProvider(factProvider: string): Promise<IReturnRead> {
     let result: any;
-    let txResult: IReturn = {"res": true, "err": null};
+    let txResult: IReturnRead = {"res": true, "err": null};
     try {
-      result = await performAsync(this.contract.isAllowedFactProvider.bind(null, factProvider));
+      result = await this.contract.getDataFromSmartContract("isAllowedFactProvider", [factProvider])
     } catch (err) {
       txResult.res = null;
       txResult.err = err;
@@ -89,43 +90,31 @@ export class Permissions {
   //method to remove factProvider to whitelist
   //removeFactProviderFromWhitelist(factProvider Address)
 
-  async removeFactProviderFromWhitelist(factProvider: string): Promise<IReturn> {
-    let trxHash: any;
-    let result: IReturn = {"res": true, "err": null};
+  async removeFactProviderFromWhitelist(factProvider: string, userAddress: string): Promise<IReturnWrite> {
+    let rawTransaction: IReturnWrite
+    let contractArguments = []
+    contractArguments.push(factProvider);
     try {
-      trxHash = await performAsync(this.contract.removeFactProviderFromWhitelist.bind(null, factProvider));
+      rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("removeFactProviderFromWhitelist", contractArguments, userAddress)
+      return rawTransaction
     } catch (err) {
-      result.res = false;
-      result.err = err;
-      return result;
+      throw new Error(err)
     }
-    const txResult = await loader(trxHash);
-    if(txResult.err) {
-      result.res = false;
-      result.err = txResult.err;
-    } 
-    return result;
   };
   
   //method to change permission of writing fats to passport
   //changePermission(true/false)
 
-  async changePermission(value: Boolean): Promise<IReturn> {
-    let trxHash: any;
-    let result: IReturn = {"res": true, "err": null};
+  async changePermission(value: Boolean, userAddress: string): Promise<IReturnWrite> {
+    let rawTransaction: IReturnWrite
+    let contractArguments = []
+    contractArguments.push(value);
     try {
-      trxHash = await performAsync(this.contract.setWhitelistOnlyPermission.bind(null, value));
+      rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setWhitelistOnlyPermission", contractArguments, userAddress)
+      return rawTransaction
     } catch (err) {
-      result.res = false;
-      result.err = err;
-      return result;
+      throw new Error(err)
     }
-    const txResult = await loader(trxHash);
-    if(txResult.err) {
-      result.res = false;
-      result.err = txResult.err;
-    } 
-    return result;
   }
   
 }

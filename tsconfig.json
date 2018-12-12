@@ -4,12 +4,12 @@
       "allowJs": true,
       "target": "es5",
       "lib": ["dom", "es2015"]
-
   },
   "globals": [
     "Promise"
   ],
   "include": [
-      "./lib/**/*"
+      "./lib/**/*",
+      "./config/*"
   ]
 }

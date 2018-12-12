@@ -1,5 +1,4 @@
-import createInstance from '../providers/createInstance';
-import performAsync from '../providers/performAsync';
+import Ethereum from '../transactionHelpers/Ethereum';
 import abi from '../../config/abis';
 
 interface IReturnString {
@@ -18,126 +17,167 @@ interface IReturnBytes {
   "res": Array<Number>;
   "err": any;
 }
-const globalWindow: any = window;
 
 //Class to read facts from the passport for factReader
 //FactReader(passportAddress)
 export class FactReader {
   contract: any;
 
-  constructor(atAddress: string) {
-    this.contract = createInstance(abi.PassportLogic.abi, atAddress);
+  constructor(atAddress: string, network: string) {
+    this.contract = new Ethereum(abi.PassportLogic.abi, atAddress, network);
   }
 
   //method to read string type from passport
   //getString(factProvider address who wrote the fact, key on which the string is stored)
   async getString(factProviderAddress: string, key: string): Promise<IReturnString> {
-    key = globalWindow.web3.fromAscii(key);
+    let contractArguments = []
     let result: IReturnString = {"res": null, "err": null};
+    key = this.contract.web4.fromAscii(key);
+    contractArguments.push(factProviderAddress);
+    contractArguments.push(key);
     let txResult: any;
+    
     try {
-      txResult = await performAsync(this.contract.getString.bind(null, factProviderAddress, key));
+      txResult = await this.contract.getDataFromSmartContract("getString", contractArguments)
     } catch (err) {
-      result.err = err;
-      return result;
+      return err;
+    }    
+
+    if(txResult[0]) {
+      result.res = txResult[1];
     }
-    result.res = txResult[1];
     return result;
   }
 
   //method to read bytes type from passport
   //getBytes(factProvider address who wrote the fact, key on which the bytes is stored)
   async getBytes(factProviderAddress: string, key: string): Promise<IReturnBytes> {
-    key = globalWindow.web3.fromAscii(key);
     let result: IReturnBytes = {"res": null, "err": null};
+    let contractArguments = []
+    key = this.contract.web4.fromAscii(key);
+    contractArguments.push(factProviderAddress);
+    contractArguments.push(key);
     let txResult: any;
+    
     try {
-      txResult = await performAsync(this.contract.getBytes.bind(null, factProviderAddress, key));
+      txResult = await this.contract.getDataFromSmartContract("getBytes", contractArguments)
     } catch (err) {
-      result.err = err;
-      return result;
+      return err;
+    }    
+    
+    if(txResult[0]) {
+      result.res = txResult[1];
     }
-    result.res = txResult[1];
     return result;
   }
 
   //method to read address type from passport
   //getAddress(factProvider address who wrote the fact, key on which the address is stored)
   async getAddress(factProviderAddress: string, key: string): Promise<IReturnString> {
-    key = globalWindow.web3.fromAscii(key);
     let result: IReturnString = {"res": null, "err": null};
+    let contractArguments = []
+    key = this.contract.web4.fromAscii(key);
+    contractArguments.push(factProviderAddress);
+    contractArguments.push(key);
     let txResult: any;
+    
     try {
-      txResult = await performAsync(this.contract.getAddress.bind(null, factProviderAddress, key));
+      txResult = await this.contract.getDataFromSmartContract("getAddress", contractArguments)
     } catch (err) {
-      result.err = err;
-      return result;
+      return err;
+    }    
+    
+    if(txResult[0]) {
+      result.res = txResult[1];
     }
-    result.res = txResult[1];
     return result;
   }
 
   //method to read uint type from passport
   //getUint(factProvider address who wrote the fact, key on which the uint is stored)
   async getUint(factProviderAddress: string, key: string): Promise<IReturnNumber> {
-    key = globalWindow.web3.fromAscii(key);
     let result: IReturnNumber = {"res": null, "err": null};
+    let contractArguments = []
+    key = this.contract.web4.fromAscii(key);
+    contractArguments.push(factProviderAddress);
+    contractArguments.push(key);
     let txResult: any;
+    
     try {
-      txResult = await performAsync(this.contract.getUint.bind(null, factProviderAddress, key));
+      txResult = await this.contract.getDataFromSmartContract("getUint", contractArguments)
     } catch (err) {
-      result.err = err;
-      return result;
+      return err;
+    }    
+    
+    if(txResult[0]) {
+      result.res = txResult[1];
     }
-    result.res = txResult[1];
     return result;
   }
 
   //method to read int type from passport
   //getInt(factProvider address who wrote the fact, key on which the int is stored)
   async getInt(factProviderAddress: string, key: string): Promise<IReturnNumber> {
-    key = globalWindow.web3.fromAscii(key);
     let result: IReturnNumber = {"res": null, "err": null};
+    let contractArguments = []
+    key = this.contract.web4.fromAscii(key);
+    contractArguments.push(factProviderAddress);
+    contractArguments.push(key);
     let txResult: any;
+    
     try {
-      txResult = await performAsync(this.contract.getInt.bind(null, factProviderAddress, key));
+      txResult = await this.contract.getDataFromSmartContract("getInt", contractArguments)
     } catch (err) {
-      result.err = err;
-      return result;
+      return err;
+    }    
+    
+    if(txResult[0]) {
+      result.res = txResult[1];
     }
-    result.res = txResult[1];
     return result;
   }
 
   //method to read bool type from passport
   //getBool(factProvider address who wrote the fact, key on which the bool is stored)
   async getBool(factProviderAddress: string, key: string): Promise<IReturnBool> {
-    key = globalWindow.web3.fromAscii(key);
     let result: IReturnBool = {"res": null, "err": null};
+    let contractArguments = []
+    key = this.contract.web4.fromAscii(key);
+    contractArguments.push(factProviderAddress);
+    contractArguments.push(key);
     let txResult: any;
+    
     try {
-      txResult = await performAsync(this.contract.getBool.bind(null, factProviderAddress, key));
+      txResult = await this.contract.getDataFromSmartContract("getBool", contractArguments)
     } catch (err) {
-      result.err = err;
-      return result;
+      return err;
+    }    
+    
+    if(txResult[0]) {
+      result.res = txResult[1];
     }
-    result.res = txResult[1];
     return result;
   }
 
   //method to read bytes type from passport
   //getTxDataBlockNumber(factProvider address who wrote the fact, key on which the bytes is stored)
   async getTxDataBlockNumber(factProviderAddress: string, key: string): Promise<IReturnBytes> {
-    key = globalWindow.web3.fromAscii(key);
     let result: IReturnBytes = {"res": null, "err": null};
+    let contractArguments = []
+    key = this.contract.web4.fromAscii(key);
+    contractArguments.push(factProviderAddress);
+    contractArguments.push(key);
     let txResult: any;
+    
     try {
-      txResult = await performAsync(this.contract.getTxDataBlockNumber.bind(null, factProviderAddress, key));
+      txResult = await this.contract.getDataFromSmartContract("getTxDataBlockNumber", contractArguments)
     } catch (err) {
-      result.err = err;
-      return result;
+      return err;
+    }    
+    
+    if(txResult[0]) {
+      result.res = txResult[1];
     }
-    result.res = txResult[1];
     return result;
   }
 }
