@@ -4,7 +4,7 @@ import abi from '../../config/abis';
 
 interface IReturnWrite {
   from: string;
-  nonce: Number;
+  nonce: string;
   gasPrice: string;
   gasLimit: Number;
   to: string;
