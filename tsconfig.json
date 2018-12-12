@@ -9,6 +9,7 @@
     "Promise"
   ],
   "include": [
-      "./lib/**/*"
+      "./lib/**/*",
+      "./config/*"
   ]
 }
