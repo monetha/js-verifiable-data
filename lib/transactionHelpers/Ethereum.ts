@@ -1,5 +1,6 @@
 import Web4 from './Web4';
 
+// Class to use all web ethereum method for gasprice. nonce, gaslimit, contractInstance
 export class Ethereum {
   web4: any;
   Contract: any;
@@ -42,6 +43,7 @@ export class Ethereum {
     }
   }
 
+  // generates hex from contract data (methods, params)
   async generateDataForSmartContractInteraction (
     contractFunctionName,
     contractArguments
@@ -50,6 +52,7 @@ export class Ethereum {
     return this.contractInstance[contractFunctionName].getData(...contractArguments)
   }
 
+  // method to generate raw unsigned transaction 
   async generateRawTransactionForSmartContractInteraction (
     contractFunctionName,
     contractArguments,
@@ -71,7 +74,7 @@ export class Ethereum {
     return rawTx
   }
 
-
+// method to read data from contracts (read methods gas free)
   async getDataFromSmartContract (
     contractFunctionName,
     contractArguments) {

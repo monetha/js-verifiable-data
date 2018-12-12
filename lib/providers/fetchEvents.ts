@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { INFURA_END_POINT } from '../../config/constants';
 
-const fetchEvents = async function (address, web4) {
+//method to fetch all the vents corresponding to specific address from block 0 to latest
+const fetchEvents = async function (address, url) {
   const requestData = {
     id:1,
     jsonrpc: "2.0",
@@ -15,7 +15,7 @@ const fetchEvents = async function (address, web4) {
     ],
   };
 
-  const response = await axios.post(INFURA_END_POINT, requestData);
+  const response = await axios.post(url, requestData);
  
   return response.data.result;
 };

@@ -1,5 +1,4 @@
 import Ethereum from '../transactionHelpers/Ethereum';
-import loader from '../providers/loader';
 import abi from '../../config/abis';
 
 interface IReturnWrite {
@@ -35,7 +34,7 @@ export class FactWriter {
       rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setString", contractArguments, userAddress)
       return rawTransaction
     } catch (err) {
-      return err;
+      throw new Error(err);
     }
 
   }
@@ -53,7 +52,7 @@ export class FactWriter {
       rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setBytes", contractArguments, userAddress)
       return rawTransaction
     } catch (err) {
-      return err;
+      throw new Error(err);
     }
 
   }
@@ -71,7 +70,7 @@ export class FactWriter {
       rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setAddress", contractArguments, userAddress)
       return rawTransaction
     } catch (err) {
-      return err;
+      throw new Error(err);
     }
 
   }
@@ -89,7 +88,7 @@ export class FactWriter {
       rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setUint", contractArguments, userAddress)
       return rawTransaction
     } catch (err) {
-      return err;
+      throw new Error(err);
     }
 
   }
@@ -107,7 +106,7 @@ export class FactWriter {
       rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setInt", contractArguments, userAddress)
       return rawTransaction
     } catch (err) {
-      return err;
+      throw new Error(err);
     }
 
   }
@@ -123,8 +122,9 @@ export class FactWriter {
     
     try {
       rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setBool", contractArguments, userAddress)
-    } catch (err) {return rawTransaction
-      return err;
+      return rawTransaction
+    } catch (err) {
+      throw new Error(err);
     }
   }
 
@@ -141,7 +141,7 @@ export class FactWriter {
       rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setTxdata", contractArguments, userAddress)
       return rawTransaction
     } catch (err) {
-      return err;
+      throw new Error(err);
     }
   }
 }

@@ -19,21 +19,23 @@ interface IFilteredFact {
 
 export class PassportReader {
   web4: any;
-
+  url: string;
   constructor(network: string) {
-    this.web4 = new Web4(network).web4;
+    const eth = new Web4(network)
+    this.web4 = eth.web4;
+    this.url = eth.url;
   }
 
   //method to fetch all the passport created by a particular passportFactory address
   async getPassportLists (factoryAddress: string): Promise<Array<IFilteredEvents>> {
 
-    const events = await fetchEvents(factoryAddress, this.web4);
+    const events = await fetchEvents(factoryAddress, this.url);
     let filteredEvents: Array<IFilteredEvents>;
     filteredEvents = (events as Array<any>).map((event) => ({
       blockNumber: event.blockNumber,
       blockHash: event.blockHash,
-      passportAddress: '0x' + event.topics[1].slice(26),
-      ownerAddress: '0x' + event.topics[2].slice(26),
+      passportAddress: '0x' + event.topics[1] ? event.topics[1].slice(26) : "",
+      ownerAddress: '0x' + event.topics[2] ? event.topics[2].slice(26) : "",
     }));
   
     return filteredEvents;
@@ -41,7 +43,7 @@ export class PassportReader {
 
   //method to fetch all the events(history) of a particular passportFactory address
   async readPassportHistory (factoryAddress: string): Promise<Array<IFilteredFact>> {
-    const facts  = await fetchEvents(factoryAddress, this.web4);
+    const facts  = await fetchEvents(factoryAddress, this.url);
     let filteredFacts: Array<IFilteredFact>;
     filteredFacts = (facts as Array<any>).map(fact => ({
       blockNumber: fact.blockNumber,

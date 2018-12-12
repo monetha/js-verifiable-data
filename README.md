@@ -52,7 +52,7 @@ Prepare in advance the address that will be the owner of the deployed contracts.
 ## Usage
 
 `import sdk from 'reputation-sdk'`
-`const generator = new sdk.PassportGenerator()`
+`const generator = new sdk.PassportGenerator(network url, passportFactoryAddress)`
 
 In order to create a passport and start using it, you need to use auxiliary reputation layer contracts: PassportLogic, PassportLogicRegistry, PassportFactory.
 
@@ -67,11 +67,11 @@ using the `PassportFactory` contract deployed by Monetha ([`0x87b7Ec2602Da6C9e4D
 
 ```
 import sdk from 'reputation-sdk'
-const generator = new sdk.PassportGenerator()
-generator.createPassport()
+const generator = new sdk.PassportGenerator(network url, passportFactoryAddress)
+generator.createPassport(address of user creating passport)
 ```
 
-You will get the contractAddress of passport in output of the function.
+You will get the transaction info (raw unsigned transaction) in output of the function, sign the transaction using the private key of address given in userAddress and broadcast it on the network.
 
 
 ### Passport list
@@ -83,7 +83,8 @@ in Ropsten network:
 
 ```
 import sdk from 'reputation-sdk'
-sdk.getPassportLists("0x87b7Ec2602Da6C9e4D563d788e1e29C064A364a2")
+const reader = new sdk.PassportReader(network url)
+reader.getPassportLists("0x87b7Ec2602Da6C9e4D563d788e1e29C064A364a2")
 ```
 
 You should get something like this Array of objects:
@@ -118,8 +119,8 @@ Let's try to store string  `hello` under the key `greetings` as `string` in pass
 
 ```
 import sdk from 'reputation-sdk'
-const writer = new sdk.FactWriter(<passportAddress>)
-writer.setString("greetings", "hello")
+const writer = new sdk.FactWriter(network url, <passportAddress>)
+writer.setString("greetings", "hello", transaction signer userAddress)
 ```
 
 Also user can delete the data stored from the passport.
@@ -129,9 +130,11 @@ Let's try to delete string  `hello` under the key `greetings` as `string` in pas
 
 ```
 import sdk from 'reputation-sdk'
-const remover = new sdk.FactRemover(<passportAddress>)
-remover.deleteString("greetings")
+const remover = new sdk.FactRemover(network url, <passportAddress>)
+remover.deleteString("greetings", transaction signer userAddress)
 ```
+
+You will get the transaction info (raw unsigned transaction) in output of the function, sign the transaction using the private key of address given in userAddress and broadcast it on the network.
 
 ### Reading facts
 
@@ -144,7 +147,7 @@ Let's try to retrieve string from passport `<passportAddress>` that was stored b
 
 ```
 import sdk from 'reputation-sdk'
-const reader = new sdk.FactReader(<passportAddress>)
+const reader = new sdk.FactReader(<passportAddress>, network url)
 reader.getString(<factProviderAddress>, "greetings")
 ```
 
@@ -158,14 +161,18 @@ Consider an example of how owner of a passport `<ownerAddress>` adds fact provid
 `<factProviderAddress>` to the whitelist in Ropsten network:
 
 ```
-addFactProviderToWhitelist(<passportLogicAbi>, <passportAddress>, <factProvider>)
+import sdk from 'reputation-sdk'
+const Permissions = new sdk.Permissions(<passportAddress>, network url)
+Permissions.addFactProviderToWhitelist(<factProvider>, user addres of transaction signer)
 ```
 Also the passportOwner can delete the factProvider from the list.
 Consider an example of how owner of a passport `<ownerAddress>` deletes fact provider
 `<factProviderAddress>` to the whitelist in Ropsten network:
 
 ```
-removeFactProviderFromWhitelist(<passportLogicAbi>, <passportAddress>, <factProvider>)
+import sdk from 'reputation-sdk'
+const Permissions = new sdk.Permissions(<passportAddress>, network url)
+Permissions.removeFactProviderFromWhitelist(<factProvider>, user addres of transaction signer)
 ```
 
 Please note that the passport owner only can call this method.
@@ -176,7 +183,9 @@ Owner of a passport `<ownerAddress>` may allow to store the facts only to fact p
 from the whitelist by running the command:
 
 ```
-changePermission(<passportLogicAbi>, <passportAddress>, true)
+import sdk from 'reputation-sdk'
+const Permissions = new sdk.Permissions(<passportAddress>, network url)
+Permissions.changePermission(true/false, user addres of transaction signer)
 ```
 
 ### Reading facts history
@@ -187,7 +196,9 @@ Let's try to retrieve the entire change history for the passport [`0x9CfabB3172D
 in `Ropsten` block-chain :
 
 ```
-readPassportHistory(<passportAddress>)
+import sdk from 'reputation-sdk'
+const passportReader = new sdk.PassportReader(network url)
+passportReader.readPassportHistory(<passportAddress>)
 ```
 
 
@@ -204,5 +215,5 @@ Even if the value of a fact has been deleted or changed, we can read its value a
 Let's read what the value of the fact was during the first update. To do this, we need to specify the transaction hash `0x627913f620990ec12360a6f1fda4887ea837b41e2f6cbae90e24322dc8cf8b1a`:
 
 ```
-readTransactionData(<passportLogicAbi>, <transaction Hash got from the above>)
+passportReader.getTrxData(<transaction Hash from the above>)
 ```

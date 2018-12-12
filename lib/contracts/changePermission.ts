@@ -17,7 +17,7 @@ interface IReturnRead {
   "err": any;
 }
 // Class to change and check permissions for factProviders to any specific passport
-// constructor(passportAddress)
+// constructor(passportAddress, node url)
 export class Permissions {
   contract: any;
 
@@ -26,7 +26,7 @@ export class Permissions {
   }
 
   //method to add factProvider to whitelist
-  //addFactProviderToWhitelist(factProvider Address)
+  //addFactProviderToWhitelist(factProvider Address, fromUser Address)
 
   async addFactProviderToWhitelist(factProvider: string, userAddress: string): Promise<IReturnWrite> {
     let rawTransaction: IReturnWrite

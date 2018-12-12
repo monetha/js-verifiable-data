@@ -16,8 +16,8 @@ interface IReturnWrite {
 export class PassportGenerator {
   contract: any;
 
-  constructor(network: string) {
-    this.contract = new Ethereum(abi.PassportFactory.abi, abi.PassportFactory.at, network);
+  constructor(network: string, passportFactoryAddress: string) {
+    this.contract = new Ethereum(abi.PassportFactory.abi, passportFactoryAddress, network);
   }
 
   //method to return the create an empty passport and return the passport Address

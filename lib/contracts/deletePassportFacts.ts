@@ -1,5 +1,4 @@
 import Ethereum from '../transactionHelpers/Ethereum';
-import loader from '../providers/loader';
 import abi from '../../config/abis';
 
 interface IReturnWrite {
