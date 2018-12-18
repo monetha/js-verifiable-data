@@ -2,17 +2,19 @@
 
 # Reputation Layer: js-sdk
 
-* [Building the source](#building-the-source)
-    * [Prerequisites](#prerequisites)
-    * [Build](#build)
-* [Bootstrap reputation layer](#bootstrap-reputation-layer)
-* [Usage](#usage)
-    * [Deploying passport](#deploying-passport)
-    * [Passport list](#passport-list)
-    * [Writing facts](#writing-facts)
-    * [Reading facts](#reading-facts)
-    * [Changing passport permissions](#changing-passport-permissions)
-    * [Reading facts history](#reading-facts-history)
+- [Monetha: Decentralized Reputation Framework](#monetha-decentralized-reputation-framework)
+- [Reputation Layer: js-sdk](#reputation-layer-js-sdk)
+  - [Building the source](#building-the-source)
+    - [Prerequisites](#prerequisites)
+    - [Build](#build)
+  - [Bootstrap reputation layer](#bootstrap-reputation-layer)
+  - [Usage](#usage)
+    - [Deploying passport](#deploying-passport)
+    - [Passport list](#passport-list)
+    - [Writing facts](#writing-facts)
+    - [Reading facts](#reading-facts)
+    - [Changing passport permissions](#changing-passport-permissions)
+    - [Reading facts history](#reading-facts-history)
 
 ## Building the source
 
@@ -103,7 +105,28 @@ activated, it will be immediately used by all passports created by this factory.
 
 After the passport is created, any fact provider can start writing data to the passport.
 
-Make sure that the fact provider has enough funds to write the facts. Check [gas usage table](cmd/write-fact#gas-usage) to estimate the required amount of funds.
+Make sure that the fact provider has enough funds to write the facts.
+
+**Gas usage**
+
+Cumulative gas usage in simulated backend to store number of character of `a` under the key 
+`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` using different data types:
+
+| Number of characters |     `ipfs*`, gas used    |     `txdata`, gas used    |  `bytes`, gas used |  `string`, gas used |
+|---------------------:|--------------------------:|--------------------------:|-------------------:|-------------------:|
+| 10 | 114245 | 70436 | 71079 | 71211 |
+| 100 | 114245 | 76598 | 157571 | 157703 |
+| 500 | 114245 | 103870 | 425756 | 425888 |
+| 1000 | 114245 | 138016 | 781119 | 781251 |
+| 5000 | 114245 | 410814 | 3563467 | 3563599 |
+| 10000 | 114245 | 751864 | 7036521 | 7036653 |
+| 50000 | 114245 | 3483963 | - | - |
+| 100000 | 114245 | 6907662 | - | - |
+| 110000 | 114245 | 7593621 | - | - |
+| 120000 | 114245 | 8279814 | - | - |
+| 130000 | 114245 | 8966537 | - | - |
+*: *js sdk doesn't support IPFS yet.*
+
 
 You can write up to 100KB of data in passport under one key when `txdata` data type is used. Supported data types that
 can be written to the passport: `string`, `bytes`, `address`, `uint`, `int`, `bool`, `txdata`. All types except `txdata`
