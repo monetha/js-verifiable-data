@@ -125,6 +125,7 @@ Cumulative gas usage in simulated backend to store number of character of `a` un
 | 110000 | 114245 | 7593621 | - | - |
 | 120000 | 114245 | 8279814 | - | - |
 | 130000 | 114245 | 8966537 | - | - |
+
 *: *js sdk doesn't support IPFS yet.*
 
 
