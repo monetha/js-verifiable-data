@@ -1,5 +1,6 @@
 import Ethereum from '../transactionHelpers/Ethereum';
 import abi from '../../config/abis';
+import Web4 from '../transactionHelpers/Web4';
 
 interface IReturnString {
   "res": string;
@@ -21,24 +22,29 @@ interface IReturnBytes {
 //Class to read facts from the passport for factReader
 //FactReader(passportAddress)
 export class FactReader {
-  contract: any;
+  contractInstance: any;
+  web4: any;
 
-  constructor(atAddress: string, network: string) {
-    this.contract = new Ethereum(abi.PassportLogic.abi, atAddress, network);
+  constructor(network: string) {
+    this.web4 = new Web4(network).web4;
   }
 
+  setContract(atAddress: string) {
+    const contract = this.web4.eth.contract(abi.PassportLogic.abi)
+    this.contractInstance = contract.at(atAddress)
+  }
   //method to read string type from passport
   //getString(factProvider address who wrote the fact, key on which the string is stored)
   async getString(factProviderAddress: string, key: string): Promise<IReturnString> {
     let contractArguments = []
     let result: IReturnString = {"res": null, "err": null};
-    key = this.contract.web4.fromAscii(key);
+    key = this.web4.fromAscii(key);
     contractArguments.push(factProviderAddress);
     contractArguments.push(key);
     let txResult: any;
     
     try {
-      txResult = await this.contract.getDataFromSmartContract("getString", contractArguments)
+      txResult = await this.getDataFromSmartContract("getString", contractArguments)
     } catch (err) {
       return err;
     }    
@@ -54,13 +60,13 @@ export class FactReader {
   async getBytes(factProviderAddress: string, key: string): Promise<IReturnBytes> {
     let result: IReturnBytes = {"res": null, "err": null};
     let contractArguments = []
-    key = this.contract.web4.fromAscii(key);
+    key = this.web4.fromAscii(key);
     contractArguments.push(factProviderAddress);
     contractArguments.push(key);
     let txResult: any;
     
     try {
-      txResult = await this.contract.getDataFromSmartContract("getBytes", contractArguments)
+      txResult = await this.getDataFromSmartContract("getBytes", contractArguments)
     } catch (err) {
       return err;
     }    
@@ -76,13 +82,13 @@ export class FactReader {
   async getAddress(factProviderAddress: string, key: string): Promise<IReturnString> {
     let result: IReturnString = {"res": null, "err": null};
     let contractArguments = []
-    key = this.contract.web4.fromAscii(key);
+    key = this.web4.fromAscii(key);
     contractArguments.push(factProviderAddress);
     contractArguments.push(key);
     let txResult: any;
     
     try {
-      txResult = await this.contract.getDataFromSmartContract("getAddress", contractArguments)
+      txResult = await this.getDataFromSmartContract("getAddress", contractArguments)
     } catch (err) {
       return err;
     }    
@@ -98,13 +104,13 @@ export class FactReader {
   async getUint(factProviderAddress: string, key: string): Promise<IReturnNumber> {
     let result: IReturnNumber = {"res": null, "err": null};
     let contractArguments = []
-    key = this.contract.web4.fromAscii(key);
+    key = this.web4.fromAscii(key);
     contractArguments.push(factProviderAddress);
     contractArguments.push(key);
     let txResult: any;
     
     try {
-      txResult = await this.contract.getDataFromSmartContract("getUint", contractArguments)
+      txResult = await this.getDataFromSmartContract("getUint", contractArguments)
     } catch (err) {
       return err;
     }    
@@ -120,13 +126,13 @@ export class FactReader {
   async getInt(factProviderAddress: string, key: string): Promise<IReturnNumber> {
     let result: IReturnNumber = {"res": null, "err": null};
     let contractArguments = []
-    key = this.contract.web4.fromAscii(key);
+    key = this.web4.fromAscii(key);
     contractArguments.push(factProviderAddress);
     contractArguments.push(key);
     let txResult: any;
     
     try {
-      txResult = await this.contract.getDataFromSmartContract("getInt", contractArguments)
+      txResult = await this.getDataFromSmartContract("getInt", contractArguments)
     } catch (err) {
       return err;
     }    
@@ -142,13 +148,13 @@ export class FactReader {
   async getBool(factProviderAddress: string, key: string): Promise<IReturnBool> {
     let result: IReturnBool = {"res": null, "err": null};
     let contractArguments = []
-    key = this.contract.web4.fromAscii(key);
+    key = this.web4.fromAscii(key);
     contractArguments.push(factProviderAddress);
     contractArguments.push(key);
     let txResult: any;
     
     try {
-      txResult = await this.contract.getDataFromSmartContract("getBool", contractArguments)
+      txResult = await this.getDataFromSmartContract("getBool", contractArguments)
     } catch (err) {
       return err;
     }    
@@ -164,13 +170,13 @@ export class FactReader {
   async getTxDataBlockNumber(factProviderAddress: string, key: string): Promise<IReturnBytes> {
     let result: IReturnBytes = {"res": null, "err": null};
     let contractArguments = []
-    key = this.contract.web4.fromAscii(key);
+    key = this.web4.fromAscii(key);
     contractArguments.push(factProviderAddress);
     contractArguments.push(key);
     let txResult: any;
     
     try {
-      txResult = await this.contract.getDataFromSmartContract("getTxDataBlockNumber", contractArguments)
+      txResult = await this.getDataFromSmartContract("getTxDataBlockNumber", contractArguments)
     } catch (err) {
       return err;
     }    
@@ -179,6 +185,22 @@ export class FactReader {
       result.res = txResult[1];
     }
     return result;
+  }
+
+  async getDataFromSmartContract(
+    contractFunctionName,
+    contractArguments) {
+    return new Promise((resolve, reject) => {
+      contractArguments = contractArguments || []
+      this.contractInstance[contractFunctionName].call(...contractArguments, { from: "" }, function (err, data) {
+        if (err) {
+          const error = 'DID not registered'
+          reject(error)
+        } else {
+          resolve(data)
+        }
+      })
+    })
   }
 }
 
