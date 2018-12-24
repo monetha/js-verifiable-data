@@ -1,6 +1,8 @@
-import Ethereum from '../transactionHelpers/Ethereum';
 import abi from '../../config/abis';
 import Web4 from '../transactionHelpers/Web4';
+import fetchEvents from '../providers/fetchEvents';
+import getTxData from '../providers/getTrxData';
+
 
 interface IReturnString {
   "res": string;
@@ -24,14 +26,18 @@ interface IReturnBytes {
 export class FactReader {
   contractInstance: any;
   web4: any;
+  url: string;
+  contractAddress: string;
 
   constructor(network: string) {
     this.web4 = new Web4(network).web4;
+    this.url = network;
   }
 
   setContract(atAddress: string) {
     const contract = this.web4.eth.contract(abi.PassportLogic.abi)
     this.contractInstance = contract.at(atAddress)
+    this.contractAddress = atAddress
   }
   //method to read string type from passport
   //getString(factProvider address who wrote the fact, key on which the string is stored)
@@ -167,8 +173,8 @@ export class FactReader {
 
   //method to read bytes type from passport
   //getTxDataBlockNumber(factProvider address who wrote the fact, key on which the bytes is stored)
-  async getTxDataBlockNumber(factProviderAddress: string, key: string): Promise<IReturnBytes> {
-    let result: IReturnBytes = {"res": null, "err": null};
+  async getTxDataBlockNumber(factProviderAddress: string, key: string): Promise<IReturnString> {
+    let result: IReturnString = {"res": null, "err": null};
     let contractArguments = []
     key = this.web4.fromAscii(key);
     contractArguments.push(factProviderAddress);
@@ -178,11 +184,16 @@ export class FactReader {
     try {
       txResult = await this.getDataFromSmartContract("getTxDataBlockNumber", contractArguments)
     } catch (err) {
-      return err;
+      throw new Error(err);
     }    
     
     if(txResult[0]) {
-      result.res = txResult[1];
+      const blockNumHex = this.web4.toHex(txResult[1]);
+      const events = await fetchEvents(blockNumHex, blockNumHex, this.contractAddress, this.url);
+      const txBlock = await getTxData(events[0].transactionHash, this.web4);
+      const txDataString = txBlock.params[1].value;
+      const txData= this.web4.toAscii(txDataString);
+      result.res = txData;
     }
     return result;
   }

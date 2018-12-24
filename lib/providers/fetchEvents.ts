@@ -1,15 +1,15 @@
 import axios from 'axios';
 
 //method to fetch all the vents corresponding to specific address from block 0 to latest
-const fetchEvents = async function (address, url) {
+const fetchEvents = async function (fromBlock: string, toBlock: string,  address: string, url: string) {
   const requestData = {
     id:1,
     jsonrpc: "2.0",
     method: "eth_getLogs",
     params: [
       {
-        fromBlock: "0x0",
-        toBlock: "0x6c6174657374",
+        fromBlock: fromBlock,
+        toBlock: toBlock,
         address,
       }
     ],
