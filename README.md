@@ -25,11 +25,11 @@
 ### Build
 The build process is set to be automatic you just need to install the package using:
 
-`npm install --save git+https://gitlab.com/monetha/reputation-js-sdk.git`
+`npm install --save git+https://github.com/monetha/reputation-js-sdk.git`
 
 or
 
-`yarn add git+https://gitlab.com/monetha/reputation-js-sdk.git`
+`yarn add git+https://github.com/monetha/reputation-js-sdk.git`
 
 ## Bootstrap reputation layer
 
@@ -170,7 +170,8 @@ Let's try to retrieve string from passport `<passportAddress>` that was stored b
 
 ```
 import sdk from 'reputation-sdk'
-const reader = new sdk.FactReader(<passportAddress>, network url)
+const reader = new sdk.FactReader(network url)
+reader.setContract(<passportAddress>)
 reader.getString(<factProviderAddress>, "greetings")
 ```
 
