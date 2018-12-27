@@ -1,30 +1,30 @@
-import Web4 from './Web4';
+import Web3 from './Web3';
 
 // Class to use all web ethereum method for gasprice. nonce, gaslimit, contractInstance
 export class Ethereum {
-  web4: any;
+  web3: any;
   Contract: any;
   contractInstance: any;
   contractAddress: any;
   constructor(abi, contractAddress, network) {
-    this.web4 = new Web4(network).web4;
-    this.Contract = this.web4.eth.contract(abi)
+    this.web3 = new Web3(network).web3;
+    this.Contract = this.web3.eth.contract(abi)
     this.contractInstance = this.Contract.at(contractAddress)
     this.contractAddress = contractAddress
   }
 
   getEstimatedGas (data, from, to) {
-    const gas = this.web4.eth.estimateGas({ data, from, to })
+    const gas = this.web3.eth.estimateGas({ data, from, to })
     return gas
   }
 
   getGasPriceFromBlockChain () {
-    return this.web4.toHex(this.web4.eth.gasPrice)
+    return this.web3.toHex(this.web3.eth.gasPrice)
   }
 
   getNonceFromBlockChain (fromAddress) {
-    const count = this.web4.eth.getTransactionCount(fromAddress)
-    return this.web4.toHex(count)
+    const count = this.web3.eth.getTransactionCount(fromAddress)
+    return this.web3.toHex(count)
   }
 
   async generateRawTransaction (fromAddress, toAddress, value, data) {
@@ -52,13 +52,13 @@ export class Ethereum {
     return this.contractInstance[contractFunctionName].getData(...contractArguments)
   }
 
-  // method to generate raw unsigned transaction 
+  // method to generate raw unsigned transaction
   async generateRawTransactionForSmartContractInteraction (
     contractFunctionName,
     contractArguments,
     userAddress
   ) {
-   
+
     const contractData = await this.generateDataForSmartContractInteraction(
       contractFunctionName,
       contractArguments

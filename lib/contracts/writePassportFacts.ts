@@ -26,10 +26,10 @@ export class FactWriter {
 
     let contractArguments = []
     let rawTransaction: IReturnWrite
-    key = this.contract.web4.fromAscii(key);
+    key = this.contract.web3.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
-    
+
     try {
       rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setString", contractArguments, userAddress)
       return rawTransaction
@@ -44,10 +44,10 @@ export class FactWriter {
   async setBytes(key: string, value: Array<Number>, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
     let rawTransaction: IReturnWrite
-    key = this.contract.web4.fromAscii(key);
+    key = this.contract.web3.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
-    
+
     try {
       rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setBytes", contractArguments, userAddress)
       return rawTransaction
@@ -62,10 +62,10 @@ export class FactWriter {
   async setAddress(key: string, value: string, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
     let rawTransaction: IReturnWrite
-    key = this.contract.web4.fromAscii(key);
+    key = this.contract.web3.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
-    
+
     try {
       rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setAddress", contractArguments, userAddress)
       return rawTransaction
@@ -80,10 +80,10 @@ export class FactWriter {
   async setUint(key: string, value: Number, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
     let rawTransaction: IReturnWrite
-    key = this.contract.web4.fromAscii(key);
+    key = this.contract.web3.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
-    
+
     try {
       rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setUint", contractArguments, userAddress)
       return rawTransaction
@@ -98,10 +98,10 @@ export class FactWriter {
   async setInt(key: string, value: Number, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
     let rawTransaction: IReturnWrite
-    key = this.contract.web4.fromAscii(key);
+    key = this.contract.web3.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
-    
+
     try {
       rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setInt", contractArguments, userAddress)
       return rawTransaction
@@ -116,10 +116,10 @@ export class FactWriter {
   async setBool(key: string, value: Boolean, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
     let rawTransaction: IReturnWrite
-    key = this.contract.web4.fromAscii(key);
+    key = this.contract.web3.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
-    
+
     try {
       rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setBool", contractArguments, userAddress)
       return rawTransaction
@@ -133,10 +133,10 @@ export class FactWriter {
   async setTxdata(key: string, value:  Array<Number>, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
     let rawTransaction: IReturnWrite
-    key = this.contract.web4.fromAscii(key);
+    key = this.contract.web3.fromAscii(key);
     contractArguments.push(key);
     contractArguments.push(value);
-    
+
     try {
       rawTransaction = await this.contract.generateRawTransactionForSmartContractInteraction("setTxdata", contractArguments, userAddress)
       return rawTransaction

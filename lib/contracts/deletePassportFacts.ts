@@ -24,7 +24,7 @@ export class FactRemover {
   async deleteString(key: string, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
     let rawTransaction: IReturnWrite
-    key = this.contract.web4.fromAscii(key);
+    key = this.contract.web3.fromAscii(key);
     contractArguments.push(key);
 
     try {
@@ -42,7 +42,7 @@ export class FactRemover {
   async deleteBytes(key: string, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
     let rawTransaction: IReturnWrite
-    key = this.contract.web4.fromAscii(key);
+    key = this.contract.web3.fromAscii(key);
     contractArguments.push(key);
 
     try {
@@ -60,7 +60,7 @@ export class FactRemover {
   async deleteAddress(key: string, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
     let rawTransaction: IReturnWrite
-    key = this.contract.web4.fromAscii(key);
+    key = this.contract.web3.fromAscii(key);
     contractArguments.push(key);
 
     try {
@@ -78,7 +78,7 @@ export class FactRemover {
   async deleteUint(key: string, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
     let rawTransaction: IReturnWrite
-    key = this.contract.web4.fromAscii(key);
+    key = this.contract.web3.fromAscii(key);
     contractArguments.push(key);
 
     try {
@@ -96,7 +96,7 @@ export class FactRemover {
   async deleteInt(key: string, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
     let rawTransaction: IReturnWrite
-    key = this.contract.web4.fromAscii(key);
+    key = this.contract.web3.fromAscii(key);
     contractArguments.push(key);
 
     try {
@@ -114,7 +114,7 @@ export class FactRemover {
   async deleteBool(key: string, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
     let rawTransaction: IReturnWrite
-    key = this.contract.web4.fromAscii(key);
+    key = this.contract.web3.fromAscii(key);
     contractArguments.push(key);
 
     try {
@@ -132,7 +132,7 @@ export class FactRemover {
   async deleteTxdata(key: string, userAddress: string): Promise<IReturnWrite> {
     let contractArguments = []
     let rawTransaction: IReturnWrite
-    key = this.contract.web4.fromAscii(key);
+    key = this.contract.web3.fromAscii(key);
     contractArguments.push(key);
 
     try {

@@ -1,4 +1,4 @@
-import Web4 from '../transactionHelpers/Web4';
+import Web3 from '../transactionHelpers/Web3';
 import fetchEvents from '../providers/fetchEvents';
 import getTxData from '../providers/getTrxData';
 
@@ -17,11 +17,11 @@ interface IFilteredFact {
 }
 
 export class PassportReader {
-  web4: any;
+  web3: any;
   url: string;
   constructor(network: string) {
-    const eth = new Web4(network)
-    this.web4 = eth.web4;
+    const eth = new Web3(network)
+    this.web3 = eth.web3;
     this.url = eth.url;
   }
 
@@ -36,7 +36,7 @@ export class PassportReader {
       passportAddress: '0x' + event.topics[1] ? event.topics[1].slice(26) : "",
       ownerAddress: '0x' + event.topics[2] ? event.topics[2].slice(26) : "",
     }));
-  
+
     return filteredEvents;
   }
 
@@ -48,7 +48,7 @@ export class PassportReader {
       blockNumber: fact.blockNumber,
       transactionHash: fact.transactionHash,
       factProviderAddress: '0x' + fact.topics[1].slice(26),
-      key: this.web4.toAscii(fact.topics[2].slice(0,23)),
+      key: this.web3.toAscii(fact.topics[2].slice(0,23)),
     }));
 
     return filteredFacts;
@@ -57,9 +57,9 @@ export class PassportReader {
     //method to return the transaction data using the transaction hash
   async getTrxData(trxHash: string): Promise<any> {
     let result: any;
-    result = await getTxData(trxHash, this.web4);
+    result = await getTxData(trxHash, this.web3);
     return result;
-  } 
+  }
 }
 
 export default PassportReader;
