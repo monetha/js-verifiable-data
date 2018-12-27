@@ -146,7 +146,8 @@ Let's try to retrieve string from passport `<passportAddress>` that was stored b
 
 ```
 import sdk from 'reputation-sdk'
-const reader = new sdk.FactReader(<passportAddress>, network url)
+const reader = new sdk.FactReader(network url)
+reader.setContract(<passportAddress>)
 reader.getString(<factProviderAddress>, "greetings")
 ```
 
