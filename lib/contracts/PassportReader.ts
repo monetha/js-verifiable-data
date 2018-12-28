@@ -26,9 +26,9 @@ export class PassportReader {
   }
 
   //method to fetch all the passport created by a particular passportFactory address
-  async getPassportLists (factoryAddress: string): Promise<Array<IFilteredEvents>> {
+  async getPassportLists (factoryAddress: string, startBlock = "0x0", endBlock = "0x6c6174657374"): Promise<Array<IFilteredEvents>> {
 
-    const events = await fetchEvents("0x0", "0x6c6174657374", factoryAddress, this.url);
+    const events = await fetchEvents(startBlock, endBlock, factoryAddress, this.url);
     let filteredEvents: Array<IFilteredEvents>;
     filteredEvents = (events as Array<any>).map((event) => ({
       blockNumber: event.blockNumber,
@@ -41,8 +41,8 @@ export class PassportReader {
   }
 
   //method to fetch all the events(history) of a particular passportFactory address
-  async readPassportHistory (factoryAddress: string): Promise<Array<IFilteredFact>> {
-    const facts  = await fetchEvents("0x0", "0x6c6174657374", factoryAddress, this.url);
+  async readPassportHistory (factoryAddress: string, startBlock = "0x0", endBlock = "0x6c6174657374"): Promise<Array<IFilteredFact>> {
+    const facts  = await fetchEvents(startBlock, endBlock, factoryAddress, this.url);
     let filteredFacts: Array<IFilteredFact>;
     filteredFacts = (facts as Array<any>).map(fact => ({
       blockNumber: fact.blockNumber,
