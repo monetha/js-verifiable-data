@@ -3,6 +3,7 @@
 	"version": "1.0.0",
 	"description": "",
 	"main": "./dist/lib/proto.js",
+	"license": "GPL-3.0",
 	"engines": {
 		"npm": ">=5",
 		"node": ">=8.10.0"

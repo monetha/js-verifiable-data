@@ -19,10 +19,12 @@
 ## Building the source
 
 ### Prerequisites
+
 * Node.js > 5.*
 * npm > 3.*
 
 ### Build
+
 The build process is set to be automatic you just need to install the package using:
 
 `npm install --save git+https://github.com/monetha/reputation-js-sdk.git`
@@ -52,7 +54,7 @@ Prepare in advance the address that will be the owner of the deployed contracts.
 
 ## Usage
 
-```
+```js
 import sdk from 'reputation-sdk'
 const generator = new sdk.PassportGenerator(network url, passportFactoryAddress)
 ```
@@ -67,15 +69,13 @@ Make sure that the passport owner has enough money to create a passport contract
 To create a passport contract you need to know address of the `PassportFactory` contract. Let's try to create a passport in Ropsten
 using the `PassportFactory` contract deployed by Monetha ([`0x87b7Ec2602Da6C9e4D563d788e1e29C064A364a2`](https://ropsten.etherscan.io/address/0x87b7Ec2602Da6C9e4D563d788e1e29C064A364a2)):
 
-
-```
+```js
 import sdk from 'reputation-sdk'
 const generator = new sdk.PassportGenerator(network url, passportFactoryAddress)
 generator.createPassport(address of user creating passport)
 ```
 
 You will get the transaction info (raw unsigned transaction) in output of the function, sign the transaction using the private key of address given in userAddress and broadcast it on the network.
-
 
 ### Passport list
 
@@ -84,7 +84,7 @@ The passport factory allows you to get a list of all the passports that have bee
 Let's try to get a list of all passports using the address of `PassportFactory` contract deployed by Monetha ([`0x87b7Ec2602Da6C9e4D563d788e1e29C064A364a2`](https://ropsten.etherscan.io/address/0x87b7Ec2602Da6C9e4D563d788e1e29C064A364a2))
 in Ropsten network:
 
-```
+```js
 import sdk from 'reputation-sdk'
 const reader = new sdk.PassportReader(network url)
 reader.getPassportLists("0x87b7Ec2602Da6C9e4D563d788e1e29C064A364a2")
@@ -130,7 +130,6 @@ Cumulative gas usage in simulated backend to store number of character of `a` un
 
 *: *js sdk doesn't support IPFS yet.*
 
-
 You can write up to 100KB of data in passport under one key when `txdata` data type is used. Supported data types that
 can be written to the passport: `string`, `bytes`, `address`, `uint`, `int`, `bool`, `txdata`. All types except `txdata`
 use Ethereum storage to store the data. `txdata` uses Ethereum storage only to save the block number, the data itself
@@ -142,7 +141,7 @@ Let's try to store string  `hello` under the key `greetings` as `string` in pass
 `<passportAddress>`:
 
 
-```
+```js
 import sdk from 'reputation-sdk'
 const writer = new sdk.FactWriter(network url, <passportAddress>)
 writer.setString("greetings", "hello", transaction signer userAddress)
@@ -153,7 +152,7 @@ Also user can delete the data stored from the passport.
 Let's try to delete string  `hello` under the key `greetings` as `string` in passport
 `<passportAddress>`:
 
-```
+```js
 import sdk from 'reputation-sdk'
 const remover = new sdk.FactRemover(network url, <passportAddress>)
 remover.deleteString("greetings", transaction signer userAddress)
@@ -170,7 +169,7 @@ the key under which the data was stored and the type of data.
 Let's try to retrieve string from passport `<passportAddress>` that was stored by the fact provider
 `<factProviderAddress>` under the key `greetings` as `string` data type:
 
-```
+```js
 import sdk from 'reputation-sdk'
 const reader = new sdk.FactReader(network url)
 reader.setContract(<passportAddress>)
@@ -186,16 +185,17 @@ to the whitelist and then allow to store the facts only to fact providers from t
 Consider an example of how owner of a passport `<ownerAddress>` adds fact provider
 `<factProviderAddress>` to the whitelist in Ropsten network:
 
-```
+```js
 import sdk from 'reputation-sdk'
 const Permissions = new sdk.Permissions(<passportAddress>, network url)
 Permissions.addFactProviderToWhitelist(<factProvider>, user addres of transaction signer)
 ```
+
 Also the passportOwner can delete the factProvider from the list.
 Consider an example of how owner of a passport `<ownerAddress>` deletes fact provider
 `<factProviderAddress>` to the whitelist in Ropsten network:
 
-```
+```js
 import sdk from 'reputation-sdk'
 const Permissions = new sdk.Permissions(<passportAddress>, network url)
 Permissions.removeFactProviderFromWhitelist(<factProvider>, user addres of transaction signer)
@@ -208,7 +208,7 @@ After executing the command, any fact provider is still allowed to store the fac
 Owner of a passport `<ownerAddress>` may allow to store the facts only to fact providers
 from the whitelist by running the command:
 
-```
+```js
 import sdk from 'reputation-sdk'
 const Permissions = new sdk.Permissions(<passportAddress>, network url)
 Permissions.changePermission(true/false, user addres of transaction signer)
@@ -221,13 +221,11 @@ The SDK allows you to see the history of absolutely all changes of facts in the 
 Let's try to retrieve the entire change history for the passport [`0x9CfabB3172DFd5ED740c3b8A327BF573226c5064`](https://ropsten.etherscan.io/address/0x9cfabb3172dfd5ed740c3b8a327bf573226c5064)
 in `Ropsten` block-chain :
 
-```
+```js
 import sdk from 'reputation-sdk'
 const passportReader = new sdk.PassportReader(network url)
 passportReader.readPassportHistory(<passportAddress>)
 ```
-
-
 
 | fact_provider | key | block_number | tx_hash |
 |---------------|-----|--------------|---------|
@@ -240,6 +238,6 @@ Even if the value of a fact has been deleted or changed, we can read its value a
 
 Let's read what the value of the fact was during the first update. To do this, we need to specify the transaction hash `0x627913f620990ec12360a6f1fda4887ea837b41e2f6cbae90e24322dc8cf8b1a`:
 
-```
+```js
 passportReader.getTrxData(<transaction Hash from the above>)
 ```
