@@ -111,7 +111,7 @@ Make sure that the fact provider has enough funds to write the facts.
 
 **Gas usage**
 
-Cumulative gas usage in simulated backend to store number of character of `a` under the key 
+Cumulative gas usage in simulated backend to store number of character of `a` under the key
 `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` using different data types:
 
 | Number of characters |     `ipfs*`, gas used    |     `txdata`, gas used    |  `bytes`, gas used |  `string`, gas used |
@@ -188,7 +188,7 @@ Consider an example of how owner of a passport `<ownerAddress>` adds fact provid
 ```js
 import sdk from 'reputation-sdk'
 const Permissions = new sdk.Permissions(<passportAddress>, network url)
-Permissions.addFactProviderToWhitelist(<factProvider>, user addres of transaction signer)
+Permissions.addFactProviderToWhitelist(<factProvider>, user address of transaction signer)
 ```
 
 Also the passportOwner can delete the factProvider from the list.
@@ -198,7 +198,7 @@ Consider an example of how owner of a passport `<ownerAddress>` deletes fact pro
 ```js
 import sdk from 'reputation-sdk'
 const Permissions = new sdk.Permissions(<passportAddress>, network url)
-Permissions.removeFactProviderFromWhitelist(<factProvider>, user addres of transaction signer)
+Permissions.removeFactProviderFromWhitelist(<factProvider>, user address of transaction signer)
 ```
 
 Please note that the passport owner only can call this method.
@@ -211,7 +211,7 @@ from the whitelist by running the command:
 ```js
 import sdk from 'reputation-sdk'
 const Permissions = new sdk.Permissions(<passportAddress>, network url)
-Permissions.changePermission(true/false, user addres of transaction signer)
+Permissions.changePermission(true/false, user address of transaction signer)
 ```
 
 ### Reading facts history
@@ -239,5 +239,5 @@ Even if the value of a fact has been deleted or changed, we can read its value a
 Let's read what the value of the fact was during the first update. To do this, we need to specify the transaction hash `0x627913f620990ec12360a6f1fda4887ea837b41e2f6cbae90e24322dc8cf8b1a`:
 
 ```js
-passportReader.getTrxData(<transaction Hash from the above>)
+passportReader.getTxData(<transaction Hash from the above>)
 ```

@@ -1,65 +1,58 @@
-import Web3 from '../transactionHelpers/Web3';
-import fetchEvents from '../providers/fetchEvents';
-import getTxData from '../providers/getTrxData';
-
-interface IFilteredEvents {
-  blockNumber: Number;
-  blockHash: string;
-  passportAddress: string;
-  ownerAddress: string;
-}
-
-interface IFilteredFact {
-  blockNumber: Number;
-  transactionHash: string;
-  factProviderAddress: string;
-  key: string;
-}
+import { MAX_BLOCK, MIN_BLOCK } from '../const/ethereum';
+import { Address } from '../models/Address';
+import { IPassportRef } from '../models/IPassportRef';
+import { fetchEvents } from '../providers/fetchEvents';
+import { getTxData } from '../providers/getTxData';
+import { Web3Provider } from '../transactionHelpers/Web3Provider';
+import { IHistoryEvent } from '../models/IHistoryEvent';
 
 export class PassportReader {
-  web3: any;
-  url: string;
+  private web3: any;
+  private url: string;
+
   constructor(network: string) {
-    const eth = new Web3(network)
-    this.web3 = eth.web3;
-    this.url = eth.url;
+    const web3Provider = new Web3Provider(network);
+    this.web3 = web3Provider.web3;
+    this.url = web3Provider.url;
   }
 
-  //method to fetch all the passport created by a particular passportFactory address
-  async getPassportLists (factoryAddress: string, startBlock = "0x0", endBlock = "0x6c6174657374"): Promise<Array<IFilteredEvents>> {
-
+  /**
+   * Fetches all passport addresses created by a particular passport factory address
+   *
+   * @param factoryAddress address of passport factory to get passports for
+   * @param startBlock block nr to scan from
+   * @param endBlock block nr to scan to
+   */
+  public async getPassportLists(factoryAddress: Address, startBlock = MIN_BLOCK, endBlock = MAX_BLOCK): Promise<IPassportRef[]> {
     const events = await fetchEvents(startBlock, endBlock, factoryAddress, this.url);
-    let filteredEvents: Array<IFilteredEvents>;
-    filteredEvents = (events as Array<any>).map((event) => ({
+
+    const passportRefs: IPassportRef[] = events.map(event => ({
       blockNumber: event.blockNumber,
       blockHash: event.blockHash,
-      passportAddress: '0x' + event.topics[1] ? event.topics[1].slice(26) : "",
-      ownerAddress: '0x' + event.topics[2] ? event.topics[2].slice(26) : "",
+      passportAddress: `0x${event.topics[1] ? event.topics[1].slice(26) : ''}`,
+      ownerAddress: `0x${event.topics[2] ? event.topics[2].slice(26) : ''}`,
     }));
 
-    return filteredEvents;
+    return passportRefs;
   }
 
-  //method to fetch all the events(history) of a particular passportFactory address
-  async readPassportHistory (factoryAddress: string, startBlock = "0x0", endBlock = "0x6c6174657374"): Promise<Array<IFilteredFact>> {
-    const facts  = await fetchEvents(startBlock, endBlock, factoryAddress, this.url);
-    let filteredFacts: Array<IFilteredFact>;
-    filteredFacts = (facts as Array<any>).map(fact => ({
-      blockNumber: fact.blockNumber,
-      transactionHash: fact.transactionHash,
-      factProviderAddress: '0x' + fact.topics[1].slice(26),
-      key: this.web3.toAscii(fact.topics[2].slice(0,23)),
+  /**
+   * Fetches all the events (history) of a particular passport factory address
+   *
+   * @param factoryAddress address of passport factory to get passports for
+   * @param startBlock block nr to scan from
+   * @param endBlock block nr to scan to
+   */
+  public async readPassportHistory(factoryAddress: string, startBlock = MIN_BLOCK, endBlock = MAX_BLOCK): Promise<IHistoryEvent[]> {
+    const events = await fetchEvents(startBlock, endBlock, factoryAddress, this.url);
+
+    const historyEvents: IHistoryEvent[] = events.map(event => ({
+      blockNumber: event.blockNumber,
+      transactionHash: event.transactionHash,
+      factProviderAddress: `0x${event.topics[1] ? event.topics[1].slice(26) : ''}`,
+      key: this.web3.toAscii(event.topics[2].slice(0, 23)),
     }));
 
-    return filteredFacts;
-  }
-
-    //method to return the transaction data using the transaction hash
-  async getTrxData(trxHash: string): Promise<any> {
-    let result: any;
-    result = await getTxData(trxHash, this.web3);
-    return result;
+    return historyEvents;
   }
 }
-
-export default PassportReader;
