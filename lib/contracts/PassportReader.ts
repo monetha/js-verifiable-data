@@ -23,14 +23,14 @@ export class PassportReader {
    * @param startBlock block nr to scan from
    * @param endBlock block nr to scan to
    */
-  public async getPassportLists(factoryAddress: Address, startBlock = MIN_BLOCK, endBlock = MAX_BLOCK): Promise<IPassportRef[]> {
+  public async getPassportsList(factoryAddress: Address, startBlock = MIN_BLOCK, endBlock = MAX_BLOCK): Promise<IPassportRef[]> {
     const events = await fetchEvents(startBlock, endBlock, factoryAddress, this.url);
 
     const passportRefs: IPassportRef[] = events.map(event => ({
       blockNumber: event.blockNumber,
       blockHash: event.blockHash,
-      passportAddress: `0x${event.topics[1] ? event.topics[1].slice(26) : ''}`,
-      ownerAddress: `0x${event.topics[2] ? event.topics[2].slice(26) : ''}`,
+      passportAddress: event.topics[1] ? event.topics[1].slice(26) : '',
+      ownerAddress: event.topics[2] ? event.topics[2].slice(26) : '',
     }));
 
     return passportRefs;
@@ -49,7 +49,7 @@ export class PassportReader {
     const historyEvents: IHistoryEvent[] = events.map(event => ({
       blockNumber: event.blockNumber,
       transactionHash: event.transactionHash,
-      factProviderAddress: `0x${event.topics[1] ? event.topics[1].slice(26) : ''}`,
+      factProviderAddress: event.topics[1] ? event.topics[1].slice(26) : '',
       key: this.web3.toAscii(event.topics[2].slice(0, 23)),
     }));
 
