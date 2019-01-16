@@ -69,6 +69,14 @@ export class FactRemover {
     return this.delete('deleteTxdata', key, userAddress);
   }
 
+  /**
+   * Deletes IPFS hash type fact from passport
+   * @param key fact key
+   */
+  public async deleteIPFSHash(key: string, userAddress: Address) {
+    return this.delete('deleteIPFSHash', key, userAddress);
+  }
+
   private async delete(method: string, key: string, userAddress: Address) {
     const preparedKey = this.contract.web3.fromAscii(key);
 

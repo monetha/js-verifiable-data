@@ -82,6 +82,16 @@ export class FactWriter {
     return this.set('setTxdata', key, value, userAddress);
   }
 
+  /**
+   * Writes IPFS hash data type fact to passport
+   *
+   * @param key fact key
+   * @param value value to store
+   */
+  public async setIPFSHash(key: string, value: string, userAddress: Address) {
+    return this.set('setIPFSHash', key, value, userAddress);
+  }
+
   private async set(method: string, key: string, value: any, userAddress: Address) {
     const preparedKey = this.contract.web3.fromAscii(key);
 

@@ -107,6 +107,16 @@ export class FactReader {
     return txData;
   }
 
+  /**
+   * Read IPFS hash type fact from passport
+   *
+   * @param factProviderAddress fact provider to read fact for
+   * @param key fact key
+   */
+  public async getIPFSHash(factProviderAddress: Address, key: string): Promise<string> {
+    return this.get('getIPFSHash', factProviderAddress, key);
+  }
+
   private async get(method: string, factProviderAddress: Address, key: string) {
     const preparedKey = this.web3.fromAscii(key);
 
