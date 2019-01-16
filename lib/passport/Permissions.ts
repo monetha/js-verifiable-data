@@ -15,15 +15,22 @@ export class Permissions {
   /**
    * Adds factProvider to whitelist
    */
-  public async addFactProviderToWhitelist(factProvider: Address, factProviderAddress: Address) {
-    return this.contract.prepareCallTX('addFactProviderToWhitelist', [factProvider], factProviderAddress);
+  public async addFactProviderToWhitelist(factProviderAddress: Address, passportOwnerAddress: Address) {
+    return this.contract.prepareCallTX('addFactProviderToWhitelist', [factProviderAddress], passportOwnerAddress);
+  }
+
+  /**
+   * Removes fact provider from whitelist
+   */
+  public async removeFactProviderFromWhitelist(factProviderAddress: Address, passportOwnerAddress: Address) {
+    return this.contract.prepareCallTX('removeFactProviderFromWhitelist', [factProviderAddress], passportOwnerAddress);
   }
 
   /**
    * Checks if fact provider is whitelisted
    */
-  public async isFactProviderInWhitelist(factProvider: Address) {
-    return this.contract.readData('isFactProviderInWhitelist', [factProvider]);
+  public async isFactProviderInWhitelist(factProviderAddress: Address) {
+    return this.contract.readData('isFactProviderInWhitelist', [factProviderAddress]);
   }
 
   /**
@@ -36,21 +43,14 @@ export class Permissions {
   /**
    * Checks if factProvider is allowed
    */
-  public async isAllowedFactProvider(factProvider: Address) {
-    return this.contract.readData('isAllowedFactProvider', [factProvider]);
-  }
-
-  /**
-   * Removes fact provider from whitelist
-   */
-  public async removeFactProviderFromWhitelist(factProvider: Address, factProviderAddress: Address) {
-    return this.contract.prepareCallTX('removeFactProviderFromWhitelist', [factProvider], factProviderAddress);
+  public async isAllowedFactProvider(factProviderAddress: Address) {
+    return this.contract.readData('isAllowedFactProvider', [factProviderAddress]);
   }
 
   /**
    * Sets permission for passport whether only whitelisted fact providers could write facts to it
    */
-  public async setWhitelistOnlyPermission(onlyWhitelistedProviders: boolean, factProviderAddress: Address) {
-    return this.contract.prepareCallTX('setWhitelistOnlyPermission', [onlyWhitelistedProviders], factProviderAddress);
+  public async setWhitelistOnlyPermission(onlyWhitelistedProviders: boolean, passportOwnerAddress: Address) {
+    return this.contract.prepareCallTX('setWhitelistOnlyPermission', [onlyWhitelistedProviders], passportOwnerAddress);
   }
 }
