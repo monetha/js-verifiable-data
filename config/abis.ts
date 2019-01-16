@@ -62,6 +62,47 @@ export default {
         "type": "function"
       },
       {
+        "constant": true,
+        "inputs": [
+          {
+            "name": "_factProvider",
+            "type": "address"
+          },
+          {
+            "name": "_key",
+            "type": "bytes32"
+          }
+        ],
+        "name": "getIPFSHash",
+        "outputs": [
+          {
+            "name": "success",
+            "type": "bool"
+          },
+          {
+            "name": "value",
+            "type": "string"
+          }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "constant": false,
+        "inputs": [
+          {
+            "name": "_key",
+            "type": "bytes32"
+          }
+        ],
+        "name": "deleteIPFSHash",
+        "outputs": [],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
         "constant": false,
         "inputs": [
           {
@@ -205,6 +246,24 @@ export default {
         ],
         "payable": false,
         "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "constant": false,
+        "inputs": [
+          {
+            "name": "_key",
+            "type": "bytes32"
+          },
+          {
+            "name": "_value",
+            "type": "string"
+          }
+        ],
+        "name": "setIPFSHash",
+        "outputs": [],
+        "payable": false,
+        "stateMutability": "nonpayable",
         "type": "function"
       },
       {
@@ -567,6 +626,40 @@ export default {
         "payable": false,
         "stateMutability": "nonpayable",
         "type": "function"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "name": "factProvider",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "name": "key",
+            "type": "bytes32"
+          }
+        ],
+        "name": "IPFSHashUpdated",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "name": "factProvider",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "name": "key",
+            "type": "bytes32"
+          }
+        ],
+        "name": "IPFSHashDeleted",
+        "type": "event"
       },
       {
         "anonymous": false,

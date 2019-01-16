@@ -56,7 +56,7 @@ Prepare in advance the address that will be the owner of the deployed contracts.
 
 ```js
 import sdk from 'reputation-sdk'
-const generator = new sdk.PassportGenerator(network url, passportFactoryAddress)
+const generator = new sdk.PassportGenerator(web3, passportFactoryAddress)
 ```
 
 In order to create a passport and start using it, you need to use auxiliary reputation layer contracts: PassportLogic, PassportLogicRegistry, PassportFactory.
@@ -71,11 +71,11 @@ using the `PassportFactory` contract deployed by Monetha ([`0x87b7Ec2602Da6C9e4D
 
 ```js
 import sdk from 'reputation-sdk'
-const generator = new sdk.PassportGenerator(network url, passportFactoryAddress)
-generator.createPassport(address of user creating passport)
+const generator = new sdk.PassportGenerator(web3, passportFactoryAddress)
+generator.createPassport(factProviderAddress)
 ```
 
-You will get the transaction info (raw unsigned transaction) in output of the function, sign the transaction using the private key of address given in userAddress and broadcast it on the network.
+You will get the transaction info (raw unsigned transaction) in output of the function, sign the transaction using the private key of address given in factProviderAddress and broadcast it on the network.
 
 ### Passport list
 
@@ -86,17 +86,17 @@ in Ropsten network:
 
 ```js
 import sdk from 'reputation-sdk'
-const reader = new sdk.PassportReader(network url)
+const reader = new sdk.PassportReader(web3, ethereumNetworkUrl)
 reader.getPassportLists("0x87b7Ec2602Da6C9e4D563d788e1e29C064A364a2")
 ```
 
 You should get something like this Array of objects:
 
-|passport_address|first_owner|block_number|tx_hash|
+|passportAddress|ownerAddress|blockNumber|blockHash|
 |----------------|-----------|------------|-------|
-|0x9CfabB3172DFd5ED740c3b8A327BF573226c5064|0xDdD9b3Ea9d65cfD12b18ceA4E6f7Df4948ec4C55|4105235|0x5a26791f5404f7d26c9c75e4fa006d851162f4bbaacc49372ce45d89db8fd967|
-|0x2ff877C92458F995332bc189F258eF8fB8458050|0xA12eB9Cde44664B6513D66f1fc4d43c951d4594e|4276542|0x639262c4abf2868e376e6b08baa5663a2449b18fc668836b5451d07f24c04db5|
-|0x86eEb0D360D286BcF9211780878fe0D0c0e3fF00|0x5b2AE3b3A801469886Bb8f5349fc3744cAa6348d|4292633|0x96f4c583994c2d1c033a0722f7cbe8d85c636b62d1f5fcd8bb0b32346c61c4a9|
+|0x9CfabB3172DFd5ED740c3b8A327BF573226c5064|0xDdD9b3Ea9d65cfD12b18ceA4E6f7Df4948ec4C55|0x4105235|0x5a26791f5404f7d26c9c75e4fa006d851162f4bbaacc49372ce45d89db8fd967|
+|0x2ff877C92458F995332bc189F258eF8fB8458050|0xA12eB9Cde44664B6513D66f1fc4d43c951d4594e|0x4276542|0x639262c4abf2868e376e6b08baa5663a2449b18fc668836b5451d07f24c04db5|
+|0x86eEb0D360D286BcF9211780878fe0D0c0e3fF00|0x5b2AE3b3A801469886Bb8f5349fc3744cAa6348d|0x4292633|0x96f4c583994c2d1c033a0722f7cbe8d85c636b62d1f5fcd8bb0b32346c61c4a9|
 
 The block number and transaction hash indicate the transaction in which the passport was created.
 
@@ -111,7 +111,7 @@ Make sure that the fact provider has enough funds to write the facts.
 
 **Gas usage**
 
-Cumulative gas usage in simulated backend to store number of character of `a` under the key 
+Cumulative gas usage in simulated backend to store number of character of `a` under the key
 `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` using different data types:
 
 | Number of characters |     `ipfs*`, gas used    |     `txdata`, gas used    |  `bytes`, gas used |  `string`, gas used |
@@ -128,10 +128,8 @@ Cumulative gas usage in simulated backend to store number of character of `a` un
 | 120000 | 114245 | 8279814 | - | - |
 | 130000 | 114245 | 8966537 | - | - |
 
-*: *js sdk doesn't support IPFS yet.*
-
 You can write up to 100KB of data in passport under one key when `txdata` data type is used. Supported data types that
-can be written to the passport: `string`, `bytes`, `address`, `uint`, `int`, `bool`, `txdata`. All types except `txdata`
+can be written to the passport: `string`, `bytes`, `address`, `uint`, `int`, `bool`, `txdata`, `ipfshash`. All types except `txdata`
 use Ethereum storage to store the data. `txdata` uses Ethereum storage only to save the block number, the data itself
 remains in the transaction input data and can be read later using the SDK. Therefore, if you need to save a large amount
 of data, it is better to use `txdata` type of data. The disadvantage of the `txdata` type of data is the data can only be read
@@ -143,8 +141,8 @@ Let's try to store string  `hello` under the key `greetings` as `string` in pass
 
 ```js
 import sdk from 'reputation-sdk'
-const writer = new sdk.FactWriter(network url, <passportAddress>)
-writer.setString("greetings", "hello", transaction signer userAddress)
+const writer = new sdk.FactWriter(web3, passportAddress)
+writer.setString("greetings", "hello", factProviderAddress)
 ```
 
 Also user can delete the data stored from the passport.
@@ -154,11 +152,11 @@ Let's try to delete string  `hello` under the key `greetings` as `string` in pas
 
 ```js
 import sdk from 'reputation-sdk'
-const remover = new sdk.FactRemover(network url, <passportAddress>)
-remover.deleteString("greetings", transaction signer userAddress)
+const remover = new sdk.FactRemover(web3, passportAddress)
+remover.deleteString("greetings", factProviderAddress)
 ```
 
-You will get the transaction info (raw unsigned transaction) in output of the function, sign the transaction using the private key of address given in userAddress and broadcast it on the network.
+You will get the transaction info (raw unsigned transaction) in output of the function, sign the transaction using the private key of address given in factProviderAddress and broadcast it on the network.
 
 ### Reading facts
 
@@ -171,9 +169,8 @@ Let's try to retrieve string from passport `<passportAddress>` that was stored b
 
 ```js
 import sdk from 'reputation-sdk'
-const reader = new sdk.FactReader(network url)
-reader.setContract(<passportAddress>)
-reader.getString(<factProviderAddress>, "greetings")
+const reader = new sdk.FactReader(web3, ethereumNetworkAddress, passportAddress)
+reader.getString(factProviderAddress, "greetings")
 ```
 
 ### Changing passport permissions
@@ -187,8 +184,8 @@ Consider an example of how owner of a passport `<ownerAddress>` adds fact provid
 
 ```js
 import sdk from 'reputation-sdk'
-const Permissions = new sdk.Permissions(<passportAddress>, network url)
-Permissions.addFactProviderToWhitelist(<factProvider>, user addres of transaction signer)
+const Permissions = new sdk.Permissions(web3, passportAddress)
+Permissions.addFactProviderToWhitelist(factProviderAddress, passportOwnerAddress)
 ```
 
 Also the passportOwner can delete the factProvider from the list.
@@ -197,8 +194,8 @@ Consider an example of how owner of a passport `<ownerAddress>` deletes fact pro
 
 ```js
 import sdk from 'reputation-sdk'
-const Permissions = new sdk.Permissions(<passportAddress>, network url)
-Permissions.removeFactProviderFromWhitelist(<factProvider>, user addres of transaction signer)
+const Permissions = new sdk.Permissions(web3, passportAddress)
+Permissions.removeFactProviderFromWhitelist(factProviderAddress, passportOwnerAddress)
 ```
 
 Please note that the passport owner only can call this method.
@@ -210,8 +207,8 @@ from the whitelist by running the command:
 
 ```js
 import sdk from 'reputation-sdk'
-const Permissions = new sdk.Permissions(<passportAddress>, network url)
-Permissions.changePermission(true/false, user addres of transaction signer)
+const Permissions = new sdk.Permissions(web3, passportAddress)
+Permissions.setWhitelistOnlyPermission(true, passportOwnerAddress)
 ```
 
 ### Reading facts history
@@ -223,21 +220,15 @@ in `Ropsten` block-chain :
 
 ```js
 import sdk from 'reputation-sdk'
-const passportReader = new sdk.PassportReader(network url)
-passportReader.readPassportHistory(<passportAddress>)
+const reader = new sdk.PassportReader(web3, ethereumNetworkUrl)
+passportReader.readPassportHistory(passportFactoryAddress)
 ```
 
-| fact_provider | key | block_number | tx_hash |
+| factProviderAddress | key | blockNumber | transactionHash |
 |---------------|-----|--------------|---------|
-| 0x5b2AE3b3A801469886Bb8f5349fc3744cAa6348d | monetha.jpg | 4177015 | 0x627913f620990ec12360a6f1fda4887ea837b41e2f6cbae90e24322dc8cf8b1a |
-| 0x5b2AE3b3A801469886Bb8f5349fc3744cAa6348d | monetha.jpg | 4337297 | 0x31e06af4e04450333d468835c995fc02622c1b07ae0feeb4c7afe73c5a2e3ed8 |
+| 0x5b2AE3b3A801469886Bb8f5349fc3744cAa6348d | monetha.jpg | 0x4177015 | 0x627913f620990ec12360a6f1fda4887ea837b41e2f6cbae90e24322dc8cf8b1a |
+| 0x5b2AE3b3A801469886Bb8f5349fc3744cAa6348d | monetha.jpg | 0x4337297 | 0x31e06af4e04450333d468835c995fc02622c1b07ae0feeb4c7afe73c5a2e3ed8 |
 
 As we can see, there were only two fact updates under the same key `monetha.jpg` by the same data provider `0x5b2AE3b3A801469886Bb8f5349fc3744cAa6348d`.
-The `block_number` and `tx_hash` columns allow us to understand in which block and in which transaction the changes were made.
+The `blockNumber` and `transactionHash` columns allow us to understand in which block and in which transaction the changes were made.
 Even if the value of a fact has been deleted or changed, we can read its value as it was before the deletion.
-
-Let's read what the value of the fact was during the first update. To do this, we need to specify the transaction hash `0x627913f620990ec12360a6f1fda4887ea837b41e2f6cbae90e24322dc8cf8b1a`:
-
-```js
-passportReader.getTrxData(<transaction Hash from the above>)
-```
