@@ -1,21 +1,36 @@
-import { Web3Provider } from './Web3Provider';
-import { IRawTX } from '../models/IRawTX';
 import { Address } from '../models/Address';
+import { IRawTX } from '../models/IRawTX';
 
 /**
  * Helper class to work with contract reading and writing
  */
 export class ContractIO {
-  public web3: any;
-  public contract: any;
-  public contractInstance: any;
-  public contractAddress: string;
+  private web3: any;
+  private contract: any;
+  private contractInstance: any;
+  private contractAddress: string;
 
-  constructor(abi, contractAddress: Address, network: string) {
-    this.web3 = new Web3Provider(network).web3;
+  constructor(web3, abi, contractAddress: Address) {
+    this.web3 = web3;
     this.contract = this.web3.eth.contract(abi);
     this.contractInstance = this.contract.at(contractAddress);
     this.contractAddress = contractAddress;
+  }
+
+  public getWeb3() {
+    return this.web3;
+  }
+
+  public getContract() {
+    return this.contract;
+  }
+
+  public getContractInstance() {
+    return this.contractInstance;
+  }
+
+  public getContractAddress() {
+    return this.contractAddress;
   }
 
   /**
@@ -24,7 +39,7 @@ export class ContractIO {
   public async prepareCallTX(
     contractFunctionName: string,
     contractArguments: any[],
-    userAddress: Address,
+    factProviderAddress: Address,
   ): Promise<IRawTX> {
 
     const contractData = await this.prepareWriteData(
@@ -33,7 +48,7 @@ export class ContractIO {
     );
 
     const rawTx = await this.prepareRawTX(
-      userAddress,
+      factProviderAddress,
       this.contractAddress,
       0,
       contractData,

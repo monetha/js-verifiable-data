@@ -1,19 +1,17 @@
 import { MAX_BLOCK, MIN_BLOCK } from '../const/ethereum';
 import { Address } from '../models/Address';
-import { IPassportRef } from '../models/IPassportRef';
-import { fetchEvents } from '../providers/fetchEvents';
-import { getTxData } from '../providers/getTxData';
-import { Web3Provider } from '../transactionHelpers/Web3Provider';
 import { IHistoryEvent } from '../models/IHistoryEvent';
+import { IPassportRef } from '../models/IPassportRef';
+import { fetchEvents } from '../utils/fetchEvents';
+import { sanitizeAddress } from '../utils/sanitizeAddress';
 
 export class PassportReader {
   private web3: any;
-  private url: string;
+  private ethNetworkUrl: string;
 
-  constructor(network: string) {
-    const web3Provider = new Web3Provider(network);
-    this.web3 = web3Provider.web3;
-    this.url = web3Provider.url;
+  constructor(web3, ethNetworkUrl: string) {
+    this.web3 = web3;
+    this.ethNetworkUrl = ethNetworkUrl;
   }
 
   /**
@@ -24,13 +22,13 @@ export class PassportReader {
    * @param endBlock block nr to scan to
    */
   public async getPassportsList(factoryAddress: Address, startBlock = MIN_BLOCK, endBlock = MAX_BLOCK): Promise<IPassportRef[]> {
-    const events = await fetchEvents(startBlock, endBlock, factoryAddress, this.url);
+    const events = await fetchEvents(this.ethNetworkUrl, startBlock, endBlock, factoryAddress);
 
     const passportRefs: IPassportRef[] = events.map(event => ({
       blockNumber: event.blockNumber,
       blockHash: event.blockHash,
-      passportAddress: event.topics[1] ? event.topics[1].slice(26) : '',
-      ownerAddress: event.topics[2] ? event.topics[2].slice(26) : '',
+      passportAddress: event.topics[1] ? sanitizeAddress(event.topics[1].slice(26)) : '',
+      ownerAddress: event.topics[2] ? sanitizeAddress(event.topics[2].slice(26)) : '',
     }));
 
     return passportRefs;
@@ -44,12 +42,12 @@ export class PassportReader {
    * @param endBlock block nr to scan to
    */
   public async readPassportHistory(factoryAddress: string, startBlock = MIN_BLOCK, endBlock = MAX_BLOCK): Promise<IHistoryEvent[]> {
-    const events = await fetchEvents(startBlock, endBlock, factoryAddress, this.url);
+    const events = await fetchEvents(this.ethNetworkUrl, startBlock, endBlock, factoryAddress);
 
     const historyEvents: IHistoryEvent[] = events.map(event => ({
       blockNumber: event.blockNumber,
       transactionHash: event.transactionHash,
-      factProviderAddress: event.topics[1] ? event.topics[1].slice(26) : '',
+      factProviderAddress: event.topics[1] ? sanitizeAddress(event.topics[1].slice(26)) : '',
       key: this.web3.toAscii(event.topics[2].slice(0, 23)),
     }));
 

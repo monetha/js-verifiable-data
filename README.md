@@ -75,7 +75,7 @@ const generator = new sdk.PassportGenerator(network url, passportFactoryAddress)
 generator.createPassport(address of user creating passport)
 ```
 
-You will get the transaction info (raw unsigned transaction) in output of the function, sign the transaction using the private key of address given in userAddress and broadcast it on the network.
+You will get the transaction info (raw unsigned transaction) in output of the function, sign the transaction using the private key of address given in factProviderAddress and broadcast it on the network.
 
 ### Passport list
 
@@ -144,7 +144,7 @@ Let's try to store string  `hello` under the key `greetings` as `string` in pass
 ```js
 import sdk from 'reputation-sdk'
 const writer = new sdk.FactWriter(network url, <passportAddress>)
-writer.setString("greetings", "hello", transaction signer userAddress)
+writer.setString("greetings", "hello", transaction signer factProviderAddress)
 ```
 
 Also user can delete the data stored from the passport.
@@ -155,10 +155,10 @@ Let's try to delete string  `hello` under the key `greetings` as `string` in pas
 ```js
 import sdk from 'reputation-sdk'
 const remover = new sdk.FactRemover(network url, <passportAddress>)
-remover.deleteString("greetings", transaction signer userAddress)
+remover.deleteString("greetings", transaction signer factProviderAddress)
 ```
 
-You will get the transaction info (raw unsigned transaction) in output of the function, sign the transaction using the private key of address given in userAddress and broadcast it on the network.
+You will get the transaction info (raw unsigned transaction) in output of the function, sign the transaction using the private key of address given in factProviderAddress and broadcast it on the network.
 
 ### Reading facts
 

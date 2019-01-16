@@ -1,28 +1,22 @@
 import abi from '../../config/abis';
-import { Web3Provider } from '../transactionHelpers/Web3Provider';
 import { Address } from '../models/Address';
-import { fetchEvents } from '../providers/fetchEvents';
-import { getTxData } from '../providers/getTxData';
+import { fetchEvents } from '../utils/fetchEvents';
+import { getTxData } from '../utils/getTxData';
+import { ContractIO } from '../transactionHelpers/ContractIO';
 
 /**
  * Class to read facts from the passport
  */
 export class FactReader {
-  private contractInstance: any;
-  private web3: any;
-  private url: string;
-  private contractAddress: Address;
+  private contractIO: ContractIO;
+  private ethNetworkUrl: string;
 
-  constructor(network: string) {
-    this.web3 = new Web3Provider(network).web3;
-    this.url = network;
-  }
+  private get web3() { return this.contractIO.getWeb3(); }
+  private get passportAddress() { return this.contractIO.getContractAddress(); }
 
-  // TODO: Align with other classes
-  public setContract(passportAddress: string) {
-    const contract = this.web3.eth.contract(abi.PassportLogic.abi);
-    this.contractInstance = contract.at(passportAddress);
-    this.contractAddress = passportAddress;
+  constructor(web3, ethNetworkUrl: string, passportAddress: Address) {
+    this.ethNetworkUrl = ethNetworkUrl;
+    this.contractIO = new ContractIO(web3, abi.PassportLogic.abi, passportAddress);
   }
 
   /**
@@ -99,7 +93,7 @@ export class FactReader {
     }
 
     const blockNumHex = this.web3.toHex(data);
-    const events = await fetchEvents(blockNumHex, blockNumHex, this.contractAddress, this.url);
+    const events = await fetchEvents(this.ethNetworkUrl, blockNumHex, blockNumHex, this.passportAddress);
     const txBlock = await getTxData(events[0].transactionHash, this.web3);
     const txDataString = txBlock.params[1].value;
     const txData = this.web3.toAscii(txDataString);
@@ -120,7 +114,7 @@ export class FactReader {
   private async get(method: string, factProviderAddress: Address, key: string) {
     const preparedKey = this.web3.fromAscii(key);
 
-    const result = await this.readData(method, [factProviderAddress, preparedKey]);
+    const result = await this.contractIO.readData(method, [factProviderAddress, preparedKey]);
 
     // TODO: add comments about these indexes 0 and 1
     if (!result[0]) {
@@ -128,25 +122,5 @@ export class FactReader {
     }
 
     return result[1];
-  }
-
-  // TODO: reuse ContractIO
-  private async readData(
-    contractFunctionName: string,
-    contractArguments: any[]) {
-
-    return new Promise((resolve, reject) => {
-      const args = contractArguments || [];
-
-      this.contractInstance[contractFunctionName].call(...args, { from: '' }, (err, data) => {
-        if (err) {
-          const error = 'DID not register';
-          reject(error);
-          return;
-        }
-
-        resolve(data);
-      });
-    });
   }
 }
