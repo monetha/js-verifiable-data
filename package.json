@@ -11,7 +11,8 @@
 	"scripts": {
 		"test": "mocha --timeout 200000",
 		"build": "./node_modules/.bin/tsc",
-		"postinstall": "npm run build"
+		"postinstall": "npm run build",
+		"lint": "tslint --project tsconfig.json"
 	},
 	"devDependencies": {
 		"chai": "^3.5.0",
