@@ -67,10 +67,14 @@ export class ContractIO {
     return new Promise((resolve, reject) => {
       const args = contractArguments || [];
 
-      this.contractInstance[contractFunctionName].call(...args, { from: '' }, (err, data) => {
+      const func = this.contractInstance[contractFunctionName];
+      if (!func) {
+        reject(new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`));
+      }
+
+      func.call(...args, { from: '' }, (err, data) => {
         if (err) {
-          const error = 'DID not register';
-          reject(error);
+          reject(err);
           return;
         }
 
@@ -84,7 +88,13 @@ export class ContractIO {
    */
   private async prepareWriteData(contractFunctionName: string, contractArguments: any[]) {
     const args = contractArguments || [];
-    return this.contractInstance[contractFunctionName].getData(...args);
+
+    const func = this.contractInstance[contractFunctionName];
+    if (!func) {
+      throw new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`);
+    }
+
+    return func.getData(...args);
   }
 
   private async prepareRawTX(fromAddress: Address, toAddress: Address, value: number, data: any): Promise<IRawTX> {
