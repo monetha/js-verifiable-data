@@ -95,7 +95,11 @@ export class FactWriter {
   public async setIPFSData(key: string, value: any, factProviderAddress: Address, ipfs: IIPFSClient) {
 
     // Get hash
-    const result = await ipfs.add(value);
+    let result = await ipfs.add(value);
+    if (Array.isArray(result)) {
+      result = result[0];
+    }
+
     if (!result || !result.hash) {
       throw new Error('Returned result from IPFS file adding is not as expected. Result object should contain property "hash"');
     }

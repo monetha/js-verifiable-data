@@ -108,6 +108,8 @@ export class FactReader {
    * @param factProviderAddress fact provider to read fact for
    * @param key fact key
    * @param ipfs IPFS client
+   *
+   * @returns data stored in IPFS
    */
   public async getIPFSData(factProviderAddress: Address, key: string, ipfs: IIPFSClient): Promise<any> {
     const hash = await this.get('getIPFSHash', factProviderAddress, key);
