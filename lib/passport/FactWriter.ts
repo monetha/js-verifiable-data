@@ -1,6 +1,7 @@
 import { ContractIO } from '../transactionHelpers/ContractIO';
 import abi from '../../config/abis';
 import { Address } from '../models/Address';
+import { IIPFSClient } from '../models/IIPFSClient';
 
 /**
  * Class to write facts to passport
@@ -88,10 +89,18 @@ export class FactWriter {
    * Writes IPFS hash data type fact to passport
    *
    * @param key fact key
-   * @param value value to store
+   * @param value value to store on IPFS
+   * @param ipfs IPFS client
    */
-  public async setIPFSHash(key: string, value: string, factProviderAddress: Address) {
-    return this.set('setIPFSHash', key, value, factProviderAddress);
+  public async setIPFSData(key: string, value: any, factProviderAddress: Address, ipfs: IIPFSClient) {
+
+    // Get hash
+    const result = await ipfs.add(value);
+    if (!result || !result.hash) {
+      throw new Error('Returned result from IPFS file adding is not as expected. Result object should contain property "hash"');
+    }
+
+    return this.set('setIPFSHash', key, result.hash, factProviderAddress);
   }
 
   private async set(method: string, key: string, value: any, factProviderAddress: Address) {

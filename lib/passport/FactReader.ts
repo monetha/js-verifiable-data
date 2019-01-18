@@ -3,6 +3,7 @@ import { Address } from '../models/Address';
 import { fetchEvents } from '../utils/fetchEvents';
 import { getTxData } from '../utils/getTxData';
 import { ContractIO } from '../transactionHelpers/ContractIO';
+import { IIPFSClient } from '../models/IIPFSClient';
 
 /**
  * Class to read facts from the passport
@@ -107,8 +108,14 @@ export class FactReader {
    * @param factProviderAddress fact provider to read fact for
    * @param key fact key
    */
-  public async getIPFSHash(factProviderAddress: Address, key: string): Promise<string> {
-    return this.get('getIPFSHash', factProviderAddress, key);
+  public async getIPFSData(factProviderAddress: Address, key: string, ipfs: IIPFSClient): Promise<any> {
+    const hash = await this.get('getIPFSHash', factProviderAddress, key);
+    if (!hash) {
+      return null;
+    }
+
+    // Get hash
+    return ipfs.cat(hash);
   }
 
   private async get(method: string, factProviderAddress: Address, key: string) {
