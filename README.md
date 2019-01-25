@@ -35,13 +35,23 @@ or
 
 ## Bootstrap reputation layer
 
-Monetha has already deployed this set of auxiliary reputation layer contracts on Ropsten test network. The contract addresses deployed on Ropsten:
+Monetha has already deployed this set of auxiliary reputation layer contracts on Ropsten test network and Mainnet network. 
+
+The contract addresses deployed on Ropsten:
 
 | Contract      | Address                                      |
 |---------------|----------------------------------------------|
 | `PassportLogic` | [`0x0361a024040E7020251fF0756Bb40B8e136B9c9f`](https://ropsten.etherscan.io/address/0x0361a024040E7020251fF0756Bb40B8e136B9c9f) |
 | `PassportLogicRegistry`  | [`0xabA015Fc83E9B88e8334bD9b536257db75e05295`](https://ropsten.etherscan.io/address/0xabA015Fc83E9B88e8334bD9b536257db75e05295) |
 | `PassportFactory` | [`0x87b7Ec2602Da6C9e4D563d788e1e29C064A364a2`](https://ropsten.etherscan.io/address/0x87b7Ec2602Da6C9e4D563d788e1e29C064A364a2) |
+
+The contract addresses deployed on Mainnet:
+
+| Contract      | Address                                      |
+|---------------|----------------------------------------------|
+| `PassportLogic` | [`0xbCd4C9ba1EfB413b1AC952EfaA2374F98641eb7f`](https://etherscan.io/address/0xbCd4C9ba1EfB413b1AC952EfaA2374F98641eb7f) |
+| `PassportLogicRegistry`  | [`0x3dC70507087D36A726a0A3fD99eb2D4b513248B0`](https://etherscan.io/address/0x3dC70507087D36A726a0A3fD99eb2D4b513248B0) |
+| `PassportFactory` | [`0x9F58301392696aaa0A23FBA7B8dE3118c72A8685`](https://etherscan.io/address/0x9F58301392696aaa0A23FBA7B8dE3118c72A8685) |
 
 Consider the process of deploying your own set of auxiliary repoutation layer contracts to experiment with our implementation. If you are going to deploy your contracts, then you will have to support them yourself.
 
