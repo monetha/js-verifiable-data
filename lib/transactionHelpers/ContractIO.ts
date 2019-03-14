@@ -114,15 +114,41 @@ export class ContractIO {
   }
 
   private async getEstimatedGas(data: any, from: Address, to: Address): Promise<number> {
-    return this.web3.eth.estimateGas({ data, from, to });
+    return new Promise<number>((resolve, reject) => {
+      this.web3.eth.estimateGas({ data, from, to }, (error, gas) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        resolve(gas);
+      });
+    });
   }
 
-  private getGasPriceFromBlockChain(): string {
-    return this.web3.toHex(this.web3.eth.gasPrice);
+  private getGasPriceFromBlockChain(): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      this.web3.eth.getGasPrice((error, gasPrice) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        resolve(this.web3.toHex(gasPrice));
+      });
+    });
   }
 
-  private getNonceFromBlockChain(fromAddress: Address): string {
-    const count = this.web3.eth.getTransactionCount(fromAddress);
-    return this.web3.toHex(count);
+  private async getNonceFromBlockChain(fromAddress: Address): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      this.web3.eth.getTransactionCount(fromAddress, (error, count) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        resolve(this.web3.toHex(count));
+      });
+    });
   }
 }

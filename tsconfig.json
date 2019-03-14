@@ -1,15 +1,18 @@
 {
   "compilerOptions": {
-      "outDir": "./dist",
-      "allowJs": true,
-      "target": "es5",
-      "lib": ["dom", "es2015"]
+    "outDir": "./dist",
+    "target": "es5",
+    "lib": [
+      "dom",
+      "es2015"
+    ],
+    "declaration": true
   },
   "globals": [
     "Promise"
   ],
   "include": [
-      "./lib/**/*",
-      "./config/*"
+    "./lib/**/*",
+    "./config/*"
   ]
 }
