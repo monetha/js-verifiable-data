@@ -22,8 +22,8 @@
 
 ### Prerequisites
 
-* Node.js > 5.*
-* npm > 3.*
+* Node.js >= 8.9.*
+* npm >= 5.*
 
 ### Build
 
