@@ -84,10 +84,10 @@ using the `PassportFactory` contract deployed by Monetha ([`0x87b7Ec2602Da6C9e4D
 ```js
 import sdk from 'reputation-sdk'
 const generator = new sdk.PassportGenerator(web3, passportFactoryAddress)
-generator.createPassport(factProviderAddress)
+generator.createPassport(walletAddress)
 ```
 
-You will get the transaction info (raw unsigned transaction) in output of the function, sign the transaction using the private key of address given in factProviderAddress and broadcast it on the network.
+You will get the transaction info (raw unsigned transaction) in output of the function, sign the transaction using the private key of address given in walletAddress and broadcast it on the network.
 
 ### Passport list
 
