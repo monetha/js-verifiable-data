@@ -12,5 +12,5 @@ export declare class PassportOwnership {
     /**
      * Returns passport owner address
      */
-    getOwnerAddress(): Promise<{}>;
+    getOwnerAddress(): Promise<string>;
 }

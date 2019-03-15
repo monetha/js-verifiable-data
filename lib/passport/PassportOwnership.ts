@@ -22,7 +22,7 @@ export class PassportOwnership {
   /**
    * Returns passport owner address
    */
-  public async getOwnerAddress() {
-    return this.contract.readData('owner', []);
+  public async getOwnerAddress(): Promise<string> {
+    return this.contract.readData('owner', []) as any;
   }
 }
