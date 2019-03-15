@@ -60,7 +60,7 @@ var ContractIO = /** @class */ (function () {
     /**
      * Generates raw unsigned transaction to call smart contract method, which manipulates data
      */
-    ContractIO.prototype.prepareCallTX = function (contractFunctionName, contractArguments, factProviderAddress) {
+    ContractIO.prototype.prepareCallTX = function (contractFunctionName, contractArguments, address) {
         return __awaiter(this, void 0, void 0, function () {
             var contractData, rawTx;
             return __generator(this, function (_a) {
@@ -68,7 +68,7 @@ var ContractIO = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.prepareWriteData(contractFunctionName, contractArguments)];
                     case 1:
                         contractData = _a.sent();
-                        return [4 /*yield*/, this.prepareRawTX(factProviderAddress, this.contractAddress, 0, contractData)];
+                        return [4 /*yield*/, this.prepareRawTX(address, this.contractAddress, 0, contractData)];
                     case 2:
                         rawTx = _a.sent();
                         return [2 /*return*/, rawTx];

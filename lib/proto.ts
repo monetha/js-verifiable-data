@@ -1,4 +1,5 @@
 import { PassportGenerator } from './passport/PassportGenerator';
+import { PassportOwnership } from './passport/PassportOwnership';
 import { FactReader } from './passport/FactReader';
 import { FactWriter } from './passport/FactWriter';
 import { FactRemover } from './passport/FactRemover';
@@ -7,6 +8,7 @@ import { PassportReader } from './passport/PassportReader';
 
 export default {
   PassportGenerator,
+  PassportOwnership,
   PassportReader,
   FactReader,
   FactWriter,

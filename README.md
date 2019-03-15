@@ -89,6 +89,16 @@ generator.createPassport(walletAddress)
 
 You will get the transaction info (raw unsigned transaction) in output of the function, sign the transaction using the private key of address given in walletAddress and broadcast it on the network.
 
+### Passport ownership
+
+After the passport is created, the owner must call the `claimOwnership` method to become a full owner:
+
+```js
+import sdk from 'reputation-sdk'
+const generator = new sdk.PassportOwnership(web3, passportAddress)
+generator.claimOwnership(ownerAddress)
+```
+
 ### Passport list
 
 The passport factory allows you to get a list of all the passports that have been created.

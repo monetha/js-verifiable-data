@@ -39,7 +39,7 @@ export class ContractIO {
   public async prepareCallTX(
     contractFunctionName: string,
     contractArguments: any[],
-    factProviderAddress: Address,
+    address: Address,
   ): Promise<IRawTX> {
 
     const contractData = await this.prepareWriteData(
@@ -48,7 +48,7 @@ export class ContractIO {
     );
 
     const rawTx = await this.prepareRawTX(
-      factProviderAddress,
+      address,
       this.contractAddress,
       0,
       contractData,

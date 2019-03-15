@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var PassportGenerator_1 = require("./passport/PassportGenerator");
+var PassportOwnership_1 = require("./passport/PassportOwnership");
 var FactReader_1 = require("./passport/FactReader");
 var FactWriter_1 = require("./passport/FactWriter");
 var FactRemover_1 = require("./passport/FactRemover");
@@ -8,6 +9,7 @@ var Permissions_1 = require("./passport/Permissions");
 var PassportReader_1 = require("./passport/PassportReader");
 exports.default = {
     PassportGenerator: PassportGenerator_1.PassportGenerator,
+    PassportOwnership: PassportOwnership_1.PassportOwnership,
     PassportReader: PassportReader_1.PassportReader,
     FactReader: FactReader_1.FactReader,
     FactWriter: FactWriter_1.FactWriter,
