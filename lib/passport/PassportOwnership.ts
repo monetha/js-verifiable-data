@@ -18,4 +18,11 @@ export class PassportOwnership {
   public async claimOwnership(passportOwnerAddress: Address) {
     return this.contract.prepareCallTX('claimOwnership', [], passportOwnerAddress);
   }
+
+  /**
+   * Returns passport owner address
+   */
+  public async getOwnerAddress() {
+    return this.contract.readData('owner', []);
+  }
 }

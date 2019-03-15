@@ -54,6 +54,16 @@ var PassportOwnership = /** @class */ (function () {
             });
         });
     };
+    /**
+     * Returns passport owner address
+     */
+    PassportOwnership.prototype.getOwnerAddress = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.contract.readData('owner', [])];
+            });
+        });
+    };
     return PassportOwnership;
 }());
 exports.PassportOwnership = PassportOwnership;
