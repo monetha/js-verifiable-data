@@ -16,7 +16,7 @@ export declare class ContractIO {
     /**
      * Generates raw unsigned transaction to call smart contract method, which manipulates data
      */
-    prepareCallTX(contractFunctionName: string, contractArguments: any[], factProviderAddress: Address): Promise<IRawTX>;
+    prepareCallTX(contractFunctionName: string, contractArguments: any[], address: Address): Promise<IRawTX>;
     /**
      * Reads data from contracts (read methods gas free)
      */
