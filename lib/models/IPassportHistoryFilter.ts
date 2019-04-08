@@ -1,18 +1,18 @@
 export interface IPassportHistoryFilter {
-    factProviderAddress?: string;
+  factProviderAddress?: string;
 
-    /**
-     * Fact key
-     */
-    key?: string;
+  /**
+   * Fact key
+   */
+  key?: string;
 
-    /**
-     * Block nr to scan from
-     */
-    startBlock?: string;
+  /**
+   * Block nr to scan from
+   */
+  startBlock?: string;
 
-    /**
-     * Block nr to scan to
-     */
-    endBlock?: string;
+  /**
+   * Block nr to scan to
+   */
+  endBlock?: string;
 }
