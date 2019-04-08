@@ -72,29 +72,46 @@ var PassportReader = /** @class */ (function () {
         });
     };
     /**
-     * Fetches all the events (history) of a particular passport factory address
+     * Fetches all the events (history) of a particular passport address
      *
-     * @param factoryAddress address of passport factory to get passports for
-     * @param startBlock block nr to scan from
-     * @param endBlock block nr to scan to
+     * @param passportAddress address of passport to get events for
+     * @param filter passport history filter
      */
-    PassportReader.prototype.readPassportHistory = function (factoryAddress, startBlock, endBlock) {
-        if (startBlock === void 0) { startBlock = ethereum_1.MIN_BLOCK; }
-        if (endBlock === void 0) { endBlock = ethereum_1.MAX_BLOCK; }
+    PassportReader.prototype.readPassportHistory = function (passportAddress, filter) {
         return __awaiter(this, void 0, void 0, function () {
-            var events, historyEvents;
+            var startBlock, endBlock, filterFactProviderAddress, filterKey, events, historyEvents;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, fetchEvents_1.fetchEvents(this.ethNetworkUrl, startBlock, endBlock, factoryAddress)];
+                    case 0:
+                        startBlock = filter && filter.startBlock || ethereum_1.MIN_BLOCK;
+                        endBlock = filter && filter.endBlock || ethereum_1.MAX_BLOCK;
+                        filterFactProviderAddress = filter && filter.factProviderAddress;
+                        filterKey = filter && filter.key;
+                        return [4 /*yield*/, fetchEvents_1.fetchEvents(this.ethNetworkUrl, startBlock, endBlock, passportAddress)];
                     case 1:
                         events = _a.sent();
-                        historyEvents = events.map(function (event) { return ({
-                            blockNumber: event.blockNumber,
-                            transactionHash: event.transactionHash,
-                            factProviderAddress: event.topics[1] ? sanitizeAddress_1.sanitizeAddress(event.topics[1].slice(26)) : '',
-                            key: _this.web3.toAscii(event.topics[2].slice(0, 23)),
-                        }); });
+                        historyEvents = [];
+                        events.forEach(function (event) {
+                            if (!event) {
+                                return;
+                            }
+                            var blockNumber = event.blockNumber, transactionHash = event.transactionHash, topics = event.topics;
+                            var factProviderAddress = topics[1] ? sanitizeAddress_1.sanitizeAddress(topics[1].slice(26)) : '';
+                            var key = topics[2] ? _this.web3.toAscii(topics[2].slice(0, 23)) : '';
+                            if (filterFactProviderAddress !== undefined && filterFactProviderAddress !== null && filterFactProviderAddress !== factProviderAddress) {
+                                return;
+                            }
+                            if (filterKey !== undefined && filterKey !== null && filterKey !== key) {
+                                return;
+                            }
+                            historyEvents.push({
+                                blockNumber: blockNumber,
+                                transactionHash: transactionHash,
+                                factProviderAddress: factProviderAddress,
+                                key: key,
+                            });
+                        });
                         return [2 /*return*/, historyEvents];
                 }
             });

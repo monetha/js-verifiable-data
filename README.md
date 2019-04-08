@@ -241,7 +241,7 @@ in `Ropsten` block-chain :
 ```js
 import sdk from 'reputation-sdk'
 const reader = new sdk.PassportReader(web3, ethereumNetworkUrl)
-reader.readPassportHistory(passportFactoryAddress)
+reader.readPassportHistory(passportAddress)
 ```
 
 | factProviderAddress | key | blockNumber | transactionHash |
