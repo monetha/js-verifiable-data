@@ -98,7 +98,7 @@ var PassportReader = /** @class */ (function () {
                             }
                             var blockNumber = event.blockNumber, transactionHash = event.transactionHash, topics = event.topics;
                             var factProviderAddress = topics[1] ? sanitizeAddress_1.sanitizeAddress(topics[1].slice(26)) : '';
-                            var key = topics[2] ? _this.web3.toAscii(topics[2].slice(0, 23)) : '';
+                            var key = topics[2] ? _this.web3.utils.toAscii(topics[2].slice(0, 23)) : '';
                             if (filterFactProviderAddress !== undefined && filterFactProviderAddress !== null && filterFactProviderAddress !== factProviderAddress) {
                                 return;
                             }

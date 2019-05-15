@@ -35,11 +35,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var abis_1 = require("../../config/abis");
 var PassportGenerator = /** @class */ (function () {
     function PassportGenerator(web3, passportFactoryAddress) {
-        this.contract = new ContractIO_1.ContractIO(web3, abis_1.default.PassportFactory.abi, passportFactoryAddress);
+        this.contract = new web3.eth.Contract(abis_1.default.PassportFactory.abi, passportFactoryAddress);
     }
     /**
      * Creates an empty passport and returns its address

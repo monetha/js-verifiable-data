@@ -9,7 +9,7 @@ export class PassportOwnership {
   private contract: ContractIO;
 
   constructor(web3, passportAddress: Address) {
-    this.contract = new ContractIO(web3, abi.PassportLogic.abi, passportAddress);
+    this.contract = new web3.eth.Contract(abi.PassportLogic.abi, passportAddress) as ContractIO;
   }
 
   /**

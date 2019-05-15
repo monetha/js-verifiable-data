@@ -7,7 +7,7 @@ import { fetchEvents } from '../utils/fetchEvents';
 import { sanitizeAddress } from '../utils/sanitizeAddress';
 
 export class PassportReader {
-  private web3: any;
+  private web3;
   private ethNetworkUrl: string;
 
   constructor(web3, ethNetworkUrl: string) {
@@ -59,7 +59,7 @@ export class PassportReader {
       const { blockNumber, transactionHash, topics } = event;
 
       const factProviderAddress: string = topics[1] ? sanitizeAddress(topics[1].slice(26)) : '';
-      const key: string = topics[2] ? this.web3.toAscii(topics[2].slice(0, 23)) : '';
+      const key: string = topics[2] ? this.web3.utils.toAscii(topics[2].slice(0, 23)) : '';
 
       if (filterFactProviderAddress !== undefined && filterFactProviderAddress !== null && filterFactProviderAddress !== factProviderAddress) {
         return;

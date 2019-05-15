@@ -35,14 +35,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var abis_1 = require("../../config/abis");
 /**
  * Class to change passport ownership
  */
 var PassportOwnership = /** @class */ (function () {
     function PassportOwnership(web3, passportAddress) {
-        this.contract = new ContractIO_1.ContractIO(web3, abis_1.default.PassportLogic.abi, passportAddress);
+        this.contract = new web3.eth.Contract(abis_1.default.PassportLogic.abi, passportAddress);
     }
     /**
      * After the passport is created, the owner must call this method to become a full passport owner
