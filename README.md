@@ -67,8 +67,8 @@ Prepare in advance the address that will be the owner of the deployed contracts.
 ## Usage
 
 ```js
-import sdk from 'reputation-sdk'
-const generator = new sdk.PassportGenerator(web3, passportFactoryAddress)
+import sdk from 'reputation-sdk';
+const generator = new sdk.PassportGenerator(web3, passportFactoryAddress);
 ```
 
 In order to create a passport and start using it, you need to use auxiliary reputation layer contracts: PassportLogic, PassportLogicRegistry, PassportFactory.
@@ -82,9 +82,9 @@ To create a passport contract you need to know address of the `PassportFactory` 
 using the `PassportFactory` contract deployed by Monetha ([`0x5FD962855e9b327262F47594949fd6d742FE2A01`](https://ropsten.etherscan.io/address/0x5FD962855e9b327262F47594949fd6d742FE2A01)):
 
 ```js
-import sdk from 'reputation-sdk'
-const generator = new sdk.PassportGenerator(web3, passportFactoryAddress)
-generator.createPassport(walletAddress)
+import sdk from 'reputation-sdk';
+const generator = new sdk.PassportGenerator(web3, passportFactoryAddress);
+generator.createPassport(walletAddress);
 ```
 
 You will get the transaction info (raw unsigned transaction) in output of the function, sign the transaction using the private key of address given in walletAddress and broadcast it on the network.
@@ -94,9 +94,15 @@ You will get the transaction info (raw unsigned transaction) in output of the fu
 After the passport is created, the owner must call the `claimOwnership` method to become a full owner:
 
 ```js
-import sdk from 'reputation-sdk'
-const generator = new sdk.PassportOwnership(web3, passportAddress)
-generator.claimOwnership(ownerAddress)
+import sdk from 'reputation-sdk';
+const generator = new sdk.PassportOwnership(web3, passportAddress);
+generator.claimOwnership(ownerAddress);
+```
+
+To returns passport owner address call getOwnerAddress():
+
+```js
+generator.getOwnerAddress();
 ```
 
 ### Passport list
@@ -160,9 +166,9 @@ Let's try to store string  `hello` under the key `greetings` as `string` in pass
 
 
 ```js
-import sdk from 'reputation-sdk'
-const writer = new sdk.FactWriter(web3, passportAddress)
-writer.setString("greetings", "hello", factProviderAddress)
+import sdk from 'reputation-sdk';
+const writer = new sdk.FactWriter(web3, passportAddress);
+writer.setString('greetings', 'hello', factProviderAddress);
 ```
 
 Also user can delete the data stored from the passport.
@@ -171,12 +177,104 @@ Let's try to delete string  `hello` under the key `greetings` as `string` in pas
 `<passportAddress>`:
 
 ```js
-import sdk from 'reputation-sdk'
-const remover = new sdk.FactRemover(web3, passportAddress)
-remover.deleteString("greetings", factProviderAddress)
+import sdk from 'reputation-sdk';
+const remover = new sdk.FactRemover(web3, passportAddress);
+remover.deleteString('greetings', factProviderAddress);
 ```
 
 You will get the transaction info (raw unsigned transaction) in output of the function, sign the transaction using the private key of address given in factProviderAddress and broadcast it on the network.
+
+**Writing facts examples:**
+
+Writes address type fact to passport:
+
+```js
+writer.setAddress('address_1', '0x5A0b54D5dc17e0AadC383d2db43B0a0D3E029c4c', factProviderAddress);
+```
+
+Writes boolean type fact to passport:
+
+```js
+writer.setBool('barcelona_won_uefa', false, factProviderAddress);
+```
+
+Writes bytes type fact to passport:
+
+```js
+writer.setBytes('bytes_data', '68 65 6c 6c 6f', factProviderAddress);
+```
+
+Writes IPFS hash data type fact to passport:
+
+```js
+writer.setIPFSData('logo', 'QmaSjk86XyXQzeZ5JCVS2scNYiUBsmALyGBUjatEiQuc3q', factProviderAddress, IIPFSClient);
+```
+
+Writes int type fact to passport:
+
+```js
+writer.setInt('lt_population', 2848000, factProviderAddress);
+```
+
+Writes TX data type fact to passport:
+
+```js
+writer.setTxdata('tx_1', [1, 2, 3], factProviderAddress);
+```
+
+Writes uint type fact to passport:
+
+```js
+writer.setUint('jonas_rating', 4294100000, factProviderAddress);
+```
+
+Sign the transaction using the private key of address given in factProviderAddress and broadcast it on the network.
+
+**Deleting facts examples:**
+
+Deletes address type fact from passport:
+
+```js
+remover.deleteAddress(factProviderAddress, 'address_1');
+```
+
+Deletes bool type fact from passport:
+
+```js
+remover.deleteBool(factProviderAddress, 'barcelona_won_uefa');
+```
+
+Deletes byte type fact from passport:
+
+```js
+remover.deleteBytes(factProviderAddress, 'bytes_data');
+```
+
+Deletes IPFS hash type fact from passport:
+
+```js
+remover.deleteIPFSHash(factProviderAddress, 'logo', IIPFSClient);
+```
+
+Deletes int type fact from passport:
+
+```js
+remover.deleteInt(factProviderAddress, 'lt_population');
+```
+
+Deletes txdata type fact from passport:
+
+```js
+remover.deleteTxdata(factProviderAddress, 'tx_1');
+```
+
+Deletes uint type fact from passport:
+
+```js
+remover.deleteUint(factProviderAddress, 'jonas_rating');
+```
+
+Sign the transaction using the private key of address given in factProviderAddress and broadcast it on the network.
 
 ### Reading facts
 
@@ -188,12 +286,56 @@ Let's try to retrieve string from passport `<passportAddress>` that was stored b
 `<factProviderAddress>` under the key `greetings` as `string` data type:
 
 ```js
-import sdk from 'reputation-sdk'
-const reader = new sdk.FactReader(web3, ethereumNetworkAddress, passportAddress)
-reader.getString(factProviderAddress, "greetings")
+import sdk from 'reputation-sdk';
+const reader = new sdk.FactReader(web3, ethereumNetworkAddress, passportAddress);
+reader.getString(factProviderAddress, 'greetings');
 ```
 
-### Changing passport permissions
+**Reading facts examples:**
+
+Read address type fact from passport:
+
+```js
+reader.getAddress(factProviderAddress, 'address_1');
+```
+
+Read boolean type fact from passport:
+
+```js
+reader.getBool(factProviderAddress, 'barcelona_won_uefa');
+```
+
+Deletes byte type fact from passport:
+
+```js
+reader.getBytes(factProviderAddress, 'bytes_data');
+```
+
+Read IPFS hash type fact from passport:
+
+```js
+reader.getIPFSData(factProviderAddress, 'logo', IIPFSClient);
+```
+
+Read int type fact from passport:
+
+```js
+reader.getInt(factProviderAddress, 'lt_population');
+```
+
+Read TX data type fact from passport:
+
+```js
+reader.getTxdata(factProviderAddress, 'tx_1');
+```
+
+Read uint type fact from passport:
+
+```js
+reader.getUint(factProviderAddress, 'jonas_rating');
+```
+
+### Managing passport permissions
 
 By default any fact provider can write to a passport, but a passport owner can change permissions that allow only
 fact providers from the whitelist to write to a passport. To do this, the passport owner must add the authorized fact providers
@@ -213,9 +355,9 @@ Consider an example of how owner of a passport `<ownerAddress>` deletes fact pro
 `<factProviderAddress>` to the whitelist in Ropsten network:
 
 ```js
-import sdk from 'reputation-sdk'
-const Permissions = new sdk.Permissions(web3, passportAddress)
-Permissions.removeFactProviderFromWhitelist(factProviderAddress, passportOwnerAddress)
+import sdk from 'reputation-sdk';
+const Permissions = new sdk.Permissions(web3, passportAddress);
+Permissions.removeFactProviderFromWhitelist(factProviderAddress, passportOwnerAddress);
 ```
 
 Please note that the passport owner only can call this method.
@@ -226,9 +368,27 @@ Owner of a passport `<ownerAddress>` may allow to store the facts only to fact p
 from the whitelist by running the command:
 
 ```js
-import sdk from 'reputation-sdk'
-const Permissions = new sdk.Permissions(web3, passportAddress)
-Permissions.setWhitelistOnlyPermission(true, passportOwnerAddress)
+import sdk from 'reputation-sdk';
+const permissions = new sdk.Permissions(web3, passportAddress);
+permissions.setWhitelistOnlyPermission(true, passportOwnerAddress);
+```
+
+Checks if factProvider is allowed:
+
+```js
+permissions.isAllowedFactProvider(factProviderAddress);
+```
+
+Checks if fact provider is whitelisted:
+
+```js
+permissions.isFactProviderInWhitelist(factProviderAddress);
+```
+
+Checks if whitelist only permission is set:
+
+```js
+permissions.isWhitelistOnlyPermissionSet();
 ```
 
 ### Reading facts history
@@ -239,9 +399,9 @@ Let's try to retrieve the entire change history for the passport [`0x1C3A76a9A27
 in `Ropsten` block-chain :
 
 ```js
-import sdk from 'reputation-sdk'
-const reader = new sdk.PassportReader(web3, ethereumNetworkUrl)
-reader.readPassportHistory(passportAddress)
+import sdk from 'reputation-sdk';
+const reader = new sdk.PassportReader(web3, ethereumNetworkUrl);
+reader.readPassportHistory(passportAddress);
 ```
 
 | factProviderAddress | key | blockNumber | transactionHash |

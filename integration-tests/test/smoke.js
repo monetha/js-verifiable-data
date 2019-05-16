@@ -36,7 +36,6 @@ describe('Reputation js-sdk smoke tests', function () {
     it('Should be able to create passport', async () => {
         // Given
         const generator = new sdk.PassportGenerator(web3, passportFactoryAddress);
-
         // When
         const response = await generator.createPassport(passportOwner);
         const transaction = await submitTransaction(response);
@@ -65,6 +64,7 @@ describe('Reputation js-sdk smoke tests', function () {
     it('Should be able to get a list of all created passports', async () => {
         // Given
         const reader = new sdk.PassportReader(web3, ethereumNetworkUrl);
+     
         // When
         const response = await reader.getPassportsList(passportFactoryAddress);
         // Then
@@ -75,6 +75,7 @@ describe('Reputation js-sdk smoke tests', function () {
     it('Should be able to write facts', async () => {
         // Given
         const writer = new sdk.FactWriter(web3, passportAddress);
+
         // When
         const response = await writer.setString('greetings', 'hello', factProviderAddress);
         const transaction = await submitTransaction(response);
@@ -120,9 +121,9 @@ describe('Reputation js-sdk smoke tests', function () {
 
     it('Should be able to whitelist fact provide.', async () => {
         // Given
-        const Permissions = new sdk.Permissions(web3, passportAddress);
+        const permissions = new sdk.Permissions(web3, passportAddress);
         // When
-        const response = await Permissions.addFactProviderToWhitelist(factProviderAddress, passportOwner);
+        const response = await permissions.addFactProviderToWhitelist(factProviderAddress, passportOwner);
         const transaction = await submitTransaction(response);
         // Then
         expect(transaction.from).to.equal(passportOwner);
@@ -145,4 +146,3 @@ async function submitTransaction(tx_data) {
     let transaction = web3.eth.getTransaction(tx);
     return transaction;
   }
-  
