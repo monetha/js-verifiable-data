@@ -145,3 +145,4 @@ async function submitTransaction(tx_data) {
     let transaction = web3.eth.getTransaction(tx);
     return transaction;
   }
+  
