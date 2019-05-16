@@ -115,7 +115,7 @@ in Ropsten network:
 ```js
 import sdk from 'reputation-sdk'
 const reader = new sdk.PassportReader(web3, ethereumNetworkUrl)
-reader.getPassportsList("0x5FD962855e9b327262F47594949fd6d742FE2A01")
+reader.getPassportsList('0x5FD962855e9b327262F47594949fd6d742FE2A01')
 ```
 
 You should get something like this Array of objects:
