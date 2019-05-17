@@ -15,7 +15,7 @@ export class ContractIO {
 
   constructor(web3: Web3, abi: AbiItem[], contractAddress: Address) {
     this.web3 = web3;
-    this.contract = new this.web3.eth.Contract(abi, contractAddress);
+    this.contract = new web3.eth.Contract(abi, contractAddress);
     this.contractInstance = this.contract.methods;
     this.contractAddress = contractAddress;
   }

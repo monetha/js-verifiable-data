@@ -41,7 +41,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var ContractIO = /** @class */ (function () {
     function ContractIO(web3, abi, contractAddress) {
         this.web3 = web3;
-        this.contract = new this.web3.eth.Contract(abi, contractAddress);
+        this.contract = new web3.eth.Contract(abi, contractAddress);
         this.contractInstance = this.contract.methods;
         this.contractAddress = contractAddress;
     }
