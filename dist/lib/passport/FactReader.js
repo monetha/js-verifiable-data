@@ -152,7 +152,7 @@ var FactReader = /** @class */ (function () {
                         if (!data) {
                             return [2 /*return*/, null];
                         }
-                        blockNumHex = this.web3.toHex(data);
+                        blockNumHex = this.web3.utils.toHex(data);
                         return [4 /*yield*/, fetchEvents_1.fetchEvents(this.ethNetworkUrl, blockNumHex, blockNumHex, this.passportAddress)];
                     case 2:
                         events = _a.sent();
@@ -160,7 +160,7 @@ var FactReader = /** @class */ (function () {
                     case 3:
                         txBlock = _a.sent();
                         txDataString = txBlock.params[1].value;
-                        txData = this.web3.toAscii(txDataString);
+                        txData = this.web3.utils.toAscii(txDataString);
                         return [2 /*return*/, txData];
                 }
             });
@@ -198,7 +198,7 @@ var FactReader = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        preparedKey = this.web3.fromAscii(key);
+                        preparedKey = this.web3.utils.fromAscii(key);
                         return [4 /*yield*/, this.contractIO.readData(method, [factProviderAddress, preparedKey])];
                     case 1:
                         result = _a.sent();

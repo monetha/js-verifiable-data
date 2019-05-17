@@ -5,12 +5,13 @@ import { IPassportHistoryFilter } from '../models/IPassportHistoryFilter';
 import { IPassportRef } from '../models/IPassportRef';
 import { fetchEvents } from '../utils/fetchEvents';
 import { sanitizeAddress } from '../utils/sanitizeAddress';
+import Web3 from 'web3';
 
 export class PassportReader {
-  private web3;
+  private web3: Web3;
   private ethNetworkUrl: string;
 
-  constructor(web3, ethNetworkUrl: string) {
+  constructor(web3: Web3, ethNetworkUrl: string) {
     this.web3 = web3;
     this.ethNetworkUrl = ethNetworkUrl;
   }

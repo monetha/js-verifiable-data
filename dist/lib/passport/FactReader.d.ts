@@ -1,5 +1,6 @@
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
+import Web3 from 'web3';
 /**
  * Class to read facts from the passport
  */
@@ -8,7 +9,7 @@ export declare class FactReader {
     private ethNetworkUrl;
     private readonly web3;
     private readonly passportAddress;
-    constructor(web3: any, ethNetworkUrl: string, passportAddress: Address);
+    constructor(web3: Web3, ethNetworkUrl: string, passportAddress: Address);
     /**
      * Read string type fact from passport
      *

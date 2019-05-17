@@ -1,10 +1,11 @@
 import { Address } from '../models/Address';
+import Web3 from 'web3';
 /**
  * Class to change passport ownership
  */
 export declare class PassportOwnership {
     private contract;
-    constructor(web3: any, passportAddress: Address);
+    constructor(web3: Web3, passportAddress: Address);
     /**
      * After the passport is created, the owner must call this method to become a full passport owner
      */

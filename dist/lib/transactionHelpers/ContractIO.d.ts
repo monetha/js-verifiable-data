@@ -1,5 +1,8 @@
 import { Address } from '../models/Address';
 import { IRawTX } from '../models/IRawTX';
+import Web3 from 'web3';
+import { AbiItem } from 'web3-utils';
+import { Contract } from 'web3-eth-contract';
 /**
  * Helper class to work with contract reading and writing
  */
@@ -8,9 +11,9 @@ export declare class ContractIO {
     private contract;
     private contractInstance;
     private contractAddress;
-    constructor(web3: any, abi: any, contractAddress: Address);
-    getWeb3(): any;
-    getContract(): any;
+    constructor(web3: Web3, abi: AbiItem[], contractAddress: Address);
+    getWeb3(): Web3;
+    getContract(): Contract;
     getContractInstance(): any;
     getContractAddress(): string;
     /**

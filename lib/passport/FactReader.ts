@@ -4,6 +4,8 @@ import { fetchEvents } from '../utils/fetchEvents';
 import { getTxData } from '../utils/getTxData';
 import { ContractIO } from '../transactionHelpers/ContractIO';
 import { IIPFSClient } from '../models/IIPFSClient';
+import Web3 from 'web3';
+import { AbiItem } from 'web3-utils';
 
 /**
  * Class to read facts from the passport
@@ -15,9 +17,9 @@ export class FactReader {
   private get web3() { return this.contractIO.getWeb3(); }
   private get passportAddress() { return this.contractIO.getContractAddress(); }
 
-  constructor(web3, ethNetworkUrl: string, passportAddress: Address) {
+  constructor(web3: Web3, ethNetworkUrl: string, passportAddress: Address) {
     this.ethNetworkUrl = ethNetworkUrl;
-    this.contractIO = new ContractIO(web3, abi.PassportLogic.abi, passportAddress);
+    this.contractIO = new ContractIO(web3, abi.PassportLogic.abi as AbiItem[], passportAddress);
   }
 
   /**
@@ -93,11 +95,11 @@ export class FactReader {
       return null;
     }
 
-    const blockNumHex = this.web3.toHex(data);
+    const blockNumHex = this.web3.utils.toHex(data);
     const events = await fetchEvents(this.ethNetworkUrl, blockNumHex, blockNumHex, this.passportAddress);
     const txBlock = await getTxData(events[0].transactionHash, this.web3);
     const txDataString = txBlock.params[1].value;
-    const txData = this.web3.toAscii(txDataString);
+    const txData = this.web3.utils.toAscii(txDataString);
 
     return txData;
   }
@@ -122,7 +124,7 @@ export class FactReader {
   }
 
   private async get(method: string, factProviderAddress: Address, key: string) {
-    const preparedKey = this.web3.fromAscii(key);
+    const preparedKey = this.web3.utils.fromAscii(key);
 
     const result = await this.contractIO.readData(method, [factProviderAddress, preparedKey]);
 

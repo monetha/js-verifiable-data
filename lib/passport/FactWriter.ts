@@ -2,6 +2,8 @@ import { ContractIO } from '../transactionHelpers/ContractIO';
 import abi from '../../config/abis';
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
+import Web3 from 'web3';
+import { AbiItem } from 'web3-utils';
 
 /**
  * Class to write facts to passport
@@ -11,8 +13,8 @@ export class FactWriter {
 
   private get web3() { return this.contractIO.getWeb3(); }
 
-  constructor(web3, passportAddress: Address) {
-    this.contractIO = new ContractIO(web3, abi.PassportLogic.abi, passportAddress);
+  constructor(web3: Web3, passportAddress: Address) {
+    this.contractIO = new ContractIO(web3, abi.PassportLogic.abi as AbiItem[], passportAddress);
   }
 
   /**
@@ -108,7 +110,7 @@ export class FactWriter {
   }
 
   private async set(method: string, key: string, value: any, factProviderAddress: Address) {
-    const preparedKey = this.web3.fromAscii(key);
+    const preparedKey = this.web3.utils.fromAscii(key);
 
     return this.contractIO.prepareCallTX(method, [preparedKey, value], factProviderAddress);
   }

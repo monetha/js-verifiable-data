@@ -1,19 +1,22 @@
 import { Address } from '../models/Address';
 import { IRawTX } from '../models/IRawTX';
+import Web3 from 'web3';
+import { AbiItem } from 'web3-utils';
+import { Contract } from 'web3-eth-contract';
 
 /**
  * Helper class to work with contract reading and writing
  */
 export class ContractIO {
-  private web3: any;
-  private contract: any;
+  private web3: Web3;
+  private contract: Contract;
   private contractInstance: any;
   private contractAddress: string;
 
-  constructor(web3, abi, contractAddress: Address) {
+  constructor(web3: Web3, abi: AbiItem[], contractAddress: Address) {
     this.web3 = web3;
-    this.contract = this.web3.eth.contract(abi);
-    this.contractInstance = this.contract.at(contractAddress);
+    this.contract = new this.web3.eth.Contract(abi, contractAddress);
+    this.contractInstance = this.contract.methods;
     this.contractAddress = contractAddress;
   }
 
@@ -134,7 +137,7 @@ export class ContractIO {
           return;
         }
 
-        resolve(this.web3.toHex(gasPrice));
+        resolve(this.web3.utils.toHex(gasPrice));
       });
     });
   }
@@ -147,7 +150,7 @@ export class ContractIO {
           return;
         }
 
-        resolve(this.web3.toHex(count));
+        resolve(this.web3.utils.toHex(count));
       });
     });
   }

@@ -41,8 +41,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var ContractIO = /** @class */ (function () {
     function ContractIO(web3, abi, contractAddress) {
         this.web3 = web3;
-        this.contract = this.web3.eth.contract(abi);
-        this.contractInstance = this.contract.at(contractAddress);
+        this.contract = new this.web3.eth.Contract(abi, contractAddress);
+        this.contractInstance = this.contract.methods;
         this.contractAddress = contractAddress;
     }
     ContractIO.prototype.getWeb3 = function () {
@@ -167,7 +167,7 @@ var ContractIO = /** @class */ (function () {
                     reject(error);
                     return;
                 }
-                resolve(_this.web3.toHex(gasPrice));
+                resolve(_this.web3.utils.toHex(gasPrice));
             });
         });
     };
@@ -181,7 +181,7 @@ var ContractIO = /** @class */ (function () {
                                 reject(error);
                                 return;
                             }
-                            resolve(_this.web3.toHex(count));
+                            resolve(_this.web3.utils.toHex(count));
                         });
                     })];
             });

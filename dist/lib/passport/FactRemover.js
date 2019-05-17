@@ -142,7 +142,7 @@ var FactRemover = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var preparedKey;
             return __generator(this, function (_a) {
-                preparedKey = this.web3.fromAscii(key);
+                preparedKey = this.web3.utils.fromAscii(key);
                 return [2 /*return*/, this.contractIO.prepareCallTX(method, [preparedKey], factProviderAddress)];
             });
         });
