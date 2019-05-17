@@ -63,6 +63,7 @@ var PassportReader = /** @class */ (function () {
                         passportRefs = events.map(function (event) { return ({
                             blockNumber: event.blockNumber,
                             blockHash: event.blockHash,
+                            txHash: event.transactionHash,
                             passportAddress: event.topics[1] ? sanitizeAddress_1.sanitizeAddress(event.topics[1].slice(26)) : '',
                             ownerAddress: event.topics[2] ? sanitizeAddress_1.sanitizeAddress(event.topics[2].slice(26)) : '',
                         }); });
