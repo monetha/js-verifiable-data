@@ -28,6 +28,7 @@ export class PassportReader {
     const passportRefs: IPassportRef[] = events.map(event => ({
       blockNumber: event.blockNumber,
       blockHash: event.blockHash,
+      txHash: event.transactionHash,
       passportAddress: event.topics[1] ? sanitizeAddress(event.topics[1].slice(26)) : '',
       ownerAddress: event.topics[2] ? sanitizeAddress(event.topics[2].slice(26)) : '',
     }));
