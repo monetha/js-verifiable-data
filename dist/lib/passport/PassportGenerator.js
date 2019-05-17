@@ -34,12 +34,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var ContractIO_1 = require("../transactionHelpers/ContractIO");
-var abis_1 = require("../../config/abis");
+var PassportFactory_json_1 = __importDefault(require("../../config/PassportFactory.json"));
 var PassportGenerator = /** @class */ (function () {
     function PassportGenerator(web3, passportFactoryAddress) {
-        this.contract = new ContractIO_1.ContractIO(web3, abis_1.default.PassportFactory.abi, passportFactoryAddress);
+        this.contract = new ContractIO_1.ContractIO(web3, PassportFactory_json_1.default, passportFactoryAddress);
     }
     /**
      * Creates an empty passport and returns its address

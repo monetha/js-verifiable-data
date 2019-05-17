@@ -1,8 +1,8 @@
 import { ContractIO } from '../transactionHelpers/ContractIO';
-import abi from '../../config/abis';
 import { Address } from '../models/Address';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
+import passportLogicAbi from '../../config/PassportLogic.json';
 
 /**
  * Class to change passport ownership
@@ -11,7 +11,7 @@ export class PassportOwnership {
   private contract: ContractIO;
 
   constructor(web3: Web3, passportAddress: Address) {
-    this.contract = new ContractIO(web3, abi.PassportLogic.abi as AbiItem[], passportAddress);
+    this.contract = new ContractIO(web3, passportLogicAbi as AbiItem[], passportAddress);
   }
 
   /**

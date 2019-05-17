@@ -13,7 +13,7 @@
 		"test": "mocha --timeout 200000",
 		"build": "./node_modules/.bin/tsc",
 		"lint": "tslint --project tsconfig.json",
-		"prepare-contracts": "typechain --target=web3-1.0.0 --outDir=lib"
+		"prepare-contracts": "typechain --target=web3-1.0.0 --outDir=lib/types/web3-contracts \"./config/*.json\""
 	},
 	"husky": {
 		"hooks": {

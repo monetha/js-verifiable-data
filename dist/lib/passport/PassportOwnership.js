@@ -34,15 +34,18 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var ContractIO_1 = require("../transactionHelpers/ContractIO");
-var abis_1 = require("../../config/abis");
+var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 /**
  * Class to change passport ownership
  */
 var PassportOwnership = /** @class */ (function () {
     function PassportOwnership(web3, passportAddress) {
-        this.contract = new ContractIO_1.ContractIO(web3, abis_1.default.PassportLogic.abi, passportAddress);
+        this.contract = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
     }
     /**
      * After the passport is created, the owner must call this method to become a full passport owner

@@ -34,18 +34,21 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var abis_1 = require("../../config/abis");
 var fetchEvents_1 = require("../utils/fetchEvents");
 var getTxData_1 = require("../utils/getTxData");
 var ContractIO_1 = require("../transactionHelpers/ContractIO");
+var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 /**
  * Class to read facts from the passport
  */
 var FactReader = /** @class */ (function () {
     function FactReader(web3, ethNetworkUrl, passportAddress) {
         this.ethNetworkUrl = ethNetworkUrl;
-        this.contractIO = new ContractIO_1.ContractIO(web3, abis_1.default.PassportLogic.abi, passportAddress);
+        this.contractIO = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
     }
     Object.defineProperty(FactReader.prototype, "web3", {
         get: function () { return this.contractIO.getWeb3(); },

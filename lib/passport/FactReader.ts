@@ -1,4 +1,3 @@
-import abi from '../../config/abis';
 import { Address } from '../models/Address';
 import { fetchEvents } from '../utils/fetchEvents';
 import { getTxData } from '../utils/getTxData';
@@ -6,6 +5,7 @@ import { ContractIO } from '../transactionHelpers/ContractIO';
 import { IIPFSClient } from '../models/IIPFSClient';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
+import passportLogicAbi from '../../config/PassportLogic.json';
 
 /**
  * Class to read facts from the passport
@@ -19,7 +19,7 @@ export class FactReader {
 
   constructor(web3: Web3, ethNetworkUrl: string, passportAddress: Address) {
     this.ethNetworkUrl = ethNetworkUrl;
-    this.contractIO = new ContractIO(web3, abi.PassportLogic.abi as AbiItem[], passportAddress);
+    this.contractIO = new ContractIO(web3, passportLogicAbi as AbiItem[], passportAddress);
   }
 
   /**
