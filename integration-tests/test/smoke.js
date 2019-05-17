@@ -4,7 +4,6 @@ chai.use(require('chai-moment'));
 const Web3 = require('web3');
 const sdk = require('reputation-sdk').default;
 
-let accounts;
 let monethaOwner;
 let passportOwner;
 let passportFactoryAddress;
@@ -20,16 +19,15 @@ const web3 = new Web3(web3HttpProvider);
 
 before(async () => {
     console.log('Deploy PassportFactory contract and prepare accounts');
-    accounts = await web3.eth.accounts;
 
-    monethaOwner = accounts[0];
-    passportOwner = accounts[1];
-    factProviderAddress = accounts[2];
+    monethaOwner = web3.eth.accounts.create();
+    passportOwner = web3.eth.accounts.create();
+    factProviderAddress = web3.eth.accounts.create();
 
     const passportLogic = await PassportLogic.new({from: monethaOwner});
     const passportLogicRegistry = await PassportLogicRegistry.new("0.1", passportLogic.address, {from: monethaOwner});
     
-    const passportFactory = await PassportFactory.new(passportLogicRegistry.address, {from: monethaOwner}); 
+    const passportFactory = await PassportFactory.new(passportLogicRegistry.address, {from: monethaOwner});
     passportFactoryAddress = passportFactory.address;
 })
 
