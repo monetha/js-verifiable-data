@@ -12,9 +12,9 @@ let passportAddress;
 let factProviderAddress;
 
 const ethereumNetworkUrl = 'http://127.0.0.1:8545';
-const PassportFactory = artifacts.require('../../config/PassportFactory');
-const PassportLogic = artifacts.require('../../config/PassportLogic');
-const PassportLogicRegistry = artifacts.require('../../config/PassportLogicRegistry');
+const PassportFactory = artifacts.require('PassportFactory');
+const PassportLogic = artifacts.require('PassportLogic');
+const PassportLogicRegistry = artifacts.require('PassportLogicRegistry');
 const web3 = new Web3(new Web3.providers.HttpProvider(ethereumNetworkUrl));
 
 before(async () => {
@@ -24,7 +24,7 @@ before(async () => {
     monethaOwner = accounts[0];
     passportOwner = accounts[1];
     factProviderAddress = accounts[2];
- 
+
     const passportLogic = await PassportLogic.new({from: monethaOwner});
     const passportLogicRegistry = await PassportLogicRegistry.new("0.1", passportLogic.address, {from: monethaOwner});
     
