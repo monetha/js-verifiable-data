@@ -15,7 +15,8 @@ const ethereumNetworkUrl = 'http://127.0.0.1:8545';
 const PassportFactory = artifacts.require('PassportFactory');
 const PassportLogic = artifacts.require('PassportLogic');
 const PassportLogicRegistry = artifacts.require('PassportLogicRegistry');
-const web3 = new Web3(new Web3.providers.HttpProvider(ethereumNetworkUrl));
+const web3HttpProvider = new Web3.providers.HttpProvider(ethereumNetworkUrl);
+const web3 = new Web3(web3HttpProvider);
 
 before(async () => {
     console.log('Deploy PassportFactory contract and prepare accounts');
