@@ -1,14 +1,24 @@
 language: node_js
 
+dist: xenial
+
 node_js:
-  - '8'
+  - '10'
+
+services:
+  - docker
 
 install:
   - npm install
+  - (cd integration-tests && npm install)
+
+before_script:
+  - (cd integration-tests && npm run ganache)
 
 script:
   - npm run lint
   - npm run build
+  - npm run test
 
 notifications:
   email:
