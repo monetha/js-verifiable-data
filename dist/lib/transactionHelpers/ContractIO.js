@@ -84,18 +84,21 @@ var ContractIO = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
+                        var _a;
                         var args = contractArguments || [];
-                        var func = _this.contractInstance[contractFunctionName];
-                        if (!func) {
-                            reject(new Error("Function " + contractFunctionName + " was not found in contract " + _this.contractAddress));
-                        }
-                        func.call.apply(func, args.concat([{ from: '' }, function (err, data) {
-                                if (err) {
-                                    reject(err);
-                                    return;
-                                }
-                                resolve(data);
-                            }]));
+                        // const func = this.contract.methods[contractFunctionName];
+                        // if (!func) {
+                        //   reject(new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`));
+                        // }
+                        // func.call(...args, { from: '' }, (err, data) => {
+                        //   if (err) {
+                        //     reject(err);
+                        //     return;
+                        //   }
+                        //
+                        //   resolve(data);
+                        // });
+                        (_a = _this.contract.methods)[contractFunctionName].apply(_a, args);
                     })];
             });
         });
@@ -105,14 +108,16 @@ var ContractIO = /** @class */ (function () {
      */
     ContractIO.prototype.prepareWriteData = function (contractFunctionName, contractArguments) {
         return __awaiter(this, void 0, void 0, function () {
-            var args, func;
-            return __generator(this, function (_a) {
+            var _a, args;
+            return __generator(this, function (_b) {
                 args = contractArguments || [];
-                func = this.contractInstance[contractFunctionName];
-                if (!func) {
-                    throw new Error("Function " + contractFunctionName + " was not found in contract " + this.contractAddress);
-                }
-                return [2 /*return*/, func.getData.apply(func, args)];
+                // const func = this.contractInstance[contractFunctionName];
+                // if (!func) {
+                //     throw new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`);
+                // }
+                //
+                // return func.getData(...args);
+                return [2 /*return*/, (_a = this.contract.methods)[contractFunctionName].apply(_a, args)];
             });
         });
     };
@@ -127,7 +132,7 @@ var ContractIO = /** @class */ (function () {
                         return [4 /*yield*/, this.getGasPriceFromBlockChain()];
                     case 2:
                         gasPrice = _a.sent();
-                        return [4 /*yield*/, this.getEstimatedGas(data, fromAddress, toAddress)];
+                        return [4 /*yield*/, this.getEstimatedGas(data.encodeABI(), fromAddress, toAddress)];
                     case 3:
                         gasLimit = _a.sent();
                         return [2 /*return*/, {
@@ -137,7 +142,7 @@ var ContractIO = /** @class */ (function () {
                                 gasPrice: gasPrice,
                                 gasLimit: gasLimit,
                                 value: value,
-                                data: data,
+                                data: data.encodeABI(),
                             }];
                 }
             });

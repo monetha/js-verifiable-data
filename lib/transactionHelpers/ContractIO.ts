@@ -70,19 +70,21 @@ export class ContractIO {
     return new Promise((resolve, reject) => {
       const args = contractArguments || [];
 
-      const func = this.contractInstance[contractFunctionName];
-      if (!func) {
-        reject(new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`));
-      }
+      // const func = this.contract.methods[contractFunctionName];
+      // if (!func) {
+      //   reject(new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`));
+      // }
 
-      func.call(...args, { from: '' }, (err, data) => {
-        if (err) {
-          reject(err);
-          return;
-        }
+      // func.call(...args, { from: '' }, (err, data) => {
+      //   if (err) {
+      //     reject(err);
+      //     return;
+      //   }
+      //
+      //   resolve(data);
+      // });
 
-        resolve(data);
-      });
+      this.contract.methods[contractFunctionName](...args);
     });
   }
 
@@ -92,18 +94,20 @@ export class ContractIO {
   private async prepareWriteData(contractFunctionName: string, contractArguments: any[]) {
     const args = contractArguments || [];
 
-    const func = this.contractInstance[contractFunctionName];
-    if (!func) {
-      throw new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`);
-    }
+  // const func = this.contractInstance[contractFunctionName];
+  // if (!func) {
+  //     throw new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`);
+  // }
+  //
+  // return func.getData(...args);
 
-    return func.getData(...args);
+    return this.contract.methods[contractFunctionName](...args);
   }
 
   private async prepareRawTX(fromAddress: Address, toAddress: Address, value: number, data: any): Promise<IRawTX> {
     const nonce = await this.getNonceFromBlockChain(fromAddress);
     const gasPrice = await this.getGasPriceFromBlockChain();
-    const gasLimit = await this.getEstimatedGas(data, fromAddress, toAddress);
+    const gasLimit = await this.getEstimatedGas(data.encodeABI(), fromAddress, toAddress);
 
     return {
       from: fromAddress,
@@ -112,7 +116,7 @@ export class ContractIO {
       gasPrice,
       gasLimit,
       value,
-      data,
+      data: data.encodeABI(),
     };
   }
 

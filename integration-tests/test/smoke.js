@@ -20,13 +20,17 @@ const web3 = new Web3(web3HttpProvider);
 before(async () => {
     console.log('Deploy PassportFactory contract and prepare accounts');
 
+    // monethaOwner = '0x221c7b83ce18ced4b763bd1d13d739f487f04872';
+    // passportOwner = '0xd0f8247c1bcc7cfabc37c3e60a8318b891b1da5e';
+    // factProviderAddress = '0x36a98ad5085585219199f8c6b88ace749191ee82';
+
     monethaOwner = web3.eth.accounts.create();
     passportOwner = web3.eth.accounts.create();
     factProviderAddress = web3.eth.accounts.create();
 
     const passportLogic = await PassportLogic.new({from: monethaOwner});
     const passportLogicRegistry = await PassportLogicRegistry.new("0.1", passportLogic.address, {from: monethaOwner});
-    
+
     const passportFactory = await PassportFactory.new(passportLogicRegistry.address, {from: monethaOwner});
     passportFactoryAddress = passportFactory.address;
 })
