@@ -34,42 +34,36 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var fetchEvents_1 = require("../utils/fetchEvents");
 var getTxData_1 = require("../utils/getTxData");
-var ContractIO_1 = require("../transactionHelpers/ContractIO");
-var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 /**
- * Class to read latest facts from the passport
+ * Class to read historic facts from the passport
  */
-var FactReader = /** @class */ (function () {
-    function FactReader(web3, ethNetworkUrl, passportAddress) {
-        this.ethNetworkUrl = ethNetworkUrl;
-        this.contractIO = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
+var FactHistoryReader = /** @class */ (function () {
+    function FactHistoryReader(web3) {
+        this.web3 = web3;
     }
-    Object.defineProperty(FactReader.prototype, "web3", {
-        get: function () { return this.contractIO.getWeb3(); },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(FactReader.prototype, "passportAddress", {
-        get: function () { return this.contractIO.getContractAddress(); },
-        enumerable: true,
-        configurable: true
-    });
     /**
      * Read string type fact from passport
      *
      * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
      */
-    FactReader.prototype.getString = function (factProviderAddress, key) {
+    FactHistoryReader.prototype.getString = function (txHash) {
         return __awaiter(this, void 0, void 0, function () {
+            var txInfo, methodInfo;
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.get('getString', factProviderAddress, key)];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
+                    case 1:
+                        txInfo = _a.sent();
+                        methodInfo = txInfo.methodInfo;
+                        this.validateMethodSignature(methodInfo, 'setString');
+                        return [2 /*return*/, {
+                                factProviderAddress: txInfo.txReceipt.from,
+                                key: methodInfo.params[0].value,
+                                value: methodInfo.params[1].value,
+                            }];
+                }
             });
         });
     };
@@ -79,10 +73,10 @@ var FactReader = /** @class */ (function () {
      * @param factProviderAddress fact provider to read fact for
      * @param key fact key
      */
-    FactReader.prototype.getBytes = function (factProviderAddress, key) {
+    FactHistoryReader.prototype.getBytes = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.get('getBytes', factProviderAddress, key)];
+                return [2 /*return*/, null];
             });
         });
     };
@@ -92,10 +86,10 @@ var FactReader = /** @class */ (function () {
      * @param factProviderAddress fact provider to read fact for
      * @param key fact key
      */
-    FactReader.prototype.getAddress = function (factProviderAddress, key) {
+    FactHistoryReader.prototype.getAddress = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.get('getAddress', factProviderAddress, key)];
+                return [2 /*return*/, null];
             });
         });
     };
@@ -105,10 +99,10 @@ var FactReader = /** @class */ (function () {
      * @param factProviderAddress fact provider to read fact for
      * @param key fact key
      */
-    FactReader.prototype.getUint = function (factProviderAddress, key) {
+    FactHistoryReader.prototype.getUint = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.get('getUint', factProviderAddress, key)];
+                return [2 /*return*/, null];
             });
         });
     };
@@ -118,10 +112,10 @@ var FactReader = /** @class */ (function () {
      * @param factProviderAddress fact provider to read fact for
      * @param key fact key
      */
-    FactReader.prototype.getInt = function (factProviderAddress, key) {
+    FactHistoryReader.prototype.getInt = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.get('getInt', factProviderAddress, key)];
+                return [2 /*return*/, null];
             });
         });
     };
@@ -131,10 +125,10 @@ var FactReader = /** @class */ (function () {
      * @param factProviderAddress fact provider to read fact for
      * @param key fact key
      */
-    FactReader.prototype.getBool = function (factProviderAddress, key) {
+    FactHistoryReader.prototype.getBool = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.get('getBool', factProviderAddress, key)];
+                return [2 /*return*/, null];
             });
         });
     };
@@ -144,28 +138,10 @@ var FactReader = /** @class */ (function () {
      * @param factProviderAddress fact provider to read fact for
      * @param key fact key
      */
-    FactReader.prototype.getTxdata = function (factProviderAddress, key) {
+    FactHistoryReader.prototype.getTxdata = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
-            var data, blockNumHex, events, txInfo, txDataString, txData;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.get('getTxDataBlockNumber', factProviderAddress, key)];
-                    case 1:
-                        data = _a.sent();
-                        if (!data) {
-                            return [2 /*return*/, null];
-                        }
-                        blockNumHex = this.web3.utils.toHex(data);
-                        return [4 /*yield*/, fetchEvents_1.fetchEvents(this.ethNetworkUrl, blockNumHex, blockNumHex, this.passportAddress)];
-                    case 2:
-                        events = _a.sent();
-                        return [4 /*yield*/, getTxData_1.getTxData(events[0].transactionHash, this.web3)];
-                    case 3:
-                        txInfo = _a.sent();
-                        txDataString = txInfo.txReceipt.params[1].value;
-                        txData = this.web3.utils.toAscii(txDataString);
-                        return [2 /*return*/, txData];
-                }
+                return [2 /*return*/, null];
             });
         });
     };
@@ -178,42 +154,25 @@ var FactReader = /** @class */ (function () {
      *
      * @returns data stored in IPFS
      */
-    FactReader.prototype.getIPFSData = function (factProviderAddress, key, ipfs) {
+    FactHistoryReader.prototype.getIPFSData = function (factProviderAddress, key, ipfs) {
         return __awaiter(this, void 0, void 0, function () {
-            var hash;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.get('getIPFSHash', factProviderAddress, key)];
-                    case 1:
-                        hash = _a.sent();
-                        if (!hash) {
-                            return [2 /*return*/, null];
-                        }
-                        // Get hash
-                        return [2 /*return*/, ipfs.cat(hash)];
-                }
+                return [2 /*return*/];
             });
         });
     };
-    FactReader.prototype.get = function (method, factProviderAddress, key) {
+    FactHistoryReader.prototype.get = function (method, factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
-            var preparedKey, result;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        preparedKey = this.web3.utils.fromAscii(key);
-                        return [4 /*yield*/, this.contractIO.readData(method, [factProviderAddress, preparedKey])];
-                    case 1:
-                        result = _a.sent();
-                        // TODO: add comments about these indexes 0 and 1
-                        if (!result[0]) {
-                            return [2 /*return*/, null];
-                        }
-                        return [2 /*return*/, result[1]];
-                }
+                return [2 /*return*/];
             });
         });
     };
-    return FactReader;
+    FactHistoryReader.prototype.validateMethodSignature = function (methodInfo, expectedName) {
+        if (methodInfo.name !== expectedName) {
+            throw new Error("Input method signature for transaction must be \"" + expectedName + "\". Got \"" + methodInfo.name + "\"");
+        }
+    };
+    return FactHistoryReader;
 }());
-exports.FactReader = FactReader;
+exports.FactHistoryReader = FactHistoryReader;

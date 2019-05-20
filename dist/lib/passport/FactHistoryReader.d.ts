@@ -1,22 +1,22 @@
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
-import Web3 from 'web3';
+export interface IFactValue<TValue> {
+    factProviderAddress: string;
+    key: string;
+    value: TValue;
+}
 /**
- * Class to read latest facts from the passport
+ * Class to read historic facts from the passport
  */
-export declare class FactReader {
-    private contractIO;
-    private ethNetworkUrl;
-    private readonly web3;
-    private readonly passportAddress;
-    constructor(web3: Web3, ethNetworkUrl: string, passportAddress: Address);
+export declare class FactHistoryReader {
+    private web3;
+    constructor(web3: any);
     /**
      * Read string type fact from passport
      *
      * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
      */
-    getString(factProviderAddress: Address, key: string): Promise<string>;
+    getString(txHash: string): Promise<IFactValue<string>>;
     /**
      * Read bytes type fact from passport
      *
@@ -70,4 +70,5 @@ export declare class FactReader {
      */
     getIPFSData(factProviderAddress: Address, key: string, ipfs: IIPFSClient): Promise<any>;
     private get;
+    private validateMethodSignature;
 }

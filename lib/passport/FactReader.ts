@@ -8,7 +8,7 @@ import { AbiItem } from 'web3-utils';
 import passportLogicAbi from '../../config/PassportLogic.json';
 
 /**
- * Class to read facts from the passport
+ * Class to read latest facts from the passport
  */
 export class FactReader {
   private contractIO: ContractIO;
@@ -97,8 +97,8 @@ export class FactReader {
 
     const blockNumHex = this.web3.utils.toHex(data);
     const events = await fetchEvents(this.ethNetworkUrl, blockNumHex, blockNumHex, this.passportAddress);
-    const txBlock = await getTxData(events[0].transactionHash, this.web3);
-    const txDataString = txBlock.params[1].value;
+    const txInfo = await getTxData(events[0].transactionHash, this.web3);
+    const txDataString = txInfo.txReceipt.params[1].value;
     const txData = this.web3.utils.toAscii(txDataString);
 
     return txData;

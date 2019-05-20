@@ -5,6 +5,7 @@ import { FactWriter } from './passport/FactWriter';
 import { FactRemover } from './passport/FactRemover';
 import { Permissions } from './passport/Permissions';
 import { PassportReader } from './passport/PassportReader';
+import { FactHistoryReader } from './passport/FactHistoryReader';
 import { EventType, DataType, IHistoryEvent } from './models/IHistoryEvent';
 declare const _default: {
     PassportGenerator: typeof PassportGenerator;
@@ -14,6 +15,7 @@ declare const _default: {
     FactWriter: typeof FactWriter;
     FactRemover: typeof FactRemover;
     Permissions: typeof Permissions;
+    FactHistoryReader: typeof FactHistoryReader;
 };
 export default _default;
 export { EventType, DataType, IHistoryEvent, };

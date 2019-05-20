@@ -7,6 +7,7 @@ var FactWriter_1 = require("./passport/FactWriter");
 var FactRemover_1 = require("./passport/FactRemover");
 var Permissions_1 = require("./passport/Permissions");
 var PassportReader_1 = require("./passport/PassportReader");
+var FactHistoryReader_1 = require("./passport/FactHistoryReader");
 var IHistoryEvent_1 = require("./models/IHistoryEvent");
 exports.EventType = IHistoryEvent_1.EventType;
 exports.DataType = IHistoryEvent_1.DataType;
@@ -18,4 +19,5 @@ exports.default = {
     FactWriter: FactWriter_1.FactWriter,
     FactRemover: FactRemover_1.FactRemover,
     Permissions: Permissions_1.Permissions,
+    FactHistoryReader: FactHistoryReader_1.FactHistoryReader,
 };
