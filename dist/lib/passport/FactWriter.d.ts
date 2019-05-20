@@ -1,12 +1,13 @@
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
+import Web3 from 'web3';
 /**
  * Class to write facts to passport
  */
 export declare class FactWriter {
     private contractIO;
     private readonly web3;
-    constructor(web3: any, passportAddress: Address);
+    constructor(web3: Web3, passportAddress: Address);
     /**
      * Writes string type fact to passport
      *

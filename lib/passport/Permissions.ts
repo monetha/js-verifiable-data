@@ -1,6 +1,8 @@
 import { ContractIO } from '../transactionHelpers/ContractIO';
-import abi from '../../config/abis';
 import { Address } from '../models/Address';
+import Web3 from 'web3';
+import { AbiItem } from 'web3-utils';
+import passportLogicAbi from '../../config/PassportLogic.json';
 
 /**
  * Class to change and check permissions for fact providers to any specific passport
@@ -8,8 +10,8 @@ import { Address } from '../models/Address';
 export class Permissions {
   private contract: ContractIO;
 
-  constructor(web3, passportAddress: Address) {
-    this.contract = new ContractIO(web3, abi.PassportLogic.abi, passportAddress);
+  constructor(web3: Web3, passportAddress: Address) {
+    this.contract = new ContractIO(web3, passportLogicAbi as AbiItem[], passportAddress);
   }
 
   /**

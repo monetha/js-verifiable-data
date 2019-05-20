@@ -34,18 +34,21 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var abis_1 = require("../../config/abis");
 var fetchEvents_1 = require("../utils/fetchEvents");
 var getTxData_1 = require("../utils/getTxData");
 var ContractIO_1 = require("../transactionHelpers/ContractIO");
+var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 /**
  * Class to read facts from the passport
  */
 var FactReader = /** @class */ (function () {
     function FactReader(web3, ethNetworkUrl, passportAddress) {
         this.ethNetworkUrl = ethNetworkUrl;
-        this.contractIO = new ContractIO_1.ContractIO(web3, abis_1.default.PassportLogic.abi, passportAddress);
+        this.contractIO = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
     }
     Object.defineProperty(FactReader.prototype, "web3", {
         get: function () { return this.contractIO.getWeb3(); },
@@ -152,7 +155,7 @@ var FactReader = /** @class */ (function () {
                         if (!data) {
                             return [2 /*return*/, null];
                         }
-                        blockNumHex = this.web3.toHex(data);
+                        blockNumHex = this.web3.utils.toHex(data);
                         return [4 /*yield*/, fetchEvents_1.fetchEvents(this.ethNetworkUrl, blockNumHex, blockNumHex, this.passportAddress)];
                     case 2:
                         events = _a.sent();
@@ -160,7 +163,7 @@ var FactReader = /** @class */ (function () {
                     case 3:
                         txBlock = _a.sent();
                         txDataString = txBlock.params[1].value;
-                        txData = this.web3.toAscii(txDataString);
+                        txData = this.web3.utils.toAscii(txDataString);
                         return [2 /*return*/, txData];
                 }
             });
@@ -198,7 +201,7 @@ var FactReader = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        preparedKey = this.web3.fromAscii(key);
+                        preparedKey = this.web3.utils.fromAscii(key);
                         return [4 /*yield*/, this.contractIO.readData(method, [factProviderAddress, preparedKey])];
                     case 1:
                         result = _a.sent();

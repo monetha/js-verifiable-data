@@ -1,4 +1,3 @@
-import abis from '../../config/abis';
 import { MAX_BLOCK, MIN_BLOCK } from '../const/ethereum';
 import { Address } from '../models/Address';
 import { IHistoryEvent, EventType, DataType } from '../models/IHistoryEvent';
@@ -6,6 +5,8 @@ import { IPassportHistoryFilter } from '../models/IPassportHistoryFilter';
 import { IPassportRef } from '../models/IPassportRef';
 import { fetchEvents } from '../utils/fetchEvents';
 import { sanitizeAddress } from '../utils/sanitizeAddress';
+import Web3 from 'web3';
+import passportLogicAbi from '../../config/PassportLogic.json';
 
 interface IEventSignatures {
   [signature: string]: {
@@ -17,10 +18,10 @@ interface IEventSignatures {
 let eventSignatures: IEventSignatures;
 
 export class PassportReader {
-  private web3: any;
+  private web3: Web3;
   private ethNetworkUrl: string;
 
-  constructor(web3, ethNetworkUrl: string) {
+  constructor(web3: Web3, ethNetworkUrl: string) {
     this.web3 = web3;
     this.ethNetworkUrl = ethNetworkUrl;
 
@@ -85,7 +86,7 @@ export class PassportReader {
       const factProviderAddress: string = topics[1] ? sanitizeAddress(topics[1].slice(26)) : '';
 
       // Second argument is fact key
-      const key: string = topics[2] ? this.web3.toAscii(topics[2]).replace(/\u0000/g, '') : '';
+      const key: string = topics[2] ? this.web3.utils.toAscii(topics[2]).replace(/\u0000/g, '') : '';
 
       if (filterFactProviderAddress !== undefined && filterFactProviderAddress !== null && filterFactProviderAddress !== factProviderAddress) {
         return;
@@ -116,7 +117,7 @@ function getEventSignatures(web3): IEventSignatures {
   const hashedSignatures = {};
 
   // Collect all event signatures from ABI file
-  abis.PassportLogic.abi.forEach(item => {
+  passportLogicAbi.forEach(item => {
     if (item.type !== 'event') {
       return;
     }

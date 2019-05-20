@@ -1,6 +1,6 @@
 {
 	"name": "reputation-sdk",
-	"version": "1.0.1",
+	"version": "2.0.0",
 	"description": "",
 	"main": "./dist/lib/proto.js",
 	"types": "./dist/lib/proto.d.ts",
@@ -12,7 +12,8 @@
 	"scripts": {
 		"test": "cd integration-tests && npm run test",
 		"build": "./node_modules/.bin/tsc",
-		"lint": "tslint --project tsconfig.json"
+		"lint": "tslint --project tsconfig.json",
+		"prepare-contracts": "typechain --target=web3-1.0.0 --outDir=lib/types/web3-contracts \"./config/*.json\""
 	},
 	"husky": {
 		"hooks": {
@@ -25,13 +26,15 @@
 		"tslint": "^5.12.1",
 		"tslint-config-airbnb": "^5.11.1",
 		"tslint-lines-between-class-members": "^1.3.1",
+		"typechain": "^0.3.14",
 		"typescript": "^3.1.6"
 	},
 	"dependencies": {
 		"abi-decoder": "^1.2.0",
 		"axios": "^0.18.0",
 		"ethereumjs-tx": "^1.3.3",
-		"ethereumjs-wallet": "^0.6.0"
+		"ethereumjs-wallet": "^0.6.0",
+		"web3": "^1.0.0-beta.55"
 	},
 	"repository": {
 		"type": "git",

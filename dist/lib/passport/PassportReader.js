@@ -34,12 +34,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var abis_1 = require("../../config/abis");
 var ethereum_1 = require("../const/ethereum");
 var IHistoryEvent_1 = require("../models/IHistoryEvent");
 var fetchEvents_1 = require("../utils/fetchEvents");
 var sanitizeAddress_1 = require("../utils/sanitizeAddress");
+var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 var eventSignatures;
 var PassportReader = /** @class */ (function () {
     function PassportReader(web3, ethNetworkUrl) {
@@ -113,7 +116,7 @@ var PassportReader = /** @class */ (function () {
                             // First argument is fact provider address
                             var factProviderAddress = topics[1] ? sanitizeAddress_1.sanitizeAddress(topics[1].slice(26)) : '';
                             // Second argument is fact key
-                            var key = topics[2] ? _this.web3.toAscii(topics[2]).replace(/\u0000/g, '') : '';
+                            var key = topics[2] ? _this.web3.utils.toAscii(topics[2]).replace(/\u0000/g, '') : '';
                             if (filterFactProviderAddress !== undefined && filterFactProviderAddress !== null && filterFactProviderAddress !== factProviderAddress) {
                                 return;
                             }
@@ -142,7 +145,7 @@ exports.PassportReader = PassportReader;
 function getEventSignatures(web3) {
     var hashedSignatures = {};
     // Collect all event signatures from ABI file
-    abis_1.default.PassportLogic.abi.forEach(function (item) {
+    PassportLogic_json_1.default.forEach(function (item) {
         if (item.type !== 'event') {
             return;
         }

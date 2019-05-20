@@ -41,8 +41,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var ContractIO = /** @class */ (function () {
     function ContractIO(web3, abi, contractAddress) {
         this.web3 = web3;
-        this.contract = this.web3.eth.contract(abi);
-        this.contractInstance = this.contract.at(contractAddress);
+        this.contract = new web3.eth.Contract(abi, contractAddress);
         this.contractAddress = contractAddress;
     }
     ContractIO.prototype.getWeb3 = function () {
@@ -50,9 +49,6 @@ var ContractIO = /** @class */ (function () {
     };
     ContractIO.prototype.getContract = function () {
         return this.contract;
-    };
-    ContractIO.prototype.getContractInstance = function () {
-        return this.contractInstance;
     };
     ContractIO.prototype.getContractAddress = function () {
         return this.contractAddress;
@@ -85,17 +81,17 @@ var ContractIO = /** @class */ (function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
                         var args = contractArguments || [];
-                        var func = _this.contractInstance[contractFunctionName];
+                        var func = _this.contract.methods[contractFunctionName];
                         if (!func) {
                             reject(new Error("Function " + contractFunctionName + " was not found in contract " + _this.contractAddress));
                         }
-                        func.call.apply(func, args.concat([{ from: '' }, function (err, data) {
-                                if (err) {
-                                    reject(err);
-                                    return;
-                                }
-                                resolve(data);
-                            }]));
+                        func.apply(void 0, args).call({ from: '' }, function (err, data) {
+                            if (err) {
+                                reject(err);
+                                return;
+                            }
+                            resolve(data);
+                        });
                     })];
             });
         });
@@ -108,11 +104,11 @@ var ContractIO = /** @class */ (function () {
             var args, func;
             return __generator(this, function (_a) {
                 args = contractArguments || [];
-                func = this.contractInstance[contractFunctionName];
+                func = this.contract.methods[contractFunctionName];
                 if (!func) {
                     throw new Error("Function " + contractFunctionName + " was not found in contract " + this.contractAddress);
                 }
-                return [2 /*return*/, func.getData.apply(func, args)];
+                return [2 /*return*/, func.apply(void 0, args)];
             });
         });
     };
@@ -127,7 +123,7 @@ var ContractIO = /** @class */ (function () {
                         return [4 /*yield*/, this.getGasPriceFromBlockChain()];
                     case 2:
                         gasPrice = _a.sent();
-                        return [4 /*yield*/, this.getEstimatedGas(data, fromAddress, toAddress)];
+                        return [4 /*yield*/, this.getEstimatedGas(data.encodeABI(), fromAddress, toAddress)];
                     case 3:
                         gasLimit = _a.sent();
                         return [2 /*return*/, {
@@ -137,7 +133,7 @@ var ContractIO = /** @class */ (function () {
                                 gasPrice: gasPrice,
                                 gasLimit: gasLimit,
                                 value: value,
-                                data: data,
+                                data: data.encodeABI(),
                             }];
                 }
             });
@@ -167,7 +163,7 @@ var ContractIO = /** @class */ (function () {
                     reject(error);
                     return;
                 }
-                resolve(_this.web3.toHex(gasPrice));
+                resolve(_this.web3.utils.toHex(gasPrice));
             });
         });
     };
@@ -181,7 +177,7 @@ var ContractIO = /** @class */ (function () {
                                 reject(error);
                                 return;
                             }
-                            resolve(_this.web3.toHex(count));
+                            resolve(_this.web3.utils.toHex(count));
                         });
                     })];
             });

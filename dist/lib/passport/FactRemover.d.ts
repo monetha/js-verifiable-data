@@ -1,11 +1,12 @@
 import { Address } from '../models/Address';
+import Web3 from 'web3';
 /**
  * Class for fact deletion
  */
 export declare class FactRemover {
     private contractIO;
     private readonly web3;
-    constructor(web3: any, passportAddress: Address);
+    constructor(web3: Web3, passportAddress: Address);
     /**
      * Deletes string type fact from passport
      * @param key fact key

@@ -1,19 +1,20 @@
 import { Address } from '../models/Address';
 import { IRawTX } from '../models/IRawTX';
+import Web3 from 'web3';
+import { AbiItem } from 'web3-utils';
+import { Contract } from 'web3-eth-contract';
 
 /**
  * Helper class to work with contract reading and writing
  */
 export class ContractIO {
-  private web3: any;
-  private contract: any;
-  private contractInstance: any;
+  private web3: Web3;
+  private contract: Contract;
   private contractAddress: string;
 
-  constructor(web3, abi, contractAddress: Address) {
+  constructor(web3: Web3, abi: AbiItem[], contractAddress: Address) {
     this.web3 = web3;
-    this.contract = this.web3.eth.contract(abi);
-    this.contractInstance = this.contract.at(contractAddress);
+    this.contract = new web3.eth.Contract(abi, contractAddress);
     this.contractAddress = contractAddress;
   }
 
@@ -23,10 +24,6 @@ export class ContractIO {
 
   public getContract() {
     return this.contract;
-  }
-
-  public getContractInstance() {
-    return this.contractInstance;
   }
 
   public getContractAddress() {
@@ -67,12 +64,12 @@ export class ContractIO {
     return new Promise((resolve, reject) => {
       const args = contractArguments || [];
 
-      const func = this.contractInstance[contractFunctionName];
+      const func = this.contract.methods[contractFunctionName];
       if (!func) {
         reject(new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`));
       }
 
-      func.call(...args, { from: '' }, (err, data) => {
+      func(...args).call({ from: '' }, (err, data) => {
         if (err) {
           reject(err);
           return;
@@ -88,19 +85,18 @@ export class ContractIO {
    */
   private async prepareWriteData(contractFunctionName: string, contractArguments: any[]) {
     const args = contractArguments || [];
-
-    const func = this.contractInstance[contractFunctionName];
+    const func = this.contract.methods[contractFunctionName];
     if (!func) {
       throw new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`);
     }
 
-    return func.getData(...args);
+    return func(...args);
   }
 
   private async prepareRawTX(fromAddress: Address, toAddress: Address, value: number, data: any): Promise<IRawTX> {
     const nonce = await this.getNonceFromBlockChain(fromAddress);
     const gasPrice = await this.getGasPriceFromBlockChain();
-    const gasLimit = await this.getEstimatedGas(data, fromAddress, toAddress);
+    const gasLimit = await this.getEstimatedGas(data.encodeABI(), fromAddress, toAddress);
 
     return {
       from: fromAddress,
@@ -109,7 +105,7 @@ export class ContractIO {
       gasPrice,
       gasLimit,
       value,
-      data,
+      data: data.encodeABI(),
     };
   }
 
@@ -134,7 +130,7 @@ export class ContractIO {
           return;
         }
 
-        resolve(this.web3.toHex(gasPrice));
+        resolve(this.web3.utils.toHex(gasPrice));
       });
     });
   }
@@ -147,7 +143,7 @@ export class ContractIO {
           return;
         }
 
-        resolve(this.web3.toHex(count));
+        resolve(this.web3.utils.toHex(count));
       });
     });
   }

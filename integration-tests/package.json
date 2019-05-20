@@ -6,7 +6,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "./node_modules/.bin/truffle test",
+    "test": "node ./node_modules/.bin/truffle test",
     "ganache": "docker run -d -p 8545:8545 --name ganache trufflesuite/ganache-cli:latest",
     "ganache:stop": "docker rm ganache --force",
     "ganache:terminal": "./node_modules/.bin/ganache-cli"
@@ -21,10 +21,10 @@
     "ganache-cli": "^6.4.3",
     "mocha": "^5.2.0",
     "openzeppelin-solidity": "^1.12.0",
-    "reputation-sdk": "git+https://github.com/monetha/reputation-js-sdk.git",
     "solc": "^0.4.24",
     "truffle": "^4.1.15",
     "truffle-flattener": "^1.3.0",
-    "web3": "0.20.3"
+    "reputation-sdk": "git+https://github.com/monetha/reputation-js-sdk.git",
+    "web3": "^1.0.0-beta.55"
   }
 }

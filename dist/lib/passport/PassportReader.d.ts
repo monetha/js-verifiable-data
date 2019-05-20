@@ -2,10 +2,11 @@ import { Address } from '../models/Address';
 import { IHistoryEvent } from '../models/IHistoryEvent';
 import { IPassportHistoryFilter } from '../models/IPassportHistoryFilter';
 import { IPassportRef } from '../models/IPassportRef';
+import Web3 from 'web3';
 export declare class PassportReader {
     private web3;
     private ethNetworkUrl;
-    constructor(web3: any, ethNetworkUrl: string);
+    constructor(web3: Web3, ethNetworkUrl: string);
     /**
      * Fetches all passport addresses created by a particular passport factory address
      *

@@ -19,16 +19,16 @@ const web3 = new Web3(new Web3.providers.HttpProvider(ethereumNetworkUrl));
 
 before(async () => {
     console.log('Deploy PassportFactory contract and prepare accounts');
-    accounts = await web3.eth.accounts;
+    accounts = await web3.eth.getAccounts();
 
     monethaOwner = accounts[0];
     passportOwner = accounts[1];
     factProviderAddress = accounts[2];
- 
+
     const passportLogic = await PassportLogic.new({from: monethaOwner});
     const passportLogicRegistry = await PassportLogicRegistry.new("0.1", passportLogic.address, {from: monethaOwner});
-    
-    const passportFactory = await PassportFactory.new(passportLogicRegistry.address, {from: monethaOwner}); 
+
+    const passportFactory = await PassportFactory.new(passportLogicRegistry.address, {from: monethaOwner});
     passportFactoryAddress = passportFactory.address;
 })
 
@@ -37,8 +37,8 @@ describe('Reputation js-sdk smoke tests', function () {
         // Given
         const generator = new sdk.PassportGenerator(web3, passportFactoryAddress);
         // When
-        const response = await generator.createPassport(passportOwner);
-        const transaction = await submitTransaction(response);
+        const tx_data = await generator.createPassport(passportOwner);
+        const transaction = await submitTransaction(tx_data);
         const receipt = await web3.eth.getTransactionReceipt(transaction.hash);
         // Then
         passportAddress = '0x' + receipt.logs[0].topics[1].slice(26);
@@ -64,7 +64,7 @@ describe('Reputation js-sdk smoke tests', function () {
     it('Should be able to get a list of all created passports', async () => {
         // Given
         const reader = new sdk.PassportReader(web3, ethereumNetworkUrl);
-     
+
         // When
         const response = await reader.getPassportsList(passportFactoryAddress);
         // Then
@@ -113,7 +113,7 @@ describe('Reputation js-sdk smoke tests', function () {
         // When
         const response = await reader.readPassportHistory(passportAddress);
         // Then
-        expect(response[1].factProviderAddress).to.equal(factProviderAddress);
+        expect(response[1].factProviderAddress).to.equal(factProviderAddress.toLowerCase());
         expect(response[1]).to.have.property('blockNumber');
         expect(response[1]).to.have.property('transactionHash');
         expect(JSON.stringify(response)).to.contains('greetings');
@@ -134,15 +134,23 @@ describe('Reputation js-sdk smoke tests', function () {
 });
 
 async function submitTransaction(tx_data) {
-    const tx = await web3.eth.sendTransaction({
-        from: tx_data.from,
-        to: tx_data.to,
-        nonce: tx_data.nonce,
-        gasPrice: tx_data.gasPrice,
-        gas: tx_data.gasLimit,
-        value: tx_data.value,
-        data: tx_data.data,
-    });
-    let transaction = web3.eth.getTransaction(tx);
-    return transaction;
-  }
+    return new Promise(async (success, reject) => {
+        try {
+            await web3.eth.sendTransaction({
+                from: tx_data.from,
+                to: tx_data.to,
+                nonce: tx_data.nonce,
+                gasPrice: tx_data.gasPrice,
+                gas: tx_data.gasLimit,
+                value: tx_data.value,
+                data: tx_data.data,
+            })
+              .on('transactionHash', async function (hash) {
+                  const transaction = await web3.eth.getTransaction(hash);
+                  success(transaction);
+              })
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
