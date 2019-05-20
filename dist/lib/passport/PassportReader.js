@@ -150,7 +150,7 @@ function getEventSignatures(web3) {
             return;
         }
         var rawSignature = item.name + "(" + item.inputs.map(function (i) { return i.type; }).join(',') + ")";
-        hashedSignatures[item.name] = web3.sha3(rawSignature);
+        hashedSignatures[item.name] = web3.utils.sha3(rawSignature);
     });
     var results = {};
     // Create dictionary of event signatures to event data
