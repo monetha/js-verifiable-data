@@ -17,3 +17,4 @@ var DataType;
     DataType["IPFSHash"] = "IPFSHash";
     DataType["PrivateData"] = "PrivateData";
 })(DataType = exports.DataType || (exports.DataType = {}));
+//# sourceMappingURL=IHistoryEvent.js.map

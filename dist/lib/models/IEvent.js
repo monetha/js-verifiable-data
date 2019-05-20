@@ -5,3 +5,4 @@ var EventType;
     EventType["Pending"] = "pending";
     EventType["Mined"] = "mined";
 })(EventType = exports.EventType || (exports.EventType = {}));
+//# sourceMappingURL=IEvent.js.map

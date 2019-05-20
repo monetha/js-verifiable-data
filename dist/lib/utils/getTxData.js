@@ -67,3 +67,4 @@ exports.getTxData = function (txHash, web3) { return __awaiter(_this, void 0, vo
         }
     });
 }); };
+//# sourceMappingURL=getTxData.js.map

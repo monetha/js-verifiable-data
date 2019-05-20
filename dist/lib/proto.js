@@ -19,3 +19,4 @@ exports.default = {
     FactRemover: FactRemover_1.FactRemover,
     Permissions: Permissions_1.Permissions,
 };
+//# sourceMappingURL=proto.js.map
