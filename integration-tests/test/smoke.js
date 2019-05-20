@@ -2,7 +2,7 @@ const expect = require('chai').expect;
 const chai = require('chai');
 chai.use(require('chai-moment'));
 const Web3 = require('web3');
-const sdk = require('reputation-sdk').default;
+const sdk = require('../../').default;
 
 let accounts;
 let monethaOwner;
