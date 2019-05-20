@@ -13,4 +13,3 @@ function sanitizeAddress(address) {
     }
 }
 exports.sanitizeAddress = sanitizeAddress;
-//# sourceMappingURL=sanitizeAddress.js.map

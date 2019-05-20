@@ -75,4 +75,3 @@ exports.fetchEvents = function (ethNetworkUrl, fromBlock, toBlock, address) { re
         }
     });
 }); };
-//# sourceMappingURL=fetchEvents.js.map
