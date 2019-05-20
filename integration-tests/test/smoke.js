@@ -4,6 +4,7 @@ chai.use(require('chai-moment'));
 const Web3 = require('web3');
 const sdk = require('reputation-sdk').default;
 
+let accounts;
 let monethaOwner;
 let passportOwner;
 let passportFactoryAddress;
@@ -14,23 +15,15 @@ const ethereumNetworkUrl = 'http://127.0.0.1:8545';
 const PassportFactory = artifacts.require('PassportFactory');
 const PassportLogic = artifacts.require('PassportLogic');
 const PassportLogicRegistry = artifacts.require('PassportLogicRegistry');
-const web3HttpProvider = new Web3.providers.HttpProvider(ethereumNetworkUrl);
-const web3 = new Web3(web3HttpProvider);
+const web3 = new Web3(new Web3.providers.HttpProvider(ethereumNetworkUrl));
 
 before(async () => {
     console.log('Deploy PassportFactory contract and prepare accounts');
+    accounts = await web3.eth.getAccounts();
 
-    // const monetha = web3.eth.accounts.create();
-    // const passport = web3.eth.accounts.create();
-    // const factProvider = web3.eth.accounts.create();
-    //
-    // monethaOwner = monetha.address;
-    // passportOwner = passport.address;
-    // factProviderAddress = factProvider.address;
-
-    monethaOwner = '0x1897f5a91d622295838ebd37cf2b8740caecd708';
-    passportOwner = '0x9bf430024ba54d1bb36bc37bd039fa32f36fa13c';
-    factProviderAddress = '0xcd796f20038241ede0707abfd4cda784422dade6';
+    monethaOwner = accounts[0];
+    passportOwner = accounts[1];
+    factProviderAddress = accounts[2];
 
     const passportLogic = await PassportLogic.new({from: monethaOwner});
     const passportLogicRegistry = await PassportLogicRegistry.new("0.1", passportLogic.address, {from: monethaOwner});
@@ -44,8 +37,8 @@ describe('Reputation js-sdk smoke tests', function () {
         // Given
         const generator = new sdk.PassportGenerator(web3, passportFactoryAddress);
         // When
-        const response = await generator.createPassport(passportOwner);
-        const transaction = await submitTransaction(response);
+        const tx_data = await generator.createPassport(passportOwner);
+        const transaction = await submitTransaction(tx_data);
         const receipt = await web3.eth.getTransactionReceipt(transaction.hash);
         // Then
         passportAddress = '0x' + receipt.logs[0].topics[1].slice(26);
@@ -71,7 +64,7 @@ describe('Reputation js-sdk smoke tests', function () {
     it('Should be able to get a list of all created passports', async () => {
         // Given
         const reader = new sdk.PassportReader(web3, ethereumNetworkUrl);
-     
+
         // When
         const response = await reader.getPassportsList(passportFactoryAddress);
         // Then
@@ -141,19 +134,23 @@ describe('Reputation js-sdk smoke tests', function () {
 });
 
 async function submitTransaction(tx_data) {
-    try {
-        const tx = await web3.eth.sendTransaction({
-            from: tx_data.from,
-            to: tx_data.to,
-            nonce: tx_data.nonce,
-            gasPrice: tx_data.gasPrice,
-            gas: tx_data.gasLimit,
-            value: tx_data.value,
-            data: tx_data.data,
-        });
-    } catch(e) {
-        throw e;
-    }
-    let transaction = web3.eth.getTransaction(tx);
-    return transaction;
-  }
+    return new Promise(async (success, reject) => {
+        try {
+            await web3.eth.sendTransaction({
+                from: tx_data.from,
+                to: tx_data.to,
+                nonce: tx_data.nonce,
+                gasPrice: tx_data.gasPrice,
+                gas: tx_data.gasLimit,
+                value: tx_data.value,
+                data: tx_data.data,
+            })
+              .on('transactionHash', async function (hash) {
+                  const transaction = await web3.eth.getTransaction(hash);
+                  success(transaction);
+              })
+        } catch (e) {
+            reject(e);
+        }
+    })
+}

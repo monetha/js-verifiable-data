@@ -23,7 +23,7 @@ export declare class ContractIO {
     /**
      * Reads data from contracts (read methods gas free)
      */
-    readData(contractFunctionName: string, contractArguments: any[]): Promise<{}>;
+    readData(contractFunctionName: string, contractArguments: any[]): Promise<any>;
     /**
      * Generates hex from contract data (methods, params)
      */

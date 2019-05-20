@@ -81,25 +81,10 @@ var ContractIO = /** @class */ (function () {
      */
     ContractIO.prototype.readData = function (contractFunctionName, contractArguments) {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
-            return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) {
-                        var _a;
-                        var args = contractArguments || [];
-                        // const func = this.contract.methods[contractFunctionName];
-                        // if (!func) {
-                        //   reject(new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`));
-                        // }
-                        // func.call(...args, { from: '' }, (err, data) => {
-                        //   if (err) {
-                        //     reject(err);
-                        //     return;
-                        //   }
-                        //
-                        //   resolve(data);
-                        // });
-                        (_a = _this.contract.methods)[contractFunctionName].apply(_a, args);
-                    })];
+            var _a, args;
+            return __generator(this, function (_b) {
+                args = contractArguments || [];
+                return [2 /*return*/, (_a = this.contract.methods)[contractFunctionName].apply(_a, args)];
             });
         });
     };
@@ -111,12 +96,6 @@ var ContractIO = /** @class */ (function () {
             var _a, args;
             return __generator(this, function (_b) {
                 args = contractArguments || [];
-                // const func = this.contractInstance[contractFunctionName];
-                // if (!func) {
-                //     throw new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`);
-                // }
-                //
-                // return func.getData(...args);
                 return [2 /*return*/, (_a = this.contract.methods)[contractFunctionName].apply(_a, args)];
             });
         });
@@ -195,3 +174,4 @@ var ContractIO = /** @class */ (function () {
     return ContractIO;
 }());
 exports.ContractIO = ContractIO;
+//# sourceMappingURL=ContractIO.js.map

@@ -67,25 +67,26 @@ export class ContractIO {
     contractFunctionName: string,
     contractArguments: any[]) {
 
-    return new Promise((resolve, reject) => {
-      const args = contractArguments || [];
+    const args = contractArguments || [];
+    return this.contract.methods[contractFunctionName](...args);
 
-      // const func = this.contract.methods[contractFunctionName];
-      // if (!func) {
-      //   reject(new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`));
-      // }
-
-      // func.call(...args, { from: '' }, (err, data) => {
-      //   if (err) {
-      //     reject(err);
-      //     return;
-      //   }
-      //
-      //   resolve(data);
-      // });
-
-      this.contract.methods[contractFunctionName](...args);
-    });
+    // return new Promise((resolve, reject) => {
+    //   const args = contractArguments || [];
+    //
+    //   const func = this.contractInstance[contractFunctionName];
+    //   if (!func) {
+    //     reject(new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`));
+    //   }
+    //
+    //   func.call(...args, { from: '' }, (err, data) => {
+    //     if (err) {
+    //       reject(err);
+    //       return;
+    //     }
+    //
+    //     resolve(data);
+    //   });
+    // });
   }
 
   /**
@@ -94,14 +95,14 @@ export class ContractIO {
   private async prepareWriteData(contractFunctionName: string, contractArguments: any[]) {
     const args = contractArguments || [];
 
-  // const func = this.contractInstance[contractFunctionName];
-  // if (!func) {
-  //     throw new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`);
-  // }
-  //
-  // return func.getData(...args);
-
     return this.contract.methods[contractFunctionName](...args);
+
+    // const func = this.contractInstance[contractFunctionName];
+    // if (!func) {
+    //   throw new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`);
+    // }
+    //
+    // return func.getData(...args);
   }
 
   private async prepareRawTX(fromAddress: Address, toAddress: Address, value: number, data: any): Promise<IRawTX> {
