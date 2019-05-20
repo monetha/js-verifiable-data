@@ -5,6 +5,7 @@ import { FactWriter } from './passport/FactWriter';
 import { FactRemover } from './passport/FactRemover';
 import { Permissions } from './passport/Permissions';
 import { PassportReader } from './passport/PassportReader';
+import { EventType, DataType, IHistoryEvent } from './models/IHistoryEvent';
 
 export default {
   PassportGenerator,
@@ -14,4 +15,10 @@ export default {
   FactWriter,
   FactRemover,
   Permissions,
+};
+
+export {
+  EventType,
+  DataType,
+  IHistoryEvent,
 };

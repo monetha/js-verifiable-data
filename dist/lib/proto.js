@@ -7,6 +7,9 @@ var FactWriter_1 = require("./passport/FactWriter");
 var FactRemover_1 = require("./passport/FactRemover");
 var Permissions_1 = require("./passport/Permissions");
 var PassportReader_1 = require("./passport/PassportReader");
+var IHistoryEvent_1 = require("./models/IHistoryEvent");
+exports.EventType = IHistoryEvent_1.EventType;
+exports.DataType = IHistoryEvent_1.DataType;
 exports.default = {
     PassportGenerator: PassportGenerator_1.PassportGenerator,
     PassportOwnership: PassportOwnership_1.PassportOwnership,
