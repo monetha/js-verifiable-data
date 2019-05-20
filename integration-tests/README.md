@@ -26,3 +26,7 @@ In a main terminal from the integration-tests folder run next command:
 ```
 truffle test
 ```
+
+In order to debug:
+- https://github.com/80Trill/truffle-intellij-debug
+- change test script in `package.json` to `node $NODE_DEBUG_OPTION ./node_modules/.bin/truffle test`
