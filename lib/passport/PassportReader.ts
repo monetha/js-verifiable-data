@@ -112,7 +112,7 @@ export class PassportReader {
   }
 }
 
-function getEventSignatures(web3): IEventSignatures {
+function getEventSignatures(web3: Web3): IEventSignatures {
 
   const hashedSignatures = {};
 
@@ -124,7 +124,7 @@ function getEventSignatures(web3): IEventSignatures {
 
     const rawSignature = `${item.name}(${(item.inputs as any).map(i => i.type).join(',')})`;
 
-    hashedSignatures[item.name] = web3.sha3(rawSignature);
+    hashedSignatures[item.name] = web3.utils.sha3(rawSignature);
   });
 
   const results: IEventSignatures = {};
