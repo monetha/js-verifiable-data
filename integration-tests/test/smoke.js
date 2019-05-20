@@ -20,13 +20,17 @@ const web3 = new Web3(web3HttpProvider);
 before(async () => {
     console.log('Deploy PassportFactory contract and prepare accounts');
 
-    // monethaOwner = '0x221c7b83ce18ced4b763bd1d13d739f487f04872';
-    // passportOwner = '0xd0f8247c1bcc7cfabc37c3e60a8318b891b1da5e';
-    // factProviderAddress = '0x36a98ad5085585219199f8c6b88ace749191ee82';
+    // const monetha = web3.eth.accounts.create();
+    // const passport = web3.eth.accounts.create();
+    // const factProvider = web3.eth.accounts.create();
+    //
+    // monethaOwner = monetha.address;
+    // passportOwner = passport.address;
+    // factProviderAddress = factProvider.address;
 
-    monethaOwner = web3.eth.accounts.create();
-    passportOwner = web3.eth.accounts.create();
-    factProviderAddress = web3.eth.accounts.create();
+    monethaOwner = '0x1897f5a91d622295838ebd37cf2b8740caecd708';
+    passportOwner = '0x9bf430024ba54d1bb36bc37bd039fa32f36fa13c';
+    factProviderAddress = '0xcd796f20038241ede0707abfd4cda784422dade6';
 
     const passportLogic = await PassportLogic.new({from: monethaOwner});
     const passportLogicRegistry = await PassportLogicRegistry.new("0.1", passportLogic.address, {from: monethaOwner});
@@ -137,15 +141,19 @@ describe('Reputation js-sdk smoke tests', function () {
 });
 
 async function submitTransaction(tx_data) {
-    const tx = await web3.eth.sendTransaction({
-        from: tx_data.from,
-        to: tx_data.to,
-        nonce: tx_data.nonce,
-        gasPrice: tx_data.gasPrice,
-        gas: tx_data.gasLimit,
-        value: tx_data.value,
-        data: tx_data.data,
-    });
+    try {
+        const tx = await web3.eth.sendTransaction({
+            from: tx_data.from,
+            to: tx_data.to,
+            nonce: tx_data.nonce,
+            gasPrice: tx_data.gasPrice,
+            gas: tx_data.gasLimit,
+            value: tx_data.value,
+            data: tx_data.data,
+        });
+    } catch(e) {
+        throw e;
+    }
     let transaction = web3.eth.getTransaction(tx);
     return transaction;
   }

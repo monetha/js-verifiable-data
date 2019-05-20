@@ -6,7 +6,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "truffle test"
+    "test": "node $NODE_DEBUG_OPTION ./node_modules/.bin/truffle test"
   },
   "author": "",
   "license": "ISC",
