@@ -11,7 +11,7 @@ interface IEventSignatures {
   [signature: string]: {
     eventType: EventType,
     dataType: DataType,
-  }
+  };
 }
 
 let eventSignatures: IEventSignatures;
