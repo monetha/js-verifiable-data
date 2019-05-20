@@ -168,4 +168,3 @@ function getEventSignatures(web3) {
     });
     return results;
 }
-//# sourceMappingURL=PassportReader.js.map

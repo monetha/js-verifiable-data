@@ -217,4 +217,3 @@ var FactReader = /** @class */ (function () {
     return FactReader;
 }());
 exports.FactReader = FactReader;
-//# sourceMappingURL=FactReader.js.map
