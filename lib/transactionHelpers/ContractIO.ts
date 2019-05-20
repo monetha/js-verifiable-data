@@ -10,13 +10,11 @@ import { Contract } from 'web3-eth-contract';
 export class ContractIO {
   private web3: Web3;
   private contract: Contract;
-  private contractInstance: any;
   private contractAddress: string;
 
   constructor(web3: Web3, abi: AbiItem[], contractAddress: Address) {
     this.web3 = web3;
     this.contract = new web3.eth.Contract(abi, contractAddress);
-    this.contractInstance = this.contract.methods;
     this.contractAddress = contractAddress;
   }
 
@@ -26,10 +24,6 @@ export class ContractIO {
 
   public getContract() {
     return this.contract;
-  }
-
-  public getContractInstance() {
-    return this.contractInstance;
   }
 
   public getContractAddress() {
@@ -67,26 +61,23 @@ export class ContractIO {
     contractFunctionName: string,
     contractArguments: any[]) {
 
-    const args = contractArguments || [];
-    return this.contract.methods[contractFunctionName](...args);
+    return new Promise((resolve, reject) => {
+      const args = contractArguments || [];
 
-    // return new Promise((resolve, reject) => {
-    //   const args = contractArguments || [];
-    //
-    //   const func = this.contractInstance[contractFunctionName];
-    //   if (!func) {
-    //     reject(new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`));
-    //   }
-    //
-    //   func.call(...args, { from: '' }, (err, data) => {
-    //     if (err) {
-    //       reject(err);
-    //       return;
-    //     }
-    //
-    //     resolve(data);
-    //   });
-    // });
+      // const func = this.contractInstance[contractFunctionName];
+      // if (!func) {
+      //   reject(new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`));
+      // }
+
+      this.contract.methods[contractFunctionName](...args).call({ from: '' }, (err, data) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        resolve(data);
+      });
+    });
   }
 
   /**

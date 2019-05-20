@@ -17,15 +17,15 @@ export declare class Permissions {
     /**
      * Checks if fact provider is whitelisted
      */
-    isFactProviderInWhitelist(factProviderAddress: Address): Promise<any>;
+    isFactProviderInWhitelist(factProviderAddress: Address): Promise<{}>;
     /**
      * Checks if whitelist only permission is set
      */
-    isWhitelistOnlyPermissionSet(): Promise<any>;
+    isWhitelistOnlyPermissionSet(): Promise<{}>;
     /**
      * Checks if factProvider is allowed
      */
-    isAllowedFactProvider(factProviderAddress: Address): Promise<any>;
+    isAllowedFactProvider(factProviderAddress: Address): Promise<{}>;
     /**
      * Sets permission for passport whether only whitelisted fact providers could write facts to it
      */

@@ -113,7 +113,7 @@ describe('Reputation js-sdk smoke tests', function () {
         // When
         const response = await reader.readPassportHistory(passportAddress);
         // Then
-        expect(response[1].factProviderAddress).to.equal(factProviderAddress);
+        expect(response[1].factProviderAddress).to.equal(factProviderAddress.toLowerCase());
         expect(response[1]).to.have.property('blockNumber');
         expect(response[1]).to.have.property('transactionHash');
         expect(JSON.stringify(response)).to.contains('greetings');

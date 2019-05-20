@@ -9,12 +9,10 @@ import { Contract } from 'web3-eth-contract';
 export declare class ContractIO {
     private web3;
     private contract;
-    private contractInstance;
     private contractAddress;
     constructor(web3: Web3, abi: AbiItem[], contractAddress: Address);
     getWeb3(): Web3;
     getContract(): Contract;
-    getContractInstance(): any;
     getContractAddress(): string;
     /**
      * Generates raw unsigned transaction to call smart contract method, which manipulates data
@@ -23,7 +21,7 @@ export declare class ContractIO {
     /**
      * Reads data from contracts (read methods gas free)
      */
-    readData(contractFunctionName: string, contractArguments: any[]): Promise<any>;
+    readData(contractFunctionName: string, contractArguments: any[]): Promise<{}>;
     /**
      * Generates hex from contract data (methods, params)
      */

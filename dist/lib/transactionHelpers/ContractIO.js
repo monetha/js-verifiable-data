@@ -42,7 +42,6 @@ var ContractIO = /** @class */ (function () {
     function ContractIO(web3, abi, contractAddress) {
         this.web3 = web3;
         this.contract = new web3.eth.Contract(abi, contractAddress);
-        this.contractInstance = this.contract.methods;
         this.contractAddress = contractAddress;
     }
     ContractIO.prototype.getWeb3 = function () {
@@ -50,9 +49,6 @@ var ContractIO = /** @class */ (function () {
     };
     ContractIO.prototype.getContract = function () {
         return this.contract;
-    };
-    ContractIO.prototype.getContractInstance = function () {
-        return this.contractInstance;
     };
     ContractIO.prototype.getContractAddress = function () {
         return this.contractAddress;
@@ -81,10 +77,23 @@ var ContractIO = /** @class */ (function () {
      */
     ContractIO.prototype.readData = function (contractFunctionName, contractArguments) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, args;
-            return __generator(this, function (_b) {
-                args = contractArguments || [];
-                return [2 /*return*/, (_a = this.contract.methods)[contractFunctionName].apply(_a, args)];
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        var _a;
+                        var args = contractArguments || [];
+                        // const func = this.contractInstance[contractFunctionName];
+                        // if (!func) {
+                        //   reject(new Error(`Function ${contractFunctionName} was not found in contract ${this.contractAddress}`));
+                        // }
+                        (_a = _this.contract.methods)[contractFunctionName].apply(_a, args).call({ from: '' }, function (err, data) {
+                            if (err) {
+                                reject(err);
+                                return;
+                            }
+                            resolve(data);
+                        });
+                    })];
             });
         });
     };
