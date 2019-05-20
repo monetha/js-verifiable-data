@@ -1,11 +1,21 @@
 import { MAX_BLOCK, MIN_BLOCK } from '../const/ethereum';
 import { Address } from '../models/Address';
-import { IHistoryEvent } from '../models/IHistoryEvent';
+import { IHistoryEvent, EventType, DataType } from '../models/IHistoryEvent';
 import { IPassportHistoryFilter } from '../models/IPassportHistoryFilter';
 import { IPassportRef } from '../models/IPassportRef';
 import { fetchEvents } from '../utils/fetchEvents';
 import { sanitizeAddress } from '../utils/sanitizeAddress';
 import Web3 from 'web3';
+import passportLogicAbi from '../../config/PassportLogic.json';
+
+interface IEventSignatures {
+  [signature: string]: {
+    eventType: EventType,
+    dataType: DataType,
+  };
+}
+
+let eventSignatures: IEventSignatures;
 
 export class PassportReader {
   private web3: Web3;
@@ -14,6 +24,10 @@ export class PassportReader {
   constructor(web3: Web3, ethNetworkUrl: string) {
     this.web3 = web3;
     this.ethNetworkUrl = ethNetworkUrl;
+
+    if (!eventSignatures) {
+      eventSignatures = getEventSignatures(web3);
+    }
   }
 
   /**
@@ -58,10 +72,21 @@ export class PassportReader {
         return;
       }
 
-      const { blockNumber, transactionHash, topics } = event;
+      const { blockNumber, transactionHash, topics, blockHash, transactionIndex } = event;
 
+      const eventSignatureHash = topics[0];
+      const eventInfo = eventSignatures[eventSignatureHash];
+
+      // We track only known events
+      if (!eventInfo) {
+        return;
+      }
+
+      // First argument is fact provider address
       const factProviderAddress: string = topics[1] ? sanitizeAddress(topics[1].slice(26)) : '';
-      const key: string = topics[2] ? this.web3.utils.toAscii(topics[2].slice(0, 23)) : '';
+
+      // Second argument is fact key
+      const key: string = topics[2] ? this.web3.utils.toAscii(topics[2]).replace(/\u0000/g, '') : '';
 
       if (filterFactProviderAddress !== undefined && filterFactProviderAddress !== null && filterFactProviderAddress !== factProviderAddress) {
         return;
@@ -72,13 +97,53 @@ export class PassportReader {
       }
 
       historyEvents.push({
+        blockHash,
         blockNumber,
+        transactionIndex,
         transactionHash,
         factProviderAddress,
         key,
+        dataType: eventInfo.dataType,
+        eventType: eventInfo.eventType,
       });
     });
 
     return historyEvents;
   }
+}
+
+function getEventSignatures(web3): IEventSignatures {
+
+  const hashedSignatures = {};
+
+  // Collect all event signatures from ABI file
+  passportLogicAbi.forEach(item => {
+    if (item.type !== 'event') {
+      return;
+    }
+
+    const rawSignature = `${item.name}(${(item.inputs as any).map(i => i.type).join(',')})`;
+
+    hashedSignatures[item.name] = web3.sha3(rawSignature);
+  });
+
+  const results: IEventSignatures = {};
+
+  // Create dictionary of event signatures to event data
+  Object.keys(DataType).forEach((dataType: DataType) => {
+    Object.keys(EventType).forEach((eventType: EventType) => {
+      const hashedSignature = hashedSignatures[`${dataType}${eventType}`];
+
+      if (!hashedSignature) {
+        return;
+      }
+
+      results[hashedSignature] = {
+        dataType,
+        eventType,
+      };
+    });
+  });
+
+  return results;
 }

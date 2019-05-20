@@ -34,14 +34,23 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var ethereum_1 = require("../const/ethereum");
+var IHistoryEvent_1 = require("../models/IHistoryEvent");
 var fetchEvents_1 = require("../utils/fetchEvents");
 var sanitizeAddress_1 = require("../utils/sanitizeAddress");
+var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
+var eventSignatures;
 var PassportReader = /** @class */ (function () {
     function PassportReader(web3, ethNetworkUrl) {
         this.web3 = web3;
         this.ethNetworkUrl = ethNetworkUrl;
+        if (!eventSignatures) {
+            eventSignatures = getEventSignatures(web3);
+        }
     }
     /**
      * Fetches all passport addresses created by a particular passport factory address
@@ -97,9 +106,17 @@ var PassportReader = /** @class */ (function () {
                             if (!event) {
                                 return;
                             }
-                            var blockNumber = event.blockNumber, transactionHash = event.transactionHash, topics = event.topics;
+                            var blockNumber = event.blockNumber, transactionHash = event.transactionHash, topics = event.topics, blockHash = event.blockHash, transactionIndex = event.transactionIndex;
+                            var eventSignatureHash = topics[0];
+                            var eventInfo = eventSignatures[eventSignatureHash];
+                            // We track only known events
+                            if (!eventInfo) {
+                                return;
+                            }
+                            // First argument is fact provider address
                             var factProviderAddress = topics[1] ? sanitizeAddress_1.sanitizeAddress(topics[1].slice(26)) : '';
-                            var key = topics[2] ? _this.web3.utils.toAscii(topics[2].slice(0, 23)) : '';
+                            // Second argument is fact key
+                            var key = topics[2] ? _this.web3.utils.toAscii(topics[2]).replace(/\u0000/g, '') : '';
                             if (filterFactProviderAddress !== undefined && filterFactProviderAddress !== null && filterFactProviderAddress !== factProviderAddress) {
                                 return;
                             }
@@ -107,10 +124,14 @@ var PassportReader = /** @class */ (function () {
                                 return;
                             }
                             historyEvents.push({
+                                blockHash: blockHash,
                                 blockNumber: blockNumber,
+                                transactionIndex: transactionIndex,
                                 transactionHash: transactionHash,
                                 factProviderAddress: factProviderAddress,
                                 key: key,
+                                dataType: eventInfo.dataType,
+                                eventType: eventInfo.eventType,
                             });
                         });
                         return [2 /*return*/, historyEvents];
@@ -121,3 +142,29 @@ var PassportReader = /** @class */ (function () {
     return PassportReader;
 }());
 exports.PassportReader = PassportReader;
+function getEventSignatures(web3) {
+    var hashedSignatures = {};
+    // Collect all event signatures from ABI file
+    PassportLogic_json_1.default.forEach(function (item) {
+        if (item.type !== 'event') {
+            return;
+        }
+        var rawSignature = item.name + "(" + item.inputs.map(function (i) { return i.type; }).join(',') + ")";
+        hashedSignatures[item.name] = web3.sha3(rawSignature);
+    });
+    var results = {};
+    // Create dictionary of event signatures to event data
+    Object.keys(IHistoryEvent_1.DataType).forEach(function (dataType) {
+        Object.keys(IHistoryEvent_1.EventType).forEach(function (eventType) {
+            var hashedSignature = hashedSignatures["" + dataType + eventType];
+            if (!hashedSignature) {
+                return;
+            }
+            results[hashedSignature] = {
+                dataType: dataType,
+                eventType: eventType,
+            };
+        });
+    });
+    return results;
+}

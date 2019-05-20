@@ -1,5 +1,5 @@
 export interface IPassportRef {
-  blockNumber: number;
+  blockNumber: string;
   blockHash: string;
   txHash: string;
   passportAddress: string;

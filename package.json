@@ -10,7 +10,7 @@
 		"node": ">=8.9.0"
 	},
 	"scripts": {
-		"test": "mocha --timeout 200000",
+		"test": "cd integration-tests && npm run test",
 		"build": "./node_modules/.bin/tsc",
 		"lint": "tslint --project tsconfig.json",
 		"prepare-contracts": "typechain --target=web3-1.0.0 --outDir=lib/types/web3-contracts \"./config/*.json\""
@@ -22,9 +22,7 @@
 	},
 	"devDependencies": {
 		"@types/node": "^10.12.2",
-		"chai": "^3.5.0",
 		"husky": "1.3.1",
-		"mocha": "^5.2.0",
 		"tslint": "^5.12.1",
 		"tslint-config-airbnb": "^5.11.1",
 		"tslint-lines-between-class-members": "^1.3.1",
@@ -40,7 +38,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://gitlab.com/monetha/reputation-sdk.git"
+		"url": "git+https://github.com/monetha/reputation-js-sdk.git"
 	},
 	"author": "Monetha"
 }

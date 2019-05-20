@@ -1,30 +1,35 @@
-## How to run tests
+# Run integration tests
 
-Before running test make sure that contracts folder in integration-tests is up to date.
+**Please note:** before running integration tests, please make sure that the `contracts` folder in `integration-tests` is up to date.
 
-Install mocha
-```
-npm install -g mocha
-```
+## Dependencies
 
-Install ganache-cli
-```
-npm install -g ganache-cli
-```
+**Please note** that all of the commands must be run in `integration-tests` folder.
 
-Install truffle
-```
-npm install -g truffle
+Before running the tests, install dependencies:
+```shell
+npm install
 ```
 
-In separate terminal run next command:
+If you Docker, please start `ganache-cli` on it:
+```shell
+npm run ganache
 ```
-ganache-cli
+You can stop and remove it after running the tests with the following commands:
+```shell
+npm run ganache:stop
 ```
 
-In a main terminal from the integration-tests folder run next command:
+If you do NOT have Docker, you will need to open a separate terminal window, navigate to the `integration-tests` folder, and run the following command:
+```shell
+npm run ganache:terminal
 ```
-truffle test
+
+## Run the tests
+
+In a main terminal from the `integration-tests` folder run the following command:
+```
+npm run test
 ```
 
 In order to debug:
@@ -32,6 +37,7 @@ In order to debug:
 - change test script in `integration-tests/package.json`:
 ```json
 "scripts": {
+    ...
     "test": "node $NODE_DEBUG_OPTION ./node_modules/.bin/truffle test"
 },
 ```

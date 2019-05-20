@@ -2,10 +2,10 @@ import { Address } from './Address';
 import { Hex } from './Hex';
 
 export interface IEvent {
-  logIndex: number;
-  transactionIndex: number;
+  logIndex: Hex;
+  transactionIndex: Hex;
   transactionHash: Hex;
-  blockNumber: number;
+  blockNumber: Hex;
   blockHash: Hex;
   address: Address;
   data: string;
