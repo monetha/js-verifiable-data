@@ -70,7 +70,7 @@ export class FactRemover {
    * @param key fact key
    */
   public async deleteTxdata(key: string, factProviderAddress: Address) {
-    return this.delete('deleteTxdata', key, factProviderAddress);
+    return this.delete('deleteTxDataBlockNumber', key, factProviderAddress);
   }
 
   /**

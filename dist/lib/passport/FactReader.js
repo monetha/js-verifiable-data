@@ -81,8 +81,17 @@ var FactReader = /** @class */ (function () {
      */
     FactReader.prototype.getBytes = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
+            var value;
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.get('getBytes', factProviderAddress, key)];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.get('getBytes', factProviderAddress, key)];
+                    case 1:
+                        value = _a.sent();
+                        if (!value) {
+                            return [2 /*return*/, value];
+                        }
+                        return [2 /*return*/, this.web3.utils.hexToBytes(value)];
+                }
             });
         });
     };
@@ -107,8 +116,17 @@ var FactReader = /** @class */ (function () {
      */
     FactReader.prototype.getUint = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
+            var value;
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.get('getUint', factProviderAddress, key)];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.get('getUint', factProviderAddress, key)];
+                    case 1:
+                        value = _a.sent();
+                        if (!value) {
+                            return [2 /*return*/, value];
+                        }
+                        return [2 /*return*/, value.toNumber()];
+                }
             });
         });
     };
@@ -120,8 +138,17 @@ var FactReader = /** @class */ (function () {
      */
     FactReader.prototype.getInt = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
+            var value;
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.get('getInt', factProviderAddress, key)];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.get('getInt', factProviderAddress, key)];
+                    case 1:
+                        value = _a.sent();
+                        if (!value) {
+                            return [2 /*return*/, value];
+                        }
+                        return [2 /*return*/, value.toNumber()];
+                }
             });
         });
     };
@@ -163,7 +190,7 @@ var FactReader = /** @class */ (function () {
                     case 3:
                         txInfo = _a.sent();
                         txDataString = txInfo.methodInfo.params[1].value;
-                        txData = this.web3.utils.toAscii(txDataString);
+                        txData = this.web3.utils.hexToBytes(txDataString);
                         return [2 /*return*/, txData];
                 }
             });

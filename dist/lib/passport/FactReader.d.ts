@@ -58,7 +58,7 @@ export declare class FactReader {
      * @param factProviderAddress fact provider to read fact for
      * @param key fact key
      */
-    getTxdata(factProviderAddress: Address, key: string): Promise<string>;
+    getTxdata(factProviderAddress: Address, key: string): Promise<number[]>;
     /**
      * Read IPFS hash type fact from passport
      *

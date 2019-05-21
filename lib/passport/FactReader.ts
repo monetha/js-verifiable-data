@@ -39,7 +39,12 @@ export class FactReader {
    * @param key fact key
    */
   public async getBytes(factProviderAddress: Address, key: string): Promise<number[]> {
-    return this.get('getBytes', factProviderAddress, key);
+    const value = await this.get('getBytes', factProviderAddress, key);
+    if (!value) {
+      return value;
+    }
+
+    return this.web3.utils.hexToBytes(value);
   }
 
   /**
@@ -59,7 +64,12 @@ export class FactReader {
    * @param key fact key
    */
   public async getUint(factProviderAddress: Address, key: string): Promise<number> {
-    return this.get('getUint', factProviderAddress, key);
+    const value = await this.get('getUint', factProviderAddress, key);
+    if (!value) {
+      return value;
+    }
+
+    return value.toNumber();
   }
 
   /**
@@ -69,7 +79,12 @@ export class FactReader {
    * @param key fact key
    */
   public async getInt(factProviderAddress: Address, key: string): Promise<number> {
-    return this.get('getInt', factProviderAddress, key);
+    const value = await this.get('getInt', factProviderAddress, key);
+    if (!value) {
+      return value;
+    }
+
+    return value.toNumber();
   }
 
   /**
@@ -88,7 +103,7 @@ export class FactReader {
    * @param factProviderAddress fact provider to read fact for
    * @param key fact key
    */
-  public async getTxdata(factProviderAddress: Address, key: string): Promise<string> {
+  public async getTxdata(factProviderAddress: Address, key: string): Promise<number[]> {
     const data = await this.get('getTxDataBlockNumber', factProviderAddress, key);
 
     if (!data) {
@@ -98,8 +113,8 @@ export class FactReader {
     const blockNumHex = this.web3.utils.toHex(data);
     const events = await fetchEvents(this.ethNetworkUrl, blockNumHex, blockNumHex, this.passportAddress);
     const txInfo = await getTxData(events[0].transactionHash, this.web3);
-    const txDataString = txInfo.txReceipt.params[1].value;
-    const txData = this.web3.utils.toAscii(txDataString);
+    const txDataString = txInfo.methodInfo.params[1].value;
+    const txData = this.web3.utils.hexToBytes(txDataString);
 
     return txData;
   }

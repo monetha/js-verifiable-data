@@ -67,7 +67,6 @@ exports.getTxData = function (txHash, web3) { return __awaiter(_this, void 0, vo
                     tx: tx,
                     methodInfo: abiDecoder.decodeMethod(tx.input),
                 };
-                console.log('---------------', result);
                 return [2 /*return*/, result];
         }
     });

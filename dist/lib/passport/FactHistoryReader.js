@@ -70,7 +70,7 @@ var FactHistoryReader = /** @class */ (function () {
      */
     FactHistoryReader.prototype.getBytes = function (txHash) {
         return __awaiter(this, void 0, void 0, function () {
-            var txInfo, methodInfo;
+            var txInfo, methodInfo, value, hexValue;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
@@ -78,10 +78,15 @@ var FactHistoryReader = /** @class */ (function () {
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
                         this.validateMethodSignature(methodInfo, 'setBytes');
+                        value = [];
+                        hexValue = methodInfo.params[1].value;
+                        if (hexValue) {
+                            value = this.web3.utils.hexToBytes(hexValue);
+                        }
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
-                                value: methodInfo.params[1].value,
+                                value: value,
                             }];
                 }
             });
@@ -125,7 +130,7 @@ var FactHistoryReader = /** @class */ (function () {
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
-                                value: methodInfo.params[1].value,
+                                value: parseInt(methodInfo.params[1].value, 10),
                             }];
                 }
             });
@@ -147,7 +152,7 @@ var FactHistoryReader = /** @class */ (function () {
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
-                                value: methodInfo.params[1].value,
+                                value: parseInt(methodInfo.params[1].value, 10),
                             }];
                 }
             });
@@ -191,7 +196,7 @@ var FactHistoryReader = /** @class */ (function () {
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
-                                value: this.web3.utils.toAscii(methodInfo.params[1].value),
+                                value: this.web3.utils.hexToBytes(methodInfo.params[1].value),
                             }];
                 }
             });

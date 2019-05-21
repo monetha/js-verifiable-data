@@ -126,7 +126,7 @@ var FactRemover = /** @class */ (function () {
     FactRemover.prototype.deleteTxdata = function (key, factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.delete('deleteTxdata', key, factProviderAddress)];
+                return [2 /*return*/, this.delete('deleteTxDataBlockNumber', key, factProviderAddress)];
             });
         });
     };

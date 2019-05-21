@@ -335,6 +335,68 @@ Read uint type fact from passport:
 reader.getUint(factProviderAddress, 'jonas_rating');
 ```
 
+**Reading facts from transaction examples:**
+
+It is possible to read fact values from fact writing transactions. Use `FactHistoryReader` to read facts from transactions:
+
+```js
+import sdk from 'reputation-sdk';
+const historyReader = new sdk.FactHistoryReader(web3);
+
+historyReader.getString('0x123456789...');
+```
+
+Read methods returns `Promise<IFactValue>` object, which contains such information:
+```js
+{
+  factProviderAddress: '0x123456...', // Address of fact provider
+  key: 'fact_key', // Fact key
+  value: 'fact value' // Fact value
+}
+```
+
+Read address type fact from transaction:
+
+```js
+historyReader.getAddress('0x123456789...');
+```
+
+Read boolean type fact from transaction:
+
+```js
+historyReader.getBool('0x123456789...');
+```
+
+Deletes byte type fact from transaction:
+
+```js
+historyReader.getBytes('0x123456789...');
+```
+
+Read IPFS hash type fact from transaction:
+
+```js
+historyReader.getIPFSData('0x123456789...', IIPFSClient);
+```
+
+Read int type fact from transaction:
+
+```js
+historyReader.getInt('0x123456789...');
+```
+
+Read TX data type fact from transaction:
+
+```js
+historyReader.getTxdata('0x123456789...');
+```
+
+Read uint type fact from transaction:
+
+```js
+historyReader.getUint('0x123456789...');
+```
+
 ### Managing passport permissions
 
 By default any fact provider can write to a passport, but a passport owner can change permissions that allow only

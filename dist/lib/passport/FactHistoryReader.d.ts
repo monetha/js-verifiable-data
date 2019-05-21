@@ -37,7 +37,7 @@ export declare class FactHistoryReader {
     /**
      * Read TX data type fact from transaction
      */
-    getTxdata(txHash: string): Promise<IFactValue<string>>;
+    getTxdata(txHash: string): Promise<IFactValue<number[]>>;
     /**
      * Read IPFS hash type fact from transaction
      * @param ipfs IPFS client

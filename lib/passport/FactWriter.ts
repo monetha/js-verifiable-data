@@ -84,7 +84,7 @@ export class FactWriter {
    * @param value value to store
    */
   public async setTxdata(key: string, value: number[], factProviderAddress: Address) {
-    return this.set('setTxdata', key, value, factProviderAddress);
+    return this.set('setTxDataBlockNumber', key, value, factProviderAddress);
   }
 
   /**

@@ -1,12 +1,12 @@
 import * as abiDecoder from 'abi-decoder';
 import Web3 from 'web3';
 import passportLogicAbi from '../../config/PassportLogic.json';
+import { Transaction } from 'web3-core';
 
 export interface IMethodInfo {
   name: string;
   params: IMethodParam[];
 }
-
 
 export interface IMethodParam {
   name: string;
@@ -15,7 +15,7 @@ export interface IMethodParam {
 }
 
 export interface ITxData {
-  txReceipt: any;
+  tx: Transaction;
   methodInfo: IMethodInfo;
 }
 
@@ -25,13 +25,15 @@ export interface ITxData {
  * @param txHash transaction hash
  * @param web3 web3 instance
  */
-export const getTxData = async (txHash: string, web3: any): Promise<ITxData> => {
+export const getTxData = async (txHash: string, web3: Web3): Promise<ITxData> => {
   abiDecoder.addABI(passportLogicAbi);
 
-  const txReceipt = await web3.eth.getTransaction(txHash);
+  const tx = await web3.eth.getTransaction(txHash);
 
-  return {
-    txReceipt,
-    methodInfo: abiDecoder.decodeMethod(txReceipt.input),
+  const result = {
+    tx,
+    methodInfo: abiDecoder.decodeMethod(tx.input),
   };
+
+  return result;
 };

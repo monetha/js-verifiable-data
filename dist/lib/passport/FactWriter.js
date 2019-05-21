@@ -139,7 +139,7 @@ var FactWriter = /** @class */ (function () {
     FactWriter.prototype.setTxdata = function (key, value, factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.set('setTxdata', key, value, factProviderAddress)];
+                return [2 /*return*/, this.set('setTxDataBlockNumber', key, value, factProviderAddress)];
             });
         });
     };
