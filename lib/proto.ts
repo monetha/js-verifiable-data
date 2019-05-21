@@ -8,6 +8,7 @@ import { PassportReader } from './passport/PassportReader';
 import { FactHistoryReader, IFactValue } from './passport/FactHistoryReader';
 import { EventType, DataType, IHistoryEvent } from './models/IHistoryEvent';
 import { IIPFSClient, IIPFSAddResult } from './models/IIPFSClient';
+import { IPassportRef } from './models/IPassportRef';
 
 export default {
   PassportGenerator,
@@ -37,4 +38,5 @@ export {
   IIPFSClient,
   IIPFSAddResult,
   IFactValue,
+  IPassportRef,
 };
