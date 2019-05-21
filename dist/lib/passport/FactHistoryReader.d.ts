@@ -1,4 +1,3 @@
-import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
 export interface IFactValue<TValue> {
     factProviderAddress: string;
@@ -12,63 +11,40 @@ export declare class FactHistoryReader {
     private web3;
     constructor(web3: any);
     /**
-     * Read string type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
+     * Read string type fact from transaction
      */
     getString(txHash: string): Promise<IFactValue<string>>;
     /**
-     * Read bytes type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
+     * Read bytes type fact from transaction
      */
-    getBytes(factProviderAddress: Address, key: string): Promise<number[]>;
+    getBytes(txHash: string): Promise<IFactValue<number[]>>;
     /**
-     * Read address type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
+     * Read address type fact from transaction
      */
-    getAddress(factProviderAddress: Address, key: string): Promise<string>;
+    getAddress(txHash: string): Promise<IFactValue<string>>;
     /**
-     * Read uint type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
+     * Read uint type fact from transaction
      */
-    getUint(factProviderAddress: Address, key: string): Promise<number>;
+    getUint(txHash: string): Promise<IFactValue<number>>;
     /**
-     * Read int type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
+     * Read int type fact from transaction
      */
-    getInt(factProviderAddress: Address, key: string): Promise<number>;
+    getInt(txHash: string): Promise<IFactValue<number>>;
     /**
-     * Read boolean type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
+     * Read boolean type fact from transaction
      */
-    getBool(factProviderAddress: Address, key: string): Promise<boolean>;
+    getBool(txHash: string): Promise<IFactValue<boolean>>;
     /**
-     * Read TX data type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
+     * Read TX data type fact from transaction
      */
-    getTxdata(factProviderAddress: Address, key: string): Promise<string>;
+    getTxdata(txHash: string): Promise<IFactValue<string>>;
     /**
-     * Read IPFS hash type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
+     * Read IPFS hash type fact from transaction
      * @param ipfs IPFS client
      *
      * @returns data stored in IPFS
      */
-    getIPFSData(factProviderAddress: Address, key: string, ipfs: IIPFSClient): Promise<any>;
-    private get;
+    getIPFSData(txHash: string, ipfs: IIPFSClient): Promise<IFactValue<any>>;
     private validateMethodSignature;
+    private bytesToUnpaddedAscii;
 }

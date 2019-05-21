@@ -1,13 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var PassportGenerator_1 = require("./passport/PassportGenerator");
+exports.PassportGenerator = PassportGenerator_1.PassportGenerator;
 var PassportOwnership_1 = require("./passport/PassportOwnership");
+exports.PassportOwnership = PassportOwnership_1.PassportOwnership;
 var FactReader_1 = require("./passport/FactReader");
+exports.FactReader = FactReader_1.FactReader;
 var FactWriter_1 = require("./passport/FactWriter");
+exports.FactWriter = FactWriter_1.FactWriter;
 var FactRemover_1 = require("./passport/FactRemover");
+exports.FactRemover = FactRemover_1.FactRemover;
 var Permissions_1 = require("./passport/Permissions");
+exports.Permissions = Permissions_1.Permissions;
 var PassportReader_1 = require("./passport/PassportReader");
+exports.PassportReader = PassportReader_1.PassportReader;
 var FactHistoryReader_1 = require("./passport/FactHistoryReader");
+exports.FactHistoryReader = FactHistoryReader_1.FactHistoryReader;
 var IHistoryEvent_1 = require("./models/IHistoryEvent");
 exports.EventType = IHistoryEvent_1.EventType;
 exports.DataType = IHistoryEvent_1.DataType;
@@ -20,4 +28,6 @@ exports.default = {
     FactRemover: FactRemover_1.FactRemover,
     Permissions: Permissions_1.Permissions,
     FactHistoryReader: FactHistoryReader_1.FactHistoryReader,
+    EventType: IHistoryEvent_1.EventType,
+    DataType: IHistoryEvent_1.DataType,
 };

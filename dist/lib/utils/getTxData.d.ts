@@ -1,3 +1,5 @@
+import Web3 from 'web3';
+import { Transaction } from 'web3-core';
 export interface IMethodInfo {
     name: string;
     params: IMethodParam[];
@@ -8,7 +10,7 @@ export interface IMethodParam {
     value: string;
 }
 export interface ITxData {
-    txReceipt: any;
+    tx: Transaction;
     methodInfo: IMethodInfo;
 }
 /**
@@ -17,4 +19,4 @@ export interface ITxData {
  * @param txHash transaction hash
  * @param web3 web3 instance
  */
-export declare const getTxData: (txHash: string, web3: any) => Promise<ITxData>;
+export declare const getTxData: (txHash: string, web3: Web3) => Promise<ITxData>;

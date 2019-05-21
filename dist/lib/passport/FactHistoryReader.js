@@ -44,9 +44,7 @@ var FactHistoryReader = /** @class */ (function () {
         this.web3 = web3;
     }
     /**
-     * Read string type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
+     * Read string type fact from transaction
      */
     FactHistoryReader.prototype.getString = function (txHash) {
         return __awaiter(this, void 0, void 0, function () {
@@ -59,8 +57,8 @@ var FactHistoryReader = /** @class */ (function () {
                         methodInfo = txInfo.methodInfo;
                         this.validateMethodSignature(methodInfo, 'setString');
                         return [2 /*return*/, {
-                                factProviderAddress: txInfo.txReceipt.from,
-                                key: methodInfo.params[0].value,
+                                factProviderAddress: txInfo.tx.from,
+                                key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
                                 value: methodInfo.params[1].value,
                             }];
                 }
@@ -68,103 +66,161 @@ var FactHistoryReader = /** @class */ (function () {
         });
     };
     /**
-     * Read bytes type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
+     * Read bytes type fact from transaction
      */
-    FactHistoryReader.prototype.getBytes = function (factProviderAddress, key) {
+    FactHistoryReader.prototype.getBytes = function (txHash) {
         return __awaiter(this, void 0, void 0, function () {
+            var txInfo, methodInfo;
             return __generator(this, function (_a) {
-                return [2 /*return*/, null];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
+                    case 1:
+                        txInfo = _a.sent();
+                        methodInfo = txInfo.methodInfo;
+                        this.validateMethodSignature(methodInfo, 'setBytes');
+                        return [2 /*return*/, {
+                                factProviderAddress: txInfo.tx.from,
+                                key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+                                value: methodInfo.params[1].value,
+                            }];
+                }
             });
         });
     };
     /**
-     * Read address type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
+     * Read address type fact from transaction
      */
-    FactHistoryReader.prototype.getAddress = function (factProviderAddress, key) {
+    FactHistoryReader.prototype.getAddress = function (txHash) {
         return __awaiter(this, void 0, void 0, function () {
+            var txInfo, methodInfo;
             return __generator(this, function (_a) {
-                return [2 /*return*/, null];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
+                    case 1:
+                        txInfo = _a.sent();
+                        methodInfo = txInfo.methodInfo;
+                        this.validateMethodSignature(methodInfo, 'setAddress');
+                        return [2 /*return*/, {
+                                factProviderAddress: txInfo.tx.from,
+                                key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+                                value: methodInfo.params[1].value,
+                            }];
+                }
             });
         });
     };
     /**
-     * Read uint type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
+     * Read uint type fact from transaction
      */
-    FactHistoryReader.prototype.getUint = function (factProviderAddress, key) {
+    FactHistoryReader.prototype.getUint = function (txHash) {
         return __awaiter(this, void 0, void 0, function () {
+            var txInfo, methodInfo;
             return __generator(this, function (_a) {
-                return [2 /*return*/, null];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
+                    case 1:
+                        txInfo = _a.sent();
+                        methodInfo = txInfo.methodInfo;
+                        this.validateMethodSignature(methodInfo, 'setUint');
+                        return [2 /*return*/, {
+                                factProviderAddress: txInfo.tx.from,
+                                key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+                                value: methodInfo.params[1].value,
+                            }];
+                }
             });
         });
     };
     /**
-     * Read int type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
+     * Read int type fact from transaction
      */
-    FactHistoryReader.prototype.getInt = function (factProviderAddress, key) {
+    FactHistoryReader.prototype.getInt = function (txHash) {
         return __awaiter(this, void 0, void 0, function () {
+            var txInfo, methodInfo;
             return __generator(this, function (_a) {
-                return [2 /*return*/, null];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
+                    case 1:
+                        txInfo = _a.sent();
+                        methodInfo = txInfo.methodInfo;
+                        this.validateMethodSignature(methodInfo, 'setInt');
+                        return [2 /*return*/, {
+                                factProviderAddress: txInfo.tx.from,
+                                key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+                                value: methodInfo.params[1].value,
+                            }];
+                }
             });
         });
     };
     /**
-     * Read boolean type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
+     * Read boolean type fact from transaction
      */
-    FactHistoryReader.prototype.getBool = function (factProviderAddress, key) {
+    FactHistoryReader.prototype.getBool = function (txHash) {
         return __awaiter(this, void 0, void 0, function () {
+            var txInfo, methodInfo;
             return __generator(this, function (_a) {
-                return [2 /*return*/, null];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
+                    case 1:
+                        txInfo = _a.sent();
+                        methodInfo = txInfo.methodInfo;
+                        this.validateMethodSignature(methodInfo, 'setBool');
+                        return [2 /*return*/, {
+                                factProviderAddress: txInfo.tx.from,
+                                key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+                                value: methodInfo.params[1].value,
+                            }];
+                }
             });
         });
     };
     /**
-     * Read TX data type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
+     * Read TX data type fact from transaction
      */
-    FactHistoryReader.prototype.getTxdata = function (factProviderAddress, key) {
+    FactHistoryReader.prototype.getTxdata = function (txHash) {
         return __awaiter(this, void 0, void 0, function () {
+            var txInfo, methodInfo;
             return __generator(this, function (_a) {
-                return [2 /*return*/, null];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
+                    case 1:
+                        txInfo = _a.sent();
+                        methodInfo = txInfo.methodInfo;
+                        this.validateMethodSignature(methodInfo, 'setTxDataBlockNumber');
+                        return [2 /*return*/, {
+                                factProviderAddress: txInfo.tx.from,
+                                key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+                                value: this.web3.utils.toAscii(methodInfo.params[1].value),
+                            }];
+                }
             });
         });
     };
     /**
-     * Read IPFS hash type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
+     * Read IPFS hash type fact from transaction
      * @param ipfs IPFS client
      *
      * @returns data stored in IPFS
      */
-    FactHistoryReader.prototype.getIPFSData = function (factProviderAddress, key, ipfs) {
+    FactHistoryReader.prototype.getIPFSData = function (txHash, ipfs) {
         return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/];
-            });
-        });
-    };
-    FactHistoryReader.prototype.get = function (method, factProviderAddress, key) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/];
+            var txInfo, methodInfo, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
+                    case 1:
+                        txInfo = _b.sent();
+                        methodInfo = txInfo.methodInfo;
+                        this.validateMethodSignature(methodInfo, 'setIPFSHash');
+                        _a = {
+                            factProviderAddress: txInfo.tx.from,
+                            key: this.bytesToUnpaddedAscii(methodInfo.params[0].value)
+                        };
+                        return [4 /*yield*/, ipfs.cat(methodInfo.params[1].value)];
+                    case 2: return [2 /*return*/, (_a.value = _b.sent(),
+                            _a)];
+                }
             });
         });
     };
@@ -172,6 +228,9 @@ var FactHistoryReader = /** @class */ (function () {
         if (methodInfo.name !== expectedName) {
             throw new Error("Input method signature for transaction must be \"" + expectedName + "\". Got \"" + methodInfo.name + "\"");
         }
+    };
+    FactHistoryReader.prototype.bytesToUnpaddedAscii = function (bytes) {
+        return this.web3.utils.toAscii(bytes).replace(/\u0000/g, '');
     };
     return FactHistoryReader;
 }());

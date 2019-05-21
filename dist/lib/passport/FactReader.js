@@ -162,7 +162,7 @@ var FactReader = /** @class */ (function () {
                         return [4 /*yield*/, getTxData_1.getTxData(events[0].transactionHash, this.web3)];
                     case 3:
                         txInfo = _a.sent();
-                        txDataString = txInfo.txReceipt.params[1].value;
+                        txDataString = txInfo.methodInfo.params[1].value;
                         txData = this.web3.utils.toAscii(txDataString);
                         return [2 /*return*/, txData];
                 }

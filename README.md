@@ -16,7 +16,7 @@
     - [Changing passport permissions](#changing-passport-permissions)
     - [Reading facts history](#reading-facts-history)
 - [Permissioned blockchains support](#permissioned-blockchains-support)
-    - [Quorum](#quorum)    
+    - [Quorum](#quorum)
 
 ## Building the source
 
@@ -37,23 +37,23 @@ or
 
 ## Bootstrap reputation layer
 
-Monetha has already deployed this set of auxiliary reputation layer contracts on Ropsten test network and Mainnet network. 
+Monetha has already deployed this set of auxiliary reputation layer contracts on Ropsten test network and Mainnet network.
 
 The contract addresses deployed on Ropsten:
 
 | Contract      | Address                                      |
 |---------------|----------------------------------------------|
-| `PassportLogic` | [`0xEf95422e66761A5a468FE72c1fD3C946884d5E50`](https://ropsten.etherscan.io/address/0xEf95422e66761A5a468FE72c1fD3C946884d5E50) |
+| `PassportLogic` | [`0x74C22a5d68E4727029FD906aD73D5F39D9130905`](https://ropsten.etherscan.io/address/0x74C22a5d68E4727029FD906aD73D5F39D9130905) |
 | `PassportLogicRegistry`  | [`0x11C96d40244d37ad3Bb788c15F6376cEfA28CF7c`](https://ropsten.etherscan.io/address/0x11C96d40244d37ad3Bb788c15F6376cEfA28CF7c) |
-| `PassportFactory` | [`0x5FD962855e9b327262F47594949fd6d742FE2A01`](https://ropsten.etherscan.io/address/0x5FD962855e9b327262F47594949fd6d742FE2A01) |
+| `PassportFactory` | [`0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2`](https://ropsten.etherscan.io/address/0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2) |
 
 The contract addresses deployed on Mainnet:
 
 | Contract      | Address                                      |
 |---------------|----------------------------------------------|
-| `PassportLogic` | [`0x76E2fe5C37c47Fe09DCFa55Bec9Fd34318922F27`](https://etherscan.io/address/0x76E2fe5C37c47Fe09DCFa55Bec9Fd34318922F27) |
+| `PassportLogic` | [`0x12b0d242283ce61bEb463b16D485df64A4E3932f`](https://etherscan.io/address/0x12b0d242283ce61bEb463b16D485df64A4E3932f) |
 | `PassportLogicRegistry`  | [`0x41c32A8387ff178659ED9B04190613623F545657`](https://etherscan.io/address/0x41c32A8387ff178659ED9B04190613623F545657) |
-| `PassportFactory` | [`0xdbf780f836D8a22b56AcF9Fd266171fAFf31F521`](https://etherscan.io/address/0xdbf780f836D8a22b56AcF9Fd266171fAFf31F521) |
+| `PassportFactory` | [`0x53b21DC502b163Bcf3bD9a68d5db5e8E6110E1CC`](https://etherscan.io/address/0x53b21DC502b163Bcf3bD9a68d5db5e8E6110E1CC) |
 
 Consider the process of deploying your own set of auxiliary repoutation layer contracts to experiment with our implementation. If you are going to deploy your contracts, then you will have to support them yourself.
 
@@ -79,7 +79,7 @@ Before creating a passport for a specific Ethereum address, unlock the MetaMask.
 Make sure that the passport owner has enough money to create a passport contract. Usually passport contract deployment takes `425478` gas.
 
 To create a passport contract you need to know address of the `PassportFactory` contract. Let's try to create a passport in Ropsten
-using the `PassportFactory` contract deployed by Monetha ([`0x5FD962855e9b327262F47594949fd6d742FE2A01`](https://ropsten.etherscan.io/address/0x5FD962855e9b327262F47594949fd6d742FE2A01)):
+using the `PassportFactory` contract deployed by Monetha ([`0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2`](https://ropsten.etherscan.io/address/0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2)):
 
 ```js
 import sdk from 'reputation-sdk';
@@ -109,13 +109,13 @@ generator.getOwnerAddress();
 
 The passport factory allows you to get a list of all the passports that have been created.
 
-Let's try to get a list of all passports using the address of `PassportFactory` contract deployed by Monetha ([`0x5FD962855e9b327262F47594949fd6d742FE2A01`](https://ropsten.etherscan.io/address/0x5FD962855e9b327262F47594949fd6d742FE2A01))
+Let's try to get a list of all passports using the address of `PassportFactory` contract deployed by Monetha ([`0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2`](https://ropsten.etherscan.io/address/0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2))
 in Ropsten network:
 
 ```js
 import sdk from 'reputation-sdk';
 const reader = new sdk.PassportReader(web3, ethereumNetworkUrl);
-reader.getPassportsList('0x5FD962855e9b327262F47594949fd6d742FE2A01');
+reader.getPassportsList('0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2');
 ```
 
 You should get something like this Array of objects:
@@ -418,14 +418,14 @@ Even if the value of a fact has been deleted or changed, we can read its value a
 
 ### Quorum
 
-[Quorum](https://www.jpmorgan.com/global/Quorum)™ is an enterprise-focused version of [Ethereum](https://ethereum.org/). 
-It's ideal for any application requiring high speed and high throughput processing of private transactions within a 
+[Quorum](https://www.jpmorgan.com/global/Quorum)™ is an enterprise-focused version of [Ethereum](https://ethereum.org/).
+It's ideal for any application requiring high speed and high throughput processing of private transactions within a
 permissioned group of known participants.
 
-In order to play with our SDK on Quorum network, you need to run Quorum network somewhere. The easiest way to run Quorum 
-network of 7 nodes locally is by running a preconfigured Vagrant environment. Follow the 
+In order to play with our SDK on Quorum network, you need to run Quorum network somewhere. The easiest way to run Quorum
+network of 7 nodes locally is by running a preconfigured Vagrant environment. Follow the
 instructions below to do this:
- 
+
 1. Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
 1. Install [Vagrant](https://www.vagrantup.com/downloads.html)
@@ -438,11 +438,11 @@ instructions below to do this:
    $ vagrant ssh
    ```
    After executing these commands, you will be inside a virtual machine with all the tools to start the Quorum network.
-   
-   ***NOTE***: To shutdown the Vagrant instance later, run `vagrant suspend`. To delete it, run `vagrant destroy`. 
-   To start from scratch, run `vagrant up` after destroying the instance. (you should run all `vagrant` commands from 
+
+   ***NOTE***: To shutdown the Vagrant instance later, run `vagrant suspend`. To delete it, run `vagrant destroy`.
+   To start from scratch, run `vagrant up` after destroying the instance. (you should run all `vagrant` commands from
    the host machine, not from the virtual machine)
-   
+
 1. Once inside the virtual machine, run the blockchain nodes using Raft consensus:
    ```
    $ cd quorum-examples/7nodes/
@@ -450,9 +450,9 @@ instructions below to do this:
    $ ./raft-start.sh
    ```
    Make sure 7 processes of `geth` are up and running by executing `ps aux | grep geth` command.
-   
+
    Genesis block contains 5 addresses, each of which has 1000000000 ETH:
-   
+
    | Address                                    | Private key                                                      |
    |--------------------------------------------|------------------------------------------------------------------|
    | 0xed9d02e382b34818e88B88a309c7fe71E65f419d | e6181caaffff94a09d7e332fc8da9884d99902c7874eb74354bdcadf411929f1 |
@@ -460,44 +460,44 @@ instructions below to do this:
    | 0x0fBDc686b912d7722dc86510934589E0AAf3b55A | 61dced5af778942996880120b303fc11ee28cc8e5036d2fdff619b5675ded3f0 |
    | 0x9186eb3d20Cbd1F5f992a950d808C4495153ABd5 | 794392ba288a24092030badaadfee71e3fa55ccef1d70c708baf55c07ed538a8 |
    | 0x0638E1574728b6D862dd5d3A3E0942c3be47D996 | 30bee17b2b8b1e774115f785e92474027d45d900a12a9d5d99af637c2d1a61bd |
-   
+
 1. When all nodes are up and running it's safe to exit from virtual machine and start reputation layer bootstrap. Run `exit`, to leave Vagrant environment:
 
    ```
    $ exit
    ```
-   
+
    Now you're on the host machine.
    Vagrant environment exposes ports 22000-22007, on which Ethereum JSON RPC is available.
    You can check it's working by running command:
-   
+
    ```
    $ curl -H "Content-Type: application/json" \
      -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' \
      http://localhost:22000
    ```
-   
+
    You should see the output:
-   
+
    ```
    {"jsonrpc":"2.0","id":1,"result":"0x0"}
    ```
 
-1. Now follow [Building the source](https://github.com/monetha/reputation-go-sdk#building-the-source) steps to build the 
-   full suite of reputation SDK utilities, if you haven't done it yet. When you've built utilities, you'll need to use 
-   `deploy-bootstrap` tool to deploy all auxiliary reputation layer contracts to local Quorum network. Please read 
+1. Now follow [Building the source](https://github.com/monetha/reputation-go-sdk#building-the-source) steps to build the
+   full suite of reputation SDK utilities, if you haven't done it yet. When you've built utilities, you'll need to use
+   `deploy-bootstrap` tool to deploy all auxiliary reputation layer contracts to local Quorum network. Please read
    [Bootstrap reputation layer](https://github.com/monetha/reputation-go-sdk#bootstrap-reputation-layer) section and
-   [`deploy-bootstrap` README](https://github.com/monetha/reputation-go-sdk/tree/master/cmd/deploy-bootstrap) for details 
-   on how to deploy contracts. When you deploy contracts using `deploy-bootstrap` utility use private keys from the 
-   table above and specify one of the Quorum node (like `http://localhost:22000`) as `-backendurl` parameter to make 
+   [`deploy-bootstrap` README](https://github.com/monetha/reputation-go-sdk/tree/master/cmd/deploy-bootstrap) for details
+   on how to deploy contracts. When you deploy contracts using `deploy-bootstrap` utility use private keys from the
+   table above and specify one of the Quorum node (like `http://localhost:22000`) as `-backendurl` parameter to make
    transactions.
-   
+
    Assuming the current directory contains `deploy-bootstrap` utility, here is an example of how you can deploy contracts:
    ```
    $ echo e6181caaffff94a09d7e332fc8da9884d99902c7874eb74354bdcadf411929f1 > bootstrap_owner.key
    $ ./deploy-bootstrap -ownerkey ./bootstrap_owner.key -backendurl http://localhost:22000
    ```
-   
+
    In the output you should see something like this:
    ```
     WARN [01-25|12:09:32.889] Loaded configuration                     owner_address=0xed9d02e382b34818e88B88a309c7fe71E65f419d backend_url=http://localhost:22000
@@ -516,8 +516,8 @@ instructions below to do this:
     WARN [01-25|12:09:44.959] PassportFactory deployed                 contract_address=0x9d13C6D3aFE1721BEef56B55D303B09E021E27ab
     WARN [01-25|12:09:44.959] Done.
    ```
-   In the penultimate line you can see `PassportFactory` contract address (address may be different in your case): 
-   `0x9d13C6D3aFE1721BEef56B55D303B09E021E27ab`. 
-   
-   Use this address as `passportFactoryAddress` parameter value and `http://localhost:22000` as `ethereumNetworkUrl` 
+   In the penultimate line you can see `PassportFactory` contract address (address may be different in your case):
+   `0x9d13C6D3aFE1721BEef56B55D303B09E021E27ab`.
+
+   Use this address as `passportFactoryAddress` parameter value and `http://localhost:22000` as `ethereumNetworkUrl`
    parameter value to deploy your passport contract.
