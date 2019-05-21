@@ -1,4 +1,3 @@
-import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
 import { getTxData, IMethodInfo } from '../utils/getTxData';
 import Web3 from 'web3';
