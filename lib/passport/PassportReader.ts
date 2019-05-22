@@ -7,15 +7,17 @@ import { fetchEvents } from '../utils/fetchEvents';
 import { sanitizeAddress } from '../utils/sanitizeAddress';
 import Web3 from 'web3';
 import passportLogicAbi from '../../config/PassportLogic.json';
+import passportFactoryAbi from '../../config/PassportFactory.json';
 
-interface IEventSignatures {
+interface IFactEventSignatures {
   [signature: string]: {
     eventType: EventType,
     dataType: DataType,
   };
 }
 
-let eventSignatures: IEventSignatures;
+let factEventSignatures: IFactEventSignatures;
+let passCreatedEventSignature: string;
 
 export class PassportReader {
   private web3: Web3;
@@ -25,8 +27,10 @@ export class PassportReader {
     this.web3 = web3;
     this.ethNetworkUrl = ethNetworkUrl;
 
-    if (!eventSignatures) {
-      eventSignatures = getEventSignatures(web3);
+    if (!factEventSignatures) {
+      const signatures = getEventSignatures(web3);
+      factEventSignatures = signatures.factEvents;
+      passCreatedEventSignature = signatures.passCreatedEvent;
     }
   }
 
@@ -38,7 +42,10 @@ export class PassportReader {
    * @param endBlock block nr to scan to
    */
   public async getPassportsList(factoryAddress: Address, startBlock = MIN_BLOCK, endBlock = MAX_BLOCK): Promise<IPassportRef[]> {
-    const events = await fetchEvents(this.ethNetworkUrl, startBlock, endBlock, factoryAddress);
+    let events = await fetchEvents(this.ethNetworkUrl, startBlock, endBlock, factoryAddress);
+
+    // Leave only pass created events
+    events = events.filter(e => e.topics[0] === passCreatedEventSignature);
 
     const passportRefs: IPassportRef[] = events.map(event => ({
       blockNumber: event.blockNumber,
@@ -75,7 +82,7 @@ export class PassportReader {
       const { blockNumber, transactionHash, topics, blockHash, transactionIndex } = event;
 
       const eventSignatureHash = topics[0];
-      const eventInfo = eventSignatures[eventSignatureHash];
+      const eventInfo = factEventSignatures[eventSignatureHash];
 
       // We track only known events
       if (!eventInfo) {
@@ -112,22 +119,29 @@ export class PassportReader {
   }
 }
 
-function getEventSignatures(web3: Web3): IEventSignatures {
+function getEventSignatures(web3: Web3): {
+  factEvents: IFactEventSignatures;
+  passCreatedEvent: string;
+} {
 
-  const hashedSignatures = {};
+  const hashedSignatures: any = {};
 
   // Collect all event signatures from ABI file
-  passportLogicAbi.forEach(item => {
-    if (item.type !== 'event') {
-      return;
-    }
+  const abis = [passportLogicAbi, passportFactoryAbi];
 
-    const rawSignature = `${item.name}(${(item.inputs as any).map(i => i.type).join(',')})`;
+  abis.forEach(abi => {
+    abi.forEach(item => {
+      if (item.type !== 'event') {
+        return;
+      }
 
-    hashedSignatures[item.name] = web3.utils.sha3(rawSignature);
+      const rawSignature = `${item.name}(${(item.inputs as any).map(i => i.type).join(',')})`;
+
+      hashedSignatures[item.name] = web3.utils.sha3(rawSignature);
+    });
   });
 
-  const results: IEventSignatures = {};
+  const factEvents: IFactEventSignatures = {};
 
   // Create dictionary of event signatures to event data
   Object.keys(DataType).forEach((dataType: DataType) => {
@@ -138,12 +152,15 @@ function getEventSignatures(web3: Web3): IEventSignatures {
         return;
       }
 
-      results[hashedSignature] = {
+      factEvents[hashedSignature] = {
         dataType,
         eventType,
       };
     });
   });
 
-  return results;
+  return {
+    factEvents,
+    passCreatedEvent: hashedSignatures.PassportCreated,
+  };
 }
