@@ -138,6 +138,15 @@ export class FactReader {
     return ipfs.cat(hash);
   }
 
+
+  public async readSensitiveData(factProviderAddress: Address, key: string, ipfs: IIPFSClient): Promise<any> {
+    // TODO: readPrivateDataHashes(ctx, passportAddress, factProviderAddress, factKey)
+
+    // TODO: DecryptSecretKey(ctx, passportOwnerPrivateKey, factProviderHashes, passportAddress, factProviderAddress, factKey)
+
+    // TODO: DecryptPrivateData(ctx, factProviderHashes.DataIPFSHash, secretKey, passportOwnerPrivateKey.Curve)
+  }
+
   private async get(method: string, factProviderAddress: Address, key: string) {
     const preparedKey = this.web3.utils.fromAscii(key);
 

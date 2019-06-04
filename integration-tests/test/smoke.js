@@ -74,7 +74,7 @@ describe('Reputation js-sdk smoke tests', function () {
         expect(response[0]).to.have.property('ownerAddress');
     });
 
-    // #region -------------- Fact writing -------------------------------------------------------------------
+    // #region -------------- Public Fact writing -------------------------------------------------------------------
 
     it('Should be able to write String fact', async () => {
         txHashes['string_fact'] = await writeAndValidateFact(writer => writer.setString('string_fact', 'hello', factProviderAddress));
@@ -110,7 +110,7 @@ describe('Reputation js-sdk smoke tests', function () {
 
     // #endregion
 
-    // #region -------------- Fact reading -------------------------------------------------------------------
+    // #region -------------- Public Fact reading -------------------------------------------------------------------
 
     it('Should be able to read String fact', async () => {
         await readAndValidateFact(reader => reader.getString(factProviderAddress, 'string_fact'), 'hello');
@@ -136,17 +136,13 @@ describe('Reputation js-sdk smoke tests', function () {
         await readAndValidateFact(reader => reader.getBytes(factProviderAddress, 'bytes_fact'), [1, 2, 3]);
     });
 
-    it('Should be able to read TxData fact', async () => {
-        await readAndValidateFact(reader => reader.getTxdata(factProviderAddress, 'txdata_fact', mockIPFSClient), [1, 2, 3, 4, 5]);
-    });
-
     it('Should be able to read IPFSData fact', async () => {
         await readAndValidateFact(reader => reader.getIPFSData(factProviderAddress, 'ipfs_fact', mockIPFSClient), 'Value in IPFS');
     });
 
-    // #endregion
-
-    // #region -------------- Fact reading from TX -------------------------------------------------------------------
+    it('Should be able to read TxData fact', async () => {
+        await readAndValidateFact(reader => reader.getTxdata(factProviderAddress, 'txdata_fact', mockIPFSClient), [1, 2, 3, 4, 5]);
+    });
 
     it('Should be able to read String fact from TX', async () => {
         await readAndValidateTxFact(reader => reader.getString(txHashes['string_fact']), 'hello');
@@ -224,8 +220,9 @@ describe('Reputation js-sdk smoke tests', function () {
         await readAndValidateFact(reader => reader.getIPFSData(factProviderAddress, 'ipfs_fact', mockIPFSClient), null);
     });
 
-    // #endregion
+// #endregion
 
+    // #region -------------- Reading fact history -------------------------------------------------------------------
     it('Should be able read facts history.', async () => {
         // Given
         const reader = new sdk.PassportReader(web3, ethereumNetworkUrl);
@@ -238,6 +235,9 @@ describe('Reputation js-sdk smoke tests', function () {
         expect(JSON.stringify(response)).to.contains('string_fact');
     });
 
+    // #endregion
+
+    // #region -------------- Adding FactProvider to Whitelist -------------------------------------------------------------------
     it('Should be able to whitelist fact provider.', async () => {
         // Given
         const permissions = new sdk.Permissions(web3, passportAddress);
