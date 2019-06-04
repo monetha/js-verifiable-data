@@ -10,12 +10,13 @@
   - [Bootstrap reputation layer](#bootstrap-reputation-layer)
   - [Usage](#usage)
     - [Deploying passport](#deploying-passport)
+    - [Passport ownership](#passport-ownership)
     - [Passport list](#passport-list)
     - [Writing facts](#writing-facts)
     - [Reading facts](#reading-facts)
-    - [Changing passport permissions](#changing-passport-permissions)
+    - [Managing passport permissions](#managing-passport-permissions)
     - [Reading facts history](#reading-facts-history)
-- [Permissioned blockchains support](#permissioned-blockchains-support)
+  - [Permissioned blockchains support](#permissioned-blockchains-support)
     - [Quorum](#quorum)
 
 ## Building the source
@@ -78,7 +79,7 @@ In order to create a passport and start using it, you need to use auxiliary repu
 Before creating a passport for a specific Ethereum address, unlock the MetaMask.
 Make sure that the passport owner has enough money to create a passport contract. Usually passport contract deployment takes `425478` gas.
 
-To create a passport contract you need to know address of the `PassportFactory` contract. Let's try to create a passport in Ropsten
+To create a passport contract you need to know the address of the `PassportFactory` contract. Let's try to create a passport in Ropsten
 using the `PassportFactory` contract deployed by Monetha ([`0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2`](https://ropsten.etherscan.io/address/0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2)):
 
 ```js
