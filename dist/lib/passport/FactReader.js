@@ -222,6 +222,13 @@ var FactReader = /** @class */ (function () {
             });
         });
     };
+    FactReader.prototype.readSensitiveData = function (factProviderAddress, key, ipfs) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/];
+            });
+        });
+    };
     FactReader.prototype.get = function (method, factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
             var preparedKey, result;
