@@ -42,6 +42,7 @@ var fetchEvents_1 = require("../utils/fetchEvents");
 var getTxData_1 = require("../utils/getTxData");
 var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
+var elliptic_1 = require("elliptic");
 /**
  * Class to read latest facts from the passport
  */
@@ -222,10 +223,44 @@ var FactReader = /** @class */ (function () {
             });
         });
     };
-    FactReader.prototype.readSensitiveData = function (factProviderAddress, key, ipfs) {
+    FactReader.prototype.readPrivateData = function (passportOwnerPrivateKey, factProviderAddress, key, ipfs) {
         return __awaiter(this, void 0, void 0, function () {
+            var ipfsPublicKeyFileName, ipfsEncryptedMessageFileName, ipfsMessageHMACFileName, curve, privateDataHashes, dataIPFSHash, dataKeyHash, publicKey, ec, passportOwnerKeyPair, factKeyPair, seed, sk, skm, hashedSKM;
             return __generator(this, function (_a) {
-                return [2 /*return*/];
+                switch (_a.label) {
+                    case 0:
+                        ipfsPublicKeyFileName = 'public_key';
+                        ipfsEncryptedMessageFileName = 'encrypted_message';
+                        ipfsMessageHMACFileName = 'hmac';
+                        curve = 'secp256k1';
+                        this.web3.eth.accounts.privateKeyToAccount(passportOwnerPrivateKey);
+                        return [4 /*yield*/, this.contractIO.readData('getPrivateDataHashes', [factProviderAddress, key])];
+                    case 1:
+                        privateDataHashes = _a.sent();
+                        if (!privateDataHashes[0]) {
+                            return [2 /*return*/, null];
+                        }
+                        dataIPFSHash = privateDataHashes[1];
+                        dataKeyHash = privateDataHashes[2];
+                        return [4 /*yield*/, ipfs.cat(dataIPFSHash + "/" + ipfsPublicKeyFileName)];
+                    case 2:
+                        publicKey = _a.sent();
+                        ec = new elliptic_1.EC(curve);
+                        passportOwnerKeyPair = new elliptic_1.KeyPair(ec, {
+                            priv: passportOwnerPrivateKey,
+                        });
+                        factKeyPair = new elliptic_1.KeyPair(ec, {
+                            pub: publicKey,
+                        });
+                        seed = Buffer.concat([Buffer.from(factProviderAddress, 'hex'), Buffer.from(this.passportAddress, 'hex'), Buffer.from(key, 'utf8')]);
+                        sk = passportOwnerKeyPair.derive(factKeyPair.getPublic('string', 'hex'));
+                        skm = '';
+                        hashedSKM = this.web3.utils.sha3(skm);
+                        if (dataKeyHash !== hashedSKM) {
+                            return [2 /*return*/, null];
+                        }
+                        return [2 /*return*/];
+                }
             });
         });
     };
@@ -239,7 +274,7 @@ var FactReader = /** @class */ (function () {
                         return [4 /*yield*/, this.contractIO.readData(method, [factProviderAddress, preparedKey])];
                     case 1:
                         result = _a.sent();
-                        // TODO: add comments about these indexes 0 and 1
+                        // Return null in case if value was not initialized
                         if (!result[0]) {
                             return [2 /*return*/, null];
                         }

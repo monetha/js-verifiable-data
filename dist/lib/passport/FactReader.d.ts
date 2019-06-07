@@ -69,6 +69,6 @@ export declare class FactReader {
      * @returns data stored in IPFS
      */
     getIPFSData(factProviderAddress: Address, key: string, ipfs: IIPFSClient): Promise<any>;
-    readSensitiveData(factProviderAddress: Address, key: string, ipfs: IIPFSClient): Promise<any>;
+    readPrivateData(passportOwnerPrivateKey: string, factProviderAddress: Address, key: string, ipfs: IIPFSClient): Promise<any>;
     private get;
 }
