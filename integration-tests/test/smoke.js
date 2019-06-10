@@ -178,6 +178,18 @@ describe('Reputation js-sdk smoke tests', function () {
 
     // #endregion
 
+    // #region -------------- Private fact writing -------------------------------------------------------------------
+
+    // TODO:
+
+    // #endregion
+
+    // #region -------------- Private fact reading -------------------------------------------------------------------
+
+    // TODO:
+
+    // #endregion
+
     // #region -------------- Fact deletion -------------------------------------------------------------------
 
     it('Should be able to delete String fact', async () => {
@@ -220,9 +232,10 @@ describe('Reputation js-sdk smoke tests', function () {
         await readAndValidateFact(reader => reader.getIPFSData(factProviderAddress, 'ipfs_fact', mockIPFSClient), null);
     });
 
-// #endregion
+    // #endregion
 
     // #region -------------- Reading fact history -------------------------------------------------------------------
+
     it('Should be able read facts history.', async () => {
         // Given
         const reader = new sdk.PassportReader(web3, ethereumNetworkUrl);
@@ -238,6 +251,7 @@ describe('Reputation js-sdk smoke tests', function () {
     // #endregion
 
     // #region -------------- Adding FactProvider to Whitelist -------------------------------------------------------------------
+
     it('Should be able to whitelist fact provider.', async () => {
         // Given
         const permissions = new sdk.Permissions(web3, passportAddress);
@@ -250,6 +264,7 @@ describe('Reputation js-sdk smoke tests', function () {
         expect(transaction).to.have.property('input');
     });
 
+    // #endregion
 });
 
 // #region -------------- Mock IPFS -------------------------------------------------------------------
