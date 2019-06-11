@@ -7,12 +7,30 @@ import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import passportLogicAbi from '../../config/PassportLogic.json';
 import { EC, KeyPair } from 'elliptic';
+import { PassportLogic } from '../types/web3-contracts/PassportLogic';
+
+// #region -------------- Interfaces -------------------------------------------------------------------
+
+export interface IPrivateDataHashes {
+
+  /**
+   *
+   */
+  dataIpfsHash: string;
+
+  /**
+   *
+   */
+  dataKeyHash: string;
+}
+
+// #endregion
 
 /**
  * Class to read latest facts from the passport
  */
 export class FactReader {
-  private contractIO: ContractIO;
+  private contractIO: ContractIO<PassportLogic>;
   private ethNetworkUrl: string;
 
   private get web3() { return this.contractIO.getWeb3(); }
@@ -137,6 +155,27 @@ export class FactReader {
 
     // Get hash
     return ipfs.cat(hash);
+  }
+
+  /**
+   * Read private data hashes fact from the passport.
+   * @param factProviderAddress fact provider to read fact for
+   * @param key fact key
+   */
+  public async getPrivateDataHashes(factProviderAddress: Address, key: string): Promise<IPrivateDataHashes> {
+    const preparedKey = this.web3.utils.fromAscii(key);
+
+    const tx = this.contractIO.getContract().methods.getPrivateDataHashes(factProviderAddress, preparedKey);
+    const result = await tx.call();
+
+    if (!result.success) {
+      return null;
+    }
+
+    return {
+      dataIpfsHash: result.dataIPFSHash,
+      dataKeyHash: result.dataKeyHash,
+    };
   }
 
   public async readPrivateData(passportOwnerPrivateKey: string, factProviderAddress: Address, key: string, ipfs: IIPFSClient): Promise<any> {

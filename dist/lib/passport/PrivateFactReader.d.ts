@@ -8,4 +8,6 @@ export declare class PrivateFactReader {
     private readonly web3;
     private readonly passportAddress;
     constructor(web3: Web3, passportAddress: Address);
+    getPrivateData(passportOwnerPrivateKey: any, factProviderAddress: Address, key: string): Promise<void>;
+    private getPrivateDataHashes;
 }

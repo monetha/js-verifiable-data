@@ -43,6 +43,7 @@ var getTxData_1 = require("../utils/getTxData");
 var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 var elliptic_1 = require("elliptic");
+// #endregion
 /**
  * Class to read latest facts from the passport
  */
@@ -219,6 +220,33 @@ var FactReader = /** @class */ (function () {
                         }
                         // Get hash
                         return [2 /*return*/, ipfs.cat(hash)];
+                }
+            });
+        });
+    };
+    /**
+     * Read private data hashes fact from the passport.
+     * @param factProviderAddress fact provider to read fact for
+     * @param key fact key
+     */
+    FactReader.prototype.getPrivateDataHashes = function (factProviderAddress, key) {
+        return __awaiter(this, void 0, void 0, function () {
+            var preparedKey, tx, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        preparedKey = this.web3.utils.fromAscii(key);
+                        tx = this.contractIO.getContract().methods.getPrivateDataHashes(factProviderAddress, preparedKey);
+                        return [4 /*yield*/, tx.call()];
+                    case 1:
+                        result = _a.sent();
+                        if (!result.success) {
+                            return [2 /*return*/, null];
+                        }
+                        return [2 /*return*/, {
+                                dataIpfsHash: result.dataIPFSHash,
+                                dataKeyHash: result.dataKeyHash,
+                            }];
                 }
             });
         });

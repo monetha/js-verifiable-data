@@ -1,6 +1,16 @@
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
 import Web3 from 'web3';
+export interface IPrivateDataHashes {
+    /**
+     *
+     */
+    dataIpfsHash: string;
+    /**
+     *
+     */
+    dataKeyHash: string;
+}
 /**
  * Class to read latest facts from the passport
  */
@@ -69,6 +79,12 @@ export declare class FactReader {
      * @returns data stored in IPFS
      */
     getIPFSData(factProviderAddress: Address, key: string, ipfs: IIPFSClient): Promise<any>;
+    /**
+     * Read private data hashes fact from the passport.
+     * @param factProviderAddress fact provider to read fact for
+     * @param key fact key
+     */
+    getPrivateDataHashes(factProviderAddress: Address, key: string): Promise<IPrivateDataHashes>;
     readPrivateData(passportOwnerPrivateKey: string, factProviderAddress: Address, key: string, ipfs: IIPFSClient): Promise<any>;
     private get;
 }
