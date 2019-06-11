@@ -36,6 +36,18 @@ export class PassportLogic extends Contract {
       1: string;
     }>;
 
+    getPrivateDataHashes(
+      _factProvider: string,
+      _key: string | number[]
+    ): TransactionObject<{
+      success: boolean;
+      dataIPFSHash: string;
+      dataKeyHash: string;
+      0: boolean;
+      1: string;
+      2: string;
+    }>;
+
     getBytes(
       _factProvider: string,
       _key: string | number[]
@@ -44,6 +56,37 @@ export class PassportLogic extends Contract {
       value: (string)[];
       0: boolean;
       1: (string)[];
+    }>;
+
+    privateDataExchanges(
+      arg0: number | string
+    ): TransactionObject<{
+      dataRequester: string;
+      dataRequesterValue: string;
+      passportOwner: string;
+      passportOwnerValue: string;
+      factProvider: string;
+      key: string;
+      dataIPFSHash: string;
+      dataKeyHash: string;
+      encryptedExchangeKey: (string)[];
+      exchangeKeyHash: string;
+      encryptedDataKey: string;
+      state: string;
+      stateExpired: string;
+      0: string;
+      1: string;
+      2: string;
+      3: string;
+      4: string;
+      5: string;
+      6: string;
+      7: string;
+      8: (string)[];
+      9: string;
+      10: string;
+      11: string;
+      12: string;
     }>;
 
     getUint(
@@ -98,6 +141,14 @@ export class PassportLogic extends Contract {
       1: string;
     }>;
 
+    finishPrivateDataExchange(
+      _exchangeIdx: number | string
+    ): TransactionObject<void>;
+
+    timeoutPrivateDataExchange(
+      _exchangeIdx: number | string
+    ): TransactionObject<void>;
+
     deleteAddress(_key: string | number[]): TransactionObject<void>;
 
     deleteIPFSHash(_key: string | number[]): TransactionObject<void>;
@@ -127,6 +178,8 @@ export class PassportLogic extends Contract {
 
     deleteBytes(_key: string | number[]): TransactionObject<void>;
 
+    deletePrivateDataHashes(_key: string | number[]): TransactionObject<void>;
+
     setIPFSHash(
       _key: string | number[],
       _value: string
@@ -137,6 +190,11 @@ export class PassportLogic extends Contract {
     setString(_key: string | number[], _value: string): TransactionObject<void>;
 
     renounceOwnership(): TransactionObject<void>;
+
+    acceptPrivateDataExchange(
+      _exchangeIdx: number | string,
+      _encryptedDataKey: string | number[]
+    ): TransactionObject<void>;
 
     deleteInt(_key: string | number[]): TransactionObject<void>;
 
@@ -151,6 +209,13 @@ export class PassportLogic extends Contract {
       _value: string
     ): TransactionObject<void>;
 
+    proposePrivateDataExchange(
+      _factProvider: string,
+      _key: string | number[],
+      _encryptedExchangeKey: (string | number[])[],
+      _exchangeKeyHash: string | number[]
+    ): TransactionObject<void>;
+
     setUint(
       _key: string | number[],
       _value: number | string
@@ -158,15 +223,84 @@ export class PassportLogic extends Contract {
 
     deleteUint(_key: string | number[]): TransactionObject<void>;
 
+    setPrivateDataHashes(
+      _key: string | number[],
+      _dataIPFSHash: string,
+      _dataKeyHash: string | number[]
+    ): TransactionObject<void>;
+
     transferOwnership(newOwner: string): TransactionObject<void>;
 
     deleteString(_key: string | number[]): TransactionObject<void>;
 
+    disputePrivateDataExchange(
+      _exchangeIdx: number | string,
+      _exchangeKey: string | number[]
+    ): TransactionObject<void>;
+
+    privateDataExchangeAcceptTimeout(): TransactionObject<string>;
     isWhitelistOnlyPermissionSet(): TransactionObject<boolean>;
+    getPrivateDataExchangesCount(): TransactionObject<string>;
     owner(): TransactionObject<string>;
+    privateDataExchangeProposeTimeout(): TransactionObject<string>;
+    openPrivateDataExchangesCount(): TransactionObject<string>;
     pendingOwner(): TransactionObject<string>;
   };
   events: {
+    PrivateDataHashesUpdated(
+      options?: {
+        filter?: object;
+        fromBlock?: number | string;
+        topics?: (null | string)[];
+      },
+      cb?: Callback<EventLog>
+    ): EventEmitter;
+
+    PrivateDataHashesDeleted(
+      options?: {
+        filter?: object;
+        fromBlock?: number | string;
+        topics?: (null | string)[];
+      },
+      cb?: Callback<EventLog>
+    ): EventEmitter;
+
+    PrivateDataExchangeProposed(
+      options?: {
+        filter?: object;
+        fromBlock?: number | string;
+        topics?: (null | string)[];
+      },
+      cb?: Callback<EventLog>
+    ): EventEmitter;
+
+    PrivateDataExchangeAccepted(
+      options?: {
+        filter?: object;
+        fromBlock?: number | string;
+        topics?: (null | string)[];
+      },
+      cb?: Callback<EventLog>
+    ): EventEmitter;
+
+    PrivateDataExchangeClosed(
+      options?: {
+        filter?: object;
+        fromBlock?: number | string;
+        topics?: (null | string)[];
+      },
+      cb?: Callback<EventLog>
+    ): EventEmitter;
+
+    PrivateDataExchangeDisputed(
+      options?: {
+        filter?: object;
+        fromBlock?: number | string;
+        topics?: (null | string)[];
+      },
+      cb?: Callback<EventLog>
+    ): EventEmitter;
+
     IPFSHashUpdated(
       options?: {
         filter?: object;
