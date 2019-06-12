@@ -1,5 +1,9 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+var keccak256_1 = __importDefault(require("keccak256"));
 exports.ipfsFileNames = {
     /**
      * Public key in IPFS
@@ -18,7 +22,14 @@ exports.ellipticCurveAlg = 'secp256k1';
 function deriveSecretKeyringMaterial(ecies, publicKey, passAddress, factProviderAddress, factKey) {
     var seed = createSKMSeed(passAddress, factProviderAddress, factKey);
     var skm = ecies.deriveSecretKeyringMaterial(publicKey, seed);
-    return null;
+    // take only part of MAC otherwise EncryptionKey + MACKey won't fit into 32 bytes array
+    skm.macKey = skm.macKey.slice(0, skm.encryptionKey.length);
+    var skmBytes = skm.encryptionKey.concat(skm.macKey);
+    var skmHash = Array.from(keccak256_1.default(Buffer.from(skmBytes)));
+    return {
+        skm: skmBytes,
+        skmHash: skmHash,
+    };
 }
 exports.deriveSecretKeyringMaterial = deriveSecretKeyringMaterial;
 /**

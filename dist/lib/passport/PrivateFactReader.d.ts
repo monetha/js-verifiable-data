@@ -29,5 +29,5 @@ export declare class PrivateFactReader {
      * @param key
      * @param ipfsClient
      */
-    decryptSecretKey(passportOwnerPrivateKeyPair: ec.KeyPair, factProviderHashes: IPrivateDataHashes, factProviderAddress: Address, key: string, ipfsClient: IIPFSClient): Promise<any>;
+    decryptSecretKey(passportOwnerPrivateKeyPair: ec.KeyPair, factProviderHashes: IPrivateDataHashes, factProviderAddress: Address, key: string, ipfsClient: IIPFSClient): Promise<number[]>;
 }

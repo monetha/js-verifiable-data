@@ -8,6 +8,8 @@ import { IIPFSClient } from '../models/IIPFSClient';
 import { ec } from 'elliptic';
 import { ECIES } from '../crypto/ecies/ecies';
 import { ellipticCurveAlg, ipfsFileNames, deriveSecretKeyringMaterial } from './privateFactCommon';
+import { constantTimeCompare } from '../crypto/utils/compare';
+import BN from 'bn.js';
 const EC = ec;
 
 /**
@@ -77,9 +79,15 @@ export class PrivateFactReader {
 
     // Create ECIES
     const ecies = new ECIES(passportOwnerPrivateKeyPair);
+
+    // Derive SKM
     const skmData = deriveSecretKeyringMaterial(ecies, pubKeyPair, this.passportAddress, factProviderAddress, key);
 
+    // TODO: something is not working correctly
+    if (!constantTimeCompare(new BN(factProviderHashes.dataKeyHash.replace('0x', ''), 16).toArray(), skmData.skmHash)) {
+      throw new Error('Invalid passport owner key');
+    }
 
-    return null;
+    return skmData.skm;
   }
 }

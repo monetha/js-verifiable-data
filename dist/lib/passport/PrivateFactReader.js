@@ -44,6 +44,8 @@ var FactReader_1 = require("./FactReader");
 var elliptic_1 = require("elliptic");
 var ecies_1 = require("../crypto/ecies/ecies");
 var privateFactCommon_1 = require("./privateFactCommon");
+var compare_1 = require("../crypto/utils/compare");
+var bn_js_1 = __importDefault(require("bn.js"));
 var EC = elliptic_1.ec;
 /**
  * Class to read private facts
@@ -113,7 +115,11 @@ var PrivateFactReader = /** @class */ (function () {
                         });
                         ecies = new ecies_1.ECIES(passportOwnerPrivateKeyPair);
                         skmData = privateFactCommon_1.deriveSecretKeyringMaterial(ecies, pubKeyPair, this.passportAddress, factProviderAddress, key);
-                        return [2 /*return*/, null];
+                        // TODO: something is not working correctly
+                        if (!compare_1.constantTimeCompare(new bn_js_1.default(factProviderHashes.dataKeyHash.replace('0x', ''), 16).toArray(), skmData.skmHash)) {
+                            throw new Error('Invalid passport owner key');
+                        }
+                        return [2 /*return*/, skmData.skm];
                 }
             });
         });

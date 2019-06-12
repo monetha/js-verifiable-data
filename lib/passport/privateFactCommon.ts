@@ -1,5 +1,6 @@
 import { ECIES } from '../crypto/ecies/ecies';
 import { ec } from 'elliptic';
+import keccak256 from 'keccak256';
 
 export const ipfsFileNames = {
   /**
@@ -31,7 +32,17 @@ export function deriveSecretKeyringMaterial(
 
   const skm = ecies.deriveSecretKeyringMaterial(publicKey, seed);
 
-  return null;
+  // take only part of MAC otherwise EncryptionKey + MACKey won't fit into 32 bytes array
+  skm.macKey = skm.macKey.slice(0, skm.encryptionKey.length);
+
+  const skmBytes = [...skm.encryptionKey, ...skm.macKey];
+
+  const skmHash = Array.from<number>(keccak256(Buffer.from(skmBytes)));
+
+  return {
+    skm: skmBytes,
+    skmHash,
+  };
 }
 
 /**

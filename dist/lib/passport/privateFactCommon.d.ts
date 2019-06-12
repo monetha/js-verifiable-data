@@ -15,4 +15,7 @@ export declare const ipfsFileNames: {
     messageHMAC: string;
 };
 export declare const ellipticCurveAlg = "secp256k1";
-export declare function deriveSecretKeyringMaterial(ecies: ECIES, publicKey: ec.KeyPair, passAddress: string, factProviderAddress: string, factKey: string): any;
+export declare function deriveSecretKeyringMaterial(ecies: ECIES, publicKey: ec.KeyPair, passAddress: string, factProviderAddress: string, factKey: string): {
+    skm: number[];
+    skmHash: number[];
+};
