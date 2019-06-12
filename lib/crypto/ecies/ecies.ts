@@ -1,5 +1,14 @@
 import { ec } from 'elliptic';
 import BN from 'bn.js';
+import { sha256 } from 'hash.js';
+import { concatKDF } from './kdf';
+
+const keyLength = 16;
+
+export interface ISecretKeyringMaterial {
+  encryptionKey: number[];
+  macKey: number[];
+}
 
 /**
  * implements Elliptic Curve Integrated Encryption Scheme
@@ -17,13 +26,25 @@ export class ECIES {
    * @param publicKey
    * @param s1 - seed for key derivation function
    */
-  public deriveSecretKeyringMaterial(publicKey: ec.KeyPair, s1: Buffer) {
+  public deriveSecretKeyringMaterial(publicKey: ec.KeyPair, s1: Buffer): ISecretKeyringMaterial {
     if (this.privateKeyPair.getPublic().curve !== publicKey.ec.curve) {
       throw new Error('Invalid curve');
     }
 
-    const sharedKey = this.generateShared(publicKey, 16, 16);
-    return null;
+    const sharedKey = this.generateShared(publicKey, keyLength, keyLength);
+    const hashConstr = sha256;
+
+    const key = concatKDF(hashConstr, Buffer.from(sharedKey.toArray()), s1, keyLength * 2);
+
+    const encKey = key.slice(0, keyLength);
+    let macKey = key.slice(keyLength);
+
+    macKey = hashConstr().update(macKey).digest();
+
+    return {
+      encryptionKey: encKey,
+      macKey,
+    };
   }
 
   /**
