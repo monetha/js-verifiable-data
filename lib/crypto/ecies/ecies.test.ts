@@ -6,6 +6,22 @@ import BN from 'bn.js';
 
 describe('ECIES', () => {
 
+  // #region -------------- Derivation -------------------------------------------------------------------
+
+  it('Should derive secret keyring material', () => {
+    const curve = new ec(ellipticCurveAlg);
+
+    const ecies1 = new ECIES(curve.genKeyPair());
+    const ecies2 = new ECIES(curve.genKeyPair());
+
+    const skm1 = ecies1.deriveSecretKeyringMaterial(ecies2.getPublicKey(), null);
+    const skm2 = ecies2.deriveSecretKeyringMaterial(ecies1.getPublicKey(), null);
+
+    expect(skm1, 'deriveSecretKeyringMaterial must produce the same result for both sides').deep.eq(skm2);
+  });
+
+  // #endregion
+
   // #region -------------- Shared keys -------------------------------------------------------------------
 
   it('Validate ECDH for shared keys', () => {

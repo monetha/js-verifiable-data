@@ -9,6 +9,16 @@ var elliptic_1 = require("elliptic");
 var privateFactCommon_1 = require("../../passport/privateFactCommon");
 var bn_js_1 = __importDefault(require("bn.js"));
 describe('ECIES', function () {
+    // #region -------------- Derivation -------------------------------------------------------------------
+    it('Should derive secret keyring material', function () {
+        var curve = new elliptic_1.ec(privateFactCommon_1.ellipticCurveAlg);
+        var ecies1 = new ecies_1.ECIES(curve.genKeyPair());
+        var ecies2 = new ecies_1.ECIES(curve.genKeyPair());
+        var skm1 = ecies1.deriveSecretKeyringMaterial(ecies2.getPublicKey(), null);
+        var skm2 = ecies2.deriveSecretKeyringMaterial(ecies1.getPublicKey(), null);
+        chai_1.expect(skm1, 'deriveSecretKeyringMaterial must produce the same result for both sides').deep.eq(skm2);
+    });
+    // #endregion
     // #region -------------- Shared keys -------------------------------------------------------------------
     it('Validate ECDH for shared keys', function () {
         var curve = new elliptic_1.ec(privateFactCommon_1.ellipticCurveAlg);
