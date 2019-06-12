@@ -24,7 +24,9 @@
         "array-type": [true, "array"],
         "eofline": true,
         "indent": [true, "spaces"],
-        "lines-between-class-members": true
+        "lines-between-class-members": true,
+        "member-ordering": false,
+        "no-unused-expression": false
     },
     "linterOptions": {
         "exclude": [

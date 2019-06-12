@@ -1,3 +1,4 @@
+/// <reference types="node" />
 export interface IIPFSAddResult {
     path: string;
     hash: string;
@@ -5,5 +6,5 @@ export interface IIPFSAddResult {
 }
 export interface IIPFSClient {
     add(content: any): Promise<IIPFSAddResult | IIPFSAddResult[]>;
-    cat(ipfsPath: string): Promise<any>;
+    cat(ipfsPath: string): Promise<Buffer>;
 }

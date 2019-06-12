@@ -6,7 +6,6 @@ import { IIPFSClient } from '../models/IIPFSClient';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import passportLogicAbi from '../../config/PassportLogic.json';
-import { EC, KeyPair } from 'elliptic';
 import { PassportLogic } from '../types/web3-contracts/PassportLogic';
 
 // #region -------------- Interfaces -------------------------------------------------------------------
@@ -216,22 +215,22 @@ export class FactReader {
     // read data from IPFS
     const publicKey = await ipfs.cat(`${dataIPFSHash}/${ipfsPublicKeyFileName}`);
 
-    const ec = new EC(curve);
+    // const ec = new EC(curve);
 
-    const passportOwnerKeyPair = new KeyPair(ec, {
-      priv: passportOwnerPrivateKey,
-    });
+    // const passportOwnerKeyPair = new KeyPair(ec, {
+    //   priv: passportOwnerPrivateKey,
+    // });
 
-    const factKeyPair = new KeyPair(ec, {
-      pub: publicKey,
-    });
+    // const factKeyPair = new KeyPair(ec, {
+    //   pub: publicKey,
+    // });
 
     // ---------- decrypt the secret key deriveSecretKeyringMaterial()
 
     const seed = Buffer.concat([Buffer.from(factProviderAddress, 'hex'), Buffer.from(this.passportAddress, 'hex'), Buffer.from(key, 'utf8')]);
 
     // sk a derived key (aka shared key for encryption)
-    const sk = passportOwnerKeyPair.derive(factKeyPair.getPublic('string', 'hex'));
+    // const sk = passportOwnerKeyPair.derive(factKeyPair.getPublic('string', 'hex'));
 
     // secret keying material - hashing the key with seed to hide the
     // const skm = concatKDF(hash, sk, seed)

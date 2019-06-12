@@ -40,12 +40,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
+var FactReader_1 = require("./FactReader");
+var elliptic_1 = require("elliptic");
+var ecies_1 = require("../crypto/ecies/ecies");
+var privateFactCommon_1 = require("./privateFactCommon");
+var EC = elliptic_1.ec;
 /**
  * Class to read private facts
  */
 var PrivateFactReader = /** @class */ (function () {
     function PrivateFactReader(web3, passportAddress) {
+        this.ec = new EC(privateFactCommon_1.ellipticCurveAlg);
         this.contractIO = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
+        this.reader = new FactReader_1.FactReader(web3, null, passportAddress);
     }
     Object.defineProperty(PrivateFactReader.prototype, "web3", {
         get: function () { return this.contractIO.getWeb3(); },
@@ -57,17 +64,57 @@ var PrivateFactReader = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    PrivateFactReader.prototype.getPrivateData = function (passportOwnerPrivateKey, factProviderAddress, key) {
+    /**
+     * Decrypts secret key using passport owner key and then decrypts private data using decrypted secret key
+     * @param passportOwnerPrivateKey
+     * @param factProviderAddress
+     * @param key
+     * @param ipfsClient
+     */
+    PrivateFactReader.prototype.getPrivateData = function (passportOwnerPrivateKey, factProviderAddress, key, ipfsClient) {
         return __awaiter(this, void 0, void 0, function () {
+            var hashes, passportOwnerPrivateKeyPair, secretKey;
             return __generator(this, function (_a) {
-                return [2 /*return*/];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.reader.getPrivateDataHashes(factProviderAddress, key)];
+                    case 1:
+                        hashes = _a.sent();
+                        passportOwnerPrivateKeyPair = this.ec.keyPair({
+                            priv: passportOwnerPrivateKey,
+                            privEnc: 'hex',
+                        });
+                        return [4 /*yield*/, this.decryptSecretKey(passportOwnerPrivateKeyPair, hashes, factProviderAddress, key, ipfsClient)];
+                    case 2:
+                        secretKey = _a.sent();
+                        return [2 /*return*/, null];
+                }
             });
         });
     };
-    PrivateFactReader.prototype.getPrivateDataHashes = function (factProviderAddress, key) {
+    /**
+     * Gets ephemeral public key from IPFS and derives secret key using passport owner private key.
+     * @param passportOwnerPrivateKeyPair
+     * @param factProviderHashes
+     * @param factProviderAddress
+     * @param key
+     * @param ipfsClient
+     */
+    PrivateFactReader.prototype.decryptSecretKey = function (passportOwnerPrivateKeyPair, factProviderHashes, factProviderAddress, key, ipfsClient) {
         return __awaiter(this, void 0, void 0, function () {
+            var pubKeyBuff, pubKeyBytes, pubKeyPair, ecies, skmData;
             return __generator(this, function (_a) {
-                return [2 /*return*/];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, ipfsClient.cat(factProviderHashes.dataIpfsHash + "/" + privateFactCommon_1.ipfsFileNames.publicKey)];
+                    case 1:
+                        pubKeyBuff = _a.sent();
+                        pubKeyBytes = Array.from(new Uint8Array(pubKeyBuff));
+                        pubKeyPair = this.ec.keyPair({
+                            pub: pubKeyBytes,
+                        });
+                        ecies = new ecies_1.ECIES(passportOwnerPrivateKeyPair);
+                        skmData = privateFactCommon_1.deriveSecretKeyringMaterial(ecies, pubKeyPair, this.passportAddress, factProviderAddress, key);
+                        return [2 /*return*/, null];
+                }
             });
         });
     };

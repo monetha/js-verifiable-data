@@ -2,8 +2,9 @@ import { expect, use } from 'chai';
 import chaiMoment from 'chai-moment';
 use(chaiMoment);
 
-const Web3 = require('web3');
-const sdk = require('../../dist/lib/proto').default;
+import Web3 from 'web3';
+import { PrivateFactReader } from '../../dist/lib/proto';
+import fetch from 'node-fetch';
 
 const ethereumNetworkUrl = 'https://ropsten.infura.io/v3/1f09dda6cce44da68213cacb1ea9bb90';
 const web3 = new Web3(new Web3.providers.HttpProvider(ethereumNetworkUrl));
@@ -13,7 +14,7 @@ const factProviderAddr = '0xd84083bBaEa544d446b081B7DEe2c9Fd1e5b4463';
 const passportOwnerKey = 'e8b43cd0fdaab9453039659e9d772c34594fda0feed8a5b327adc4682ea3ac18';
 const factKey = 'secret_message';
 const factValue = 'my_secret';
-const INFURA_IPFS_API_URL = 'https://ipfs.infura.io:5001/api/v0';
+const INFURA_IPFS_API_URL = 'https://cloudflare-ipfs.com';
 
 /*
 FACT WRITE LOG
@@ -38,16 +39,16 @@ WARN [06-11|09:50:05.206] Writing data encryption key to file      file_name=dat
 WARN [06-11|09:50:05.209] Done.
 */
 
-
 describe('Private data tests', () => {
   it('Should read fact', async () => {
-    // Given
-    const reader = new sdk.FactReader(web3, ethereumNetworkUrl, passportAddress);
+    const reader = new PrivateFactReader(web3, passportAddress);
     const ipfsClient = new IPFSClient();
 
-    // When
-    const response = await reader.getPrivateDataHashes(factProviderAddr, factKey);
-    expect(response).to.not.be.null;
+    const data = await reader.getPrivateData(passportOwnerKey, factProviderAddr, factKey, ipfsClient);
+
+    //console.log(data);
+
+    expect(data).to.not.be.null;
   });
 });
 
@@ -55,13 +56,13 @@ describe('Private data tests', () => {
 
 class IPFSClient {
   public async cat(path) {
-    const response = await fetch(`${INFURA_IPFS_API_URL}/cat?arg=${path}`);
+    const response = await fetch(`${INFURA_IPFS_API_URL}/ipfs/${path}`);
     if (!response.ok) {
       const errMsg = await response.text();
       throw new Error(errMsg);
     }
 
-    return response.blob();
+    return response.arrayBuffer();
   }
 
   public async add(data) {
