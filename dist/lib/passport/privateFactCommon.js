@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var keccak256_1 = __importDefault(require("keccak256"));
+var web3_utils_1 = require("web3-utils");
 exports.ipfsFileNames = {
     /**
      * Public key in IPFS
@@ -37,8 +38,8 @@ exports.deriveSecretKeyringMaterial = deriveSecretKeyringMaterial;
  */
 function createSKMSeed(passportAddress, factProviderAddress, factKey) {
     return Buffer.concat([
-        Buffer.from(factProviderAddress, 'hex'),
-        Buffer.from(passportAddress, 'hex'),
-        Buffer.from(factKey, 'utf8')
+        Buffer.from(factProviderAddress.replace('0x', ''), 'hex'),
+        Buffer.from(passportAddress.replace('0x', ''), 'hex'),
+        Buffer.from(web3_utils_1.hexToBytes(web3_utils_1.asciiToHex(factKey)))
     ]);
 }

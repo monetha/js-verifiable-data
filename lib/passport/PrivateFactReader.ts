@@ -69,7 +69,7 @@ export class PrivateFactReader {
     ipfsClient: IIPFSClient,
   ) {
 
-    // Get public key and prepare EC keypair
+    // Get ephemeral public key and prepare EC keypair
     const pubKeyBuff = await ipfsClient.cat(`${factProviderHashes.dataIpfsHash}/${ipfsFileNames.publicKey}`);
     const pubKeyBytes = Array.from(new Uint8Array(pubKeyBuff));
 
@@ -83,8 +83,7 @@ export class PrivateFactReader {
     // Derive SKM
     const skmData = deriveSecretKeyringMaterial(ecies, pubKeyPair, this.passportAddress, factProviderAddress, key);
 
-    // TODO: something is not working correctly
-    if (!constantTimeCompare(new BN(factProviderHashes.dataKeyHash.replace('0x', ''), 16).toArray(), skmData.skmHash)) {
+    if (!constantTimeCompare(Array.from(Buffer.from(factProviderHashes.dataKeyHash.replace('0x', ''), 'hex')), skmData.skmHash)) {
       throw new Error('Invalid passport owner key');
     }
 

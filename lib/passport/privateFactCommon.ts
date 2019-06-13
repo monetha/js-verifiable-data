@@ -1,6 +1,7 @@
 import { ECIES } from '../crypto/ecies/ecies';
 import { ec } from 'elliptic';
 import keccak256 from 'keccak256';
+import { asciiToHex, hexToBytes } from 'web3-utils';
 
 export const ipfsFileNames = {
   /**
@@ -49,8 +50,9 @@ export function deriveSecretKeyringMaterial(
  * Returns seed using [Provider Address + Passport Address + factKey] to derive secret keyring material and HMAC
  */
 function createSKMSeed(passportAddress: string, factProviderAddress: string, factKey: string) {
+
   return Buffer.concat([
-    Buffer.from(factProviderAddress, 'hex'),
-    Buffer.from(passportAddress, 'hex'),
-    Buffer.from(factKey, 'utf8')]);
+    Buffer.from(factProviderAddress.replace('0x', ''), 'hex'),
+    Buffer.from(passportAddress.replace('0x', ''), 'hex'),
+    Buffer.from(hexToBytes(asciiToHex(factKey)))]);
 }

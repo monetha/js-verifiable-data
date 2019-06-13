@@ -46,8 +46,6 @@ describe('Private data tests', () => {
 
     const data = await reader.getPrivateData(passportOwnerKey, factProviderAddr, factKey, ipfsClient);
 
-    //console.log(data);
-
     expect(data).to.not.be.null;
   });
 });
