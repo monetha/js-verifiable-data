@@ -10,7 +10,8 @@
 		"node": ">=8.9.0"
 	},
 	"scripts": {
-		"test": "cd integration-tests && npm run test",
+		"test": "npm run test:unit && npm run test:integration",
+		"test:integration": "cd integration-tests && npm run test",
 		"test:unit": "./node_modules/.bin/mocha --require ts-node/register lib/**/*.test.ts",
 		"build": "./node_modules/.bin/tsc",
 		"lint": "tslint --project tsconfig.json",

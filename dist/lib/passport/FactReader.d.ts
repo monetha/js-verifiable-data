@@ -85,6 +85,5 @@ export declare class FactReader {
      * @param key fact key
      */
     getPrivateDataHashes(factProviderAddress: Address, key: string): Promise<IPrivateDataHashes>;
-    readPrivateData(passportOwnerPrivateKey: string, factProviderAddress: Address, key: string, ipfs: IIPFSClient): Promise<any>;
     private get;
 }

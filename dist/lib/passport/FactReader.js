@@ -250,39 +250,6 @@ var FactReader = /** @class */ (function () {
             });
         });
     };
-    FactReader.prototype.readPrivateData = function (passportOwnerPrivateKey, factProviderAddress, key, ipfs) {
-        return __awaiter(this, void 0, void 0, function () {
-            var ipfsPublicKeyFileName, ipfsEncryptedMessageFileName, ipfsMessageHMACFileName, curve, privateDataHashes, dataIPFSHash, dataKeyHash, publicKey, seed, skm, hashedSKM;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        ipfsPublicKeyFileName = 'public_key';
-                        ipfsEncryptedMessageFileName = 'encrypted_message';
-                        ipfsMessageHMACFileName = 'hmac';
-                        curve = 'secp256k1';
-                        this.web3.eth.accounts.privateKeyToAccount(passportOwnerPrivateKey);
-                        return [4 /*yield*/, this.contractIO.readData('getPrivateDataHashes', [factProviderAddress, key])];
-                    case 1:
-                        privateDataHashes = _a.sent();
-                        if (!privateDataHashes[0]) {
-                            return [2 /*return*/, null];
-                        }
-                        dataIPFSHash = privateDataHashes[1];
-                        dataKeyHash = privateDataHashes[2];
-                        return [4 /*yield*/, ipfs.cat(dataIPFSHash + "/" + ipfsPublicKeyFileName)];
-                    case 2:
-                        publicKey = _a.sent();
-                        seed = Buffer.concat([Buffer.from(factProviderAddress, 'hex'), Buffer.from(this.passportAddress, 'hex'), Buffer.from(key, 'utf8')]);
-                        skm = '';
-                        hashedSKM = this.web3.utils.sha3(skm);
-                        if (dataKeyHash !== hashedSKM) {
-                            return [2 /*return*/, null];
-                        }
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
     FactReader.prototype.get = function (method, factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
             var preparedKey, result;
