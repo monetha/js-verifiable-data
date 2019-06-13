@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import { ec } from 'elliptic';
 import BN from 'bn.js';
+export declare const keyLength = 16;
 export interface ISecretKeyringMaterial {
     encryptionKey: number[];
     macKey: number[];

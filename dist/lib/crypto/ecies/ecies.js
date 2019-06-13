@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var hash_js_1 = require("hash.js");
 var kdf_1 = require("./kdf");
-var keyLength = 16;
+exports.keyLength = 16;
 /**
  * implements Elliptic Curve Integrated Encryption Scheme
  */
@@ -20,11 +20,11 @@ var ECIES = /** @class */ (function () {
         if (this.privateKeyPair.getPublic().curve !== publicKey.ec.curve) {
             throw new Error('Invalid curve');
         }
-        var sharedKey = this.generateShared(publicKey, keyLength, keyLength);
+        var sharedKey = this.generateShared(publicKey, exports.keyLength, exports.keyLength);
         var hashConstr = hash_js_1.sha256;
-        var key = kdf_1.concatKDF(hashConstr, Buffer.from(sharedKey.toArray()), s1, keyLength * 2);
-        var encKey = key.slice(0, keyLength);
-        var macKey = key.slice(keyLength);
+        var key = kdf_1.concatKDF(hashConstr, Buffer.from(sharedKey.toArray()), s1, exports.keyLength * 2);
+        var encKey = key.slice(0, exports.keyLength);
+        var macKey = key.slice(exports.keyLength);
         macKey = hashConstr().update(macKey).digest();
         return {
             encryptionKey: encKey,

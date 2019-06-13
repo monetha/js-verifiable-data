@@ -43,3 +43,14 @@ function createSKMSeed(passportAddress, factProviderAddress, factKey) {
         Buffer.from(web3_utils_1.hexToBytes(web3_utils_1.asciiToHex(factKey)))
     ]);
 }
+/**
+ * Unmarshals secret keyring material to encryption and MAC keys
+ */
+function unmarshalSecretKeyringMaterial(skm) {
+    var keyLength = skm.length / 2;
+    return {
+        encryptionKey: skm.slice(0, keyLength),
+        macKey: skm.slice(keyLength),
+    };
+}
+exports.unmarshalSecretKeyringMaterial = unmarshalSecretKeyringMaterial;

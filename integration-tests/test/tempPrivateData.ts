@@ -13,7 +13,7 @@ const passportAddress = '0x9e9f284eec140f312a225648de41e110f69ad50e';
 const factProviderAddr = '0xd84083bBaEa544d446b081B7DEe2c9Fd1e5b4463';
 const passportOwnerKey = 'e8b43cd0fdaab9453039659e9d772c34594fda0feed8a5b327adc4682ea3ac18';
 const factKey = 'secret_message';
-const factValue = 'my_secret';
+const factValue = 'my secret';
 const INFURA_IPFS_API_URL = 'https://cloudflare-ipfs.com';
 
 /*
@@ -45,8 +45,9 @@ describe('Private data tests', () => {
     const ipfsClient = new IPFSClient();
 
     const data = await reader.getPrivateData(passportOwnerKey, factProviderAddr, factKey, ipfsClient);
+    const dataStr = Buffer.from(data).toString('utf8');
 
-    expect(data).to.not.be.null;
+    expect(dataStr).to.eq(factValue);
   });
 });
 

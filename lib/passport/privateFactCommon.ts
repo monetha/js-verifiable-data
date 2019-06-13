@@ -1,4 +1,4 @@
-import { ECIES } from '../crypto/ecies/ecies';
+import { ECIES, ISecretKeyringMaterial } from '../crypto/ecies/ecies';
 import { ec } from 'elliptic';
 import keccak256 from 'keccak256';
 import { asciiToHex, hexToBytes } from 'web3-utils';
@@ -55,4 +55,16 @@ function createSKMSeed(passportAddress: string, factProviderAddress: string, fac
     Buffer.from(factProviderAddress.replace('0x', ''), 'hex'),
     Buffer.from(passportAddress.replace('0x', ''), 'hex'),
     Buffer.from(hexToBytes(asciiToHex(factKey)))]);
+}
+
+/**
+ * Unmarshals secret keyring material to encryption and MAC keys
+ */
+export function unmarshalSecretKeyringMaterial(skm: number[]): ISecretKeyringMaterial {
+  const keyLength = skm.length / 2;
+
+  return {
+    encryptionKey: skm.slice(0, keyLength),
+    macKey: skm.slice(keyLength),
+  };
 }

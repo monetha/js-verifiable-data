@@ -38,13 +38,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ContractIO_1 = require("../transactionHelpers/ContractIO");
-var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
-var FactReader_1 = require("./FactReader");
 var elliptic_1 = require("elliptic");
+var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
+var cryptor_1 = require("../crypto/ecies/cryptor");
 var ecies_1 = require("../crypto/ecies/ecies");
-var privateFactCommon_1 = require("./privateFactCommon");
 var compare_1 = require("../crypto/utils/compare");
+var ContractIO_1 = require("../transactionHelpers/ContractIO");
+var FactReader_1 = require("./FactReader");
+var privateFactCommon_1 = require("./privateFactCommon");
 var EC = elliptic_1.ec;
 /**
  * Class to read private facts
@@ -87,7 +88,36 @@ var PrivateFactReader = /** @class */ (function () {
                         return [4 /*yield*/, this.decryptSecretKey(passportOwnerPrivateKeyPair, hashes, factProviderAddress, key, ipfsClient)];
                     case 2:
                         secretKey = _a.sent();
-                        return [2 /*return*/, null];
+                        return [2 /*return*/, this.decryptPrivateData(hashes.dataIpfsHash, secretKey, passportOwnerPrivateKeyPair.ec.curve, ipfsClient)];
+                }
+            });
+        });
+    };
+    /**
+     * reads encrypted data and HMAC and decrypts data using provided secret keyring material and elliptic curve.
+     * Default elliptic curve is used if it's nil.
+     * @param dataIpfsHash
+     * @param secretKey
+     */
+    PrivateFactReader.prototype.decryptPrivateData = function (dataIpfsHash, secretKey, ellipticCurve, ipfsClient) {
+        return __awaiter(this, void 0, void 0, function () {
+            var skm, encryptedMsg, hmac, cryptor, decryptedData;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        skm = privateFactCommon_1.unmarshalSecretKeyringMaterial(secretKey);
+                        return [4 /*yield*/, ipfsClient.cat(dataIpfsHash + "/" + privateFactCommon_1.ipfsFileNames.encryptedMessage)];
+                    case 1:
+                        encryptedMsg = _a.sent();
+                        return [4 /*yield*/, ipfsClient.cat(dataIpfsHash + "/" + privateFactCommon_1.ipfsFileNames.messageHMAC)];
+                    case 2:
+                        hmac = _a.sent();
+                        cryptor = new cryptor_1.Cryptor(ellipticCurve);
+                        decryptedData = cryptor.decryptAuth(skm, {
+                            encryptedMsg: Array.from(new Uint8Array(encryptedMsg)),
+                            hmac: Array.from(new Uint8Array(hmac)),
+                        });
+                        return [2 /*return*/, decryptedData];
                 }
             });
         });

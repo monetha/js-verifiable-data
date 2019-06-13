@@ -3,7 +3,7 @@ import BN from 'bn.js';
 import { sha256 } from 'hash.js';
 import { concatKDF } from './kdf';
 
-const keyLength = 16;
+export const keyLength = 16;
 
 export interface ISecretKeyringMaterial {
   encryptionKey: number[];

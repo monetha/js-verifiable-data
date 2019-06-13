@@ -1,15 +1,15 @@
-import { ContractIO } from '../transactionHelpers/ContractIO';
+import { curve, ec } from 'elliptic';
 import Web3 from 'web3';
-import passportLogicAbi from '../../config/PassportLogic.json';
-import { Address } from '../models/Address';
 import { AbiItem } from 'web3-utils';
-import { FactReader, IPrivateDataHashes } from './FactReader';
-import { IIPFSClient } from '../models/IIPFSClient';
-import { ec } from 'elliptic';
+import passportLogicAbi from '../../config/PassportLogic.json';
+import { Cryptor } from '../crypto/ecies/cryptor';
 import { ECIES } from '../crypto/ecies/ecies';
-import { ellipticCurveAlg, ipfsFileNames, deriveSecretKeyringMaterial } from './privateFactCommon';
 import { constantTimeCompare } from '../crypto/utils/compare';
-import BN from 'bn.js';
+import { Address } from '../models/Address';
+import { IIPFSClient } from '../models/IIPFSClient';
+import { ContractIO } from '../transactionHelpers/ContractIO';
+import { FactReader, IPrivateDataHashes } from './FactReader';
+import { deriveSecretKeyringMaterial, ellipticCurveAlg, ipfsFileNames, unmarshalSecretKeyringMaterial } from './privateFactCommon';
 const EC = ec;
 
 /**
@@ -50,7 +50,36 @@ export class PrivateFactReader {
     });
 
     const secretKey = await this.decryptSecretKey(passportOwnerPrivateKeyPair, hashes, factProviderAddress, key, ipfsClient);
-    return null;
+
+    return this.decryptPrivateData(hashes.dataIpfsHash, secretKey, passportOwnerPrivateKeyPair.ec.curve, ipfsClient);
+  }
+
+  /**
+   * reads encrypted data and HMAC and decrypts data using provided secret keyring material and elliptic curve.
+   * Default elliptic curve is used if it's nil.
+   * @param dataIpfsHash
+   * @param secretKey
+   */
+  public async decryptPrivateData(
+    dataIpfsHash: string,
+    secretKey: number[],
+    ellipticCurve: curve.base,
+    ipfsClient: IIPFSClient,
+  ) {
+    const skm = unmarshalSecretKeyringMaterial(secretKey);
+
+    // Get encrypted message and hmac from IPFS
+    const encryptedMsg = await ipfsClient.cat(`${dataIpfsHash}/${ipfsFileNames.encryptedMessage}`);
+    const hmac = await ipfsClient.cat(`${dataIpfsHash}/${ipfsFileNames.messageHMAC}`);
+
+    const cryptor = new Cryptor(ellipticCurve);
+
+    const decryptedData = cryptor.decryptAuth(skm, {
+      encryptedMsg: Array.from(new Uint8Array(encryptedMsg)),
+      hmac: Array.from(new Uint8Array(hmac)),
+    });
+
+    return decryptedData;
   }
 
   /**

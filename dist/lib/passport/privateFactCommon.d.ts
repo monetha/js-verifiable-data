@@ -1,4 +1,4 @@
-import { ECIES } from '../crypto/ecies/ecies';
+import { ECIES, ISecretKeyringMaterial } from '../crypto/ecies/ecies';
 import { ec } from 'elliptic';
 export declare const ipfsFileNames: {
     /**
@@ -19,3 +19,7 @@ export declare function deriveSecretKeyringMaterial(ecies: ECIES, publicKey: ec.
     skm: number[];
     skmHash: number[];
 };
+/**
+ * Unmarshals secret keyring material to encryption and MAC keys
+ */
+export declare function unmarshalSecretKeyringMaterial(skm: number[]): ISecretKeyringMaterial;
