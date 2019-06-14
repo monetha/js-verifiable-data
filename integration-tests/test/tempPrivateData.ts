@@ -3,7 +3,7 @@ import chaiMoment from 'chai-moment';
 use(chaiMoment);
 
 import Web3 from 'web3';
-import { PrivateFactReader } from '../../dist/lib/proto';
+import { PrivateFactReader, PrivateFactWriter } from '../../dist/lib/proto';
 import fetch from 'node-fetch';
 
 const ethereumNetworkUrl = 'https://ropsten.infura.io/v3/1f09dda6cce44da68213cacb1ea9bb90';
@@ -48,6 +48,16 @@ describe('Private data tests', () => {
     const dataStr = Buffer.from(data).toString('utf8');
 
     expect(dataStr).to.eq(factValue);
+  });
+
+  it('Should write fact', async () => {
+    const writer = new PrivateFactWriter(web3, passportAddress);
+    const ipfsClient = new IPFSClient();
+
+    const data = await writer.setPrivateData(factProviderAddr, factKey, Array.from(Buffer.from(factValue, 'utf8')), ipfsClient);
+
+
+    expect(data).to.not.eq(null);
   });
 });
 

@@ -16,6 +16,8 @@ var PassportReader_1 = require("./passport/PassportReader");
 exports.PassportReader = PassportReader_1.PassportReader;
 var PrivateFactReader_1 = require("./passport/PrivateFactReader");
 exports.PrivateFactReader = PrivateFactReader_1.PrivateFactReader;
+var PrivateFactWriter_1 = require("./passport/PrivateFactWriter");
+exports.PrivateFactWriter = PrivateFactWriter_1.PrivateFactWriter;
 var FactHistoryReader_1 = require("./passport/FactHistoryReader");
 exports.FactHistoryReader = FactHistoryReader_1.FactHistoryReader;
 var IHistoryEvent_1 = require("./models/IHistoryEvent");
@@ -29,6 +31,7 @@ exports.default = {
     FactWriter: FactWriter_1.FactWriter,
     FactRemover: FactRemover_1.FactRemover,
     PrivateFactReader: PrivateFactReader_1.PrivateFactReader,
+    PrivateFactWriter: PrivateFactWriter_1.PrivateFactWriter,
     Permissions: Permissions_1.Permissions,
     FactHistoryReader: FactHistoryReader_1.FactHistoryReader,
     EventType: IHistoryEvent_1.EventType,

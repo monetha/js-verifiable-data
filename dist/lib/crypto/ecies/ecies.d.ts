@@ -12,6 +12,7 @@ export interface ISecretKeyringMaterial {
 export declare class ECIES {
     private privateKeyPair;
     constructor(privateKeyPair: ec.KeyPair);
+    static createGenerated(ellipticCurve: ec): ECIES;
     /**
      * derives secret keyring material by computing shared secret from private and public keys and
      * passing it as a parameter to the KDF.

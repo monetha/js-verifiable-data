@@ -10,6 +10,10 @@ var ECIES = /** @class */ (function () {
     function ECIES(privateKeyPair) {
         this.privateKeyPair = privateKeyPair;
     }
+    ECIES.createGenerated = function (ellipticCurve) {
+        var keyPair = ellipticCurve.genKeyPair();
+        return new ECIES(keyPair);
+    };
     /**
      * derives secret keyring material by computing shared secret from private and public keys and
      * passing it as a parameter to the KDF.

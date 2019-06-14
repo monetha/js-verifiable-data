@@ -40,6 +40,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
+var getTxData_1 = require("../utils/getTxData");
+var ethereumjs_util_1 = __importDefault(require("ethereumjs-util"));
+var ethereumjs_tx_1 = __importDefault(require("ethereumjs-tx"));
+var bn_js_1 = __importDefault(require("bn.js"));
 /**
  * Class to change passport ownership
  */
@@ -63,7 +67,69 @@ var PassportOwnership = /** @class */ (function () {
     PassportOwnership.prototype.getOwnerAddress = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.contract.readData('owner', [])];
+                return [2 /*return*/, this.contract.getContract().methods.owner().call()];
+            });
+        });
+    };
+    /**
+     * Returns passport owner public key. Owner must claim ownership of the passport,
+     * before this method can be invoked.
+     */
+    PassportOwnership.prototype.getOwnerPublicKey = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var ownerAddress, transferredEvent, web3, txInfo, tx, ethTx;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getOwnerAddress()];
+                    case 1:
+                        ownerAddress = _a.sent();
+                        if (!ownerAddress) {
+                            throw new Error('The ownership for this passport has not been claimed yet');
+                        }
+                        return [4 /*yield*/, this.getFirstOwnershipTransferredEvent(ownerAddress)];
+                    case 2:
+                        transferredEvent = _a.sent();
+                        if (!transferredEvent) {
+                            throw new Error('Failed to get ownership transfer event');
+                        }
+                        web3 = this.contract.getWeb3();
+                        return [4 /*yield*/, getTxData_1.getTxData(transferredEvent.transactionHash, web3)];
+                    case 3:
+                        txInfo = _a.sent();
+                        tx = txInfo.tx;
+                        ethTx = new ethereumjs_tx_1.default({
+                            nonce: tx.nonce,
+                            gasPrice: ethereumjs_util_1.default.bufferToHex(new bn_js_1.default(tx.gasPrice).toBuffer()),
+                            gasLimit: tx.gas,
+                            to: tx.to,
+                            value: ethereumjs_util_1.default.bufferToHex(new bn_js_1.default(tx.value).toBuffer()),
+                            data: tx.input,
+                            r: tx.r,
+                            s: tx.s,
+                            v: tx.v,
+                        });
+                        return [2 /*return*/, Array.from(ethTx.getSenderPublicKey())];
+                }
+            });
+        });
+    };
+    PassportOwnership.prototype.getFirstOwnershipTransferredEvent = function (newOwnerAddress) {
+        return __awaiter(this, void 0, void 0, function () {
+            var events;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.contract.getContract().getPastEvents('OwnershipTransferred', {
+                            // TODO: We need to somehow get passport contract creation block address to scan from to increase performance
+                            fromBlock: 0,
+                            filter: {
+                                previousOwner: null,
+                                newOwner: newOwnerAddress,
+                            },
+                        })];
+                    case 1:
+                        events = _a.sent();
+                        return [2 /*return*/, events.find(function (e) { return e && !e.removed; })];
+                }
             });
         });
     };

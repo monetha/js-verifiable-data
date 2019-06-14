@@ -1,4 +1,4 @@
-import { ec } from 'elliptic';
+import { ec, } from 'elliptic';
 import BN from 'bn.js';
 import { sha256 } from 'hash.js';
 import { concatKDF } from './kdf';
@@ -18,6 +18,11 @@ export class ECIES {
 
   public constructor(privateKeyPair: ec.KeyPair) {
     this.privateKeyPair = privateKeyPair;
+  }
+
+  public static createGenerated(ellipticCurve: ec) {
+    const keyPair = ellipticCurve.genKeyPair();
+    return new ECIES(keyPair);
   }
 
   /**

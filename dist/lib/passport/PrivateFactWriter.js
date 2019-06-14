@@ -42,10 +42,9 @@ var elliptic_1 = require("elliptic");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 var cryptor_1 = require("../crypto/ecies/cryptor");
 var ecies_1 = require("../crypto/ecies/ecies");
-var compare_1 = require("../crypto/utils/compare");
 var ContractIO_1 = require("../transactionHelpers/ContractIO");
-var FactReader_1 = require("./FactReader");
 var privateFactCommon_1 = require("./privateFactCommon");
+var PassportOwnership_js_1 = require("./PassportOwnership.js");
 var EC = elliptic_1.ec;
 /**
  * Class to write private facts
@@ -54,7 +53,7 @@ var PrivateFactWriter = /** @class */ (function () {
     function PrivateFactWriter(web3, passportAddress) {
         this.ec = new EC(privateFactCommon_1.ellipticCurveAlg);
         this.contractIO = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
-        this.reader = new FactReader_1.FactReader(web3, null, passportAddress);
+        this.ownership = new PassportOwnership_js_1.PassportOwnership(web3, passportAddress);
     }
     Object.defineProperty(PrivateFactWriter.prototype, "web3", {
         get: function () { return this.contractIO.getWeb3(); },
@@ -69,68 +68,23 @@ var PrivateFactWriter = /** @class */ (function () {
     /**
      * Encrypts private data, adds encrypted content to IPFS and then writes hashes of encrypted data to passport in Ethereum network.
      */
-    PrivateFactWriter.prototype.setPrivateData = function (key, data, ipfsClient) {
+    PrivateFactWriter.prototype.setPrivateData = function (factProviderAddress, key, data, ipfsClient) {
         return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/];
-            });
-        });
-    };
-    /**
-     * reads encrypted data and HMAC and decrypts data using provided secret keyring material and elliptic curve.
-     * Default elliptic curve is used if it's nil.
-     * @param dataIpfsHash
-     * @param secretKey
-     */
-    PrivateFactWriter.prototype.decryptPrivateData = function (dataIpfsHash, secretKey, ellipticCurve, ipfsClient) {
-        return __awaiter(this, void 0, void 0, function () {
-            var skm, encryptedMsg, hmac, cryptor, decryptedData;
+            var pubKeyBytes, ecies, pubKeyPair, skmData, skm, cryptor, encryptedMsg;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        skm = privateFactCommon_1.unmarshalSecretKeyringMaterial(secretKey);
-                        return [4 /*yield*/, ipfsClient.cat(dataIpfsHash + "/" + privateFactCommon_1.ipfsFileNames.encryptedMessage)];
+                    case 0: return [4 /*yield*/, this.ownership.getOwnerPublicKey()];
                     case 1:
-                        encryptedMsg = _a.sent();
-                        return [4 /*yield*/, ipfsClient.cat(dataIpfsHash + "/" + privateFactCommon_1.ipfsFileNames.messageHMAC)];
-                    case 2:
-                        hmac = _a.sent();
-                        cryptor = new cryptor_1.Cryptor(ellipticCurve);
-                        decryptedData = cryptor.decryptAuth(skm, {
-                            encryptedMsg: Array.from(new Uint8Array(encryptedMsg)),
-                            hmac: Array.from(new Uint8Array(hmac)),
-                        });
-                        return [2 /*return*/, decryptedData];
-                }
-            });
-        });
-    };
-    /**
-     * Gets ephemeral public key from IPFS and derives secret key using passport owner private key.
-     * @param passportOwnerPrivateKeyPair
-     * @param factProviderHashes
-     * @param factProviderAddress
-     * @param key
-     * @param ipfsClient
-     */
-    PrivateFactWriter.prototype.decryptSecretKey = function (passportOwnerPrivateKeyPair, factProviderHashes, factProviderAddress, key, ipfsClient) {
-        return __awaiter(this, void 0, void 0, function () {
-            var pubKeyBuff, pubKeyBytes, pubKeyPair, ecies, skmData;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, ipfsClient.cat(factProviderHashes.dataIpfsHash + "/" + privateFactCommon_1.ipfsFileNames.publicKey)];
-                    case 1:
-                        pubKeyBuff = _a.sent();
-                        pubKeyBytes = Array.from(new Uint8Array(pubKeyBuff));
+                        pubKeyBytes = _a.sent();
+                        ecies = ecies_1.ECIES.createGenerated(this.ec);
                         pubKeyPair = this.ec.keyPair({
                             pub: pubKeyBytes,
                         });
-                        ecies = new ecies_1.ECIES(passportOwnerPrivateKeyPair);
                         skmData = privateFactCommon_1.deriveSecretKeyringMaterial(ecies, pubKeyPair, this.passportAddress, factProviderAddress, key);
-                        if (!compare_1.constantTimeCompare(Array.from(Buffer.from(factProviderHashes.dataKeyHash.replace('0x', ''), 'hex')), skmData.skmHash)) {
-                            throw new Error('Invalid passport owner key');
-                        }
-                        return [2 /*return*/, skmData.skm];
+                        skm = privateFactCommon_1.unmarshalSecretKeyringMaterial(skmData.skm);
+                        cryptor = new cryptor_1.Cryptor(this.ec.curve);
+                        encryptedMsg = cryptor.encryptAuth(skm, data);
+                        return [2 /*return*/];
                 }
             });
         });
