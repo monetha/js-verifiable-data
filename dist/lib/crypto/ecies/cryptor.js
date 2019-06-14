@@ -39,6 +39,19 @@ var Cryptor = /** @class */ (function () {
         }
         return aes_1.aesDecrypt(skm.encryptionKey, encAuthMsg.encryptedMsg);
     };
+    /**
+     * EncryptAuth encrypts message using provided secret keyring material and returns encrypted message with the HMAC.
+     * s2 contains shared information that is not part of the resulting ciphertext, it's fed into the MAC. If the
+     * shared information parameters aren't being used, they should not be provided.
+     */
+    Cryptor.prototype.encryptAuth = function (skm, msg, s2) {
+        var encryptedMsg = aes_1.aesEncrypt(skm.encryptionKey, msg);
+        var tag = hmac_1.getMessageTag(this.params.hasherConstr, skm.macKey, encryptedMsg, s2);
+        return {
+            encryptedMsg: encryptedMsg,
+            hmac: tag,
+        };
+    };
     return Cryptor;
 }());
 exports.Cryptor = Cryptor;

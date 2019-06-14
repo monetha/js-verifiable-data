@@ -46,6 +46,7 @@
 		"ethereumjs-wallet": "^0.6.0",
 		"hash.js": "^1.1.7",
 		"keccak256": "^1.0.0",
+		"secure-random": "^1.1.2",
 		"web3": "^1.0.0-beta.55"
 	},
 	"repository": {

@@ -4,9 +4,9 @@ import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
 import { IPrivateDataHashes } from './FactReader';
 /**
- * Class to read private facts
+ * Class to write private facts
  */
-export declare class PrivateFactReader {
+export declare class PrivateFactWriter {
     private contractIO;
     private reader;
     private ec;
@@ -14,13 +14,9 @@ export declare class PrivateFactReader {
     private readonly passportAddress;
     constructor(web3: Web3, passportAddress: Address);
     /**
-     * Decrypts secret key using passport owner key and then decrypts private data using decrypted secret key
-     * @param passportOwnerPrivateKey
-     * @param factProviderAddress
-     * @param key
-     * @param ipfsClient
+     * Encrypts private data, adds encrypted content to IPFS and then writes hashes of encrypted data to passport in Ethereum network.
      */
-    getPrivateData(passportOwnerPrivateKey: string, factProviderAddress: Address, key: string, ipfsClient: IIPFSClient): Promise<number[]>;
+    setPrivateData(key: string, data: number[], ipfsClient: IIPFSClient): Promise<void>;
     /**
      * reads encrypted data and HMAC and decrypts data using provided secret keyring material and elliptic curve.
      * Default elliptic curve is used if it's nil.

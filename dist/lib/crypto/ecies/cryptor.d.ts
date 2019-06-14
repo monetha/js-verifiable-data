@@ -12,6 +12,12 @@ export declare class Cryptor {
      * s2 contains shared information that is not part of the ciphertext, it's fed into the MAC. If the
      * shared information parameters aren't being used, they should not be provided.
      */
-    decryptAuth(skm: ISecretKeyringMaterial, encAuthMsg: IEncryptedAuthenticatedMessage, s2?: number[]): any;
+    decryptAuth(skm: ISecretKeyringMaterial, encAuthMsg: IEncryptedAuthenticatedMessage, s2?: number[]): number[];
+    /**
+     * EncryptAuth encrypts message using provided secret keyring material and returns encrypted message with the HMAC.
+     * s2 contains shared information that is not part of the resulting ciphertext, it's fed into the MAC. If the
+     * shared information parameters aren't being used, they should not be provided.
+     */
+    encryptAuth(skm: ISecretKeyringMaterial, msg: number[], s2?: number[]): IEncryptedAuthenticatedMessage;
 }
 export {};
