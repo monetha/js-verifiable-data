@@ -38,12 +38,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
+var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var getTxData_1 = require("../utils/getTxData");
-var ethereumjs_util_1 = __importDefault(require("ethereumjs-util"));
-var ethereumjs_tx_1 = __importDefault(require("ethereumjs-tx"));
-var bn_js_1 = __importDefault(require("bn.js"));
 /**
  * Class to change passport ownership
  */
@@ -77,7 +74,7 @@ var PassportOwnership = /** @class */ (function () {
      */
     PassportOwnership.prototype.getOwnerPublicKey = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var ownerAddress, transferredEvent, web3, txInfo, tx, ethTx;
+            var ownerAddress, transferredEvent, web3, txInfo, tx;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.getOwnerAddress()];
@@ -97,18 +94,7 @@ var PassportOwnership = /** @class */ (function () {
                     case 3:
                         txInfo = _a.sent();
                         tx = txInfo.tx;
-                        ethTx = new ethereumjs_tx_1.default({
-                            nonce: tx.nonce,
-                            gasPrice: ethereumjs_util_1.default.bufferToHex(new bn_js_1.default(tx.gasPrice).toBuffer()),
-                            gasLimit: tx.gas,
-                            to: tx.to,
-                            value: ethereumjs_util_1.default.bufferToHex(new bn_js_1.default(tx.value).toBuffer()),
-                            data: tx.input,
-                            r: tx.r,
-                            s: tx.s,
-                            v: tx.v,
-                        });
-                        return [2 /*return*/, Array.from(ethTx.getSenderPublicKey())];
+                        return [2 /*return*/, Array.from(getTxData_1.getSenderPublicKey(tx))];
                 }
             });
         });

@@ -1,13 +1,10 @@
-import { ContractIO } from '../transactionHelpers/ContractIO';
-import { Address } from '../models/Address';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import passportLogicAbi from '../../config/PassportLogic.json';
+import { Address } from '../models/Address';
+import { ContractIO } from '../transactionHelpers/ContractIO';
 import { PassportLogic } from '../types/web3-contracts/PassportLogic';
-import { getTxData } from '../utils/getTxData';
-import ethUtil, { ecrecover } from 'ethereumjs-util';
-import EthTx from 'ethereumjs-tx';
-import BN from 'bn.js';
+import { getSenderPublicKey, getTxData } from '../utils/getTxData';
 
 /**
  * Class to change passport ownership
@@ -52,19 +49,7 @@ export class PassportOwnership {
     const txInfo = await getTxData(transferredEvent.transactionHash, web3);
     const { tx } = txInfo;
 
-    const ethTx = new EthTx({
-      nonce: tx.nonce,
-      gasPrice: ethUtil.bufferToHex(new BN(tx.gasPrice).toBuffer()),
-      gasLimit: tx.gas,
-      to: tx.to,
-      value: ethUtil.bufferToHex(new BN(tx.value).toBuffer()),
-      data: tx.input,
-      r: (tx as any).r,
-      s: (tx as any).s,
-      v: (tx as any).v,
-    });
-
-    return Array.from(ethTx.getSenderPublicKey());
+    return Array.from(getSenderPublicKey(tx as any));
   }
 
   private async getFirstOwnershipTransferredEvent(newOwnerAddress: string) {

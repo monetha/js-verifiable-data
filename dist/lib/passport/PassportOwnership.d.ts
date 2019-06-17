@@ -1,5 +1,5 @@
-import { Address } from '../models/Address';
 import Web3 from 'web3';
+import { Address } from '../models/Address';
 /**
  * Class to change passport ownership
  */
@@ -9,7 +9,7 @@ export declare class PassportOwnership {
     /**
      * After the passport is created, the owner must call this method to become a full passport owner
      */
-    claimOwnership(passportOwnerAddress: Address): Promise<import("../models/IRawTX").IRawTX>;
+    claimOwnership(passportOwnerAddress: Address): Promise<import("../models/IRawTX.js").IRawTX>;
     /**
      * Returns passport owner address
      */

@@ -14,7 +14,7 @@ const factProviderAddr = '0xd84083bBaEa544d446b081B7DEe2c9Fd1e5b4463';
 const passportOwnerKey = 'e8b43cd0fdaab9453039659e9d772c34594fda0feed8a5b327adc4682ea3ac18';
 const factKey = 'secret_message';
 const factValue = 'my secret';
-const INFURA_IPFS_API_URL = 'https://cloudflare-ipfs.com';
+const INFURA_IPFS_API_URL = 'https://ipfs.monetha.io';
 
 /*
 FACT WRITE LOG
@@ -55,7 +55,6 @@ describe('Private data tests', () => {
     const ipfsClient = new IPFSClient();
 
     const data = await writer.setPrivateData(factProviderAddr, factKey, Array.from(Buffer.from(factValue, 'utf8')), ipfsClient);
-
 
     expect(data).to.not.eq(null);
   });

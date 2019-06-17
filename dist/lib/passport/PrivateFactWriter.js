@@ -77,9 +77,7 @@ var PrivateFactWriter = /** @class */ (function () {
                     case 1:
                         pubKeyBytes = _a.sent();
                         ecies = ecies_1.ECIES.createGenerated(this.ec);
-                        pubKeyPair = this.ec.keyPair({
-                            pub: pubKeyBytes,
-                        });
+                        pubKeyPair = this.ec.keyFromPublic(Buffer.from(pubKeyBytes));
                         skmData = privateFactCommon_1.deriveSecretKeyringMaterial(ecies, pubKeyPair, this.passportAddress, factProviderAddress, key);
                         skm = privateFactCommon_1.unmarshalSecretKeyringMaterial(skmData.skm);
                         cryptor = new cryptor_1.Cryptor(this.ec.curve);

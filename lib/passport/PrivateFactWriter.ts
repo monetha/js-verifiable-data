@@ -45,10 +45,7 @@ export class PrivateFactWriter {
     // Create ECIES with generated keys
     const ecies = ECIES.createGenerated(this.ec);
 
-    // TODO: NOT WORKING
-    const pubKeyPair = this.ec.keyPair({
-      pub: pubKeyBytes,
-    });
+    const pubKeyPair = this.ec.keyFromPublic(Buffer.from(pubKeyBytes));
 
     // Derive SKM
     const skmData = deriveSecretKeyringMaterial(ecies, pubKeyPair, this.passportAddress, factProviderAddress, key);
@@ -58,17 +55,6 @@ export class PrivateFactWriter {
     const cryptor = new Cryptor(this.ec.curve);
     const encryptedMsg = cryptor.encryptAuth(skm, data);
 
-
-
-    // const hashes = await this.reader.getPrivateDataHashes(factProviderAddress, key);
-
-    // const passportOwnerPrivateKeyPair = this.ec.keyPair({
-    //   priv: passportOwnerPrivateKey,
-    //   privEnc: 'hex',
-    // });
-
-    // const secretKey = await this.decryptSecretKey(passportOwnerPrivateKeyPair, hashes, factProviderAddress, key, ipfsClient);
-
-    // return this.decryptPrivateData(hashes.dataIpfsHash, secretKey, passportOwnerPrivateKeyPair.ec.curve, ipfsClient);
+    //TODO: unfinished
   }
 }

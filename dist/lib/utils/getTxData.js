@@ -47,6 +47,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var abiDecoder = __importStar(require("abi-decoder"));
+var bn_js_1 = __importDefault(require("bn.js"));
+var ethereumjs_tx_1 = __importDefault(require("ethereumjs-tx"));
+var ethereumjs_util_1 = __importDefault(require("ethereumjs-util"));
+var secp256k1_1 = __importDefault(require("secp256k1"));
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 /**
  * Decodes transaction data using the transaction hash
@@ -71,3 +75,29 @@ exports.getTxData = function (txHash, web3) { return __awaiter(_this, void 0, vo
         }
     });
 }); };
+exports.getSenderPublicKey = function (tx) {
+    var ethTx = new ethereumjs_tx_1.default({
+        nonce: tx.nonce,
+        gasPrice: ethereumjs_util_1.default.bufferToHex(new bn_js_1.default(tx.gasPrice).toBuffer()),
+        gasLimit: tx.gas,
+        to: tx.to,
+        value: ethereumjs_util_1.default.bufferToHex(new bn_js_1.default(tx.value).toBuffer()),
+        data: tx.input,
+        r: tx.r,
+        s: tx.s,
+        v: tx.v,
+    });
+    var msgHash = ethTx.hash();
+    var chainId = ethTx.getChainId();
+    var v = ethereumjs_util_1.default.bufferToInt(ethTx.v);
+    if (chainId > 0) {
+        v -= chainId * 2 + 8;
+    }
+    var signature = Buffer.concat([ethereumjs_util_1.default.setLengthLeft(ethTx.r, 32), ethereumjs_util_1.default.setLengthLeft(ethTx.s, 32)], 64);
+    var recovery = v - 27;
+    if (recovery !== 0 && recovery !== 1) {
+        throw new Error('Invalid signature v value');
+    }
+    var senderPubKey = secp256k1_1.default.recover(msgHash, signature, recovery);
+    return secp256k1_1.default.publicKeyConvert(senderPubKey, false);
+};
