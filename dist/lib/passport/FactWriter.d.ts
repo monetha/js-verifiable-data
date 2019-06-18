@@ -7,7 +7,8 @@ import { IPrivateDataHashes } from './FactReader';
  */
 export declare class FactWriter {
     private contractIO;
-    private readonly web3;
+    readonly web3: Web3;
+    readonly passportAddress: string;
     constructor(web3: Web3, passportAddress: Address);
     /**
      * Writes string type fact to passport
@@ -66,6 +67,19 @@ export declare class FactWriter {
      * @param ipfs IPFS client
      */
     setIPFSData(key: string, value: any, factProviderAddress: Address, ipfs: IIPFSClient): Promise<import("../models/IRawTX").IRawTX>;
+    /**
+     * Writes private data value to IPFS by encrypting it and then storing IPFS hashes of encrypted data to passport fact.
+     * Data can be decrypted using passport owner's wallet private key or a secret key which is returned as a result of this call.
+     * @param key fact key
+     * @param value value to store privately
+     * @param ipfs IPFS client
+     */
+    setPrivateData(key: string, value: number[], factProviderAddress: Address, ipfs: IIPFSClient): Promise<{
+        dataIpfsHash: any;
+        dataKey: number[];
+        dataKeyHash: number[];
+        tx: import("../models/IRawTX").IRawTX;
+    }>;
     /**
      * Writes IPFS hash of encrypted private data and hash of data encryption key
      * @param key fact key

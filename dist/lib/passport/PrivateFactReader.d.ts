@@ -1,24 +1,20 @@
 import { curve, ec } from 'elliptic';
-import Web3 from 'web3';
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
-import { IPrivateDataHashes } from './FactReader';
+import { FactReader, IPrivateDataHashes } from './FactReader';
 /**
  * Class to read private facts
  */
 export declare class PrivateFactReader {
-    private contractIO;
     private reader;
     private ec;
-    private readonly web3;
-    private readonly passportAddress;
-    constructor(web3: Web3, passportAddress: Address);
+    constructor(factReader: FactReader);
     /**
      * Decrypts secret key using passport owner key and then decrypts private data using decrypted secret key
-     * @param passportOwnerPrivateKey
-     * @param factProviderAddress
-     * @param key
-     * @param ipfsClient
+     * @param passportOwnerPrivateKey private passport owner wallet key in hex, used for data decryption
+     * @param factProviderAddress fact provider to read fact for
+     * @param key fact key
+     * @param ipfs IPFS client
      */
     getPrivateData(passportOwnerPrivateKey: string, factProviderAddress: Address, key: string, ipfsClient: IIPFSClient): Promise<number[]>;
     /**

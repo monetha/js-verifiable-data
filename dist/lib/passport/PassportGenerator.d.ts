@@ -6,5 +6,5 @@ export declare class PassportGenerator {
     /**
      * Creates an empty passport and returns its address
      */
-    createPassport(factProviderAddress: Address): Promise<import("../models/IRawTX").IRawTX>;
+    createPassport(ownerAddress: Address): Promise<import("../models/IRawTX").IRawTX>;
 }

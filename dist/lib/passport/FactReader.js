@@ -42,6 +42,7 @@ var fetchEvents_1 = require("../utils/fetchEvents");
 var getTxData_1 = require("../utils/getTxData");
 var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
+var PrivateFactReader_1 = require("./PrivateFactReader");
 // #endregion
 /**
  * Class to read latest facts from the passport
@@ -220,6 +221,22 @@ var FactReader = /** @class */ (function () {
                         // Get hash
                         return [2 /*return*/, ipfs.cat(hash)];
                 }
+            });
+        });
+    };
+    /**
+     * Read private data fact value using IPFS by decrypting it using passport owner private key.
+     * @param factProviderAddress fact provider to read fact for
+     * @param key fact key
+     * @param passportOwnerPrivateKey private passport owner wallet key in hex, used for data decryption
+     * @param ipfs IPFS client
+     */
+    FactReader.prototype.getPrivateData = function (factProviderAddress, key, passportOwnerPrivateKey, ipfs) {
+        return __awaiter(this, void 0, void 0, function () {
+            var privateReader;
+            return __generator(this, function (_a) {
+                privateReader = new PrivateFactReader_1.PrivateFactReader(this);
+                return [2 /*return*/, privateReader.getPrivateData(passportOwnerPrivateKey, factProviderAddress, key, ipfs)];
             });
         });
     };

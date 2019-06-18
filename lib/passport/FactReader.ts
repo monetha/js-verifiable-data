@@ -7,6 +7,7 @@ import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import passportLogicAbi from '../../config/PassportLogic.json';
 import { PassportLogic } from '../types/web3-contracts/PassportLogic';
+import { PrivateFactReader } from './PrivateFactReader';
 
 // #region -------------- Interfaces -------------------------------------------------------------------
 
@@ -32,8 +33,8 @@ export class FactReader {
   private contractIO: ContractIO<PassportLogic>;
   private ethNetworkUrl: string;
 
-  private get web3() { return this.contractIO.getWeb3(); }
-  private get passportAddress() { return this.contractIO.getContractAddress(); }
+  public get web3() { return this.contractIO.getWeb3(); }
+  public get passportAddress() { return this.contractIO.getContractAddress(); }
 
   constructor(web3: Web3, ethNetworkUrl: string, passportAddress: Address) {
     this.ethNetworkUrl = ethNetworkUrl;
@@ -154,6 +155,19 @@ export class FactReader {
 
     // Get hash
     return ipfs.cat(hash);
+  }
+
+  /**
+   * Read private data fact value using IPFS by decrypting it using passport owner private key.
+   * @param factProviderAddress fact provider to read fact for
+   * @param key fact key
+   * @param passportOwnerPrivateKey private passport owner wallet key in hex, used for data decryption
+   * @param ipfs IPFS client
+   */
+  public async getPrivateData(factProviderAddress: Address, key: string, passportOwnerPrivateKey: string, ipfs: IIPFSClient): Promise<number[]> {
+    const privateReader = new PrivateFactReader(this);
+
+    return privateReader.getPrivateData(passportOwnerPrivateKey, factProviderAddress, key, ipfs);
   }
 
   /**

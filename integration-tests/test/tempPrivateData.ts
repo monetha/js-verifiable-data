@@ -1,11 +1,10 @@
 import { expect, use } from 'chai';
 import chaiMoment from 'chai-moment';
 import FormData from 'form-data';
-use(chaiMoment);
-
-import Web3 from 'web3';
-import { PrivateFactReader, PrivateFactWriter } from '../../dist/lib/proto';
 import fetch from 'node-fetch';
+import Web3 from 'web3';
+import { FactReader, FactWriter } from '../../dist/lib/proto';
+use(chaiMoment);
 
 const ethereumNetworkUrl = 'https://ropsten.infura.io/v3/1f09dda6cce44da68213cacb1ea9bb90';
 const web3 = new Web3(new Web3.providers.HttpProvider(ethereumNetworkUrl));
@@ -43,20 +42,20 @@ WARN [06-11|09:50:05.209] Done.
 
 describe('Private data tests', () => {
   it('Should read fact', async () => {
-    const reader = new PrivateFactReader(web3, passportAddress);
+    const reader = new FactReader(web3, ethereumNetworkUrl, passportAddress);
     const ipfsClient = new IPFSClient();
 
-    const data = await reader.getPrivateData(passportOwnerKey, factProviderAddr, factKey, ipfsClient);
+    const data = await reader.getPrivateData(factProviderAddr, factKey, passportOwnerKey, ipfsClient);
     const dataStr = Buffer.from(data).toString('utf8');
 
     expect(dataStr).to.eq(factValue);
   });
 
   it('Should write fact', async () => {
-    const writer = new PrivateFactWriter(web3, passportAddress);
+    const writer = new FactWriter(web3, passportAddress);
     const ipfsClient = new IPFSClient();
 
-    const data = await writer.setPrivateData(factProviderAddr, factKey, Array.from(Buffer.from(factValue, 'utf8')), ipfsClient);
+    const data = await writer.setPrivateData(factKey, Array.from(Buffer.from(factValue, 'utf8')), factProviderAddr, ipfsClient);
 
     expect(data).to.not.eq(null);
   });

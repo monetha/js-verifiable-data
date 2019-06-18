@@ -1,34 +1,25 @@
 import { ec } from 'elliptic';
-import Web3 from 'web3';
-import { AbiItem } from 'web3-utils';
-import passportLogicAbi from '../../config/PassportLogic.json';
 import { Cryptor } from '../crypto/ecies/cryptor';
 import { ECIES } from '../crypto/ecies/ecies';
 import { Address } from '../models/Address';
 import { IIPFSAddResult, IIPFSClient } from '../models/IIPFSClient';
-import { ContractIO } from '../transactionHelpers/ContractIO';
-import { convertAddResultToLink, dagPutLinks } from '../utils/ipfs.js';
-import { PassportOwnership } from './PassportOwnership.js';
+import { convertAddResultToLink, dagPutLinks } from '../utils/ipfs';
 import { deriveSecretKeyringMaterial, ellipticCurveAlg, ipfsFileNames, unmarshalSecretKeyringMaterial } from './privateFactCommon';
-import { FactWriter } from './FactWriter.js';
+import { FactWriter } from './FactWriter';
+import { PassportOwnership } from './PassportOwnership';
 const EC = ec;
 
 /**
  * Class to write private facts
  */
 export class PrivateFactWriter {
-  private contractIO: ContractIO;
   private writer: FactWriter;
   private ownership: PassportOwnership;
   private ec = new EC(ellipticCurveAlg);
 
-  private get passportAddress() { return this.contractIO.getContractAddress(); }
-
-  constructor(web3: Web3, passportAddress: Address) {
-    this.contractIO = new ContractIO(web3, passportLogicAbi as AbiItem[], passportAddress);
-
-    this.ownership = new PassportOwnership(web3, passportAddress);
-    this.writer = new FactWriter(web3, passportAddress);
+  constructor(factWriter: FactWriter) {
+    this.ownership = new PassportOwnership(factWriter.web3, factWriter.passportAddress);
+    this.writer = factWriter;
   }
 
   /**
@@ -50,7 +41,7 @@ export class PrivateFactWriter {
     const pubKeyPair = this.ec.keyFromPublic(Buffer.from(pubKeyBytes));
 
     // Derive SKM
-    const skmData = deriveSecretKeyringMaterial(ecies, pubKeyPair, this.passportAddress, factProviderAddress, key);
+    const skmData = deriveSecretKeyringMaterial(ecies, pubKeyPair, this.writer.passportAddress, factProviderAddress, key);
     const skm = unmarshalSecretKeyringMaterial(skmData.skm);
 
     // Encrypt data

@@ -9,7 +9,7 @@ import { PrivateFactReader } from './passport/PrivateFactReader';
 import { PrivateFactWriter } from './passport/PrivateFactWriter';
 import { FactHistoryReader, IFactValue } from './passport/FactHistoryReader';
 import { EventType, DataType, IHistoryEvent } from './models/IHistoryEvent';
-import { IIPFSClient, IIPFSAddResult } from './models/IIPFSClient';
+import { IIPFSClient, IIPFSAddResult, IIPFSDag, IIPFSLink, IIPLD } from './models/IIPFSClient';
 import { IPassportRef } from './models/IPassportRef';
 
 export default {
@@ -45,4 +45,7 @@ export {
   IIPFSAddResult,
   IFactValue,
   IPassportRef,
+  IIPFSDag,
+  IIPFSLink,
+  IIPLD,
 };

@@ -7,9 +7,9 @@
   },
   "scripts": {
     "test": "./node_modules/.bin/truffle test",
-    "ganache": "docker run -d -p 8545:8545 --name ganache trufflesuite/ganache-cli:latest",
+    "ganache": "docker run -it -rm -p 8545:8545 --name ganache trufflesuite/ganache-cli:latest -m \"economy sight open cancel father goddess monkey mosquito mule village diet purpose\"",
     "ganache:stop": "docker rm ganache --force",
-    "ganache:terminal": "./node_modules/.bin/ganache-cli"
+    "ganache:terminal": "./node_modules/.bin/ganache-cli -m \"economy sight open cancel father goddess monkey mosquito mule village diet purpose\""
   },
   "author": "",
   "license": "ISC",
@@ -19,6 +19,7 @@
     "chai-bignumber": "^3.0.0",
     "chai-moment": "^0.1.0",
     "ganache-cli": "^6.4.3",
+    "hash.js": "^1.1.7",
     "mocha": "^6.1.4",
     "node-fetch": "^2.6.0",
     "openzeppelin-solidity": "^1.12.0",

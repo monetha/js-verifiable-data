@@ -28,12 +28,12 @@ export interface IIPFSLink {
   /**
    * Utf string name. should be unique per object
    */
-  Name: string;
+  Name?: string;
 
   /**
    * Cumulative size of target object
    */
-  Size: number;
+  Size?: number;
 }
 
 export interface IIPLD {

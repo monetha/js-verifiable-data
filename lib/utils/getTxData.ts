@@ -2,7 +2,6 @@ import * as abiDecoder from 'abi-decoder';
 import BN from 'bn.js';
 import EthTx from 'ethereumjs-tx';
 import ethUtil from 'ethereumjs-util';
-import secp256k1 from 'secp256k1';
 import Web3 from 'web3';
 import { RLPEncodedTransaction, Transaction } from 'web3-core';
 import passportLogicAbi from '../../config/PassportLogic.json';
@@ -42,6 +41,9 @@ export const getTxData = async (txHash: string, web3: Web3): Promise<ITxData> =>
   return result;
 };
 
+/**
+ * Gets sender's elliptic curve public key (prefixed with byte 4)
+ */
 export const getSenderPublicKey = (tx: RLPEncodedTransaction['tx']) => {
 
   const ethTx = new EthTx({
@@ -56,21 +58,6 @@ export const getSenderPublicKey = (tx: RLPEncodedTransaction['tx']) => {
     v: (tx as any).v,
   });
 
-  const msgHash = ethTx.hash();
-  const chainId: number = ethTx.getChainId() as any;
-
-  let v = ethUtil.bufferToInt(ethTx.v);
-  if (chainId > 0) {
-    v -= chainId * 2 + 8;
-  }
-
-  const signature = Buffer.concat([ethUtil.setLengthLeft(ethTx.r, 32) as Uint8Array, ethUtil.setLengthLeft(ethTx.s, 32) as Uint8Array], 64);
-
-  const recovery = v - 27;
-  if (recovery !== 0 && recovery !== 1) {
-    throw new Error('Invalid signature v value');
-  }
-
-  const senderPubKey = secp256k1.recover(msgHash, signature, recovery);
-  return secp256k1.publicKeyConvert(senderPubKey, false);
+  // To be a valid EC public key - it must be prefixed with byte 4
+  return Buffer.concat([Buffer.from([4]), ethTx.getSenderPublicKey()]);
 };

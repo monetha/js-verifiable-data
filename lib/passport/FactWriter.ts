@@ -6,6 +6,7 @@ import { AbiItem } from 'web3-utils';
 import passportLogicAbi from '../../config/PassportLogic.json';
 import { IPrivateDataHashes } from './FactReader';
 import { PassportLogic } from '../types/web3-contracts/PassportLogic';
+import { PrivateFactWriter } from './PrivateFactWriter';
 
 /**
  * Class to write facts to passport
@@ -13,7 +14,8 @@ import { PassportLogic } from '../types/web3-contracts/PassportLogic';
 export class FactWriter {
   private contractIO: ContractIO<PassportLogic>;
 
-  private get web3() { return this.contractIO.getWeb3(); }
+  public get web3() { return this.contractIO.getWeb3(); }
+  public get passportAddress() { return this.contractIO.getContractAddress(); }
 
   constructor(web3: Web3, passportAddress: Address) {
     this.contractIO = new ContractIO(web3, passportLogicAbi as AbiItem[], passportAddress);
@@ -109,6 +111,19 @@ export class FactWriter {
     }
 
     return this.set('setIPFSHash', key, result.Hash, factProviderAddress);
+  }
+
+  /**
+   * Writes private data value to IPFS by encrypting it and then storing IPFS hashes of encrypted data to passport fact.
+   * Data can be decrypted using passport owner's wallet private key or a secret key which is returned as a result of this call.
+   * @param key fact key
+   * @param value value to store privately
+   * @param ipfs IPFS client
+   */
+  public async setPrivateData(key: string, value: number[], factProviderAddress: Address, ipfs: IIPFSClient) {
+    const privateWriter = new PrivateFactWriter(this);
+
+    return privateWriter.setPrivateData(factProviderAddress, key, value, ipfs);
   }
 
   /**

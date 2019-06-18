@@ -1,13 +1,9 @@
 import { curve, ec } from 'elliptic';
-import Web3 from 'web3';
-import { AbiItem } from 'web3-utils';
-import passportLogicAbi from '../../config/PassportLogic.json';
 import { Cryptor } from '../crypto/ecies/cryptor';
 import { ECIES } from '../crypto/ecies/ecies';
 import { constantTimeCompare } from '../crypto/utils/compare';
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
-import { ContractIO } from '../transactionHelpers/ContractIO';
 import { FactReader, IPrivateDataHashes } from './FactReader';
 import { deriveSecretKeyringMaterial, ellipticCurveAlg, ipfsFileNames, unmarshalSecretKeyringMaterial } from './privateFactCommon';
 const EC = ec;
@@ -16,25 +12,19 @@ const EC = ec;
  * Class to read private facts
  */
 export class PrivateFactReader {
-  private contractIO: ContractIO;
   private reader: FactReader;
   private ec = new EC(ellipticCurveAlg);
 
-  private get web3() { return this.contractIO.getWeb3(); }
-  private get passportAddress() { return this.contractIO.getContractAddress(); }
-
-  constructor(web3: Web3, passportAddress: Address) {
-    this.contractIO = new ContractIO(web3, passportLogicAbi as AbiItem[], passportAddress);
-
-    this.reader = new FactReader(web3, null, passportAddress);
+  constructor(factReader: FactReader) {
+    this.reader = factReader;
   }
 
   /**
    * Decrypts secret key using passport owner key and then decrypts private data using decrypted secret key
-   * @param passportOwnerPrivateKey
-   * @param factProviderAddress
-   * @param key
-   * @param ipfsClient
+   * @param passportOwnerPrivateKey private passport owner wallet key in hex, used for data decryption
+   * @param factProviderAddress fact provider to read fact for
+   * @param key fact key
+   * @param ipfs IPFS client
    */
   public async getPrivateData(
     passportOwnerPrivateKey: string,
@@ -45,7 +35,7 @@ export class PrivateFactReader {
     const hashes = await this.reader.getPrivateDataHashes(factProviderAddress, key);
 
     const passportOwnerPrivateKeyPair = this.ec.keyPair({
-      priv: passportOwnerPrivateKey,
+      priv: passportOwnerPrivateKey.replace('0x', ''),
       privEnc: 'hex',
     });
 
@@ -110,7 +100,7 @@ export class PrivateFactReader {
     const ecies = new ECIES(passportOwnerPrivateKeyPair);
 
     // Derive SKM
-    const skmData = deriveSecretKeyringMaterial(ecies, pubKeyPair, this.passportAddress, factProviderAddress, key);
+    const skmData = deriveSecretKeyringMaterial(ecies, pubKeyPair, this.reader.passportAddress, factProviderAddress, key);
 
     if (!constantTimeCompare(Array.from(Buffer.from(factProviderHashes.dataKeyHash.replace('0x', ''), 'hex')), skmData.skmHash)) {
       throw new Error('Invalid passport owner key');

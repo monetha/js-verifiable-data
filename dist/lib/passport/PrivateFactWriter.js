@@ -34,35 +34,23 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var elliptic_1 = require("elliptic");
-var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 var cryptor_1 = require("../crypto/ecies/cryptor");
 var ecies_1 = require("../crypto/ecies/ecies");
-var ContractIO_1 = require("../transactionHelpers/ContractIO");
-var ipfs_js_1 = require("../utils/ipfs.js");
-var PassportOwnership_js_1 = require("./PassportOwnership.js");
+var ipfs_1 = require("../utils/ipfs");
 var privateFactCommon_1 = require("./privateFactCommon");
-var FactWriter_js_1 = require("./FactWriter.js");
+var PassportOwnership_1 = require("./PassportOwnership");
 var EC = elliptic_1.ec;
 /**
  * Class to write private facts
  */
 var PrivateFactWriter = /** @class */ (function () {
-    function PrivateFactWriter(web3, passportAddress) {
+    function PrivateFactWriter(factWriter) {
         this.ec = new EC(privateFactCommon_1.ellipticCurveAlg);
-        this.contractIO = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
-        this.ownership = new PassportOwnership_js_1.PassportOwnership(web3, passportAddress);
-        this.writer = new FactWriter_js_1.FactWriter(web3, passportAddress);
+        this.ownership = new PassportOwnership_1.PassportOwnership(factWriter.web3, factWriter.passportAddress);
+        this.writer = factWriter;
     }
-    Object.defineProperty(PrivateFactWriter.prototype, "passportAddress", {
-        get: function () { return this.contractIO.getContractAddress(); },
-        enumerable: true,
-        configurable: true
-    });
     /**
      * Encrypts private data, adds encrypted content to IPFS and then writes hashes of encrypted data to passport in Ethereum network.
      */
@@ -77,7 +65,7 @@ var PrivateFactWriter = /** @class */ (function () {
                         ecies = ecies_1.ECIES.createGenerated(this.ec);
                         ephemeralPublicKey = ecies.getPublicKey().getPublic('array');
                         pubKeyPair = this.ec.keyFromPublic(Buffer.from(pubKeyBytes));
-                        skmData = privateFactCommon_1.deriveSecretKeyringMaterial(ecies, pubKeyPair, this.passportAddress, factProviderAddress, key);
+                        skmData = privateFactCommon_1.deriveSecretKeyringMaterial(ecies, pubKeyPair, this.writer.passportAddress, factProviderAddress, key);
                         skm = privateFactCommon_1.unmarshalSecretKeyringMaterial(skmData.skm);
                         cryptor = new cryptor_1.Cryptor(this.ec.curve);
                         encryptedMsg = cryptor.encryptAuth(skm, data);
@@ -90,10 +78,10 @@ var PrivateFactWriter = /** @class */ (function () {
                         return [4 /*yield*/, ipfsClient.add(Buffer.from(encryptedMsg.hmac))];
                     case 4:
                         messageHMACAddResult = _a.sent();
-                        return [4 /*yield*/, ipfs_js_1.dagPutLinks([
-                                ipfs_js_1.convertAddResultToLink(ephemeralPublicKeyAddResult, privateFactCommon_1.ipfsFileNames.publicKey),
-                                ipfs_js_1.convertAddResultToLink(encryptedMsgAddResult, privateFactCommon_1.ipfsFileNames.encryptedMessage),
-                                ipfs_js_1.convertAddResultToLink(messageHMACAddResult, privateFactCommon_1.ipfsFileNames.messageHMAC),
+                        return [4 /*yield*/, ipfs_1.dagPutLinks([
+                                ipfs_1.convertAddResultToLink(ephemeralPublicKeyAddResult, privateFactCommon_1.ipfsFileNames.publicKey),
+                                ipfs_1.convertAddResultToLink(encryptedMsgAddResult, privateFactCommon_1.ipfsFileNames.encryptedMessage),
+                                ipfs_1.convertAddResultToLink(messageHMACAddResult, privateFactCommon_1.ipfsFileNames.messageHMAC),
                             ], ipfsClient)];
                     case 5:
                         result = _a.sent();

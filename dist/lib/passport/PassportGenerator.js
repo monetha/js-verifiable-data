@@ -47,10 +47,13 @@ var PassportGenerator = /** @class */ (function () {
     /**
      * Creates an empty passport and returns its address
      */
-    PassportGenerator.prototype.createPassport = function (factProviderAddress) {
+    PassportGenerator.prototype.createPassport = function (ownerAddress) {
         return __awaiter(this, void 0, void 0, function () {
+            var contract, tx;
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.contract.prepareCallTX('createPassport', [], factProviderAddress)];
+                contract = this.contract.getContract();
+                tx = contract.methods.createPassport();
+                return [2 /*return*/, this.contract.prepareRawTX(ownerAddress, contract.address, 0, tx)];
             });
         });
     };

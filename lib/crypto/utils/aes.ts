@@ -13,7 +13,7 @@ export function aesDecrypt(key: number[], ivPrefixedEncryptedMsg: number[]): num
   const content = ivPrefixedEncryptedMsg.slice(aesBlockSize);
 
   const ctr = new aes.ModeOfOperation.ctr(key, new aes.Counter(iv));
-  const result = ctr.decrypt(content);
+  const result = Array.from<number>(ctr.decrypt(content));
 
   return result;
 }

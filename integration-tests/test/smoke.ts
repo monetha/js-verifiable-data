@@ -1,17 +1,37 @@
 import { expect, use } from 'chai';
 import chaiMoment from 'chai-moment';
+import Web3 from 'web3';
+import { Transaction } from 'web3-core';
+import sdk, { FactReader, FactWriter } from '../../';
+import { MockIPFSClient } from '../mocks/MockIPFSClient';
 use(chaiMoment);
 
-import Web3 from 'web3';
-import sdk from '../../';
-import { Transaction } from 'web3-core';
+// Tests assume that they were run using Ganache with '-m' parameter with mnemonic below
+// mnemonic: economy sight open cancel father goddess monkey mosquito mule village diet purpose
+//
+// Private Keys
+// ==================
+const privateKeys = [
+  '0x15a2afd0ac9e9e51bf608b936e3a9ab8a3a3c4b14504e03d0325ba918c9fa46b',
+  '0x4592c4fb70300d888419148844233ae5eae4c73b3d18cfd6952e1e081b06f57c',
+  '0xe083b950a6acd10f01af569b5e6cb18ff9ba657a0f6499ddce229cf7c5a78854',
+  '0x6d46ff676b00066d02661d937cc659b5bb531be4a8abe5b570d762b2dc954325',
+  '0xb60c3d80098c4ee4980067864c0398808e007dbccf00f4521035d0bbc7d62fe6',
+  '0x3e0763e8431abf7ca61a1e3330c3be3eb6cdb2b45dc1e34e8fc505e053ef3178',
+  '0xc0f7c843fbe2e938f3d3650d4543dc961ac2b11e804047674fc221a61f1693c2',
+  '0xda8de30239f609fe2d21d1ce75335604fb79715a9e89ae1baeef05fd75cee154',
+  '0x385e61c258ee042debd606bfab24e27aadae3a4acdb07828994d27fe343249c8',
+  '0xffc607dafc5568ac460d73384ed06baa72e9268995501d048aea7ed6448a32a1',
+];
 
 let accounts;
 let monethaOwner;
 let passportOwner;
+let passportOwnerPrivateKey;
 let passportFactoryAddress;
 let passportAddress;
 let factProviderAddress;
+const mockIPFSClient = new MockIPFSClient();
 
 const ethereumNetworkUrl = 'http://127.0.0.1:8545';
 const PassportFactory = artifacts.require('PassportFactory');
@@ -27,6 +47,7 @@ before(async () => {
 
   monethaOwner = accounts[0];
   passportOwner = accounts[1];
+  passportOwnerPrivateKey = privateKeys[1];
   factProviderAddress = accounts[2];
 
   const passportLogic = await PassportLogic.new({ from: monethaOwner });
@@ -111,6 +132,21 @@ describe('Reputation js-sdk smoke tests', () => {
     txHashes.ipfs_fact = await writeAndValidateFact(writer => writer.setIPFSData('ipfs_fact', 'Value in IPFS', factProviderAddress, mockIPFSClient));
   });
 
+  it('Should be able to write PrivateDataHashes fact', async () => {
+    txHashes.privatedatahashes_fact = await writeAndValidateFact(writer => writer.setPrivateDataHashes('privatedatahashes_fact', {
+      dataIpfsHash: 'FAKE_IPFS_HASH',
+      dataKeyHash: web3.utils.fromAscii('FAKE_KEY_HASH'),
+    }, factProviderAddress));
+  });
+
+  it('Should be able to write PrivateData fact', async () => {
+    const writer = new sdk.FactWriter(web3, passportAddress);
+    const writeResult = await writer.setPrivateData('privatedata_fact', [1, 2, 3, 4, 5, 6], factProviderAddress, mockIPFSClient);
+
+    txHashes.privatedata_fact = await writeAndValidateFact(_ => writeResult.tx);
+    txHashes.privatedata_fact_datakey = writeResult.dataKey;
+  });
+
   // #endregion
 
   // #region -------------- Public Fact reading -------------------------------------------------------------------
@@ -144,7 +180,19 @@ describe('Reputation js-sdk smoke tests', () => {
   });
 
   it('Should be able to read TxData fact', async () => {
-    await readAndValidateFact(reader => reader.getTxdata(factProviderAddress, 'txdata_fact', mockIPFSClient), [1, 2, 3, 4, 5]);
+    await readAndValidateFact(reader => reader.getTxdata(factProviderAddress, 'txdata_fact'), [1, 2, 3, 4, 5]);
+  });
+
+  it('Should be able to read PrivateDataHashes fact', async () => {
+    await readAndValidateFact(reader => reader.getPrivateDataHashes(factProviderAddress, 'privatedatahashes_fact'), {
+      dataIpfsHash: 'FAKE_IPFS_HASH',
+      dataKeyHash: web3.utils.fromAscii('FAKE_KEY_HASH'),
+    });
+  });
+
+  it('Should be able to read PrivateData fact', async () => {
+    await readAndValidateFact(reader => reader.getPrivateData(
+      factProviderAddress, 'privatedata_fact', passportOwnerPrivateKey, mockIPFSClient), [1, 2, 3, 4, 5, 6]);
   });
 
   it('Should be able to read String fact from TX', async () => {
@@ -178,18 +226,6 @@ describe('Reputation js-sdk smoke tests', () => {
   it('Should be able to read IPFSData fact from TX', async () => {
     await readAndValidateTxFact(reader => reader.getIPFSData(txHashes.ipfs_fact, mockIPFSClient), 'Value in IPFS');
   });
-
-  // #endregion
-
-  // #region -------------- Private fact writing -------------------------------------------------------------------
-
-  // TODO:
-
-  // #endregion
-
-  // #region -------------- Private fact reading -------------------------------------------------------------------
-
-  // TODO:
 
   // #endregion
 
@@ -270,25 +306,9 @@ describe('Reputation js-sdk smoke tests', () => {
   // #endregion
 });
 
-// #region -------------- Mock IPFS -------------------------------------------------------------------
-
-const mockIPFSClient = {
-  add: async (path) => {
-    return {
-      name: path,
-      hash: path,
-    };
-  },
-  cat: async (path) => {
-    return path;
-  },
-};
-
-// #endregion
-
 // #region -------------- Helpers -------------------------------------------------------------------
 
-async function writeAndValidateFact(writeFact) {
+async function writeAndValidateFact(writeFact: (writer: FactWriter) => any) {
   // Given
   const writer = new sdk.FactWriter(web3, passportAddress);
 
@@ -303,7 +323,7 @@ async function writeAndValidateFact(writeFact) {
   return transaction.hash;
 }
 
-async function readAndValidateFact(readFact, expectedValue) {
+async function readAndValidateFact(readFact: (reader: FactReader) => any, expectedValue) {
   // Given
   const reader = new sdk.FactReader(web3, ethereumNetworkUrl, passportAddress);
 

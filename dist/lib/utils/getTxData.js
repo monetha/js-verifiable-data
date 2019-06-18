@@ -50,7 +50,6 @@ var abiDecoder = __importStar(require("abi-decoder"));
 var bn_js_1 = __importDefault(require("bn.js"));
 var ethereumjs_tx_1 = __importDefault(require("ethereumjs-tx"));
 var ethereumjs_util_1 = __importDefault(require("ethereumjs-util"));
-var secp256k1_1 = __importDefault(require("secp256k1"));
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 /**
  * Decodes transaction data using the transaction hash
@@ -75,6 +74,9 @@ exports.getTxData = function (txHash, web3) { return __awaiter(_this, void 0, vo
         }
     });
 }); };
+/**
+ * Gets sender's elliptic curve public key (prefixed with byte 4)
+ */
 exports.getSenderPublicKey = function (tx) {
     var ethTx = new ethereumjs_tx_1.default({
         nonce: tx.nonce,
@@ -87,17 +89,6 @@ exports.getSenderPublicKey = function (tx) {
         s: tx.s,
         v: tx.v,
     });
-    var msgHash = ethTx.hash();
-    var chainId = ethTx.getChainId();
-    var v = ethereumjs_util_1.default.bufferToInt(ethTx.v);
-    if (chainId > 0) {
-        v -= chainId * 2 + 8;
-    }
-    var signature = Buffer.concat([ethereumjs_util_1.default.setLengthLeft(ethTx.r, 32), ethereumjs_util_1.default.setLengthLeft(ethTx.s, 32)], 64);
-    var recovery = v - 27;
-    if (recovery !== 0 && recovery !== 1) {
-        throw new Error('Invalid signature v value');
-    }
-    var senderPubKey = secp256k1_1.default.recover(msgHash, signature, recovery);
-    return secp256k1_1.default.publicKeyConvert(senderPubKey, false);
+    // To be a valid EC public key - it must be prefixed with byte 4
+    return Buffer.concat([Buffer.from([4]), ethTx.getSenderPublicKey()]);
 };

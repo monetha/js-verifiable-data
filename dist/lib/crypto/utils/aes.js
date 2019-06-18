@@ -15,7 +15,7 @@ function aesDecrypt(key, ivPrefixedEncryptedMsg) {
     var iv = ivPrefixedEncryptedMsg.slice(0, aesBlockSize);
     var content = ivPrefixedEncryptedMsg.slice(aesBlockSize);
     var ctr = new aes_js_1.default.ModeOfOperation.ctr(key, new aes_js_1.default.Counter(iv));
-    var result = ctr.decrypt(content);
+    var result = Array.from(ctr.decrypt(content));
     return result;
 }
 exports.aesDecrypt = aesDecrypt;
