@@ -165,9 +165,19 @@ export class FactReader {
    * @param ipfs IPFS client
    */
   public async getPrivateData(factProviderAddress: Address, key: string, passportOwnerPrivateKey: string, ipfs: IIPFSClient): Promise<number[]> {
-    const privateReader = new PrivateFactReader(this);
+    const privateReader = new PrivateFactReader();
 
-    return privateReader.getPrivateData(passportOwnerPrivateKey, factProviderAddress, key, ipfs);
+    const hashes = await this.getPrivateDataHashes(factProviderAddress, key);
+
+    return privateReader.getPrivateData(
+      {
+        factProviderAddress,
+        passportAddress: this.passportAddress,
+        key,
+        value: hashes,
+      },
+      passportOwnerPrivateKey,
+      ipfs);
   }
 
   /**
@@ -178,9 +188,11 @@ export class FactReader {
    * @param ipfs IPFS client
    */
   public async getPrivateDataUsingSecretKey(factProviderAddress: Address, key: string, secretKey: string, ipfs: IIPFSClient): Promise<number[]> {
-    const privateReader = new PrivateFactReader(this);
+    const privateReader = new PrivateFactReader();
 
-    return privateReader.getPrivateDataUsingSecretKey(secretKey, factProviderAddress, key, ipfs);
+    const hashes = await this.getPrivateDataHashes(factProviderAddress, key);
+
+    return privateReader.getPrivateDataUsingSecretKey(hashes.dataIpfsHash, secretKey, ipfs);
   }
 
   /**

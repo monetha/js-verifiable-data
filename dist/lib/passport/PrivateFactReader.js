@@ -45,82 +45,55 @@ var EC = elliptic_1.ec;
  * Class to read private facts
  */
 var PrivateFactReader = /** @class */ (function () {
-    function PrivateFactReader(factReader) {
+    function PrivateFactReader() {
         this.ec = new EC(privateFactCommon_1.ellipticCurveAlg);
-        this.reader = factReader;
     }
     /**
      * Decrypts secret key using passport owner key and then decrypts private data using decrypted secret key
+     * @param factData fact data written in passport
      * @param passportOwnerPrivateKey private passport owner wallet key in hex, used for data decryption
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
-     * @param ipfs IPFS client
+     * @param ipfsClient IPFS client
      */
-    PrivateFactReader.prototype.getPrivateData = function (passportOwnerPrivateKey, factProviderAddress, key, ipfsClient) {
+    PrivateFactReader.prototype.getPrivateData = function (factData, passportOwnerPrivateKey, ipfsClient) {
         return __awaiter(this, void 0, void 0, function () {
-            var hashes, passportOwnerPrivateKeyPair, secretKey;
+            var passportOwnerPrivateKeyPair, secretKey;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.reader.getPrivateDataHashes(factProviderAddress, key)];
-                    case 1:
-                        hashes = _a.sent();
+                    case 0:
                         passportOwnerPrivateKeyPair = this.ec.keyPair({
                             priv: passportOwnerPrivateKey.replace('0x', ''),
                             privEnc: 'hex',
                         });
-                        return [4 /*yield*/, this.decryptSecretKey(passportOwnerPrivateKeyPair, hashes, factProviderAddress, key, ipfsClient)];
-                    case 2:
+                        return [4 /*yield*/, this.decryptSecretKey(passportOwnerPrivateKeyPair, factData.value, factData.factProviderAddress, factData.passportAddress, factData.key, ipfsClient)];
+                    case 1:
                         secretKey = _a.sent();
-                        return [2 /*return*/, this.decryptPrivateData(hashes.dataIpfsHash, secretKey, passportOwnerPrivateKeyPair.ec.curve, ipfsClient)];
+                        return [2 /*return*/, this.decryptPrivateData(factData.value.dataIpfsHash, secretKey, passportOwnerPrivateKeyPair.ec.curve, ipfsClient)];
                 }
             });
         });
     };
     /**
      * Decrypts decrypts private data using secret key
+     * @param dataIpfsHash IPFS hash where encrypted data is stored
      * @param secretKey secret key in hex, used for data decryption
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
-     * @param ipfs IPFS client
+     * @param ipfsClient IPFS client
      */
-    PrivateFactReader.prototype.getPrivateDataUsingSecretKey = function (secretKey, factProviderAddress, key, ipfsClient) {
+    PrivateFactReader.prototype.getPrivateDataUsingSecretKey = function (dataIpfsHash, secretKey, ipfsClient) {
         return __awaiter(this, void 0, void 0, function () {
-            var hashes, secretKeyArr;
+            var secretKeyArr;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.reader.getPrivateDataHashes(factProviderAddress, key)];
-                    case 1:
-                        hashes = _a.sent();
-                        secretKeyArr = Array.from(Buffer.from(secretKey.replace('0x', ''), 'hex'));
-                        return [2 /*return*/, this.decryptPrivateData(hashes.dataIpfsHash, secretKeyArr, null, ipfsClient)];
-                }
+                secretKeyArr = Array.from(Buffer.from(secretKey.replace('0x', ''), 'hex'));
+                return [2 /*return*/, this.decryptPrivateData(dataIpfsHash, secretKeyArr, null, ipfsClient)];
             });
         });
     };
-    // /**
-    //  * Decrypts secret key using passport owner key and then decrypts private data using decrypted secret key
-    //  * @param passportOwnerPrivateKey private passport owner wallet key in hex, used for data decryption
-    //  * @param factProviderAddress fact provider to read fact for
-    //  * @param key fact key
-    //  * @param ipfs IPFS client
-    //  */
-    // public async getHistoricPrivateData(
-    //   passportOwnerPrivateKey: string,
-    //   ipfsClient: IIPFSClient,
-    // ) {
-    //   const hashes = await this.reader.getPrivateDataHashes(factProviderAddress, key);
-    //   const passportOwnerPrivateKeyPair = this.ec.keyPair({
-    //     priv: passportOwnerPrivateKey.replace('0x', ''),
-    //     privEnc: 'hex',
-    //   });
-    //   const secretKey = await this.decryptSecretKey(passportOwnerPrivateKeyPair, hashes, factProviderAddress, key, ipfsClient);
-    //   return this.decryptPrivateData(hashes.dataIpfsHash, secretKey, passportOwnerPrivateKeyPair.ec.curve, ipfsClient);
-    // }
     /**
      * reads encrypted data and HMAC and decrypts data using provided secret keyring material and elliptic curve.
      * Default elliptic curve is used if it's nil.
-     * @param dataIpfsHash
-     * @param secretKey
+     * @param dataIpfsHash IPFS hash where encrypted data is stored
+     * @param secretKey secret key in hex, used for data decryption
+     * @param ellipticCurve - curve to use in encryption
+     * @param ipfsClient IPFS client
      */
     PrivateFactReader.prototype.decryptPrivateData = function (dataIpfsHash, secretKey, ellipticCurve, ipfsClient) {
         return __awaiter(this, void 0, void 0, function () {
@@ -153,7 +126,7 @@ var PrivateFactReader = /** @class */ (function () {
      * @param key
      * @param ipfsClient
      */
-    PrivateFactReader.prototype.decryptSecretKey = function (passportOwnerPrivateKeyPair, factProviderHashes, factProviderAddress, key, ipfsClient) {
+    PrivateFactReader.prototype.decryptSecretKey = function (passportOwnerPrivateKeyPair, factProviderHashes, factProviderAddress, passportAddress, key, ipfsClient) {
         return __awaiter(this, void 0, void 0, function () {
             var pubKeyBuff, pubKeyBytes, pubKeyPair, ecies, skmData;
             return __generator(this, function (_a) {
@@ -166,7 +139,7 @@ var PrivateFactReader = /** @class */ (function () {
                             pub: pubKeyBytes,
                         });
                         ecies = new ecies_1.ECIES(passportOwnerPrivateKeyPair);
-                        skmData = privateFactCommon_1.deriveSecretKeyringMaterial(ecies, pubKeyPair, this.reader.passportAddress, factProviderAddress, key);
+                        skmData = privateFactCommon_1.deriveSecretKeyringMaterial(ecies, pubKeyPair, passportAddress, factProviderAddress, key);
                         if (!compare_1.constantTimeCompare(Array.from(Buffer.from(factProviderHashes.dataKeyHash.replace('0x', ''), 'hex')), skmData.skmHash)) {
                             throw new Error('Invalid passport owner key');
                         }

@@ -233,10 +233,21 @@ var FactReader = /** @class */ (function () {
      */
     FactReader.prototype.getPrivateData = function (factProviderAddress, key, passportOwnerPrivateKey, ipfs) {
         return __awaiter(this, void 0, void 0, function () {
-            var privateReader;
+            var privateReader, hashes;
             return __generator(this, function (_a) {
-                privateReader = new PrivateFactReader_1.PrivateFactReader(this);
-                return [2 /*return*/, privateReader.getPrivateData(passportOwnerPrivateKey, factProviderAddress, key, ipfs)];
+                switch (_a.label) {
+                    case 0:
+                        privateReader = new PrivateFactReader_1.PrivateFactReader();
+                        return [4 /*yield*/, this.getPrivateDataHashes(factProviderAddress, key)];
+                    case 1:
+                        hashes = _a.sent();
+                        return [2 /*return*/, privateReader.getPrivateData({
+                                factProviderAddress: factProviderAddress,
+                                passportAddress: this.passportAddress,
+                                key: key,
+                                value: hashes,
+                            }, passportOwnerPrivateKey, ipfs)];
+                }
             });
         });
     };
@@ -249,10 +260,16 @@ var FactReader = /** @class */ (function () {
      */
     FactReader.prototype.getPrivateDataUsingSecretKey = function (factProviderAddress, key, secretKey, ipfs) {
         return __awaiter(this, void 0, void 0, function () {
-            var privateReader;
+            var privateReader, hashes;
             return __generator(this, function (_a) {
-                privateReader = new PrivateFactReader_1.PrivateFactReader(this);
-                return [2 /*return*/, privateReader.getPrivateDataUsingSecretKey(secretKey, factProviderAddress, key, ipfs)];
+                switch (_a.label) {
+                    case 0:
+                        privateReader = new PrivateFactReader_1.PrivateFactReader();
+                        return [4 /*yield*/, this.getPrivateDataHashes(factProviderAddress, key)];
+                    case 1:
+                        hashes = _a.sent();
+                        return [2 /*return*/, privateReader.getPrivateDataUsingSecretKey(hashes.dataIpfsHash, secretKey, ipfs)];
+                }
             });
         });
     };

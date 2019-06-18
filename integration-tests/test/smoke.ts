@@ -2,7 +2,7 @@ import { expect, use } from 'chai';
 import chaiMoment from 'chai-moment';
 import Web3 from 'web3';
 import { Transaction } from 'web3-core';
-import sdk, { FactReader, FactWriter } from '../../';
+import sdk, { FactReader, FactWriter, FactHistoryReader, FactRemover } from '../../';
 import { MockIPFSClient } from '../mocks/MockIPFSClient';
 use(chaiMoment);
 
@@ -230,7 +230,7 @@ describe('Reputation js-sdk smoke tests', () => {
   });
 
   it('Should be able to read TxData fact from TX', async () => {
-    await readAndValidateTxFact(reader => reader.getTxdata(txHashes.txdata_fact, mockIPFSClient), [1, 2, 3, 4, 5]);
+    await readAndValidateTxFact(reader => reader.getTxdata(txHashes.txdata_fact), [1, 2, 3, 4, 5]);
   });
 
   it('Should be able to read IPFSData fact from TX', async () => {
@@ -242,6 +242,16 @@ describe('Reputation js-sdk smoke tests', () => {
       dataIpfsHash: 'FAKE_IPFS_HASH',
       dataKeyHash: web3.utils.fromAscii('FAKE_KEY_HASH'),
     });
+  });
+
+  it('Should be able to read PrivateFact from TX using owner private key', async () => {
+    await readAndValidateTxFact(reader =>
+      reader.getPrivateData(txHashes.privatedata_fact, passportOwnerPrivateKey, mockIPFSClient), [1, 2, 3, 4, 5, 6]);
+  });
+
+  it('Should be able to read PrivateFact from TX using secret key', async () => {
+    await readAndValidateTxFact(reader =>
+      reader.getPrivateDataUsingSecretKey(txHashes.privatedata_fact, privateDataFactSecretKey, mockIPFSClient), [1, 2, 3, 4, 5, 6]);
   });
 
   // #endregion
@@ -351,7 +361,7 @@ async function readAndValidateFact(readFact: (reader: FactReader) => any, expect
   expect(response).to.deep.equal(expectedValue);
 }
 
-async function readAndValidateTxFact(readFact, expectedValue) {
+async function readAndValidateTxFact(readFact: (reader: FactHistoryReader) => any, expectedValue) {
   // Given
   const reader = new sdk.FactHistoryReader(web3);
 
@@ -365,7 +375,7 @@ async function readAndValidateTxFact(readFact, expectedValue) {
   expect(response.value).to.deep.equal(expectedValue);
 }
 
-async function deleteAndValidateFact(deleteFact) {
+async function deleteAndValidateFact(deleteFact: (remover: FactRemover) => any) {
   // Given
   const remover = new sdk.FactRemover(web3, passportAddress);
 

@@ -6,69 +6,61 @@ import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
 import { FactReader, IPrivateDataHashes } from './FactReader';
 import { deriveSecretKeyringMaterial, ellipticCurveAlg, ipfsFileNames, unmarshalSecretKeyringMaterial } from './privateFactCommon';
+import { IFactValue } from './FactHistoryReader';
 const EC = ec;
 
 /**
  * Class to read private facts
  */
 export class PrivateFactReader {
-  private reader: FactReader;
   private ec = new EC(ellipticCurveAlg);
-
-  constructor(factReader: FactReader) {
-    this.reader = factReader;
-  }
 
   /**
    * Decrypts secret key using passport owner key and then decrypts private data using decrypted secret key
+   * @param factData fact data written in passport
    * @param passportOwnerPrivateKey private passport owner wallet key in hex, used for data decryption
-   * @param factProviderAddress fact provider to read fact for
-   * @param key fact key
-   * @param ipfs IPFS client
+   * @param ipfsClient IPFS client
    */
   public async getPrivateData(
+    factData: IFactValue<IPrivateDataHashes>,
     passportOwnerPrivateKey: string,
-    factProviderAddress: Address,
-    key: string,
     ipfsClient: IIPFSClient,
   ) {
-    const hashes = await this.reader.getPrivateDataHashes(factProviderAddress, key);
 
     const passportOwnerPrivateKeyPair = this.ec.keyPair({
       priv: passportOwnerPrivateKey.replace('0x', ''),
       privEnc: 'hex',
     });
 
-    const secretKey = await this.decryptSecretKey(passportOwnerPrivateKeyPair, hashes, factProviderAddress, key, ipfsClient);
+    const secretKey = await this.decryptSecretKey(
+      passportOwnerPrivateKeyPair, factData.value, factData.factProviderAddress, factData.passportAddress, factData.key, ipfsClient);
 
-    return this.decryptPrivateData(hashes.dataIpfsHash, secretKey, passportOwnerPrivateKeyPair.ec.curve, ipfsClient);
+    return this.decryptPrivateData(factData.value.dataIpfsHash, secretKey, passportOwnerPrivateKeyPair.ec.curve, ipfsClient);
   }
 
   /**
    * Decrypts decrypts private data using secret key
+   * @param dataIpfsHash IPFS hash where encrypted data is stored
    * @param secretKey secret key in hex, used for data decryption
-   * @param factProviderAddress fact provider to read fact for
-   * @param key fact key
-   * @param ipfs IPFS client
+   * @param ipfsClient IPFS client
    */
   public async getPrivateDataUsingSecretKey(
+    dataIpfsHash: string,
     secretKey: string,
-    factProviderAddress: Address,
-    key: string,
     ipfsClient: IIPFSClient,
   ) {
-    const hashes = await this.reader.getPrivateDataHashes(factProviderAddress, key);
-
     const secretKeyArr = Array.from(Buffer.from(secretKey.replace('0x', ''), 'hex'));
 
-    return this.decryptPrivateData(hashes.dataIpfsHash, secretKeyArr, null, ipfsClient);
+    return this.decryptPrivateData(dataIpfsHash, secretKeyArr, null, ipfsClient);
   }
 
   /**
    * reads encrypted data and HMAC and decrypts data using provided secret keyring material and elliptic curve.
    * Default elliptic curve is used if it's nil.
-   * @param dataIpfsHash
-   * @param secretKey
+   * @param dataIpfsHash IPFS hash where encrypted data is stored
+   * @param secretKey secret key in hex, used for data decryption
+   * @param ellipticCurve - curve to use in encryption
+   * @param ipfsClient IPFS client
    */
   public async decryptPrivateData(
     dataIpfsHash: string,
@@ -104,6 +96,7 @@ export class PrivateFactReader {
     passportOwnerPrivateKeyPair: ec.KeyPair,
     factProviderHashes: IPrivateDataHashes,
     factProviderAddress: Address,
+    passportAddress: Address,
     key: string,
     ipfsClient: IIPFSClient,
   ) {
@@ -120,7 +113,7 @@ export class PrivateFactReader {
     const ecies = new ECIES(passportOwnerPrivateKeyPair);
 
     // Derive SKM
-    const skmData = deriveSecretKeyringMaterial(ecies, pubKeyPair, this.reader.passportAddress, factProviderAddress, key);
+    const skmData = deriveSecretKeyringMaterial(ecies, pubKeyPair, passportAddress, factProviderAddress, key);
 
     if (!constantTimeCompare(Array.from(Buffer.from(factProviderHashes.dataKeyHash.replace('0x', ''), 'hex')), skmData.skmHash)) {
       throw new Error('Invalid passport owner key');

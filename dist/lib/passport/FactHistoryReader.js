@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -36,6 +47,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var getTxData_1 = require("../utils/getTxData");
+var PrivateFactReader_1 = require("./PrivateFactReader");
 /**
  * Class to read historic facts from the passport
  */
@@ -58,6 +70,7 @@ var FactHistoryReader = /** @class */ (function () {
                         this.validateMethodSignature(methodInfo, 'setString');
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
+                                passportAddress: txInfo.tx.to,
                                 key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
                                 value: methodInfo.params[1].value,
                             }];
@@ -85,6 +98,7 @@ var FactHistoryReader = /** @class */ (function () {
                         }
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
+                                passportAddress: txInfo.tx.to,
                                 key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
                                 value: value,
                             }];
@@ -107,6 +121,7 @@ var FactHistoryReader = /** @class */ (function () {
                         this.validateMethodSignature(methodInfo, 'setAddress');
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
+                                passportAddress: txInfo.tx.to,
                                 key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
                                 value: methodInfo.params[1].value,
                             }];
@@ -129,6 +144,7 @@ var FactHistoryReader = /** @class */ (function () {
                         this.validateMethodSignature(methodInfo, 'setUint');
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
+                                passportAddress: txInfo.tx.to,
                                 key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
                                 value: parseInt(methodInfo.params[1].value, 10),
                             }];
@@ -151,6 +167,7 @@ var FactHistoryReader = /** @class */ (function () {
                         this.validateMethodSignature(methodInfo, 'setInt');
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
+                                passportAddress: txInfo.tx.to,
                                 key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
                                 value: parseInt(methodInfo.params[1].value, 10),
                             }];
@@ -173,6 +190,7 @@ var FactHistoryReader = /** @class */ (function () {
                         this.validateMethodSignature(methodInfo, 'setBool');
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
+                                passportAddress: txInfo.tx.to,
                                 key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
                                 value: methodInfo.params[1].value,
                             }];
@@ -195,6 +213,7 @@ var FactHistoryReader = /** @class */ (function () {
                         this.validateMethodSignature(methodInfo, 'setTxDataBlockNumber');
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
+                                passportAddress: txInfo.tx.to,
                                 key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
                                 value: this.web3.utils.hexToBytes(methodInfo.params[1].value),
                             }];
@@ -220,11 +239,62 @@ var FactHistoryReader = /** @class */ (function () {
                         this.validateMethodSignature(methodInfo, 'setIPFSHash');
                         _a = {
                             factProviderAddress: txInfo.tx.from,
+                            passportAddress: txInfo.tx.to,
                             key: this.bytesToUnpaddedAscii(methodInfo.params[0].value)
                         };
                         return [4 /*yield*/, ipfs.cat(methodInfo.params[1].value)];
                     case 2: return [2 /*return*/, (_a.value = _b.sent(),
                             _a)];
+                }
+            });
+        });
+    };
+    /**
+     * Read decrypted private data fact from transaction.
+     * Fact value is retrieved by IPFS hash from transaction data and decrypted using passport owner private key.
+     *
+     * @param passportOwnerPrivateKey private passport owner wallet key in hex, used for data decryption
+     * @param ipfs IPFS client
+     */
+    FactHistoryReader.prototype.getPrivateData = function (txHash, passportOwnerPrivateKey, ipfs) {
+        return __awaiter(this, void 0, void 0, function () {
+            var factData, privateReader, privateData, decryptedFactData;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getPrivateDataHashes(txHash)];
+                    case 1:
+                        factData = _a.sent();
+                        privateReader = new PrivateFactReader_1.PrivateFactReader();
+                        return [4 /*yield*/, privateReader.getPrivateData(factData, passportOwnerPrivateKey, ipfs)];
+                    case 2:
+                        privateData = _a.sent();
+                        decryptedFactData = __assign({}, factData, { value: privateData });
+                        return [2 /*return*/, decryptedFactData];
+                }
+            });
+        });
+    };
+    /**
+     * Read decrypted private data fact from transaction.
+     * Fact value is retrieved by IPFS hash from transaction data and decrypted using secret key.
+     *
+     * @param secretKey secret key in hex, used for data decryption
+     * @param ipfs IPFS client
+     */
+    FactHistoryReader.prototype.getPrivateDataUsingSecretKey = function (txHash, secretKey, ipfs) {
+        return __awaiter(this, void 0, void 0, function () {
+            var factData, privateReader, privateData, decryptedFactData;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getPrivateDataHashes(txHash)];
+                    case 1:
+                        factData = _a.sent();
+                        privateReader = new PrivateFactReader_1.PrivateFactReader();
+                        return [4 /*yield*/, privateReader.getPrivateDataUsingSecretKey(factData.value.dataIpfsHash, secretKey, ipfs)];
+                    case 2:
+                        privateData = _a.sent();
+                        decryptedFactData = __assign({}, factData, { value: privateData });
+                        return [2 /*return*/, decryptedFactData];
                 }
             });
         });
@@ -244,6 +314,7 @@ var FactHistoryReader = /** @class */ (function () {
                         this.validateMethodSignature(methodInfo, 'setPrivateDataHashes');
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
+                                passportAddress: txInfo.tx.to,
                                 key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
                                 value: {
                                     dataIpfsHash: methodInfo.params[1].value,

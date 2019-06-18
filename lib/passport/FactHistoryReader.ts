@@ -2,9 +2,11 @@ import { IIPFSClient } from '../models/IIPFSClient';
 import { getTxData, IMethodInfo } from '../utils/getTxData';
 import Web3 from 'web3';
 import { IPrivateDataHashes } from './FactReader';
+import { PrivateFactReader } from './PrivateFactReader';
 
 export interface IFactValue<TValue> {
   factProviderAddress: string;
+  passportAddress: string;
   key: string;
   value: TValue;
 }
@@ -31,6 +33,7 @@ export class FactHistoryReader {
 
     return {
       factProviderAddress: txInfo.tx.from,
+      passportAddress: txInfo.tx.to,
       key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
       value: methodInfo.params[1].value,
     };
@@ -53,6 +56,7 @@ export class FactHistoryReader {
 
     return {
       factProviderAddress: txInfo.tx.from,
+      passportAddress: txInfo.tx.to,
       key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
       value,
     };
@@ -69,6 +73,7 @@ export class FactHistoryReader {
 
     return {
       factProviderAddress: txInfo.tx.from,
+      passportAddress: txInfo.tx.to,
       key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
       value: methodInfo.params[1].value,
     };
@@ -85,6 +90,7 @@ export class FactHistoryReader {
 
     return {
       factProviderAddress: txInfo.tx.from,
+      passportAddress: txInfo.tx.to,
       key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
       value: parseInt(methodInfo.params[1].value, 10),
     };
@@ -101,6 +107,7 @@ export class FactHistoryReader {
 
     return {
       factProviderAddress: txInfo.tx.from,
+      passportAddress: txInfo.tx.to,
       key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
       value: parseInt(methodInfo.params[1].value, 10),
     };
@@ -117,6 +124,7 @@ export class FactHistoryReader {
 
     return {
       factProviderAddress: txInfo.tx.from,
+      passportAddress: txInfo.tx.to,
       key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
       value: methodInfo.params[1].value as any,
     };
@@ -133,6 +141,7 @@ export class FactHistoryReader {
 
     return {
       factProviderAddress: txInfo.tx.from,
+      passportAddress: txInfo.tx.to,
       key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
       value: this.web3.utils.hexToBytes(methodInfo.params[1].value),
     };
@@ -152,9 +161,60 @@ export class FactHistoryReader {
 
     return {
       factProviderAddress: txInfo.tx.from,
+      passportAddress: txInfo.tx.to,
       key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
       value: await ipfs.cat(methodInfo.params[1].value),
     };
+  }
+
+  /**
+   * Read decrypted private data fact from transaction.
+   * Fact value is retrieved by IPFS hash from transaction data and decrypted using passport owner private key.
+   *
+   * @param passportOwnerPrivateKey private passport owner wallet key in hex, used for data decryption
+   * @param ipfs IPFS client
+   */
+  public async getPrivateData(txHash: string, passportOwnerPrivateKey: string, ipfs: IIPFSClient): Promise<IFactValue<number[]>> {
+    const factData = await this.getPrivateDataHashes(txHash);
+
+    const privateReader = new PrivateFactReader();
+
+    const privateData = await privateReader.getPrivateData(
+      factData,
+      passportOwnerPrivateKey,
+      ipfs);
+
+    const decryptedFactData: IFactValue<number[]> = {
+      ...factData,
+      value: privateData,
+    };
+
+    return decryptedFactData;
+  }
+
+  /**
+   * Read decrypted private data fact from transaction.
+   * Fact value is retrieved by IPFS hash from transaction data and decrypted using secret key.
+   *
+   * @param secretKey secret key in hex, used for data decryption
+   * @param ipfs IPFS client
+   */
+  public async getPrivateDataUsingSecretKey(txHash: string, secretKey: string, ipfs: IIPFSClient): Promise<IFactValue<number[]>> {
+    const factData = await this.getPrivateDataHashes(txHash);
+
+    const privateReader = new PrivateFactReader();
+
+    const privateData = await privateReader.getPrivateDataUsingSecretKey(
+      factData.value.dataIpfsHash,
+      secretKey,
+      ipfs);
+
+    const decryptedFactData: IFactValue<number[]> = {
+      ...factData,
+      value: privateData,
+    };
+
+    return decryptedFactData;
   }
 
   /**
@@ -168,6 +228,7 @@ export class FactHistoryReader {
 
     return {
       factProviderAddress: txInfo.tx.from,
+      passportAddress: txInfo.tx.to,
       key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
       value: {
         dataIpfsHash: methodInfo.params[1].value,
