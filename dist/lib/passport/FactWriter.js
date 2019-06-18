@@ -161,10 +161,10 @@ var FactWriter = /** @class */ (function () {
                         if (Array.isArray(result)) {
                             result = result[0];
                         }
-                        if (!result || !result.hash) {
+                        if (!result || !result.Hash) {
                             throw new Error('Returned result from IPFS file adding is not as expected. Result object should contain property "hash"');
                         }
-                        return [2 /*return*/, this.set('setIPFSHash', key, result.hash, factProviderAddress)];
+                        return [2 /*return*/, this.set('setIPFSHash', key, result.Hash, factProviderAddress)];
                 }
             });
         });

@@ -102,11 +102,11 @@ export class FactWriter {
       result = result[0];
     }
 
-    if (!result || !result.hash) {
+    if (!result || !result.Hash) {
       throw new Error('Returned result from IPFS file adding is not as expected. Result object should contain property "hash"');
     }
 
-    return this.set('setIPFSHash', key, result.hash, factProviderAddress);
+    return this.set('setIPFSHash', key, result.Hash, factProviderAddress);
   }
 
   private async set(method: string, key: string, value: any, factProviderAddress: Address) {

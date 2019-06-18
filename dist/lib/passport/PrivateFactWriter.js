@@ -43,8 +43,9 @@ var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.j
 var cryptor_1 = require("../crypto/ecies/cryptor");
 var ecies_1 = require("../crypto/ecies/ecies");
 var ContractIO_1 = require("../transactionHelpers/ContractIO");
-var privateFactCommon_1 = require("./privateFactCommon");
+var ipfs_js_1 = require("../utils/ipfs.js");
 var PassportOwnership_js_1 = require("./PassportOwnership.js");
+var privateFactCommon_1 = require("./privateFactCommon");
 var EC = elliptic_1.ec;
 /**
  * Class to write private facts
@@ -70,18 +71,36 @@ var PrivateFactWriter = /** @class */ (function () {
      */
     PrivateFactWriter.prototype.setPrivateData = function (factProviderAddress, key, data, ipfsClient) {
         return __awaiter(this, void 0, void 0, function () {
-            var pubKeyBytes, ecies, pubKeyPair, skmData, skm, cryptor, encryptedMsg;
+            var pubKeyBytes, ecies, ephemeralPublicKey, pubKeyPair, skmData, skm, cryptor, encryptedMsg, ephemeralPublicKeyAddResult, encryptedMsgAddResult, messageHMACAddResult, result, dirHash;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.ownership.getOwnerPublicKey()];
                     case 1:
                         pubKeyBytes = _a.sent();
                         ecies = ecies_1.ECIES.createGenerated(this.ec);
+                        ephemeralPublicKey = ecies.getPublicKey().getPublic('array');
                         pubKeyPair = this.ec.keyFromPublic(Buffer.from(pubKeyBytes));
                         skmData = privateFactCommon_1.deriveSecretKeyringMaterial(ecies, pubKeyPair, this.passportAddress, factProviderAddress, key);
                         skm = privateFactCommon_1.unmarshalSecretKeyringMaterial(skmData.skm);
                         cryptor = new cryptor_1.Cryptor(this.ec.curve);
                         encryptedMsg = cryptor.encryptAuth(skm, data);
+                        return [4 /*yield*/, ipfsClient.add(Buffer.from(ephemeralPublicKey))];
+                    case 2:
+                        ephemeralPublicKeyAddResult = _a.sent();
+                        return [4 /*yield*/, ipfsClient.add(Buffer.from(encryptedMsg.encryptedMsg))];
+                    case 3:
+                        encryptedMsgAddResult = _a.sent();
+                        return [4 /*yield*/, ipfsClient.add(Buffer.from(encryptedMsg.hmac))];
+                    case 4:
+                        messageHMACAddResult = _a.sent();
+                        return [4 /*yield*/, ipfs_js_1.dagPutLinks([
+                                ipfs_js_1.convertAddResultToLink(ephemeralPublicKeyAddResult, privateFactCommon_1.ipfsFileNames.publicKey),
+                                ipfs_js_1.convertAddResultToLink(encryptedMsgAddResult, privateFactCommon_1.ipfsFileNames.encryptedMessage),
+                                ipfs_js_1.convertAddResultToLink(messageHMACAddResult, privateFactCommon_1.ipfsFileNames.messageHMAC),
+                            ], ipfsClient)];
+                    case 5:
+                        result = _a.sent();
+                        dirHash = result.Cid['/'];
                         return [2 /*return*/];
                 }
             });

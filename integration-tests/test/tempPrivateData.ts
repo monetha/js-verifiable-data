@@ -1,5 +1,6 @@
 import { expect, use } from 'chai';
 import chaiMoment from 'chai-moment';
+import FormData from 'form-data';
 use(chaiMoment);
 
 import Web3 from 'web3';
@@ -14,7 +15,8 @@ const factProviderAddr = '0xd84083bBaEa544d446b081B7DEe2c9Fd1e5b4463';
 const passportOwnerKey = 'e8b43cd0fdaab9453039659e9d772c34594fda0feed8a5b327adc4682ea3ac18';
 const factKey = 'secret_message';
 const factValue = 'my secret';
-const INFURA_IPFS_API_URL = 'https://ipfs.monetha.io';
+const IPFS_GATEWAY_URL = 'https://ipfs.monetha.io';
+const INFURA_IPFS_API_URL = 'https://ipfs.infura.io:5001/api';
 
 /*
 FACT WRITE LOG
@@ -63,8 +65,10 @@ describe('Private data tests', () => {
 // #region -------------- IPFS Client -------------------------------------------------------------------
 
 class IPFSClient {
+  public dag = new IPFSDagClient();
+
   public async cat(path) {
-    const response = await fetch(`${INFURA_IPFS_API_URL}/ipfs/${path}`);
+    const response = await fetch(`${IPFS_GATEWAY_URL}/ipfs/${path}`);
     if (!response.ok) {
       const errMsg = await response.text();
       throw new Error(errMsg);
@@ -74,9 +78,46 @@ class IPFSClient {
   }
 
   public async add(data) {
-    throw new Error('not implemented');
+    const formData = new FormData();
 
-    return null;
+    formData.append('file', data);
+
+    const response = await fetch(`${INFURA_IPFS_API_URL}/v0/add`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errMsg = await response.text();
+      throw new Error(errMsg);
+    }
+
+    return response.json();
+  }
+}
+
+class IPFSDagClient {
+  public async put(dagNode: any, options?: any): Promise<any> {
+    const formData = new FormData();
+
+    formData.append('file', Buffer.from(JSON.stringify(dagNode)));
+
+    const queryParams =
+      (options.format ? `format=${options.format}&` : '') +
+      (options.inputEnc ? `input-enc=${options.inputEnc}&` : '') +
+      (options.pin ? `pin=${options.pin}&` : '');
+
+    const response = await fetch(`${INFURA_IPFS_API_URL}/v0/dag/put?${queryParams}`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errMsg = await response.text();
+      throw new Error(errMsg);
+    }
+
+    return response.json();
   }
 }
 

@@ -1,4 +1,4 @@
-import { ec, } from 'elliptic';
+import { ec } from 'elliptic';
 import BN from 'bn.js';
 import { sha256 } from 'hash.js';
 import { concatKDF } from './kdf';

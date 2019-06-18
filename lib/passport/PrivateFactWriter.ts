@@ -1,16 +1,15 @@
-import { curve, ec } from 'elliptic';
+import { ec } from 'elliptic';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import passportLogicAbi from '../../config/PassportLogic.json';
 import { Cryptor } from '../crypto/ecies/cryptor';
 import { ECIES } from '../crypto/ecies/ecies';
-import { constantTimeCompare } from '../crypto/utils/compare';
 import { Address } from '../models/Address';
-import { IIPFSClient } from '../models/IIPFSClient';
+import { IIPFSAddResult, IIPFSClient } from '../models/IIPFSClient';
 import { ContractIO } from '../transactionHelpers/ContractIO';
-import { FactReader, IPrivateDataHashes } from './FactReader';
-import { deriveSecretKeyringMaterial, ellipticCurveAlg, ipfsFileNames, unmarshalSecretKeyringMaterial } from './privateFactCommon';
+import { convertAddResultToLink, dagPutLinks } from '../utils/ipfs.js';
 import { PassportOwnership } from './PassportOwnership.js';
+import { deriveSecretKeyringMaterial, ellipticCurveAlg, ipfsFileNames, unmarshalSecretKeyringMaterial } from './privateFactCommon';
 const EC = ec;
 
 /**
@@ -44,6 +43,7 @@ export class PrivateFactWriter {
 
     // Create ECIES with generated keys
     const ecies = ECIES.createGenerated(this.ec);
+    const ephemeralPublicKey = ecies.getPublicKey().getPublic('array');
 
     const pubKeyPair = this.ec.keyFromPublic(Buffer.from(pubKeyBytes));
 
@@ -55,6 +55,18 @@ export class PrivateFactWriter {
     const cryptor = new Cryptor(this.ec.curve);
     const encryptedMsg = cryptor.encryptAuth(skm, data);
 
-    //TODO: unfinished
+    // Store files to IPFS
+    const ephemeralPublicKeyAddResult = await ipfsClient.add(Buffer.from(ephemeralPublicKey)) as IIPFSAddResult;
+    const encryptedMsgAddResult = await ipfsClient.add(Buffer.from(encryptedMsg.encryptedMsg)) as IIPFSAddResult;
+    const messageHMACAddResult = await ipfsClient.add(Buffer.from(encryptedMsg.hmac)) as IIPFSAddResult;
+
+    // Create IPFS directory
+    const result = await dagPutLinks([
+      convertAddResultToLink(ephemeralPublicKeyAddResult, ipfsFileNames.publicKey),
+      convertAddResultToLink(encryptedMsgAddResult, ipfsFileNames.encryptedMessage),
+      convertAddResultToLink(messageHMACAddResult, ipfsFileNames.messageHMAC),
+    ], ipfsClient);
+
+    const dirHash = result.Cid['/'];
   }
 }
