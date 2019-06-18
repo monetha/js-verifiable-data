@@ -168,6 +168,9 @@ export class FactReader {
     const privateReader = new PrivateFactReader();
 
     const hashes = await this.getPrivateDataHashes(factProviderAddress, key);
+    if (!hashes) {
+      return null;
+    }
 
     return privateReader.getPrivateData(
       {
@@ -191,6 +194,9 @@ export class FactReader {
     const privateReader = new PrivateFactReader();
 
     const hashes = await this.getPrivateDataHashes(factProviderAddress, key);
+    if (!hashes) {
+      return null;
+    }
 
     return privateReader.getPrivateDataUsingSecretKey(hashes.dataIpfsHash, secretKey, ipfs);
   }

@@ -298,6 +298,11 @@ describe('Reputation js-sdk smoke tests', () => {
     await readAndValidateFact(reader => reader.getIPFSData(factProviderAddress, 'ipfs_fact', mockIPFSClient), null);
   });
 
+  it('Should be able to delete PrivateDataHashes fact', async () => {
+    await deleteAndValidateFact(remover => remover.deletePrivateDataHashes('privatedatahashes_fact', factProviderAddress));
+    await readAndValidateFact(reader => reader.getPrivateDataHashes(factProviderAddress, 'privatedatahashes_fact'), null);
+  });
+
   // #endregion
 
   // #region -------------- Reading fact history -------------------------------------------------------------------

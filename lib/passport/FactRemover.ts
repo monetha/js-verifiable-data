@@ -81,6 +81,14 @@ export class FactRemover {
     return this.delete('deleteIPFSHash', key, factProviderAddress);
   }
 
+  /**
+   * Deletes privateDataHashes type fact from passport
+   * @param key fact key
+   */
+  public async deletePrivateDataHashes(key: string, factProviderAddress: Address) {
+    return this.delete('deletePrivateDataHashes', key, factProviderAddress);
+  }
+
   private async delete(method: string, key: string, factProviderAddress: Address) {
     const preparedKey = this.web3.utils.fromAscii(key);
 

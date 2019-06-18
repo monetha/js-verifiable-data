@@ -241,6 +241,9 @@ var FactReader = /** @class */ (function () {
                         return [4 /*yield*/, this.getPrivateDataHashes(factProviderAddress, key)];
                     case 1:
                         hashes = _a.sent();
+                        if (!hashes) {
+                            return [2 /*return*/, null];
+                        }
                         return [2 /*return*/, privateReader.getPrivateData({
                                 factProviderAddress: factProviderAddress,
                                 passportAddress: this.passportAddress,
@@ -268,6 +271,9 @@ var FactReader = /** @class */ (function () {
                         return [4 /*yield*/, this.getPrivateDataHashes(factProviderAddress, key)];
                     case 1:
                         hashes = _a.sent();
+                        if (!hashes) {
+                            return [2 /*return*/, null];
+                        }
                         return [2 /*return*/, privateReader.getPrivateDataUsingSecretKey(hashes.dataIpfsHash, secretKey, ipfs)];
                 }
             });
