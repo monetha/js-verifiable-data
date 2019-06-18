@@ -237,6 +237,13 @@ describe('Reputation js-sdk smoke tests', () => {
     await readAndValidateTxFact(reader => reader.getIPFSData(txHashes.ipfs_fact, mockIPFSClient), 'Value in IPFS');
   });
 
+  it('Should be able to read PrivateDataHashes from TX', async () => {
+    await readAndValidateTxFact(reader => reader.getPrivateDataHashes(txHashes.privatedatahashes_fact), {
+      dataIpfsHash: 'FAKE_IPFS_HASH',
+      dataKeyHash: web3.utils.fromAscii('FAKE_KEY_HASH'),
+    });
+  });
+
   // #endregion
 
   // #region -------------- Fact deletion -------------------------------------------------------------------

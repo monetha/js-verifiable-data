@@ -97,6 +97,25 @@ var PrivateFactReader = /** @class */ (function () {
             });
         });
     };
+    // /**
+    //  * Decrypts secret key using passport owner key and then decrypts private data using decrypted secret key
+    //  * @param passportOwnerPrivateKey private passport owner wallet key in hex, used for data decryption
+    //  * @param factProviderAddress fact provider to read fact for
+    //  * @param key fact key
+    //  * @param ipfs IPFS client
+    //  */
+    // public async getHistoricPrivateData(
+    //   passportOwnerPrivateKey: string,
+    //   ipfsClient: IIPFSClient,
+    // ) {
+    //   const hashes = await this.reader.getPrivateDataHashes(factProviderAddress, key);
+    //   const passportOwnerPrivateKeyPair = this.ec.keyPair({
+    //     priv: passportOwnerPrivateKey.replace('0x', ''),
+    //     privEnc: 'hex',
+    //   });
+    //   const secretKey = await this.decryptSecretKey(passportOwnerPrivateKeyPair, hashes, factProviderAddress, key, ipfsClient);
+    //   return this.decryptPrivateData(hashes.dataIpfsHash, secretKey, passportOwnerPrivateKeyPair.ec.curve, ipfsClient);
+    // }
     /**
      * reads encrypted data and HMAC and decrypts data using provided secret keyring material and elliptic curve.
      * Default elliptic curve is used if it's nil.

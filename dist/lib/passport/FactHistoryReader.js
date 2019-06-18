@@ -229,6 +229,31 @@ var FactHistoryReader = /** @class */ (function () {
             });
         });
     };
+    /**
+     * Read private data hashes fact from transaction
+     */
+    FactHistoryReader.prototype.getPrivateDataHashes = function (txHash) {
+        return __awaiter(this, void 0, void 0, function () {
+            var txInfo, methodInfo;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
+                    case 1:
+                        txInfo = _a.sent();
+                        methodInfo = txInfo.methodInfo;
+                        this.validateMethodSignature(methodInfo, 'setPrivateDataHashes');
+                        return [2 /*return*/, {
+                                factProviderAddress: txInfo.tx.from,
+                                key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+                                value: {
+                                    dataIpfsHash: methodInfo.params[1].value,
+                                    dataKeyHash: methodInfo.params[2].value,
+                                },
+                            }];
+                }
+            });
+        });
+    };
     FactHistoryReader.prototype.validateMethodSignature = function (methodInfo, expectedName) {
         if (methodInfo.name !== expectedName) {
             throw new Error("Input method signature for transaction must be \"" + expectedName + "\". Got \"" + methodInfo.name + "\"");

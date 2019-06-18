@@ -1,6 +1,7 @@
 import { IIPFSClient } from '../models/IIPFSClient';
 import { getTxData, IMethodInfo } from '../utils/getTxData';
 import Web3 from 'web3';
+import { IPrivateDataHashes } from './FactReader';
 
 export interface IFactValue<TValue> {
   factProviderAddress: string;
@@ -153,6 +154,25 @@ export class FactHistoryReader {
       factProviderAddress: txInfo.tx.from,
       key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
       value: await ipfs.cat(methodInfo.params[1].value),
+    };
+  }
+
+  /**
+   * Read private data hashes fact from transaction
+   */
+  public async getPrivateDataHashes(txHash: string): Promise<IFactValue<IPrivateDataHashes>> {
+    const txInfo = await getTxData(txHash, this.web3);
+    const { methodInfo } = txInfo;
+
+    this.validateMethodSignature(methodInfo, 'setPrivateDataHashes');
+
+    return {
+      factProviderAddress: txInfo.tx.from,
+      key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+      value: {
+        dataIpfsHash: methodInfo.params[1].value,
+        dataKeyHash: methodInfo.params[2].value,
+      },
     };
   }
 

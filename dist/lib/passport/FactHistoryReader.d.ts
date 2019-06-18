@@ -1,4 +1,5 @@
 import { IIPFSClient } from '../models/IIPFSClient';
+import { IPrivateDataHashes } from './FactReader';
 export interface IFactValue<TValue> {
     factProviderAddress: string;
     key: string;
@@ -45,6 +46,10 @@ export declare class FactHistoryReader {
      * @returns data stored in IPFS
      */
     getIPFSData(txHash: string, ipfs: IIPFSClient): Promise<IFactValue<any>>;
+    /**
+     * Read private data hashes fact from transaction
+     */
+    getPrivateDataHashes(txHash: string): Promise<IFactValue<IPrivateDataHashes>>;
     private validateMethodSignature;
     private bytesToUnpaddedAscii;
 }
