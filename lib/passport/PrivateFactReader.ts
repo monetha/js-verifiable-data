@@ -45,6 +45,26 @@ export class PrivateFactReader {
   }
 
   /**
+   * Decrypts decrypts private data using secret key
+   * @param secretKey secret key in hex, used for data decryption
+   * @param factProviderAddress fact provider to read fact for
+   * @param key fact key
+   * @param ipfs IPFS client
+   */
+  public async getPrivateDataUsingSecretKey(
+    secretKey: string,
+    factProviderAddress: Address,
+    key: string,
+    ipfsClient: IIPFSClient,
+  ) {
+    const hashes = await this.reader.getPrivateDataHashes(factProviderAddress, key);
+
+    const secretKeyArr = Array.from(Buffer.from(secretKey.replace('0x', ''), 'hex'));
+
+    return this.decryptPrivateData(hashes.dataIpfsHash, secretKeyArr, null, ipfsClient);
+  }
+
+  /**
    * reads encrypted data and HMAC and decrypts data using provided secret keyring material and elliptic curve.
    * Default elliptic curve is used if it's nil.
    * @param dataIpfsHash

@@ -18,6 +18,14 @@ export declare class PrivateFactReader {
      */
     getPrivateData(passportOwnerPrivateKey: string, factProviderAddress: Address, key: string, ipfsClient: IIPFSClient): Promise<number[]>;
     /**
+     * Decrypts decrypts private data using secret key
+     * @param secretKey secret key in hex, used for data decryption
+     * @param factProviderAddress fact provider to read fact for
+     * @param key fact key
+     * @param ipfs IPFS client
+     */
+    getPrivateDataUsingSecretKey(secretKey: string, factProviderAddress: Address, key: string, ipfsClient: IIPFSClient): Promise<number[]>;
+    /**
      * reads encrypted data and HMAC and decrypts data using provided secret keyring material and elliptic curve.
      * Default elliptic curve is used if it's nil.
      * @param dataIpfsHash

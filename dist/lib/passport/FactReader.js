@@ -241,6 +241,22 @@ var FactReader = /** @class */ (function () {
         });
     };
     /**
+     * Read private data fact value using IPFS by decrypting it using secret key, generated at the time of writing.
+     * @param factProviderAddress fact provider to read fact for
+     * @param key fact key
+     * @param secretKey secret key in hex, used for data decryption
+     * @param ipfs IPFS client
+     */
+    FactReader.prototype.getPrivateDataUsingSecretKey = function (factProviderAddress, key, secretKey, ipfs) {
+        return __awaiter(this, void 0, void 0, function () {
+            var privateReader;
+            return __generator(this, function (_a) {
+                privateReader = new PrivateFactReader_1.PrivateFactReader(this);
+                return [2 /*return*/, privateReader.getPrivateDataUsingSecretKey(secretKey, factProviderAddress, key, ipfs)];
+            });
+        });
+    };
+    /**
      * Read private data hashes fact from the passport.
      * @param factProviderAddress fact provider to read fact for
      * @param key fact key

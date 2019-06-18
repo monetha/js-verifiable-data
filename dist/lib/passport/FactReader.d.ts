@@ -88,6 +88,14 @@ export declare class FactReader {
      */
     getPrivateData(factProviderAddress: Address, key: string, passportOwnerPrivateKey: string, ipfs: IIPFSClient): Promise<number[]>;
     /**
+     * Read private data fact value using IPFS by decrypting it using secret key, generated at the time of writing.
+     * @param factProviderAddress fact provider to read fact for
+     * @param key fact key
+     * @param secretKey secret key in hex, used for data decryption
+     * @param ipfs IPFS client
+     */
+    getPrivateDataUsingSecretKey(factProviderAddress: Address, key: string, secretKey: string, ipfs: IIPFSClient): Promise<number[]>;
+    /**
      * Read private data hashes fact from the passport.
      * @param factProviderAddress fact provider to read fact for
      * @param key fact key

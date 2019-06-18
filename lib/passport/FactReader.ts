@@ -171,6 +171,19 @@ export class FactReader {
   }
 
   /**
+   * Read private data fact value using IPFS by decrypting it using secret key, generated at the time of writing.
+   * @param factProviderAddress fact provider to read fact for
+   * @param key fact key
+   * @param secretKey secret key in hex, used for data decryption
+   * @param ipfs IPFS client
+   */
+  public async getPrivateDataUsingSecretKey(factProviderAddress: Address, key: string, secretKey: string, ipfs: IIPFSClient): Promise<number[]> {
+    const privateReader = new PrivateFactReader(this);
+
+    return privateReader.getPrivateDataUsingSecretKey(secretKey, factProviderAddress, key, ipfs);
+  }
+
+  /**
    * Read private data hashes fact from the passport.
    * @param factProviderAddress fact provider to read fact for
    * @param key fact key

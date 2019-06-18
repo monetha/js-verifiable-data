@@ -31,6 +31,7 @@ let passportOwnerPrivateKey;
 let passportFactoryAddress;
 let passportAddress;
 let factProviderAddress;
+let privateDataFactSecretKey;
 const mockIPFSClient = new MockIPFSClient();
 
 const ethereumNetworkUrl = 'http://127.0.0.1:8545';
@@ -97,7 +98,7 @@ describe('Reputation js-sdk smoke tests', () => {
     expect(response[0]).to.have.property('ownerAddress');
   });
 
-  // #region -------------- Public Fact writing -------------------------------------------------------------------
+  // #region -------------- Fact writing -------------------------------------------------------------------
 
   it('Should be able to write String fact', async () => {
     txHashes.string_fact = await writeAndValidateFact(writer => writer.setString('string_fact', 'hello', factProviderAddress));
@@ -144,12 +145,12 @@ describe('Reputation js-sdk smoke tests', () => {
     const writeResult = await writer.setPrivateData('privatedata_fact', [1, 2, 3, 4, 5, 6], factProviderAddress, mockIPFSClient);
 
     txHashes.privatedata_fact = await writeAndValidateFact(_ => writeResult.tx);
-    txHashes.privatedata_fact_datakey = writeResult.dataKey;
+    privateDataFactSecretKey = Buffer.from(writeResult.dataKey).toString('hex');
   });
 
   // #endregion
 
-  // #region -------------- Public Fact reading -------------------------------------------------------------------
+  // #region -------------- Fact reading -------------------------------------------------------------------
 
   it('Should be able to read String fact', async () => {
     await readAndValidateFact(reader => reader.getString(factProviderAddress, 'string_fact'), 'hello');
@@ -190,10 +191,19 @@ describe('Reputation js-sdk smoke tests', () => {
     });
   });
 
-  it('Should be able to read PrivateData fact', async () => {
+  it('Should be able to read PrivateData fact using owner private key', async () => {
     await readAndValidateFact(reader => reader.getPrivateData(
       factProviderAddress, 'privatedata_fact', passportOwnerPrivateKey, mockIPFSClient), [1, 2, 3, 4, 5, 6]);
   });
+
+  it('Should be able to read PrivateData fact using secret key', async () => {
+    await readAndValidateFact(reader => reader.getPrivateDataUsingSecretKey(
+      factProviderAddress, 'privatedata_fact', privateDataFactSecretKey, mockIPFSClient), [1, 2, 3, 4, 5, 6]);
+  });
+
+  // #endregion
+
+  // #region -------------- Fact reading from TX -------------------------------------------------------------------
 
   it('Should be able to read String fact from TX', async () => {
     await readAndValidateTxFact(reader => reader.getString(txHashes.string_fact), 'hello');

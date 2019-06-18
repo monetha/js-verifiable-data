@@ -6,7 +6,7 @@ interface IEncryptedAuthenticatedMessage {
 }
 export declare class Cryptor {
     private params;
-    constructor(_curve: curve.base);
+    constructor(_curve?: curve.base);
     /**
      * Checks encrypted message HMAC and if it's valid decrypts the message.
      * s2 contains shared information that is not part of the ciphertext, it's fed into the MAC. If the

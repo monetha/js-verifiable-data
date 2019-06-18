@@ -77,6 +77,27 @@ var PrivateFactReader = /** @class */ (function () {
         });
     };
     /**
+     * Decrypts decrypts private data using secret key
+     * @param secretKey secret key in hex, used for data decryption
+     * @param factProviderAddress fact provider to read fact for
+     * @param key fact key
+     * @param ipfs IPFS client
+     */
+    PrivateFactReader.prototype.getPrivateDataUsingSecretKey = function (secretKey, factProviderAddress, key, ipfsClient) {
+        return __awaiter(this, void 0, void 0, function () {
+            var hashes, secretKeyArr;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.reader.getPrivateDataHashes(factProviderAddress, key)];
+                    case 1:
+                        hashes = _a.sent();
+                        secretKeyArr = Array.from(Buffer.from(secretKey.replace('0x', ''), 'hex'));
+                        return [2 /*return*/, this.decryptPrivateData(hashes.dataIpfsHash, secretKeyArr, null, ipfsClient)];
+                }
+            });
+        });
+    };
+    /**
      * reads encrypted data and HMAC and decrypts data using provided secret keyring material and elliptic curve.
      * Default elliptic curve is used if it's nil.
      * @param dataIpfsHash

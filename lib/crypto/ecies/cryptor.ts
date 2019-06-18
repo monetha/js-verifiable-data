@@ -37,7 +37,7 @@ const standardCryptorParams: { [name: string]: ICryptorParams } = {
 export class Cryptor {
   private params: ICryptorParams;
 
-  public constructor(_curve: curve.base) {
+  public constructor(_curve?: curve.base) {
     // TODO: determine params from curve
     this.params = standardCryptorParams.aes128Sha256;
   }
