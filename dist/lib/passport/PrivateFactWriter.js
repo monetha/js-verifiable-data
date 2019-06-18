@@ -46,6 +46,7 @@ var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var ipfs_js_1 = require("../utils/ipfs.js");
 var PassportOwnership_js_1 = require("./PassportOwnership.js");
 var privateFactCommon_1 = require("./privateFactCommon");
+var FactWriter_js_1 = require("./FactWriter.js");
 var EC = elliptic_1.ec;
 /**
  * Class to write private facts
@@ -55,12 +56,8 @@ var PrivateFactWriter = /** @class */ (function () {
         this.ec = new EC(privateFactCommon_1.ellipticCurveAlg);
         this.contractIO = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
         this.ownership = new PassportOwnership_js_1.PassportOwnership(web3, passportAddress);
+        this.writer = new FactWriter_js_1.FactWriter(web3, passportAddress);
     }
-    Object.defineProperty(PrivateFactWriter.prototype, "web3", {
-        get: function () { return this.contractIO.getWeb3(); },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(PrivateFactWriter.prototype, "passportAddress", {
         get: function () { return this.contractIO.getContractAddress(); },
         enumerable: true,
@@ -71,7 +68,7 @@ var PrivateFactWriter = /** @class */ (function () {
      */
     PrivateFactWriter.prototype.setPrivateData = function (factProviderAddress, key, data, ipfsClient) {
         return __awaiter(this, void 0, void 0, function () {
-            var pubKeyBytes, ecies, ephemeralPublicKey, pubKeyPair, skmData, skm, cryptor, encryptedMsg, ephemeralPublicKeyAddResult, encryptedMsgAddResult, messageHMACAddResult, result, dirHash;
+            var pubKeyBytes, ecies, ephemeralPublicKey, pubKeyPair, skmData, skm, cryptor, encryptedMsg, ephemeralPublicKeyAddResult, encryptedMsgAddResult, messageHMACAddResult, result, dirHash, tx;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.ownership.getOwnerPublicKey()];
@@ -101,7 +98,18 @@ var PrivateFactWriter = /** @class */ (function () {
                     case 5:
                         result = _a.sent();
                         dirHash = result.Cid['/'];
-                        return [2 /*return*/];
+                        return [4 /*yield*/, this.writer.setPrivateDataHashes(key, {
+                                dataIpfsHash: dirHash,
+                                dataKeyHash: "0x" + Buffer.from(skmData.skmHash).toString('hex'),
+                            }, factProviderAddress)];
+                    case 6:
+                        tx = _a.sent();
+                        return [2 /*return*/, {
+                                dataIpfsHash: dirHash,
+                                dataKey: skmData.skm,
+                                dataKeyHash: skmData.skmHash,
+                                tx: tx,
+                            }];
                 }
             });
         });

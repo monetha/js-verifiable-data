@@ -1,6 +1,7 @@
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
 import Web3 from 'web3';
+import { IPrivateDataHashes } from './FactReader';
 /**
  * Class to write facts to passport
  */
@@ -65,5 +66,11 @@ export declare class FactWriter {
      * @param ipfs IPFS client
      */
     setIPFSData(key: string, value: any, factProviderAddress: Address, ipfs: IIPFSClient): Promise<import("../models/IRawTX").IRawTX>;
+    /**
+     * Writes IPFS hash of encrypted private data and hash of data encryption key
+     * @param key fact key
+     * @param value value to store
+     */
+    setPrivateDataHashes(key: string, value: IPrivateDataHashes, factProviderAddress: Address): Promise<import("../models/IRawTX").IRawTX>;
     private set;
 }

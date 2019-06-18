@@ -26,7 +26,7 @@ export declare class ContractIO<TContract extends Contract = Contract> {
      * Generates hex from contract data (methods, params)
      */
     private prepareWriteData;
-    private prepareRawTX;
+    prepareRawTX(fromAddress: Address, toAddress: Address, value: number, data: any): Promise<IRawTX>;
     private getEstimatedGas;
     private getGasPriceFromBlockChain;
     private getNonceFromBlockChain;

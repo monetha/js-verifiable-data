@@ -169,6 +169,22 @@ var FactWriter = /** @class */ (function () {
             });
         });
     };
+    /**
+     * Writes IPFS hash of encrypted private data and hash of data encryption key
+     * @param key fact key
+     * @param value value to store
+     */
+    FactWriter.prototype.setPrivateDataHashes = function (key, value, factProviderAddress) {
+        return __awaiter(this, void 0, void 0, function () {
+            var preparedKey, contract, tx;
+            return __generator(this, function (_a) {
+                preparedKey = this.web3.utils.fromAscii(key);
+                contract = this.contractIO.getContract();
+                tx = contract.methods.setPrivateDataHashes(preparedKey, value.dataIpfsHash, value.dataKeyHash);
+                return [2 /*return*/, this.contractIO.prepareRawTX(factProviderAddress, contract.address, 0, tx)];
+            });
+        });
+    };
     FactWriter.prototype.set = function (method, key, value, factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
             var preparedKey;

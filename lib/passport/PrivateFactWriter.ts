@@ -10,6 +10,7 @@ import { ContractIO } from '../transactionHelpers/ContractIO';
 import { convertAddResultToLink, dagPutLinks } from '../utils/ipfs.js';
 import { PassportOwnership } from './PassportOwnership.js';
 import { deriveSecretKeyringMaterial, ellipticCurveAlg, ipfsFileNames, unmarshalSecretKeyringMaterial } from './privateFactCommon';
+import { FactWriter } from './FactWriter.js';
 const EC = ec;
 
 /**
@@ -17,16 +18,17 @@ const EC = ec;
  */
 export class PrivateFactWriter {
   private contractIO: ContractIO;
+  private writer: FactWriter;
   private ownership: PassportOwnership;
   private ec = new EC(ellipticCurveAlg);
 
-  private get web3() { return this.contractIO.getWeb3(); }
   private get passportAddress() { return this.contractIO.getContractAddress(); }
 
   constructor(web3: Web3, passportAddress: Address) {
     this.contractIO = new ContractIO(web3, passportLogicAbi as AbiItem[], passportAddress);
 
     this.ownership = new PassportOwnership(web3, passportAddress);
+    this.writer = new FactWriter(web3, passportAddress);
   }
 
   /**
@@ -68,5 +70,18 @@ export class PrivateFactWriter {
     ], ipfsClient);
 
     const dirHash = result.Cid['/'];
+
+    // Create TX for setting private data hashes to passport
+    const tx = await this.writer.setPrivateDataHashes(key, {
+      dataIpfsHash: dirHash,
+      dataKeyHash: `0x${Buffer.from(skmData.skmHash).toString('hex')}`,
+    }, factProviderAddress);
+
+    return {
+      dataIpfsHash: dirHash,
+      dataKey: skmData.skm,
+      dataKeyHash: skmData.skmHash,
+      tx,
+    };
   }
 }

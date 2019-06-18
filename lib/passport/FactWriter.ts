@@ -4,12 +4,14 @@ import { IIPFSClient } from '../models/IIPFSClient';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import passportLogicAbi from '../../config/PassportLogic.json';
+import { IPrivateDataHashes } from './FactReader';
+import { PassportLogic } from '../types/web3-contracts/PassportLogic';
 
 /**
  * Class to write facts to passport
  */
 export class FactWriter {
-  private contractIO: ContractIO;
+  private contractIO: ContractIO<PassportLogic>;
 
   private get web3() { return this.contractIO.getWeb3(); }
 
@@ -107,6 +109,24 @@ export class FactWriter {
     }
 
     return this.set('setIPFSHash', key, result.Hash, factProviderAddress);
+  }
+
+  /**
+   * Writes IPFS hash of encrypted private data and hash of data encryption key
+   * @param key fact key
+   * @param value value to store
+   */
+  public async setPrivateDataHashes(key: string, value: IPrivateDataHashes, factProviderAddress: Address) {
+    const preparedKey = this.web3.utils.fromAscii(key);
+
+    const contract = this.contractIO.getContract();
+
+    const tx = contract.methods.setPrivateDataHashes(
+      preparedKey,
+      value.dataIpfsHash,
+      value.dataKeyHash);
+
+    return this.contractIO.prepareRawTX(factProviderAddress, contract.address, 0, tx);
   }
 
   private async set(method: string, key: string, value: any, factProviderAddress: Address) {
