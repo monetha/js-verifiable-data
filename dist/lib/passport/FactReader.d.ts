@@ -1,14 +1,24 @@
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
 import Web3 from 'web3';
+export interface IPrivateDataHashes {
+    /**
+     *
+     */
+    dataIpfsHash: string;
+    /**
+     *
+     */
+    dataKeyHash: string;
+}
 /**
  * Class to read latest facts from the passport
  */
 export declare class FactReader {
     private contractIO;
     private ethNetworkUrl;
-    private readonly web3;
-    private readonly passportAddress;
+    readonly web3: Web3;
+    readonly passportAddress: string;
     constructor(web3: Web3, ethNetworkUrl: string, passportAddress: Address);
     /**
      * Read string type fact from passport
@@ -69,5 +79,27 @@ export declare class FactReader {
      * @returns data stored in IPFS
      */
     getIPFSData(factProviderAddress: Address, key: string, ipfs: IIPFSClient): Promise<any>;
+    /**
+     * Read private data fact value using IPFS by decrypting it using passport owner private key.
+     * @param factProviderAddress fact provider to read fact for
+     * @param key fact key
+     * @param passportOwnerPrivateKey private passport owner wallet key in hex, used for data decryption
+     * @param ipfs IPFS client
+     */
+    getPrivateData(factProviderAddress: Address, key: string, passportOwnerPrivateKey: string, ipfs: IIPFSClient): Promise<number[]>;
+    /**
+     * Read private data fact value using IPFS by decrypting it using secret key, generated at the time of writing.
+     * @param factProviderAddress fact provider to read fact for
+     * @param key fact key
+     * @param secretKey secret key in hex, used for data decryption
+     * @param ipfs IPFS client
+     */
+    getPrivateDataUsingSecretKey(factProviderAddress: Address, key: string, secretKey: string, ipfs: IIPFSClient): Promise<number[]>;
+    /**
+     * Read private data hashes fact from the passport.
+     * @param factProviderAddress fact provider to read fact for
+     * @param key fact key
+     */
+    getPrivateDataHashes(factProviderAddress: Address, key: string): Promise<IPrivateDataHashes>;
     private get;
 }

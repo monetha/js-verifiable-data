@@ -10,12 +10,16 @@
   - [Bootstrap reputation layer](#bootstrap-reputation-layer)
   - [Usage](#usage)
     - [Deploying passport](#deploying-passport)
+    - [Passport ownership](#passport-ownership)
     - [Passport list](#passport-list)
     - [Writing facts](#writing-facts)
     - [Reading facts](#reading-facts)
-    - [Changing passport permissions](#changing-passport-permissions)
+    - [Managing passport permissions](#managing-passport-permissions)
     - [Reading facts history](#reading-facts-history)
-- [Permissioned blockchains support](#permissioned-blockchains-support)
+    - [Private facts](#private-data)
+      - [Writing private data](#writing-private-data)
+      - [Reading private data](#reading-private-data)
+  - [Permissioned blockchains support](#permissioned-blockchains-support)
     - [Quorum](#quorum)
 
 ## Building the source
@@ -78,7 +82,7 @@ In order to create a passport and start using it, you need to use auxiliary repu
 Before creating a passport for a specific Ethereum address, unlock the MetaMask.
 Make sure that the passport owner has enough money to create a passport contract. Usually passport contract deployment takes `425478` gas.
 
-To create a passport contract you need to know address of the `PassportFactory` contract. Let's try to create a passport in Ropsten
+To create a passport contract you need to know the address of the `PassportFactory` contract. Let's try to create a passport in Ropsten
 using the `PassportFactory` contract deployed by Monetha ([`0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2`](https://ropsten.etherscan.io/address/0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2)):
 
 ```js
@@ -201,13 +205,13 @@ writer.setBool('barcelona_won_uefa', false, factProviderAddress);
 Writes bytes type fact to passport:
 
 ```js
-writer.setBytes('bytes_data', '68 65 6c 6c 6f', factProviderAddress);
+writer.setBytes('bytes_data', [1, 2, 3], factProviderAddress);
 ```
 
 Writes IPFS hash data type fact to passport:
 
 ```js
-writer.setIPFSData('logo', 'QmaSjk86XyXQzeZ5JCVS2scNYiUBsmALyGBUjatEiQuc3q', factProviderAddress, IIPFSClient);
+writer.setIPFSData('logo', 'QmaSjk86XyXQzeZ5JCVS2scNYiUBsmALyGBUjatEiQuc3q', factProviderAddress, ipfsClient);
 ```
 
 Writes int type fact to passport:
@@ -226,6 +230,12 @@ Writes uint type fact to passport:
 
 ```js
 writer.setUint('jonas_rating', 4294100000, factProviderAddress);
+```
+
+Writes private data type fact to passport (read more about private data in [Private data](#private-data)):
+
+```js
+writer.setPrivateData('secret_message', [1, 2, 3], factProviderAddress, ipfsClient);
 ```
 
 Sign the transaction using the private key of address given in factProviderAddress and broadcast it on the network.
@@ -274,6 +284,12 @@ Deletes uint type fact from passport:
 remover.deleteUint(factProviderAddress, 'jonas_rating');
 ```
 
+Deletes private data type fact from passport (read more about private data in [Private data](#private-data)):
+
+```js
+remover.deletePrivateDataHashes('secret_message', factProviderAddress);
+```
+
 Sign the transaction using the private key of address given in factProviderAddress and broadcast it on the network.
 
 ### Reading facts
@@ -314,7 +330,7 @@ reader.getBytes(factProviderAddress, 'bytes_data');
 Read IPFS hash type fact from passport:
 
 ```js
-reader.getIPFSData(factProviderAddress, 'logo', IIPFSClient);
+reader.getIPFSData(factProviderAddress, 'logo', ipfsClient);
 ```
 
 Read int type fact from passport:
@@ -333,6 +349,18 @@ Read uint type fact from passport:
 
 ```js
 reader.getUint(factProviderAddress, 'jonas_rating');
+```
+
+Reads private data type fact from passport using passport owner's private key (read more about private data in [Private data](#private-data)):
+
+```js
+reader.getPrivateData(factProviderAddress, 'secret_message', passOwnerPrivateKey, ipfsClient);
+```
+
+Reads private data type fact from passport using secret key, generated at the time of writing the fact (read more about private data in [Private data](#private-data)):
+
+```js
+reader.getPrivateDataUsingSecretKey(factProviderAddress, 'secret_message', secretKey, ipfsClient);
 ```
 
 **Reading facts from transaction examples:**
@@ -395,6 +423,18 @@ Read uint type fact from transaction:
 
 ```js
 historyReader.getUint('0x123456789...');
+```
+
+Reads private data type fact from transaction using passport owner's private key (read more about private data in [Private data](#private-data)):
+
+```js
+historyReader.getPrivateData('0x123456789...', passOwnerPrivateKey, ipfsClient);
+```
+
+Reads private data type fact from transaction using secret key, generated at the time of writing the fact (read more about private data in [Private data](#private-data)):
+
+```js
+historyReader.getPrivateDataUsingSecretKey('0x123456789...', secretKey, ipfsClient);
 ```
 
 ### Managing passport permissions
@@ -475,6 +515,206 @@ reader.readPassportHistory(passportAddress);
 As we can see, there were only three fact updates by the same data provider `0x5b2AE3b3A801469886Bb8f5349fc3744cAa6348d`.
 The `blockNumber` and `transactionHash` columns allow us to understand in which block and in which transaction the changes were made.
 Even if the value of a fact has been deleted or changed, we can read its value as it was before the deletion.
+
+### Private data
+
+Private data is stored in encrypted form in IPFS, only the IPFS hash and hash of data encryption key are saved in the
+blockchain.
+
+Reading/writing private data is as simple as reading/writing public data. The only difference is that only the person
+who is the passport owner at the time of writing private data can read the
+private data. The private data provider can read private data only if it has saved the data encryption key.
+The passport owner does not need to know the data encryption key, as he can decrypt all private data using his Ethereum
+private key.
+
+#### Writing private data
+
+To store private data, use `FactWriter.setPrivateData` method.
+
+Let's try storing this data:
+- fact provider address: `0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E` (your address)
+- fact key: `secret_message`
+- fact value: `[1, 2, 3]` (value must be array of bytes)
+
+To this passport: `0x4026a67a2C4746b94F168bd4d082708f78d7b29f`
+
+```js
+import { FactWriter } from 'reputation-sdk';
+import IPFS from 'ipfs';
+
+// Prepare web3 object
+...
+
+const writer = new FactWriter(web3, `0x4026a67a2C4746b94F168bd4d082708f78d7b29f`);
+
+// ipfsClient can be any object that is able to communicate with IPFS as long as it implements
+// interface IIPFSClient in 'reputation-sdk'
+const ipfsClient = new IPFS();
+
+ipfsClient.on('ready', async () => {
+
+  const result = await writer.setPrivateData('secret_message', [1, 2, 3], '0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E', ipfsClient);
+
+  ...
+})
+
+```
+
+result variable will contain such object (with different values):
+```js
+{
+  // IPFS hash of directory where the encrypted data with it's metadata is store. This data will be stored in passport after transaction execution
+  dataIpfsHash: 'Qmabcde.....',
+
+  // Byte array of secret encryption key, that is able to decrypt the data
+  dataKey: [255, 1, 45, ...],
+
+  // Byte array of secret encryption key's hash. This data will be stored in passport after transaction execution
+  dataKeyHash: [16, 5, 214, ...],
+
+  // Generated transaction information, which is to be executed in blockchain
+  tx: {
+    from: '0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E',
+    to: '0x4026a67a2C4746b94F168bd4d082708f78d7b29f',
+    nonce: 12,
+    gasPrice: '0x1',
+    gasLimit: 21000,
+    value: 0,
+
+    // Encoded transaction data. Ready to be signed and sent to ethereum network
+    data: 'c421da14510...',
+  }
+}
+```
+
+As we can see, data is stored publicly in IPFS at address `result.dataIpfsHash`. However it can only be decrypted using passport owner's private key (only known by passport owner) or generated secret encryption key `result.dataKey` (only known by fact provider).
+
+At this stage data is stored to IPFS, but not yet in blockchain passport. To complete this - execute the transaction in blockchain using the data provided in `result.tx`. SDK only generates information about transaction, but execution is left up to SDK consumer, because the ways how transaction can be submitted to blockchain can vary. One possibility is to use `web3.eth.sendTransaction({...})`.
+
+#### Reading private data
+
+After the fact provider has written the private data to the passport, the data can be read either by passport owner or by fact provider (only if he's saved the secret encryption key). To read private data, the following data should be provided:
+- passport address
+- fact provider address
+- fact key
+- if the data is read by the fact provider, he needs to specify secret encryption key
+- if the data is read by the owner of the passport, he needs to specify his private key
+
+Let's try retrieving private data using:
+- passport address `0x4026a67a2C4746b94F168bd4d082708f78d7b29f`:
+- fact provider address: `0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E`
+- fact key: `secret_message`
+
+```js
+import { FactReader } from 'reputation-sdk';
+import IPFS from 'ipfs';
+
+// Prepare web3 object
+...
+
+const reader = new FactReader(web3, `0x4026a67a2C4746b94F168bd4d082708f78d7b29f`);
+
+// ipfsClient can be any object that is able to communicate with IPFS as long as it implements
+// interface IIPFSClient in 'reputation-sdk'
+const ipfsClient = new IPFS();
+
+ipfsClient.on('ready', async () => {
+
+  // Read data as a PASSPORT OWNER using passport owner Ethereum wallet private key
+  const passportOwnerPrivateKey = '<passport owner private key>';
+  let result = await reader.getPrivateData('0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E', 'secret_message', passportOwnerPrivateKey, ipfsClient);
+
+  ...
+
+  // Read data as a FACT PROVIDER using secret encryption key (from variable result.dataKey after fact writing)
+  const secretEncryptionKey = '0x...';
+  result = await reader.getPrivateDataUsingSecretKey('0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E', 'secret_message', secretEncryptionKey, ipfsClient);
+
+  ...
+})
+
+```
+
+`result` variable will now contain decrypted value `[1, 2, 3]`.
+
+In order to read hashes which are only stored in blockchain (not data in IPFS), we can use:
+
+```js
+result = await reader.getPrivateDataHashes('0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E', 'secret_message');
+```
+
+This will return:
+```js
+{
+  // IPFS hash of directory where the encrypted data with it's metadata is store.
+  dataIpfsHash: 'Qmabcde...',
+
+  // Byte array of secret encryption key's hash.
+  dataKeyHash: '0x1005d6...',
+}
+```
+
+##### Reading private data from transaction hash
+
+There is a possibility to read private data from blockchain transaction as well. Using same conditions as in previous example, we can retrieve private data from transaction using `FactHistoryReader` like this:
+
+```js
+import { FactHistoryReader } from 'reputation-sdk';
+...
+
+const historyReader = new FactHistoryReader(web3, `0x4026a67a2C4746b94F168bd4d082708f78d7b29f`);
+
+...
+
+// This is hash of transaction which stored fact data to blockchain
+const txHash = '0x123...';
+
+// Read data as a PASSPORT OWNER using passport owner Ethereum wallet private key
+const passportOwnerPrivateKey = '<passport owner private key>';
+let result = await historyReader.getPrivateData(txHash, passportOwnerPrivateKey, ipfsClient);
+
+...
+
+// Read data as a FACT PROVIDER using secret encryption key (from variable result.dataKey after fact writing)
+const secretEncryptionKey = '0x...';
+result = await historyReader.getPrivateDataUsingSecretKey(txHash, secretEncryptionKey, ipfsClient);
+
+...
+```
+
+`result` variable will now contain information about fact as well as decrypted value:
+
+```js
+{
+  factProviderAddress: '0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E',
+  passportAddress: '0x4026a67a2C4746b94F168bd4d082708f78d7b29f',
+  key: 'secret_message',
+  value: [1, 2, 3],
+}
+```
+
+In order to read hashes which are only stored in blockchain (not data in IPFS), we can use:
+
+```js
+result = await historyReader.getPrivateDataHashes(txHash);
+```
+
+This will return:
+```js
+{
+  factProviderAddress: '0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E',
+  passportAddress: '0x4026a67a2C4746b94F168bd4d082708f78d7b29f',
+  key: 'secret_message',
+  value: {
+
+    // IPFS hash of directory where the encrypted data with it's metadata is store.
+    dataIpfsHash: 'Qmabcde...',
+
+    // Byte array of secret encryption key's hash.
+    dataKeyHash: '0x1005d6...',
+  }
+}
+```
 
 ## Permissioned blockchains support
 

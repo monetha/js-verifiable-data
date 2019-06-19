@@ -42,6 +42,8 @@ var fetchEvents_1 = require("../utils/fetchEvents");
 var getTxData_1 = require("../utils/getTxData");
 var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
+var PrivateFactReader_1 = require("./PrivateFactReader");
+// #endregion
 /**
  * Class to read latest facts from the passport
  */
@@ -222,6 +224,88 @@ var FactReader = /** @class */ (function () {
             });
         });
     };
+    /**
+     * Read private data fact value using IPFS by decrypting it using passport owner private key.
+     * @param factProviderAddress fact provider to read fact for
+     * @param key fact key
+     * @param passportOwnerPrivateKey private passport owner wallet key in hex, used for data decryption
+     * @param ipfs IPFS client
+     */
+    FactReader.prototype.getPrivateData = function (factProviderAddress, key, passportOwnerPrivateKey, ipfs) {
+        return __awaiter(this, void 0, void 0, function () {
+            var privateReader, hashes;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        privateReader = new PrivateFactReader_1.PrivateFactReader();
+                        return [4 /*yield*/, this.getPrivateDataHashes(factProviderAddress, key)];
+                    case 1:
+                        hashes = _a.sent();
+                        if (!hashes) {
+                            return [2 /*return*/, null];
+                        }
+                        return [2 /*return*/, privateReader.getPrivateData({
+                                factProviderAddress: factProviderAddress,
+                                passportAddress: this.passportAddress,
+                                key: key,
+                                value: hashes,
+                            }, passportOwnerPrivateKey, ipfs)];
+                }
+            });
+        });
+    };
+    /**
+     * Read private data fact value using IPFS by decrypting it using secret key, generated at the time of writing.
+     * @param factProviderAddress fact provider to read fact for
+     * @param key fact key
+     * @param secretKey secret key in hex, used for data decryption
+     * @param ipfs IPFS client
+     */
+    FactReader.prototype.getPrivateDataUsingSecretKey = function (factProviderAddress, key, secretKey, ipfs) {
+        return __awaiter(this, void 0, void 0, function () {
+            var privateReader, hashes;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        privateReader = new PrivateFactReader_1.PrivateFactReader();
+                        return [4 /*yield*/, this.getPrivateDataHashes(factProviderAddress, key)];
+                    case 1:
+                        hashes = _a.sent();
+                        if (!hashes) {
+                            return [2 /*return*/, null];
+                        }
+                        return [2 /*return*/, privateReader.getPrivateDataUsingSecretKey(hashes.dataIpfsHash, secretKey, ipfs)];
+                }
+            });
+        });
+    };
+    /**
+     * Read private data hashes fact from the passport.
+     * @param factProviderAddress fact provider to read fact for
+     * @param key fact key
+     */
+    FactReader.prototype.getPrivateDataHashes = function (factProviderAddress, key) {
+        return __awaiter(this, void 0, void 0, function () {
+            var preparedKey, tx, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        preparedKey = this.web3.utils.fromAscii(key);
+                        tx = this.contractIO.getContract().methods.getPrivateDataHashes(factProviderAddress, preparedKey);
+                        return [4 /*yield*/, tx.call()];
+                    case 1:
+                        result = _a.sent();
+                        if (!result.success) {
+                            return [2 /*return*/, null];
+                        }
+                        return [2 /*return*/, {
+                                dataIpfsHash: result.dataIPFSHash,
+                                dataKeyHash: result.dataKeyHash,
+                            }];
+                }
+            });
+        });
+    };
     FactReader.prototype.get = function (method, factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
             var preparedKey, result;
@@ -232,7 +316,7 @@ var FactReader = /** @class */ (function () {
                         return [4 /*yield*/, this.contractIO.readData(method, [factProviderAddress, preparedKey])];
                     case 1:
                         result = _a.sent();
-                        // TODO: add comments about these indexes 0 and 1
+                        // Return null in case if value was not initialized
                         if (!result[0]) {
                             return [2 /*return*/, null];
                         }

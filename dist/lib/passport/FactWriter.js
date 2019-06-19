@@ -40,6 +40,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
+var PrivateFactWriter_1 = require("./PrivateFactWriter");
 /**
  * Class to write facts to passport
  */
@@ -49,6 +50,11 @@ var FactWriter = /** @class */ (function () {
     }
     Object.defineProperty(FactWriter.prototype, "web3", {
         get: function () { return this.contractIO.getWeb3(); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(FactWriter.prototype, "passportAddress", {
+        get: function () { return this.contractIO.getContractAddress(); },
         enumerable: true,
         configurable: true
     });
@@ -161,11 +167,43 @@ var FactWriter = /** @class */ (function () {
                         if (Array.isArray(result)) {
                             result = result[0];
                         }
-                        if (!result || !result.hash) {
+                        if (!result || !result.Hash) {
                             throw new Error('Returned result from IPFS file adding is not as expected. Result object should contain property "hash"');
                         }
-                        return [2 /*return*/, this.set('setIPFSHash', key, result.hash, factProviderAddress)];
+                        return [2 /*return*/, this.set('setIPFSHash', key, result.Hash, factProviderAddress)];
                 }
+            });
+        });
+    };
+    /**
+     * Writes private data value to IPFS by encrypting it and then storing IPFS hashes of encrypted data to passport fact.
+     * Data can be decrypted using passport owner's wallet private key or a secret key which is returned as a result of this call.
+     * @param key fact key
+     * @param value value to store privately
+     * @param ipfs IPFS client
+     */
+    FactWriter.prototype.setPrivateData = function (key, value, factProviderAddress, ipfs) {
+        return __awaiter(this, void 0, void 0, function () {
+            var privateWriter;
+            return __generator(this, function (_a) {
+                privateWriter = new PrivateFactWriter_1.PrivateFactWriter(this);
+                return [2 /*return*/, privateWriter.setPrivateData(factProviderAddress, key, value, ipfs)];
+            });
+        });
+    };
+    /**
+     * Writes IPFS hash of encrypted private data and hash of data encryption key
+     * @param key fact key
+     * @param value value to store
+     */
+    FactWriter.prototype.setPrivateDataHashes = function (key, value, factProviderAddress) {
+        return __awaiter(this, void 0, void 0, function () {
+            var preparedKey, contract, tx;
+            return __generator(this, function (_a) {
+                preparedKey = this.web3.utils.fromAscii(key);
+                contract = this.contractIO.getContract();
+                tx = contract.methods.setPrivateDataHashes(preparedKey, value.dataIpfsHash, value.dataKeyHash);
+                return [2 /*return*/, this.contractIO.prepareRawTX(factProviderAddress, contract.address, 0, tx)];
             });
         });
     };

@@ -6,24 +6,32 @@
     "test": "test"
   },
   "scripts": {
-    "test": "node ./node_modules/.bin/truffle test",
-    "ganache": "docker run -d -p 8545:8545 --name ganache trufflesuite/ganache-cli:latest",
+    "test": "./node_modules/.bin/truffle test",
+    "ganache": "docker run -d -p 8545:8545 --name ganache trufflesuite/ganache-cli:latest -m \"economy sight open cancel father goddess monkey mosquito mule village diet purpose\"",
     "ganache:stop": "docker rm ganache --force",
-    "ganache:terminal": "./node_modules/.bin/ganache-cli"
+    "ganache:terminal": "./node_modules/.bin/ganache-cli -m \"economy sight open cancel father goddess monkey mosquito mule village diet purpose\""
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bignumber.js": "8.0.1",
-    "chai": "^4.1.2",
-    "chai-bignumber": "^2.0.2",
+    "bignumber.js": "9.0.0",
+    "chai": "^4.2.0",
+    "chai-bignumber": "^3.0.0",
     "chai-moment": "^0.1.0",
     "ganache-cli": "^6.4.3",
-    "mocha": "^5.2.0",
+    "hash.js": "^1.1.7",
+    "mocha": "^6.1.4",
+    "node-fetch": "^2.6.0",
     "openzeppelin-solidity": "^1.12.0",
     "solc": "^0.4.24",
-    "truffle": "^4.1.15",
+    "truffle": "^5.0.21",
     "truffle-flattener": "^1.3.0",
     "web3": "^1.0.0-beta.55"
+  },
+  "devDependencies": {
+    "truffle-typings": "^1.0.6",
+    "ts-node": "^8.2.0",
+    "tslint-config-airbnb": "^5.11.1",
+    "typescript": "^3.5.1"
   }
 }

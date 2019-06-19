@@ -7,14 +7,14 @@ import { Contract } from 'web3-eth-contract';
 /**
  * Helper class to work with contract reading and writing
  */
-export class ContractIO {
+export class ContractIO<TContract extends Contract = Contract> {
   private web3: Web3;
-  private contract: Contract;
+  private contract: TContract;
   private contractAddress: string;
 
   constructor(web3: Web3, abi: AbiItem[], contractAddress: Address) {
     this.web3 = web3;
-    this.contract = new web3.eth.Contract(abi, contractAddress);
+    this.contract = new web3.eth.Contract(abi, contractAddress) as TContract;
     this.contractAddress = contractAddress;
   }
 
@@ -93,7 +93,7 @@ export class ContractIO {
     return func(...args);
   }
 
-  private async prepareRawTX(fromAddress: Address, toAddress: Address, value: number, data: any): Promise<IRawTX> {
+  public async prepareRawTX(fromAddress: Address, toAddress: Address, value: number, data: any): Promise<IRawTX> {
     const nonce = await this.getNonceFromBlockChain(fromAddress);
     const gasPrice = await this.getGasPriceFromBlockChain();
     const gasLimit = await this.getEstimatedGas(data.encodeABI(), fromAddress, toAddress);

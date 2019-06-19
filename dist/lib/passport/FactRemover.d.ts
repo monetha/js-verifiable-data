@@ -48,5 +48,10 @@ export declare class FactRemover {
      * @param key fact key
      */
     deleteIPFSHash(key: string, factProviderAddress: Address): Promise<import("../models/IRawTX").IRawTX>;
+    /**
+     * Deletes privateDataHashes type fact from passport
+     * @param key fact key
+     */
+    deletePrivateDataHashes(key: string, factProviderAddress: Address): Promise<import("../models/IRawTX").IRawTX>;
     private delete;
 }

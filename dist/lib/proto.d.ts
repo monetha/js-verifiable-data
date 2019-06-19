@@ -5,9 +5,11 @@ import { FactWriter } from './passport/FactWriter';
 import { FactRemover } from './passport/FactRemover';
 import { Permissions } from './passport/Permissions';
 import { PassportReader } from './passport/PassportReader';
+import { PrivateFactReader } from './passport/PrivateFactReader';
+import { PrivateFactWriter } from './passport/PrivateFactWriter';
 import { FactHistoryReader, IFactValue } from './passport/FactHistoryReader';
 import { EventType, DataType, IHistoryEvent } from './models/IHistoryEvent';
-import { IIPFSClient, IIPFSAddResult } from './models/IIPFSClient';
+import { IIPFSClient, IIPFSAddResult, IIPFSDag, IIPFSLink, IIPLD } from './models/IIPFSClient';
 import { IPassportRef } from './models/IPassportRef';
 declare const _default: {
     PassportGenerator: typeof PassportGenerator;
@@ -16,10 +18,12 @@ declare const _default: {
     FactReader: typeof FactReader;
     FactWriter: typeof FactWriter;
     FactRemover: typeof FactRemover;
+    PrivateFactReader: typeof PrivateFactReader;
+    PrivateFactWriter: typeof PrivateFactWriter;
     Permissions: typeof Permissions;
     FactHistoryReader: typeof FactHistoryReader;
     EventType: typeof EventType;
     DataType: typeof DataType;
 };
 export default _default;
-export { PassportGenerator, PassportOwnership, PassportReader, FactReader, FactWriter, FactRemover, Permissions, FactHistoryReader, EventType, DataType, IHistoryEvent, IIPFSClient, IIPFSAddResult, IFactValue, IPassportRef, };
+export { PassportGenerator, PassportOwnership, PassportReader, FactReader, FactWriter, FactRemover, PrivateFactReader, PrivateFactWriter, Permissions, FactHistoryReader, EventType, DataType, IHistoryEvent, IIPFSClient, IIPFSAddResult, IFactValue, IPassportRef, IIPFSDag, IIPFSLink, IIPLD, };

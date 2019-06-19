@@ -4,14 +4,18 @@ import { IIPFSClient } from '../models/IIPFSClient';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import passportLogicAbi from '../../config/PassportLogic.json';
+import { IPrivateDataHashes } from './FactReader';
+import { PassportLogic } from '../types/web3-contracts/PassportLogic';
+import { PrivateFactWriter } from './PrivateFactWriter';
 
 /**
  * Class to write facts to passport
  */
 export class FactWriter {
-  private contractIO: ContractIO;
+  private contractIO: ContractIO<PassportLogic>;
 
-  private get web3() { return this.contractIO.getWeb3(); }
+  public get web3() { return this.contractIO.getWeb3(); }
+  public get passportAddress() { return this.contractIO.getContractAddress(); }
 
   constructor(web3: Web3, passportAddress: Address) {
     this.contractIO = new ContractIO(web3, passportLogicAbi as AbiItem[], passportAddress);
@@ -102,11 +106,42 @@ export class FactWriter {
       result = result[0];
     }
 
-    if (!result || !result.hash) {
+    if (!result || !result.Hash) {
       throw new Error('Returned result from IPFS file adding is not as expected. Result object should contain property "hash"');
     }
 
-    return this.set('setIPFSHash', key, result.hash, factProviderAddress);
+    return this.set('setIPFSHash', key, result.Hash, factProviderAddress);
+  }
+
+  /**
+   * Writes private data value to IPFS by encrypting it and then storing IPFS hashes of encrypted data to passport fact.
+   * Data can be decrypted using passport owner's wallet private key or a secret key which is returned as a result of this call.
+   * @param key fact key
+   * @param value value to store privately
+   * @param ipfs IPFS client
+   */
+  public async setPrivateData(key: string, value: number[], factProviderAddress: Address, ipfs: IIPFSClient) {
+    const privateWriter = new PrivateFactWriter(this);
+
+    return privateWriter.setPrivateData(factProviderAddress, key, value, ipfs);
+  }
+
+  /**
+   * Writes IPFS hash of encrypted private data and hash of data encryption key
+   * @param key fact key
+   * @param value value to store
+   */
+  public async setPrivateDataHashes(key: string, value: IPrivateDataHashes, factProviderAddress: Address) {
+    const preparedKey = this.web3.utils.fromAscii(key);
+
+    const contract = this.contractIO.getContract();
+
+    const tx = contract.methods.setPrivateDataHashes(
+      preparedKey,
+      value.dataIpfsHash,
+      value.dataKeyHash);
+
+    return this.contractIO.prepareRawTX(factProviderAddress, contract.address, 0, tx);
   }
 
   private async set(method: string, key: string, value: any, factProviderAddress: Address) {

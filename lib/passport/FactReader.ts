@@ -6,16 +6,35 @@ import { IIPFSClient } from '../models/IIPFSClient';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import passportLogicAbi from '../../config/PassportLogic.json';
+import { PassportLogic } from '../types/web3-contracts/PassportLogic';
+import { PrivateFactReader } from './PrivateFactReader';
+
+// #region -------------- Interfaces -------------------------------------------------------------------
+
+export interface IPrivateDataHashes {
+
+  /**
+   *
+   */
+  dataIpfsHash: string;
+
+  /**
+   *
+   */
+  dataKeyHash: string;
+}
+
+// #endregion
 
 /**
  * Class to read latest facts from the passport
  */
 export class FactReader {
-  private contractIO: ContractIO;
+  private contractIO: ContractIO<PassportLogic>;
   private ethNetworkUrl: string;
 
-  private get web3() { return this.contractIO.getWeb3(); }
-  private get passportAddress() { return this.contractIO.getContractAddress(); }
+  public get web3() { return this.contractIO.getWeb3(); }
+  public get passportAddress() { return this.contractIO.getContractAddress(); }
 
   constructor(web3: Web3, ethNetworkUrl: string, passportAddress: Address) {
     this.ethNetworkUrl = ethNetworkUrl;
@@ -138,12 +157,80 @@ export class FactReader {
     return ipfs.cat(hash);
   }
 
+  /**
+   * Read private data fact value using IPFS by decrypting it using passport owner private key.
+   * @param factProviderAddress fact provider to read fact for
+   * @param key fact key
+   * @param passportOwnerPrivateKey private passport owner wallet key in hex, used for data decryption
+   * @param ipfs IPFS client
+   */
+  public async getPrivateData(factProviderAddress: Address, key: string, passportOwnerPrivateKey: string, ipfs: IIPFSClient): Promise<number[]> {
+    const privateReader = new PrivateFactReader();
+
+    const hashes = await this.getPrivateDataHashes(factProviderAddress, key);
+    if (!hashes) {
+      return null;
+    }
+
+    return privateReader.getPrivateData(
+      {
+        factProviderAddress,
+        passportAddress: this.passportAddress,
+        key,
+        value: hashes,
+      },
+      passportOwnerPrivateKey,
+      ipfs);
+  }
+
+  /**
+   * Read private data fact value using IPFS by decrypting it using secret key, generated at the time of writing.
+   * @param factProviderAddress fact provider to read fact for
+   * @param key fact key
+   * @param secretKey secret key in hex, used for data decryption
+   * @param ipfs IPFS client
+   */
+  public async getPrivateDataUsingSecretKey(factProviderAddress: Address, key: string, secretKey: string, ipfs: IIPFSClient): Promise<number[]> {
+    const privateReader = new PrivateFactReader();
+
+    const hashes = await this.getPrivateDataHashes(factProviderAddress, key);
+    if (!hashes) {
+      return null;
+    }
+
+    return privateReader.getPrivateDataUsingSecretKey(hashes.dataIpfsHash, secretKey, ipfs);
+  }
+
+  /**
+   * Read private data hashes fact from the passport.
+   * @param factProviderAddress fact provider to read fact for
+   * @param key fact key
+   */
+  public async getPrivateDataHashes(factProviderAddress: Address, key: string): Promise<IPrivateDataHashes> {
+    const preparedKey = this.web3.utils.fromAscii(key);
+
+    const tx = this.contractIO.getContract().methods.getPrivateDataHashes(factProviderAddress, preparedKey);
+    const result = await tx.call();
+
+    if (!result.success) {
+      return null;
+    }
+
+    return {
+      dataIpfsHash: result.dataIPFSHash,
+      dataKeyHash: result.dataKeyHash,
+    };
+  }
+
   private async get(method: string, factProviderAddress: Address, key: string) {
     const preparedKey = this.web3.utils.fromAscii(key);
 
+    // Contract returns result = (bool success, any value) as an array, each parameter is mapped in an array by its' index
+    // success - flag which determines if value was written prior reading or this is a default value from Ethereum storage
+    // value - data read from Ethereum storage
     const result = await this.contractIO.readData(method, [factProviderAddress, preparedKey]);
 
-    // TODO: add comments about these indexes 0 and 1
+    // Return null in case if value was not initialized
     if (!result[0]) {
       return null;
     }

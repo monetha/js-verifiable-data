@@ -141,6 +141,17 @@ var FactRemover = /** @class */ (function () {
             });
         });
     };
+    /**
+     * Deletes privateDataHashes type fact from passport
+     * @param key fact key
+     */
+    FactRemover.prototype.deletePrivateDataHashes = function (key, factProviderAddress) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.delete('deletePrivateDataHashes', key, factProviderAddress)];
+            });
+        });
+    };
     FactRemover.prototype.delete = function (method, key, factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
             var preparedKey;

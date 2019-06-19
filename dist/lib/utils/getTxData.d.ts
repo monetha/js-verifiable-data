@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import Web3 from 'web3';
 import { Transaction } from 'web3-core';
 export interface IMethodInfo {
@@ -20,3 +21,18 @@ export interface ITxData {
  * @param web3 web3 instance
  */
 export declare const getTxData: (txHash: string, web3: Web3) => Promise<ITxData>;
+/**
+ * Gets sender's elliptic curve public key (prefixed with byte 4)
+ */
+export declare const getSenderPublicKey: (tx: {
+    nonce: string;
+    gasPrice: string;
+    gas: string;
+    to: string;
+    value: string;
+    input: string;
+    r: string;
+    s: string;
+    v: string;
+    hash: string;
+}) => Buffer;

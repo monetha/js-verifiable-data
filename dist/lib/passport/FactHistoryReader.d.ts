@@ -1,6 +1,8 @@
 import { IIPFSClient } from '../models/IIPFSClient';
+import { IPrivateDataHashes } from './FactReader';
 export interface IFactValue<TValue> {
     factProviderAddress: string;
+    passportAddress: string;
     key: string;
     value: TValue;
 }
@@ -45,6 +47,26 @@ export declare class FactHistoryReader {
      * @returns data stored in IPFS
      */
     getIPFSData(txHash: string, ipfs: IIPFSClient): Promise<IFactValue<any>>;
+    /**
+     * Read decrypted private data fact from transaction.
+     * Fact value is retrieved by IPFS hash from transaction data and decrypted using passport owner private key.
+     *
+     * @param passportOwnerPrivateKey private passport owner wallet key in hex, used for data decryption
+     * @param ipfs IPFS client
+     */
+    getPrivateData(txHash: string, passportOwnerPrivateKey: string, ipfs: IIPFSClient): Promise<IFactValue<number[]>>;
+    /**
+     * Read decrypted private data fact from transaction.
+     * Fact value is retrieved by IPFS hash from transaction data and decrypted using secret key.
+     *
+     * @param secretKey secret key in hex, used for data decryption
+     * @param ipfs IPFS client
+     */
+    getPrivateDataUsingSecretKey(txHash: string, secretKey: string, ipfs: IIPFSClient): Promise<IFactValue<number[]>>;
+    /**
+     * Read private data hashes fact from transaction
+     */
+    getPrivateDataHashes(txHash: string): Promise<IFactValue<IPrivateDataHashes>>;
     private validateMethodSignature;
     private bytesToUnpaddedAscii;
 }

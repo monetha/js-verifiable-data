@@ -47,6 +47,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var abiDecoder = __importStar(require("abi-decoder"));
+var bn_js_1 = __importDefault(require("bn.js"));
+var ethereumjs_tx_1 = __importDefault(require("ethereumjs-tx"));
+var ethereumjs_util_1 = __importDefault(require("ethereumjs-util"));
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 /**
  * Decodes transaction data using the transaction hash
@@ -71,3 +74,21 @@ exports.getTxData = function (txHash, web3) { return __awaiter(_this, void 0, vo
         }
     });
 }); };
+/**
+ * Gets sender's elliptic curve public key (prefixed with byte 4)
+ */
+exports.getSenderPublicKey = function (tx) {
+    var ethTx = new ethereumjs_tx_1.default({
+        nonce: tx.nonce,
+        gasPrice: ethereumjs_util_1.default.bufferToHex(new bn_js_1.default(tx.gasPrice).toBuffer()),
+        gasLimit: tx.gas,
+        to: tx.to,
+        value: ethereumjs_util_1.default.bufferToHex(new bn_js_1.default(tx.value).toBuffer()),
+        data: tx.input,
+        r: tx.r,
+        s: tx.s,
+        v: tx.v,
+    });
+    // To be a valid EC public key - it must be prefixed with byte 4
+    return Buffer.concat([Buffer.from([4]), ethTx.getSenderPublicKey()]);
+};
