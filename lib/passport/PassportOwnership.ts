@@ -31,6 +31,13 @@ export class PassportOwnership {
   }
 
   /**
+   * Returns passport pending owner address
+   */
+  public async getPendingOwnerAddress(): Promise<string> {
+    return this.contract.getContract().methods.pendingOwner().call();
+  }
+
+  /**
    * Returns passport owner public key. Owner must claim ownership of the passport,
    * before this method can be invoked.
    */

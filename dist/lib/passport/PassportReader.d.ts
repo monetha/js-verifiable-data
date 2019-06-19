@@ -22,4 +22,8 @@ export declare class PassportReader {
      * @param filter passport history filter
      */
     readPassportHistory(passportAddress: Address, filter?: IPassportHistoryFilter): Promise<IHistoryEvent[]>;
+    /**
+     * Returns the address of passport logic registry
+     */
+    getPassportLogicRegistryAddress(passportAddress: string): Promise<string>;
 }
