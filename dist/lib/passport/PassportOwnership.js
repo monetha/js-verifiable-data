@@ -69,6 +69,16 @@ var PassportOwnership = /** @class */ (function () {
         });
     };
     /**
+     * Returns passport pending owner address
+     */
+    PassportOwnership.prototype.getPendingOwnerAddress = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.contract.getContract().methods.pendingOwner().call()];
+            });
+        });
+    };
+    /**
      * Returns passport owner public key. Owner must claim ownership of the passport,
      * before this method can be invoked.
      */

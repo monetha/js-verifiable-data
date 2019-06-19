@@ -15,6 +15,10 @@ export declare class PassportOwnership {
      */
     getOwnerAddress(): Promise<string>;
     /**
+     * Returns passport pending owner address
+     */
+    getPendingOwnerAddress(): Promise<string>;
+    /**
      * Returns passport owner public key. Owner must claim ownership of the passport,
      * before this method can be invoked.
      */
