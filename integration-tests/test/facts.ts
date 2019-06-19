@@ -2,27 +2,12 @@ import { expect, use } from 'chai';
 import chaiMoment from 'chai-moment';
 import Web3 from 'web3';
 import { Transaction } from 'web3-core';
-import sdk, { FactReader, FactWriter, FactHistoryReader, FactRemover } from '../../';
+import { PassportGenerator } from 'lib/passport/PassportGenerator';
+import { PassportOwnership } from 'lib/passport/PassportOwnership';
 import { MockIPFSClient } from '../mocks/MockIPFSClient';
+import { privateKeys, ethereumNetworkUrl } from '../common/ganache';
+import { PassportReader, FactWriter, Permissions, FactReader, FactHistoryReader, FactRemover } from 'lib/proto';
 use(chaiMoment);
-
-// Tests assume that they were run using Ganache with '-m' parameter with mnemonic below
-// mnemonic: economy sight open cancel father goddess monkey mosquito mule village diet purpose
-//
-// Private Keys
-// ==================
-const privateKeys = [
-  '0x15a2afd0ac9e9e51bf608b936e3a9ab8a3a3c4b14504e03d0325ba918c9fa46b',
-  '0x4592c4fb70300d888419148844233ae5eae4c73b3d18cfd6952e1e081b06f57c',
-  '0xe083b950a6acd10f01af569b5e6cb18ff9ba657a0f6499ddce229cf7c5a78854',
-  '0x6d46ff676b00066d02661d937cc659b5bb531be4a8abe5b570d762b2dc954325',
-  '0xb60c3d80098c4ee4980067864c0398808e007dbccf00f4521035d0bbc7d62fe6',
-  '0x3e0763e8431abf7ca61a1e3330c3be3eb6cdb2b45dc1e34e8fc505e053ef3178',
-  '0xc0f7c843fbe2e938f3d3650d4543dc961ac2b11e804047674fc221a61f1693c2',
-  '0xda8de30239f609fe2d21d1ce75335604fb79715a9e89ae1baeef05fd75cee154',
-  '0x385e61c258ee042debd606bfab24e27aadae3a4acdb07828994d27fe343249c8',
-  '0xffc607dafc5568ac460d73384ed06baa72e9268995501d048aea7ed6448a32a1',
-];
 
 let accounts;
 let monethaOwner;
@@ -34,7 +19,6 @@ let factProviderAddress;
 let privateDataFactSecretKey;
 const mockIPFSClient = new MockIPFSClient();
 
-const ethereumNetworkUrl = 'http://127.0.0.1:8545';
 const PassportFactory = artifacts.require('PassportFactory');
 const PassportLogic = artifacts.require('PassportLogic');
 const PassportLogicRegistry = artifacts.require('PassportLogicRegistry');
@@ -58,10 +42,10 @@ before(async () => {
   passportFactoryAddress = passportFactory.address;
 });
 
-describe('Reputation js-sdk smoke tests', () => {
+describe('Passport creation and facts', () => {
   it('Should be able to create passport', async () => {
     // Given
-    const generator = new sdk.PassportGenerator(web3, passportFactoryAddress);
+    const generator = new PassportGenerator(web3, passportFactoryAddress);
     // When
     const tx_data = await generator.createPassport(passportOwner);
     const transaction = await submitTransaction(tx_data);
@@ -76,7 +60,7 @@ describe('Reputation js-sdk smoke tests', () => {
 
   it('Should be able to claim ownership', async () => {
     // Given
-    const generator = new sdk.PassportOwnership(web3, passportAddress);
+    const generator = new PassportOwnership(web3, passportAddress);
     // When
     const response = await generator.claimOwnership(passportOwner);
     const transaction = await submitTransaction(response);
@@ -89,7 +73,7 @@ describe('Reputation js-sdk smoke tests', () => {
 
   it('Should be able to get a list of all created passports', async () => {
     // Given
-    const reader = new sdk.PassportReader(web3, ethereumNetworkUrl);
+    const reader = new PassportReader(web3, ethereumNetworkUrl);
 
     // When
     const response = await reader.getPassportsList(passportFactoryAddress);
@@ -141,7 +125,7 @@ describe('Reputation js-sdk smoke tests', () => {
   });
 
   it('Should be able to write PrivateData fact', async () => {
-    const writer = new sdk.FactWriter(web3, passportAddress);
+    const writer = new FactWriter(web3, passportAddress);
     const writeResult = await writer.setPrivateData('privatedata_fact', [1, 2, 3, 4, 5, 6], factProviderAddress, mockIPFSClient);
 
     txHashes.privatedata_fact = await writeAndValidateFact(_ => writeResult.tx);
@@ -309,7 +293,7 @@ describe('Reputation js-sdk smoke tests', () => {
 
   it('Should be able read facts history.', async () => {
     // Given
-    const reader = new sdk.PassportReader(web3, ethereumNetworkUrl);
+    const reader = new PassportReader(web3, ethereumNetworkUrl);
     // When
     const response = await reader.readPassportHistory(passportAddress);
     // Then
@@ -325,7 +309,7 @@ describe('Reputation js-sdk smoke tests', () => {
 
   it('Should be able to whitelist fact provider.', async () => {
     // Given
-    const permissions = new sdk.Permissions(web3, passportAddress);
+    const permissions = new Permissions(web3, passportAddress);
     // When
     const response = await permissions.addFactProviderToWhitelist(factProviderAddress, passportOwner);
     const transaction = await submitTransaction(response);
@@ -342,7 +326,7 @@ describe('Reputation js-sdk smoke tests', () => {
 
 async function writeAndValidateFact(writeFact: (writer: FactWriter) => any) {
   // Given
-  const writer = new sdk.FactWriter(web3, passportAddress);
+  const writer = new FactWriter(web3, passportAddress);
 
   // When
   const response = await writeFact(writer);
@@ -357,7 +341,7 @@ async function writeAndValidateFact(writeFact: (writer: FactWriter) => any) {
 
 async function readAndValidateFact(readFact: (reader: FactReader) => any, expectedValue) {
   // Given
-  const reader = new sdk.FactReader(web3, ethereumNetworkUrl, passportAddress);
+  const reader = new FactReader(web3, ethereumNetworkUrl, passportAddress);
 
   // When
   const response = await readFact(reader);
@@ -368,7 +352,7 @@ async function readAndValidateFact(readFact: (reader: FactReader) => any, expect
 
 async function readAndValidateTxFact(readFact: (reader: FactHistoryReader) => any, expectedValue) {
   // Given
-  const reader = new sdk.FactHistoryReader(web3);
+  const reader = new FactHistoryReader(web3);
 
   // When
   const response = await readFact(reader);
@@ -382,7 +366,7 @@ async function readAndValidateTxFact(readFact: (reader: FactHistoryReader) => an
 
 async function deleteAndValidateFact(deleteFact: (remover: FactRemover) => any) {
   // Given
-  const remover = new sdk.FactRemover(web3, passportAddress);
+  const remover = new FactRemover(web3, passportAddress);
 
   // When
   const response = await deleteFact(remover);

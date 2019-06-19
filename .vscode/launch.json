@@ -34,6 +34,7 @@
         "--colors", "--recursive",
         "${file}"
       ],
+      "cwd": "${workspaceFolder}\\integration-tests",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
     }

@@ -11,6 +11,8 @@ import { FactHistoryReader, IFactValue } from './passport/FactHistoryReader';
 import { EventType, DataType, IHistoryEvent } from './models/IHistoryEvent';
 import { IIPFSClient, IIPFSAddResult, IIPFSDag, IIPFSLink, IIPLD } from './models/IIPFSClient';
 import { IPassportRef } from './models/IPassportRef';
+import { PrivateDataExchanger } from './passport/PrivateDataExchanger';
+import { TxExecutor } from './models/TxExecutor';
 
 export default {
   PassportGenerator,
@@ -25,6 +27,7 @@ export default {
   FactHistoryReader,
   EventType,
   DataType,
+  PrivateDataExchanger,
 };
 
 export {
@@ -38,6 +41,7 @@ export {
   PrivateFactWriter,
   Permissions,
   FactHistoryReader,
+  PrivateDataExchanger,
   EventType,
   DataType,
   IHistoryEvent,
@@ -48,4 +52,5 @@ export {
   IIPFSDag,
   IIPFSLink,
   IIPLD,
+  TxExecutor,
 };

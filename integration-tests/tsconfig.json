@@ -3,15 +3,26 @@
     "target": "es5",
     "lib": [
       "dom",
-      "es2015"
+      "es2015",
     ],
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "typeRoots": [
       "./node_modules"
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "lib/*": [
+        "../lib/*"
+      ],
+    }
   },
   "exclude": [
     "node_modules"
+  ],
+  "include": [
+    "./**/*",
+    "./../lib/**/*",
+    "./../config/*"
   ]
 }

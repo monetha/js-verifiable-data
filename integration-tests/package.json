@@ -31,6 +31,7 @@
   "devDependencies": {
     "truffle-typings": "^1.0.6",
     "ts-node": "^8.2.0",
+    "tsconfig-paths": "^3.8.0",
     "tslint-config-airbnb": "^5.11.1",
     "typescript": "^3.5.1"
   }

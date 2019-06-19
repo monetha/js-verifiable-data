@@ -4,9 +4,9 @@ import { ECIES } from '../crypto/ecies/ecies';
 import { constantTimeCompare } from '../crypto/utils/compare';
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
-import { FactReader, IPrivateDataHashes } from './FactReader';
-import { deriveSecretKeyringMaterial, ellipticCurveAlg, ipfsFileNames, unmarshalSecretKeyringMaterial } from './privateFactCommon';
 import { IFactValue } from './FactHistoryReader';
+import { IPrivateDataHashes } from './FactReader';
+import { deriveSecretKeyringMaterial, ellipticCurveAlg, ipfsFileNames, unmarshalSecretKeyringMaterial } from './privateFactCommon';
 const EC = ec;
 
 /**

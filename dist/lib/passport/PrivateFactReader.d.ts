@@ -1,8 +1,8 @@
 import { curve, ec } from 'elliptic';
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
-import { IPrivateDataHashes } from './FactReader';
 import { IFactValue } from './FactHistoryReader';
+import { IPrivateDataHashes } from './FactReader';
 /**
  * Class to read private facts
  */

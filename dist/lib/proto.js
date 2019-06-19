@@ -23,6 +23,8 @@ exports.FactHistoryReader = FactHistoryReader_1.FactHistoryReader;
 var IHistoryEvent_1 = require("./models/IHistoryEvent");
 exports.EventType = IHistoryEvent_1.EventType;
 exports.DataType = IHistoryEvent_1.DataType;
+var PrivateDataExchanger_1 = require("./passport/PrivateDataExchanger");
+exports.PrivateDataExchanger = PrivateDataExchanger_1.PrivateDataExchanger;
 exports.default = {
     PassportGenerator: PassportGenerator_1.PassportGenerator,
     PassportOwnership: PassportOwnership_1.PassportOwnership,
@@ -36,4 +38,5 @@ exports.default = {
     FactHistoryReader: FactHistoryReader_1.FactHistoryReader,
     EventType: IHistoryEvent_1.EventType,
     DataType: IHistoryEvent_1.DataType,
+    PrivateDataExchanger: PrivateDataExchanger_1.PrivateDataExchanger,
 };
