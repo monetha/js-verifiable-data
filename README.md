@@ -1,6 +1,9 @@
 # Monetha: Decentralized Reputation Framework
 
-# Reputation Layer: js-sdk
+# Reputation Layer: js-sdk [![Build Status][1]][2]
+
+[1]: https://travis-ci.org/monetha/reputation-js-sdk.svg?branch=master
+[2]: https://travis-ci.org/monetha/reputation-js-sdk
 
 - [Monetha: Decentralized Reputation Framework](#monetha-decentralized-reputation-framework)
 - [Reputation Layer: js-sdk](#reputation-layer-js-sdk)
