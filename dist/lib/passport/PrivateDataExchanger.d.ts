@@ -1,19 +1,22 @@
 import { Address } from '../models/Address';
 import BN from 'bn.js';
 import { TxExecutor } from '../models/TxExecutor';
+import Web3 from 'web3';
 export declare class PrivateDataExchanger {
     private passportAddress;
-    private txExecutor;
-    constructor(passportAddress: Address, txExecutor?: TxExecutor);
-    propose(factKey: string, factProviderAddress: Address, exchangeStakeWei: BN): Promise<IPropseDataExchangeResult>;
-    accept(exchangeIndex: BN): Promise<void>;
-    timeout(exchangeIndex: BN): Promise<void>;
-    dispute(exchangeIndex: BN): Promise<IDisputeDataExchangeResult>;
-    finish(exchangeIndex: BN): Promise<void>;
+    private web3;
+    private passportLogic;
+    private ec;
+    constructor(web3: Web3, passportAddress: Address);
+    propose(factKey: string, factProviderAddress: Address, exchangeStakeWei: BN, requesterAddress: Address, txExecutor: TxExecutor): Promise<IProposeDataExchangeResult>;
+    accept(exchangeIndex: BN, passOwnerAddress: Address, txExecutor: TxExecutor): Promise<void>;
+    timeout(exchangeIndex: BN, requesterAddress: Address, txExecutor: TxExecutor): Promise<void>;
+    dispute(exchangeIndex: BN, requesterOrPassOwnerAddress: Address, txExecutor: TxExecutor): Promise<IDisputeDataExchangeResult>;
+    finish(exchangeIndex: BN, requesterOrOtherAddress: Address, txExecutor: TxExecutor): Promise<void>;
     getStatus(exchangeIndex: BN): Promise<IDataExchangeStatus>;
     getPrivateData(exchangeIndex: BN, exchangeKey: number[]): Promise<void>;
 }
-export interface IPropseDataExchangeResult {
+export interface IProposeDataExchangeResult {
     exchangeIndex: BN;
     exchangeKey: number[];
     exchangeKeyHash: number[];

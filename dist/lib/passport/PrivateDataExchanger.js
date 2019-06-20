@@ -34,23 +34,72 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+var abiDecoder = __importStar(require("abi-decoder"));
+var bn_js_1 = __importDefault(require("bn.js"));
+var proto_1 = require("../proto");
+var ecies_1 = require("../crypto/ecies/ecies");
+var elliptic_1 = require("elliptic");
+var privateFactCommon_1 = require("./privateFactCommon");
+var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
+var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var PrivateDataExchanger = /** @class */ (function () {
-    function PrivateDataExchanger(passportAddress, txExecutor) {
+    function PrivateDataExchanger(web3, passportAddress) {
+        this.ec = new elliptic_1.ec(privateFactCommon_1.ellipticCurveAlg);
+        this.web3 = web3;
         this.passportAddress = passportAddress;
-        this.txExecutor = txExecutor;
+        this.passportLogic = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
     }
     // #region -------------- Propose -------------------------------------------------------------------
-    PrivateDataExchanger.prototype.propose = function (factKey, factProviderAddress, exchangeStakeWei) {
+    PrivateDataExchanger.prototype.propose = function (factKey, factProviderAddress, exchangeStakeWei, requesterAddress, txExecutor) {
         return __awaiter(this, void 0, void 0, function () {
+            var ownerPublicKeyBytes, ownerPubKeyPair, ecies, exchangeKeyData, encryptedExchangeKey, contract, tx, rawTx, receipt, logs, exchangeIdxData;
             return __generator(this, function (_a) {
-                throw new Error('Not implemented');
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, new proto_1.PassportOwnership(this.web3, this.passportAddress).getOwnerPublicKey()];
+                    case 1:
+                        ownerPublicKeyBytes = _a.sent();
+                        ownerPubKeyPair = this.ec.keyFromPublic(Buffer.from(ownerPublicKeyBytes));
+                        ecies = ecies_1.ECIES.createGenerated(this.ec);
+                        exchangeKeyData = privateFactCommon_1.deriveSecretKeyringMaterial(ecies, ownerPubKeyPair, this.passportAddress, factProviderAddress, factKey);
+                        encryptedExchangeKey = ecies.getPublicKey().getPublic('array');
+                        contract = this.passportLogic.getContract();
+                        tx = contract.methods.proposePrivateDataExchange(factProviderAddress, this.web3.utils.fromAscii(factKey), encryptedExchangeKey, exchangeKeyData.skmHash);
+                        return [4 /*yield*/, this.passportLogic.prepareRawTX(requesterAddress, this.passportAddress, exchangeStakeWei, tx)];
+                    case 2:
+                        rawTx = _a.sent();
+                        return [4 /*yield*/, txExecutor(rawTx)];
+                    case 3:
+                        receipt = _a.sent();
+                        // Parse exchange index from tx receipt
+                        abiDecoder.addABI(PassportLogic_json_1.default);
+                        logs = abiDecoder.decodeLogs(receipt.logs);
+                        exchangeIdxData = logs[0].events.find(function (e) { return e.name = 'exchangeIdx'; });
+                        if (!exchangeIdxData) {
+                            throw new Error('Transaction receipt does not contain "exchangeIdx" in event logs');
+                        }
+                        return [2 /*return*/, {
+                                exchangeIndex: new bn_js_1.default(exchangeIdxData.value, 10),
+                                exchangeKey: exchangeKeyData.skm,
+                                exchangeKeyHash: exchangeKeyData.skmHash,
+                            }];
+                }
             });
         });
     };
     // #endregion
     // #region -------------- Accept -------------------------------------------------------------------
-    PrivateDataExchanger.prototype.accept = function (exchangeIndex) {
+    PrivateDataExchanger.prototype.accept = function (exchangeIndex, passOwnerAddress, txExecutor) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 throw new Error('Not implemented');
@@ -59,7 +108,7 @@ var PrivateDataExchanger = /** @class */ (function () {
     };
     // #endregion
     // #region -------------- Timeout -------------------------------------------------------------------
-    PrivateDataExchanger.prototype.timeout = function (exchangeIndex) {
+    PrivateDataExchanger.prototype.timeout = function (exchangeIndex, requesterAddress, txExecutor) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 throw new Error('Not implemented');
@@ -68,7 +117,7 @@ var PrivateDataExchanger = /** @class */ (function () {
     };
     // #endregion
     // #region -------------- Dispute -------------------------------------------------------------------
-    PrivateDataExchanger.prototype.dispute = function (exchangeIndex) {
+    PrivateDataExchanger.prototype.dispute = function (exchangeIndex, requesterOrPassOwnerAddress, txExecutor) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 throw new Error('Not implemented');
@@ -77,7 +126,7 @@ var PrivateDataExchanger = /** @class */ (function () {
     };
     // #endregion
     // #region -------------- Finish -------------------------------------------------------------------
-    PrivateDataExchanger.prototype.finish = function (exchangeIndex) {
+    PrivateDataExchanger.prototype.finish = function (exchangeIndex, requesterOrOtherAddress, txExecutor) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 throw new Error('Not implemented');

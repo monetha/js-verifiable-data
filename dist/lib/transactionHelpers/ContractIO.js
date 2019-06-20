@@ -123,7 +123,7 @@ var ContractIO = /** @class */ (function () {
                         return [4 /*yield*/, this.getGasPriceFromBlockChain()];
                     case 2:
                         gasPrice = _a.sent();
-                        return [4 /*yield*/, this.getEstimatedGas(data.encodeABI(), fromAddress, toAddress)];
+                        return [4 /*yield*/, this.getEstimatedGas(data.encodeABI(), fromAddress, toAddress, value)];
                     case 3:
                         gasLimit = _a.sent();
                         return [2 /*return*/, {
@@ -139,12 +139,12 @@ var ContractIO = /** @class */ (function () {
             });
         });
     };
-    ContractIO.prototype.getEstimatedGas = function (data, from, to) {
+    ContractIO.prototype.getEstimatedGas = function (data, from, to, value) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
-                        _this.web3.eth.estimateGas({ data: data, from: from, to: to }, function (error, gas) {
+                        _this.web3.eth.estimateGas({ data: data, from: from, to: to, value: value }, function (error, gas) {
                             if (error) {
                                 reject(error);
                                 return;

@@ -1,27 +1,82 @@
+import * as abiDecoder from 'abi-decoder';
 import { Address } from '../models/Address';
 import BN from 'bn.js';
 import { TxExecutor } from '../models/TxExecutor';
+import Web3 from 'web3';
+import { PassportOwnership } from 'lib/proto';
+import { ECIES } from 'lib/crypto/ecies/ecies';
+import { ec } from 'elliptic';
+import { ellipticCurveAlg, deriveSecretKeyringMaterial } from './privateFactCommon';
+import { PassportLogic } from 'lib/types/web3-contracts/PassportLogic';
+import passportLogicAbi from '../../config/PassportLogic.json';
+import { AbiItem } from 'web3-utils';
+import { ContractIO } from 'lib/transactionHelpers/ContractIO';
 
 export class PrivateDataExchanger {
   private passportAddress: Address;
-  private txExecutor: TxExecutor;
+  private web3: Web3;
+  private passportLogic: ContractIO<PassportLogic>;
+  private ec = new ec(ellipticCurveAlg);
 
-  public constructor(passportAddress: Address, txExecutor?: TxExecutor) {
+  public constructor(web3: Web3, passportAddress: Address) {
+    this.web3 = web3;
     this.passportAddress = passportAddress;
-    this.txExecutor = txExecutor;
+    this.passportLogic = new ContractIO(web3, passportLogicAbi as AbiItem[], passportAddress);
   }
 
   // #region -------------- Propose -------------------------------------------------------------------
 
-  public async propose(factKey: string, factProviderAddress: Address, exchangeStakeWei: BN): Promise<IPropseDataExchangeResult> {
-    throw new Error('Not implemented');
+  public async propose(
+    factKey: string,
+    factProviderAddress: Address,
+    exchangeStakeWei: BN,
+    requesterAddress: Address,
+    txExecutor: TxExecutor,
+  ): Promise<IProposeDataExchangeResult> {
+
+    // Get owner public key
+    const ownerPublicKeyBytes = await new PassportOwnership(this.web3, this.passportAddress).getOwnerPublicKey();
+    const ownerPubKeyPair = this.ec.keyFromPublic(Buffer.from(ownerPublicKeyBytes));
+
+    // Create exchange key to be shared with passport owner
+    const ecies = ECIES.createGenerated(this.ec);
+
+    const exchangeKeyData = deriveSecretKeyringMaterial(ecies, ownerPubKeyPair, this.passportAddress, factProviderAddress, factKey);
+    const encryptedExchangeKey = ecies.getPublicKey().getPublic('array');
+
+    // Propose private data exchange
+    const contract = this.passportLogic.getContract();
+    const tx = contract.methods.proposePrivateDataExchange(
+      factProviderAddress,
+      this.web3.utils.fromAscii(factKey),
+      encryptedExchangeKey as any,
+      exchangeKeyData.skmHash,
+    );
+
+    // Execute transaction
+    const rawTx = await this.passportLogic.prepareRawTX(requesterAddress, this.passportAddress, exchangeStakeWei, tx);
+    const receipt = await txExecutor(rawTx);
+
+    // Parse exchange index from tx receipt
+    abiDecoder.addABI(passportLogicAbi);
+    const logs = abiDecoder.decodeLogs(receipt.logs);
+    const exchangeIdxData = logs[0].events.find(e => e.name = 'exchangeIdx');
+    if (!exchangeIdxData) {
+      throw new Error('Transaction receipt does not contain "exchangeIdx" in event logs');
+    }
+
+    return {
+      exchangeIndex: new BN(exchangeIdxData.value, 10),
+      exchangeKey: exchangeKeyData.skm,
+      exchangeKeyHash: exchangeKeyData.skmHash,
+    };
   }
 
   // #endregion
 
   // #region -------------- Accept -------------------------------------------------------------------
 
-  public async accept(exchangeIndex: BN): Promise<void> {
+  public async accept(exchangeIndex: BN, passOwnerAddress: Address, txExecutor: TxExecutor): Promise<void> {
     throw new Error('Not implemented');
   }
 
@@ -29,7 +84,7 @@ export class PrivateDataExchanger {
 
   // #region -------------- Timeout -------------------------------------------------------------------
 
-  public async timeout(exchangeIndex: BN): Promise<void> {
+  public async timeout(exchangeIndex: BN, requesterAddress: Address, txExecutor: TxExecutor): Promise<void> {
     throw new Error('Not implemented');
   }
 
@@ -37,7 +92,7 @@ export class PrivateDataExchanger {
 
   // #region -------------- Dispute -------------------------------------------------------------------
 
-  public async dispute(exchangeIndex: BN): Promise<IDisputeDataExchangeResult> {
+  public async dispute(exchangeIndex: BN, requesterOrPassOwnerAddress: Address, txExecutor: TxExecutor): Promise<IDisputeDataExchangeResult> {
     throw new Error('Not implemented');
   }
 
@@ -45,7 +100,7 @@ export class PrivateDataExchanger {
 
   // #region -------------- Finish -------------------------------------------------------------------
 
-  public async finish(exchangeIndex: BN): Promise<void> {
+  public async finish(exchangeIndex: BN, requesterOrOtherAddress: Address, txExecutor: TxExecutor): Promise<void> {
     throw new Error('Not implemented');
   }
 
@@ -70,7 +125,7 @@ export class PrivateDataExchanger {
 
 // #region -------------- Interfaces -------------------------------------------------------------------
 
-export interface IPropseDataExchangeResult {
+export interface IProposeDataExchangeResult {
   exchangeIndex: BN;
   exchangeKey: number[];
   exchangeKeyHash: number[];
