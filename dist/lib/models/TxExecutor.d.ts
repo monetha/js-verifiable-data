@@ -1,3 +1,3 @@
 import { IRawTX } from './IRawTX';
 import { TransactionReceipt } from 'web3-core';
-export declare type TxExecutor = (rawTx: IRawTX) => TransactionReceipt;
+export declare type TxExecutor = (rawTx: IRawTX) => Promise<TransactionReceipt>;

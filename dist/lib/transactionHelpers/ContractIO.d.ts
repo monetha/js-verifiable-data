@@ -3,6 +3,7 @@ import { IRawTX } from '../models/IRawTX';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import { Contract } from 'web3-eth-contract';
+import { TransactionObject } from '../types/web3-contracts/types';
 /**
  * Helper class to work with contract reading and writing
  */
@@ -26,7 +27,7 @@ export declare class ContractIO<TContract extends Contract = Contract> {
      * Generates hex from contract data (methods, params)
      */
     private prepareWriteData;
-    prepareRawTX(fromAddress: Address, toAddress: Address, value: number, data: any): Promise<IRawTX>;
+    prepareRawTX<TData>(fromAddress: Address, toAddress: Address, value: number, data: TransactionObject<TData>): Promise<IRawTX>;
     private getEstimatedGas;
     private getGasPriceFromBlockChain;
     private getNonceFromBlockChain;

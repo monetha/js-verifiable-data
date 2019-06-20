@@ -1,12 +1,12 @@
 import { expect, use } from 'chai';
 import chaiMoment from 'chai-moment';
-import Web3 from 'web3';
-import { Transaction } from 'web3-core';
+import { submitTransaction } from 'common/tx';
 import { PassportGenerator } from 'lib/passport/PassportGenerator';
 import { PassportOwnership } from 'lib/passport/PassportOwnership';
+import { FactHistoryReader, FactReader, FactRemover, FactWriter, PassportReader, Permissions } from 'lib/proto';
+import Web3 from 'web3';
+import { ethereumNetworkUrl, privateKeys } from '../common/ganache';
 import { MockIPFSClient } from '../mocks/MockIPFSClient';
-import { privateKeys, ethereumNetworkUrl } from '../common/ganache';
-import { PassportReader, FactWriter, Permissions, FactReader, FactHistoryReader, FactRemover } from 'lib/proto';
 use(chaiMoment);
 
 let accounts;
@@ -48,7 +48,7 @@ describe('Passport creation and facts', () => {
     const generator = new PassportGenerator(web3, passportFactoryAddress);
     // When
     const tx_data = await generator.createPassport(passportOwner);
-    const transaction = await submitTransaction(tx_data);
+    const transaction = await submitTransaction(web3, tx_data);
     const receipt = await web3.eth.getTransactionReceipt(transaction.hash);
     // Then
     passportAddress = `0x${receipt.logs[0].topics[1].slice(26)}`;
@@ -63,7 +63,7 @@ describe('Passport creation and facts', () => {
     const generator = new PassportOwnership(web3, passportAddress);
     // When
     const response = await generator.claimOwnership(passportOwner);
-    const transaction = await submitTransaction(response);
+    const transaction = await submitTransaction(web3, response);
     // Then
     expect(transaction.from).to.equal(passportOwner);
     expect(transaction).to.have.property('to');
@@ -312,7 +312,7 @@ describe('Passport creation and facts', () => {
     const permissions = new Permissions(web3, passportAddress);
     // When
     const response = await permissions.addFactProviderToWhitelist(factProviderAddress, passportOwner);
-    const transaction = await submitTransaction(response);
+    const transaction = await submitTransaction(web3, response);
     // Then
     expect(transaction.from).to.equal(passportOwner);
     expect(transaction).to.have.property('to');
@@ -330,7 +330,7 @@ async function writeAndValidateFact(writeFact: (writer: FactWriter) => any) {
 
   // When
   const response = await writeFact(writer);
-  const transaction = await submitTransaction(response);
+  const transaction = await submitTransaction(web3, response);
 
   // Then
   expect(transaction.from).to.equal(factProviderAddress);
@@ -370,34 +370,12 @@ async function deleteAndValidateFact(deleteFact: (remover: FactRemover) => any) 
 
   // When
   const response = await deleteFact(remover);
-  const transaction = await submitTransaction(response);
+  const transaction = await submitTransaction(web3, response);
 
   // Then
   expect(transaction.from).to.equal(factProviderAddress);
   expect(transaction).to.have.property('to');
   expect(transaction).to.have.property('input');
-}
-
-async function submitTransaction(txData) {
-  return new Promise<Transaction>(async (success, reject) => {
-    try {
-      await web3.eth.sendTransaction({
-        from: txData.from,
-        to: txData.to,
-        nonce: txData.nonce,
-        gasPrice: txData.gasPrice,
-        gas: txData.gasLimit,
-        value: txData.value,
-        data: txData.data,
-      })
-        .on('transactionHash', async (hash) => {
-          const transaction = await web3.eth.getTransaction(hash);
-          success(transaction);
-        });
-    } catch (e) {
-      reject(e);
-    }
-  });
 }
 
 // #endregion
