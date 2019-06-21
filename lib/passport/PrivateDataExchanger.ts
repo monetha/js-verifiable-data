@@ -15,6 +15,7 @@ import { hexToArray, hexToUnpaddedAscii, toBN } from 'lib/utils/conversion';
 import { IIPFSClient } from 'lib/models/IIPFSClient';
 import { constantTimeCompare } from 'lib/crypto/utils/compare';
 import { PrivateFactReader } from './PrivateFactReader';
+import keccak256 from 'keccak256';
 
 export class PrivateDataExchanger {
   private passportAddress: Address;
@@ -203,7 +204,7 @@ export class PrivateDataExchanger {
       dataIpfsHash: rawStatus.dataIPFSHash,
       encryptedExchangeKey: hexToArray(rawStatus.encryptedExchangeKey as any),
       dataKeyHash: hexToArray(rawStatus.dataKeyHash),
-      encryptedDatakey: hexToArray(rawStatus.encryptedDataKey),
+      encryptedDataKey: hexToArray(rawStatus.encryptedDataKey),
       exchangeKeyHash: hexToArray(rawStatus.exchangeKeyHash),
       factKey: hexToUnpaddedAscii(rawStatus.key),
       factProviderAddress: rawStatus.factProvider,
@@ -222,8 +223,42 @@ export class PrivateDataExchanger {
 
   // #region -------------- Read data -------------------------------------------------------------------
 
-  public async getPrivateData(exchangeIndex: BN, exchangeKey: number[]) {
-    throw new Error('Not implemented');
+  public async getPrivateData(exchangeIndex: BN, exchangeKey: number[], ipfsClient: IIPFSClient): Promise<number[]> {
+    const status = await this.getStatus(exchangeIndex);
+
+    // Status should be accepted or closed
+    if (status.state !== ExchangeState.Accepted && status.state !== ExchangeState.Closed) {
+      throw new Error('Exchange status must be "accepted" or "closed"');
+    }
+
+    // Validate exchange key
+    const exchangeKeyHash = Array.from<number>(keccak256(Buffer.from(exchangeKey)));
+    if (!constantTimeCompare(exchangeKeyHash, status.exchangeKeyHash)) {
+      throw new Error('Invalid exchange key');
+    }
+
+    // Decrypt data secret encryption key using exchange key (by XOR'ing encrypted secret key with exchange key)
+    const dataSecretKey: number[] = [];
+    status.encryptedDataKey.forEach((value, i) => {
+
+      // tslint:disable-next-line: no-bitwise
+      dataSecretKey[i] = exchangeKey[i] ^ value;
+    });
+
+    // Validate secret key
+    const dataSecretKeyHash = Array.from<number>(keccak256(Buffer.from(dataSecretKey)));
+    if (!constantTimeCompare(dataSecretKeyHash, status.dataKeyHash)) {
+      throw new Error('Decrypted secret key is invalid');
+    }
+
+    // Read data
+    const reader = new PrivateFactReader();
+    return reader.decryptPrivateData(
+      status.dataIpfsHash,
+      dataSecretKey,
+      null,
+      ipfsClient,
+    );
   }
 
   // #endregion
@@ -258,7 +293,7 @@ export interface IDataExchangeStatus {
   dataIpfsHash: string;
   encryptedExchangeKey: number[];
   exchangeKeyHash: number[];
-  encryptedDatakey: number[];
+  encryptedDataKey: number[];
   dataKeyHash: number[];
   state: ExchangeState;
   stateExpirationTime: Date;

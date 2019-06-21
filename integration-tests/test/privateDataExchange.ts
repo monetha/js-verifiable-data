@@ -28,6 +28,7 @@ const mockIPFSClient = new MockIPFSClient();
 
 const privateFactKey = 'privatedata_fact';
 const stakeWei = new BN('100000', 10);
+const privateFactValue = [1, 2, 3, 4, 5, 6];
 
 const PassportFactory = artifacts.require('PassportFactory');
 const PassportLogic = artifacts.require('PassportLogic');
@@ -71,7 +72,7 @@ before(async () => {
 
   // Write some private fact
   const writer = new FactWriter(web3, passportAddress);
-  const writeResult = await writer.setPrivateData(privateFactKey, [1, 2, 3, 4, 5, 6], factProviderAddress, mockIPFSClient);
+  const writeResult = await writer.setPrivateData(privateFactKey, privateFactValue, factProviderAddress, mockIPFSClient);
   receipt = await txExecutor(writeResult.tx);
   privateDataFactTxHash = receipt.transactionHash;
   privateDataFactSecretKey = Buffer.from(writeResult.dataKey).toString('hex');
@@ -120,5 +121,18 @@ describe('Private data exchange', () => {
     const status = await exchanger.getStatus(exchangeData.exchangeIndex);
     expect(status.state).to.eq(ExchangeState.Accepted);
     expect(status.passportOwnerStaked.toNumber()).to.eq(stakeWei.toNumber());
+  });
+
+  it('Should be able to decrypt fact with exchange key', async () => {
+    const data = await exchanger.getPrivateData(exchangeData.exchangeIndex, exchangeData.exchangeKey, mockIPFSClient);
+    expect(data).to.deep.eq(privateFactValue);
+  });
+
+  xit('Requester should finish proposal', async () => {
+    await exchanger.finish(
+      exchangeData.exchangeIndex,
+      requesterAddress,
+      txExecutor,
+    );
   });
 });

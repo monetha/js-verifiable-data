@@ -28,7 +28,7 @@ export declare class PrivateDataExchanger {
     dispute(exchangeIndex: BN, requesterOrPassOwnerAddress: Address, txExecutor: TxExecutor): Promise<IDisputeDataExchangeResult>;
     finish(exchangeIndex: BN, requesterOrOtherAddress: Address, txExecutor: TxExecutor): Promise<void>;
     getStatus(exchangeIndex: BN): Promise<IDataExchangeStatus>;
-    getPrivateData(exchangeIndex: BN, exchangeKey: number[]): Promise<void>;
+    getPrivateData(exchangeIndex: BN, exchangeKey: number[], ipfsClient: IIPFSClient): Promise<number[]>;
 }
 export interface IProposeDataExchangeResult {
     exchangeIndex: BN;
@@ -54,7 +54,7 @@ export interface IDataExchangeStatus {
     dataIpfsHash: string;
     encryptedExchangeKey: number[];
     exchangeKeyHash: number[];
-    encryptedDatakey: number[];
+    encryptedDataKey: number[];
     dataKeyHash: number[];
     state: ExchangeState;
     stateExpirationTime: Date;

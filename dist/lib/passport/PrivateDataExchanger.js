@@ -56,6 +56,7 @@ var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var conversion_1 = require("../utils/conversion");
 var compare_1 = require("../crypto/utils/compare");
 var PrivateFactReader_1 = require("./PrivateFactReader");
+var keccak256_1 = __importDefault(require("keccak256"));
 var PrivateDataExchanger = /** @class */ (function () {
     function PrivateDataExchanger(web3, passportAddress) {
         this.ec = new elliptic_1.ec(privateFactCommon_1.ellipticCurveAlg);
@@ -210,7 +211,7 @@ var PrivateDataExchanger = /** @class */ (function () {
                             dataIpfsHash: rawStatus.dataIPFSHash,
                             encryptedExchangeKey: conversion_1.hexToArray(rawStatus.encryptedExchangeKey),
                             dataKeyHash: conversion_1.hexToArray(rawStatus.dataKeyHash),
-                            encryptedDatakey: conversion_1.hexToArray(rawStatus.encryptedDataKey),
+                            encryptedDataKey: conversion_1.hexToArray(rawStatus.encryptedDataKey),
                             exchangeKeyHash: conversion_1.hexToArray(rawStatus.exchangeKeyHash),
                             factKey: conversion_1.hexToUnpaddedAscii(rawStatus.key),
                             factProviderAddress: rawStatus.factProvider,
@@ -228,10 +229,34 @@ var PrivateDataExchanger = /** @class */ (function () {
     };
     // #endregion
     // #region -------------- Read data -------------------------------------------------------------------
-    PrivateDataExchanger.prototype.getPrivateData = function (exchangeIndex, exchangeKey) {
+    PrivateDataExchanger.prototype.getPrivateData = function (exchangeIndex, exchangeKey, ipfsClient) {
         return __awaiter(this, void 0, void 0, function () {
+            var status, exchangeKeyHash, dataSecretKey, dataSecretKeyHash, reader;
             return __generator(this, function (_a) {
-                throw new Error('Not implemented');
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getStatus(exchangeIndex)];
+                    case 1:
+                        status = _a.sent();
+                        // Status should be accepted or closed
+                        if (status.state !== ExchangeState.Accepted && status.state !== ExchangeState.Closed) {
+                            throw new Error('Exchange status must be "accepted" or "closed"');
+                        }
+                        exchangeKeyHash = Array.from(keccak256_1.default(Buffer.from(exchangeKey)));
+                        if (!compare_1.constantTimeCompare(exchangeKeyHash, status.exchangeKeyHash)) {
+                            throw new Error('Invalid exchange key');
+                        }
+                        dataSecretKey = [];
+                        status.encryptedDataKey.forEach(function (value, i) {
+                            // tslint:disable-next-line: no-bitwise
+                            dataSecretKey[i] = exchangeKey[i] ^ value;
+                        });
+                        dataSecretKeyHash = Array.from(keccak256_1.default(Buffer.from(dataSecretKey)));
+                        if (!compare_1.constantTimeCompare(dataSecretKeyHash, status.dataKeyHash)) {
+                            throw new Error('Decrypted secret key is invalid');
+                        }
+                        reader = new PrivateFactReader_1.PrivateFactReader();
+                        return [2 /*return*/, reader.decryptPrivateData(status.dataIpfsHash, dataSecretKey, null, ipfsClient)];
+                }
             });
         });
     };
