@@ -11,6 +11,7 @@ import { PassportLogic } from 'lib/types/web3-contracts/PassportLogic';
 import passportLogicAbi from '../../config/PassportLogic.json';
 import { AbiItem } from 'web3-utils';
 import { ContractIO } from 'lib/transactionHelpers/ContractIO';
+import { hexToArray, hexToUnpaddedAscii } from 'lib/utils/conversion';
 
 export class PrivateDataExchanger {
   private passportAddress: Address;
@@ -109,7 +110,25 @@ export class PrivateDataExchanger {
   // #region -------------- Status -------------------------------------------------------------------
 
   public async getStatus(exchangeIndex: BN): Promise<IDataExchangeStatus> {
-    throw new Error('Not implemented');
+    const rawStatus = await this.passportLogic.getContract().methods.privateDataExchanges(`0x${exchangeIndex.toString('hex')}`).call();
+
+    const status: IDataExchangeStatus = {
+      dataIpfsHash: rawStatus.dataIPFSHash,
+      encryptedExchangeKey: hexToArray(rawStatus.encryptedExchangeKey as any),
+      dataKeyHash: hexToArray(rawStatus.dataKeyHash),
+      encryptedDatakey: hexToArray(rawStatus.encryptedDataKey),
+      exchangeKeyHash: hexToArray(rawStatus.exchangeKeyHash),
+      factKey: hexToUnpaddedAscii(rawStatus.key),
+      factProviderAddress: rawStatus.factProvider,
+      passportOwnerAddress: rawStatus.passportOwner,
+      passportOwnerStaked: rawStatus.passportOwnerValue as any,
+      requesterAddress: rawStatus.dataRequester,
+      requesterStaked: rawStatus.dataRequesterValue as any,
+      state: Number(rawStatus.state) as ExchangeState,
+      stateExpirationTime: new Date((rawStatus.stateExpired as any).toNumber() * 1000),
+    };
+
+    return status;
   }
 
   // #endregion
@@ -150,10 +169,10 @@ export interface IDataExchangeStatus {
   factProviderAddress: Address;
   factKey: string;
   dataIpfsHash: string;
-  dataKeyHash: number[];
   encryptedExchangeKey: number[];
   exchangeKeyHash: number[];
-  encryptedSecretkey: number[];
+  encryptedDatakey: number[];
+  dataKeyHash: number[];
   state: ExchangeState;
   stateExpirationTime: Date;
 }

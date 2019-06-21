@@ -38,10 +38,10 @@ export interface IDataExchangeStatus {
     factProviderAddress: Address;
     factKey: string;
     dataIpfsHash: string;
-    dataKeyHash: number[];
     encryptedExchangeKey: number[];
     exchangeKeyHash: number[];
-    encryptedSecretkey: number[];
+    encryptedDatakey: number[];
+    dataKeyHash: number[];
     state: ExchangeState;
     stateExpirationTime: Date;
 }

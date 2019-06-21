@@ -7,6 +7,7 @@ import { Address } from 'lib/models/Address';
 import { FactWriter, PassportGenerator, PassportOwnership, PrivateDataExchanger } from 'lib/proto';
 import { MockIPFSClient } from 'mocks/MockIPFSClient';
 import Web3 from 'web3';
+import { ExchangeState } from 'lib/passport/PrivateDataExchanger';
 use(chaiMoment);
 
 let accounts;
@@ -97,5 +98,19 @@ describe('Private data exchange', () => {
     expect(result.exchangeIndex).to.be.not.null.and.not.undefined;
     expect(result.exchangeKey).to.have.length(32);
     expect(result.exchangeKeyHash).to.have.length(32);
+  });
+
+  it('Status should be proposed', async () => {
+    const status = await exchanger.getStatus(exchangeData.exchangeIndex);
+    expect(status.state).to.eq(ExchangeState.Proposed);
+    expect(status.requesterAddress).to.eq(requesterAddress);
+  });
+
+  it('Should accept proposal', async () => {
+    await exchanger.accept(
+      exchangeData.exchangeIndex,
+      passportOwner,
+      txExecutor,
+    );
   });
 });

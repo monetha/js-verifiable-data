@@ -53,6 +53,7 @@ var elliptic_1 = require("elliptic");
 var privateFactCommon_1 = require("./privateFactCommon");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 var ContractIO_1 = require("../transactionHelpers/ContractIO");
+var conversion_1 = require("../utils/conversion");
 var PrivateDataExchanger = /** @class */ (function () {
     function PrivateDataExchanger(web3, passportAddress) {
         this.ec = new elliptic_1.ec(privateFactCommon_1.ellipticCurveAlg);
@@ -137,8 +138,29 @@ var PrivateDataExchanger = /** @class */ (function () {
     // #region -------------- Status -------------------------------------------------------------------
     PrivateDataExchanger.prototype.getStatus = function (exchangeIndex) {
         return __awaiter(this, void 0, void 0, function () {
+            var rawStatus, status;
             return __generator(this, function (_a) {
-                throw new Error('Not implemented');
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.passportLogic.getContract().methods.privateDataExchanges("0x" + exchangeIndex.toString('hex')).call()];
+                    case 1:
+                        rawStatus = _a.sent();
+                        status = {
+                            dataIpfsHash: rawStatus.dataIPFSHash,
+                            encryptedExchangeKey: conversion_1.hexToArray(rawStatus.encryptedExchangeKey),
+                            dataKeyHash: conversion_1.hexToArray(rawStatus.dataKeyHash),
+                            encryptedDatakey: conversion_1.hexToArray(rawStatus.encryptedDataKey),
+                            exchangeKeyHash: conversion_1.hexToArray(rawStatus.exchangeKeyHash),
+                            factKey: conversion_1.hexToUnpaddedAscii(rawStatus.key),
+                            factProviderAddress: rawStatus.factProvider,
+                            passportOwnerAddress: rawStatus.passportOwner,
+                            passportOwnerStaked: rawStatus.passportOwnerValue,
+                            requesterAddress: rawStatus.dataRequester,
+                            requesterStaked: rawStatus.dataRequesterValue,
+                            state: Number(rawStatus.state),
+                            stateExpirationTime: new Date(rawStatus.stateExpired.toNumber() * 1000),
+                        };
+                        return [2 /*return*/, status];
+                }
             });
         });
     };

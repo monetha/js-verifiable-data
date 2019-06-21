@@ -68,5 +68,4 @@ export declare class FactHistoryReader {
      */
     getPrivateDataHashes(txHash: string): Promise<IFactValue<IPrivateDataHashes>>;
     private validateMethodSignature;
-    private bytesToUnpaddedAscii;
 }

@@ -3,6 +3,7 @@ import { getTxData, IMethodInfo } from '../utils/getTxData';
 import Web3 from 'web3';
 import { IPrivateDataHashes } from './FactReader';
 import { PrivateFactReader } from './PrivateFactReader';
+import { hexToUnpaddedAscii } from 'lib/utils/conversion';
 
 export interface IFactValue<TValue> {
   factProviderAddress: string;
@@ -34,7 +35,7 @@ export class FactHistoryReader {
     return {
       factProviderAddress: txInfo.tx.from,
       passportAddress: txInfo.tx.to,
-      key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+      key: hexToUnpaddedAscii(methodInfo.params[0].value),
       value: methodInfo.params[1].value,
     };
   }
@@ -57,7 +58,7 @@ export class FactHistoryReader {
     return {
       factProviderAddress: txInfo.tx.from,
       passportAddress: txInfo.tx.to,
-      key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+      key: hexToUnpaddedAscii(methodInfo.params[0].value),
       value,
     };
   }
@@ -74,7 +75,7 @@ export class FactHistoryReader {
     return {
       factProviderAddress: txInfo.tx.from,
       passportAddress: txInfo.tx.to,
-      key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+      key: hexToUnpaddedAscii(methodInfo.params[0].value),
       value: methodInfo.params[1].value,
     };
   }
@@ -91,7 +92,7 @@ export class FactHistoryReader {
     return {
       factProviderAddress: txInfo.tx.from,
       passportAddress: txInfo.tx.to,
-      key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+      key: hexToUnpaddedAscii(methodInfo.params[0].value),
       value: parseInt(methodInfo.params[1].value, 10),
     };
   }
@@ -108,7 +109,7 @@ export class FactHistoryReader {
     return {
       factProviderAddress: txInfo.tx.from,
       passportAddress: txInfo.tx.to,
-      key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+      key: hexToUnpaddedAscii(methodInfo.params[0].value),
       value: parseInt(methodInfo.params[1].value, 10),
     };
   }
@@ -125,7 +126,7 @@ export class FactHistoryReader {
     return {
       factProviderAddress: txInfo.tx.from,
       passportAddress: txInfo.tx.to,
-      key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+      key: hexToUnpaddedAscii(methodInfo.params[0].value),
       value: methodInfo.params[1].value as any,
     };
   }
@@ -142,7 +143,7 @@ export class FactHistoryReader {
     return {
       factProviderAddress: txInfo.tx.from,
       passportAddress: txInfo.tx.to,
-      key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+      key: hexToUnpaddedAscii(methodInfo.params[0].value),
       value: this.web3.utils.hexToBytes(methodInfo.params[1].value),
     };
   }
@@ -162,7 +163,7 @@ export class FactHistoryReader {
     return {
       factProviderAddress: txInfo.tx.from,
       passportAddress: txInfo.tx.to,
-      key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+      key: hexToUnpaddedAscii(methodInfo.params[0].value),
       value: await ipfs.cat(methodInfo.params[1].value),
     };
   }
@@ -229,7 +230,7 @@ export class FactHistoryReader {
     return {
       factProviderAddress: txInfo.tx.from,
       passportAddress: txInfo.tx.to,
-      key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+      key: hexToUnpaddedAscii(methodInfo.params[0].value),
       value: {
         dataIpfsHash: methodInfo.params[1].value,
         dataKeyHash: methodInfo.params[2].value,
@@ -241,9 +242,5 @@ export class FactHistoryReader {
     if (methodInfo.name !== expectedName) {
       throw new Error(`Input method signature for transaction must be "${expectedName}". Got "${methodInfo.name}"`);
     }
-  }
-
-  private bytesToUnpaddedAscii(bytes: string) {
-    return this.web3.utils.toAscii(bytes).replace(/\u0000/g, '');
   }
 }

@@ -48,6 +48,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var getTxData_1 = require("../utils/getTxData");
 var PrivateFactReader_1 = require("./PrivateFactReader");
+var conversion_1 = require("../utils/conversion");
 /**
  * Class to read historic facts from the passport
  */
@@ -71,7 +72,7 @@ var FactHistoryReader = /** @class */ (function () {
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 passportAddress: txInfo.tx.to,
-                                key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+                                key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value),
                                 value: methodInfo.params[1].value,
                             }];
                 }
@@ -99,7 +100,7 @@ var FactHistoryReader = /** @class */ (function () {
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 passportAddress: txInfo.tx.to,
-                                key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+                                key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value),
                                 value: value,
                             }];
                 }
@@ -122,7 +123,7 @@ var FactHistoryReader = /** @class */ (function () {
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 passportAddress: txInfo.tx.to,
-                                key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+                                key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value),
                                 value: methodInfo.params[1].value,
                             }];
                 }
@@ -145,7 +146,7 @@ var FactHistoryReader = /** @class */ (function () {
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 passportAddress: txInfo.tx.to,
-                                key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+                                key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value),
                                 value: parseInt(methodInfo.params[1].value, 10),
                             }];
                 }
@@ -168,7 +169,7 @@ var FactHistoryReader = /** @class */ (function () {
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 passportAddress: txInfo.tx.to,
-                                key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+                                key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value),
                                 value: parseInt(methodInfo.params[1].value, 10),
                             }];
                 }
@@ -191,7 +192,7 @@ var FactHistoryReader = /** @class */ (function () {
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 passportAddress: txInfo.tx.to,
-                                key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+                                key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value),
                                 value: methodInfo.params[1].value,
                             }];
                 }
@@ -214,7 +215,7 @@ var FactHistoryReader = /** @class */ (function () {
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 passportAddress: txInfo.tx.to,
-                                key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+                                key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value),
                                 value: this.web3.utils.hexToBytes(methodInfo.params[1].value),
                             }];
                 }
@@ -240,7 +241,7 @@ var FactHistoryReader = /** @class */ (function () {
                         _a = {
                             factProviderAddress: txInfo.tx.from,
                             passportAddress: txInfo.tx.to,
-                            key: this.bytesToUnpaddedAscii(methodInfo.params[0].value)
+                            key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value)
                         };
                         return [4 /*yield*/, ipfs.cat(methodInfo.params[1].value)];
                     case 2: return [2 /*return*/, (_a.value = _b.sent(),
@@ -315,7 +316,7 @@ var FactHistoryReader = /** @class */ (function () {
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 passportAddress: txInfo.tx.to,
-                                key: this.bytesToUnpaddedAscii(methodInfo.params[0].value),
+                                key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value),
                                 value: {
                                     dataIpfsHash: methodInfo.params[1].value,
                                     dataKeyHash: methodInfo.params[2].value,
@@ -329,9 +330,6 @@ var FactHistoryReader = /** @class */ (function () {
         if (methodInfo.name !== expectedName) {
             throw new Error("Input method signature for transaction must be \"" + expectedName + "\". Got \"" + methodInfo.name + "\"");
         }
-    };
-    FactHistoryReader.prototype.bytesToUnpaddedAscii = function (bytes) {
-        return this.web3.utils.toAscii(bytes).replace(/\u0000/g, '');
     };
     return FactHistoryReader;
 }());
