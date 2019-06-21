@@ -26,8 +26,27 @@ export declare class PrivateDataExchanger {
     accept(exchangeIndex: BN, passportOwnerPrivateKey: string, ipfsClient: IIPFSClient, txExecutor: TxExecutor): Promise<void>;
     timeout(exchangeIndex: BN, requesterAddress: Address, txExecutor: TxExecutor): Promise<void>;
     dispute(exchangeIndex: BN, requesterOrPassOwnerAddress: Address, txExecutor: TxExecutor): Promise<IDisputeDataExchangeResult>;
-    finish(exchangeIndex: BN, requesterOrOtherAddress: Address, txExecutor: TxExecutor): Promise<void>;
+    /**
+     * Closes private data exchange after acceptance. It's supposed to be called by the data requester,
+     * but passport owner can also call it after data exchange is expired.
+     * @param exchangeIndex - data exchange index
+     * @param requesterOrPassOwnerAddress - address of requester or passport owner (the one who will execute the transaction)
+     * @param txExecutor - transaction executor function
+     */
+    finish(exchangeIndex: BN, requesterOrPassOwnerAddress: Address, txExecutor: TxExecutor): Promise<void>;
+    /**
+     * Returns the status of private data exchange
+     * @param exchangeIndex - data exchange index
+     */
     getStatus(exchangeIndex: BN): Promise<IDataExchangeStatus>;
+    /**
+     * Gets decrypted private data from IPFS by using exchange key.
+     * Encrypted secret data encryption key is retrieved from private data exchange and then is decrypted using provided exchangeKey.
+     * Then this decrypted secret key is used to decrypt private data, stored in IPFS.
+     * @param exchangeIndex - data exchange index
+     * @param exchangeKey - exchange key, which is generated and known by data requester
+     * @param ipfsClient - IPFS client for private data retrieval
+     */
     getPrivateData(exchangeIndex: BN, exchangeKey: number[], ipfsClient: IIPFSClient): Promise<number[]>;
 }
 export interface IProposeDataExchangeResult {

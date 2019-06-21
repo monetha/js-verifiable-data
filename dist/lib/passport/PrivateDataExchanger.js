@@ -57,6 +57,7 @@ var conversion_1 = require("../utils/conversion");
 var compare_1 = require("../crypto/utils/compare");
 var PrivateFactReader_1 = require("./PrivateFactReader");
 var keccak256_1 = __importDefault(require("keccak256"));
+var string_1 = require("../utils/string");
 var PrivateDataExchanger = /** @class */ (function () {
     function PrivateDataExchanger(web3, passportAddress) {
         this.ec = new elliptic_1.ec(privateFactCommon_1.ellipticCurveAlg);
@@ -190,15 +191,54 @@ var PrivateDataExchanger = /** @class */ (function () {
     };
     // #endregion
     // #region -------------- Finish -------------------------------------------------------------------
-    PrivateDataExchanger.prototype.finish = function (exchangeIndex, requesterOrOtherAddress, txExecutor) {
+    /**
+     * Closes private data exchange after acceptance. It's supposed to be called by the data requester,
+     * but passport owner can also call it after data exchange is expired.
+     * @param exchangeIndex - data exchange index
+     * @param requesterOrPassOwnerAddress - address of requester or passport owner (the one who will execute the transaction)
+     * @param txExecutor - transaction executor function
+     */
+    PrivateDataExchanger.prototype.finish = function (exchangeIndex, requesterOrPassOwnerAddress, txExecutor) {
         return __awaiter(this, void 0, void 0, function () {
+            var status, nowMinus1Min, contract, tx, rawTx;
             return __generator(this, function (_a) {
-                throw new Error('Not implemented');
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getStatus(exchangeIndex)];
+                    case 1:
+                        status = _a.sent();
+                        // Status should be accepted
+                        if (status.state !== ExchangeState.Accepted) {
+                            throw new Error('Exchange status must be "accepted"');
+                        }
+                        if (string_1.ciEquals(requesterOrPassOwnerAddress, status.passportOwnerAddress)) {
+                            nowMinus1Min = new Date();
+                            nowMinus1Min.setTime(nowMinus1Min.getTime() - 60 * 1000);
+                            if (status.stateExpirationTime > nowMinus1Min) {
+                                throw new Error('Passport owner can close exchange only after expiration date');
+                            }
+                        }
+                        else if (!string_1.ciEquals(requesterOrPassOwnerAddress, status.requesterAddress)) {
+                            throw new Error('Only exchange participants can close the exchange');
+                        }
+                        contract = this.passportLogic.getContract();
+                        tx = contract.methods.finishPrivateDataExchange("0x" + exchangeIndex.toString('hex'));
+                        return [4 /*yield*/, this.passportLogic.prepareRawTX(requesterOrPassOwnerAddress, this.passportAddress, 0, tx)];
+                    case 2:
+                        rawTx = _a.sent();
+                        return [4 /*yield*/, txExecutor(rawTx)];
+                    case 3:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
             });
         });
     };
     // #endregion
     // #region -------------- Status -------------------------------------------------------------------
+    /**
+     * Returns the status of private data exchange
+     * @param exchangeIndex - data exchange index
+     */
     PrivateDataExchanger.prototype.getStatus = function (exchangeIndex) {
         return __awaiter(this, void 0, void 0, function () {
             var rawStatus, status;
@@ -229,6 +269,14 @@ var PrivateDataExchanger = /** @class */ (function () {
     };
     // #endregion
     // #region -------------- Read data -------------------------------------------------------------------
+    /**
+     * Gets decrypted private data from IPFS by using exchange key.
+     * Encrypted secret data encryption key is retrieved from private data exchange and then is decrypted using provided exchangeKey.
+     * Then this decrypted secret key is used to decrypt private data, stored in IPFS.
+     * @param exchangeIndex - data exchange index
+     * @param exchangeKey - exchange key, which is generated and known by data requester
+     * @param ipfsClient - IPFS client for private data retrieval
+     */
     PrivateDataExchanger.prototype.getPrivateData = function (exchangeIndex, exchangeKey, ipfsClient) {
         return __awaiter(this, void 0, void 0, function () {
             var status, exchangeKeyHash, dataSecretKey, dataSecretKeyHash, reader;

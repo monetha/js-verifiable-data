@@ -16,6 +16,7 @@ import { IIPFSClient } from 'lib/models/IIPFSClient';
 import { constantTimeCompare } from 'lib/crypto/utils/compare';
 import { PrivateFactReader } from './PrivateFactReader';
 import keccak256 from 'keccak256';
+import { ciEquals } from 'lib/utils/string';
 
 export class PrivateDataExchanger {
   private passportAddress: Address;
@@ -189,14 +190,56 @@ export class PrivateDataExchanger {
 
   // #region -------------- Finish -------------------------------------------------------------------
 
-  public async finish(exchangeIndex: BN, requesterOrOtherAddress: Address, txExecutor: TxExecutor): Promise<void> {
-    throw new Error('Not implemented');
+  /**
+   * Closes private data exchange after acceptance. It's supposed to be called by the data requester,
+   * but passport owner can also call it after data exchange is expired.
+   * @param exchangeIndex - data exchange index
+   * @param requesterOrPassOwnerAddress - address of requester or passport owner (the one who will execute the transaction)
+   * @param txExecutor - transaction executor function
+   */
+  public async finish(exchangeIndex: BN, requesterOrPassOwnerAddress: Address, txExecutor: TxExecutor): Promise<void> {
+    const status = await this.getStatus(exchangeIndex);
+
+    // Status should be accepted
+    if (status.state !== ExchangeState.Accepted) {
+      throw new Error('Exchange status must be "accepted"');
+    }
+
+    if (ciEquals(requesterOrPassOwnerAddress, status.passportOwnerAddress)) {
+
+      // Passport owner can finish only after expiration date
+      const nowMinus1Min = new Date();
+      nowMinus1Min.setTime(nowMinus1Min.getTime() - 60 * 1000);
+
+      if (status.stateExpirationTime > nowMinus1Min) {
+        throw new Error('Passport owner can close exchange only after expiration date');
+      }
+    } else if (!ciEquals(requesterOrPassOwnerAddress, status.requesterAddress)) {
+      throw new Error('Only exchange participants can close the exchange');
+    }
+
+    // Finish private data exchange
+    const contract = this.passportLogic.getContract();
+    const tx = contract.methods.finishPrivateDataExchange(`0x${exchangeIndex.toString('hex')}`);
+
+    const rawTx = await this.passportLogic.prepareRawTX(
+      requesterOrPassOwnerAddress,
+      this.passportAddress,
+      0,
+      tx,
+    );
+
+    await txExecutor(rawTx);
   }
 
   // #endregion
 
   // #region -------------- Status -------------------------------------------------------------------
 
+  /**
+   * Returns the status of private data exchange
+   * @param exchangeIndex - data exchange index
+   */
   public async getStatus(exchangeIndex: BN): Promise<IDataExchangeStatus> {
     const rawStatus = await this.passportLogic.getContract().methods.privateDataExchanges(`0x${exchangeIndex.toString('hex')}`).call();
 
@@ -223,6 +266,14 @@ export class PrivateDataExchanger {
 
   // #region -------------- Read data -------------------------------------------------------------------
 
+  /**
+   * Gets decrypted private data from IPFS by using exchange key.
+   * Encrypted secret data encryption key is retrieved from private data exchange and then is decrypted using provided exchangeKey.
+   * Then this decrypted secret key is used to decrypt private data, stored in IPFS.
+   * @param exchangeIndex - data exchange index
+   * @param exchangeKey - exchange key, which is generated and known by data requester
+   * @param ipfsClient - IPFS client for private data retrieval
+   */
   public async getPrivateData(exchangeIndex: BN, exchangeKey: number[], ipfsClient: IIPFSClient): Promise<number[]> {
     const status = await this.getStatus(exchangeIndex);
 

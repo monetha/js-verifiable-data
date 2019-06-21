@@ -128,11 +128,16 @@ describe('Private data exchange', () => {
     expect(data).to.deep.eq(privateFactValue);
   });
 
-  xit('Requester should finish proposal', async () => {
+  it('Requester should finish proposal', async () => {
     await exchanger.finish(
       exchangeData.exchangeIndex,
       requesterAddress,
       txExecutor,
     );
+  });
+
+  it('Status should be closed', async () => {
+    const status = await exchanger.getStatus(exchangeData.exchangeIndex);
+    expect(status.state).to.eq(ExchangeState.Closed);
   });
 });
