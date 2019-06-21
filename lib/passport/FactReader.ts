@@ -14,12 +14,12 @@ import { PrivateFactReader } from './PrivateFactReader';
 export interface IPrivateDataHashes {
 
   /**
-   *
+   * IPFS hash where encrypted data with its metadata is stored
    */
   dataIpfsHash: string;
 
   /**
-   *
+   * Hash of secret data encryption key in hex (with 0x prefix)
    */
   dataKeyHash: string;
 }

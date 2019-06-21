@@ -54,6 +54,8 @@ var privateFactCommon_1 = require("./privateFactCommon");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var conversion_1 = require("../utils/conversion");
+var compare_1 = require("../crypto/utils/compare");
+var PrivateFactReader_1 = require("./PrivateFactReader");
 var PrivateDataExchanger = /** @class */ (function () {
     function PrivateDataExchanger(web3, passportAddress) {
         this.ec = new elliptic_1.ec(privateFactCommon_1.ellipticCurveAlg);
@@ -62,6 +64,14 @@ var PrivateDataExchanger = /** @class */ (function () {
         this.passportLogic = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
     }
     // #region -------------- Propose -------------------------------------------------------------------
+    /**
+     * Creates private data exchange proposition
+     * @param factKey - fact key name to request data for
+     * @param factProviderAddress - fact provider address
+     * @param exchangeStakeWei - amount in WEI to stake
+     * @param requesterAddress - data requester address (the one who will submit the transaction)
+     * @param txExecutor - transaction executor function
+     */
     PrivateDataExchanger.prototype.propose = function (factKey, factProviderAddress, exchangeStakeWei, requesterAddress, txExecutor) {
         return __awaiter(this, void 0, void 0, function () {
             var ownerPublicKeyBytes, ownerPubKeyPair, ecies, exchangeKeyData, encryptedExchangeKey, contract, tx, rawTx, receipt, logs, exchangeIdxData;
@@ -75,7 +85,7 @@ var PrivateDataExchanger = /** @class */ (function () {
                         exchangeKeyData = privateFactCommon_1.deriveSecretKeyringMaterial(ecies, ownerPubKeyPair, this.passportAddress, factProviderAddress, factKey);
                         encryptedExchangeKey = ecies.getPublicKey().getPublic('array');
                         contract = this.passportLogic.getContract();
-                        tx = contract.methods.proposePrivateDataExchange(factProviderAddress, this.web3.utils.fromAscii(factKey), encryptedExchangeKey, exchangeKeyData.skmHash);
+                        tx = contract.methods.proposePrivateDataExchange(factProviderAddress, this.web3.utils.fromAscii(factKey), "0x" + Buffer.from(encryptedExchangeKey).toString('hex'), exchangeKeyData.skmHash);
                         return [4 /*yield*/, this.passportLogic.prepareRawTX(requesterAddress, this.passportAddress, exchangeStakeWei, tx)];
                     case 2:
                         rawTx = _a.sent();
@@ -100,10 +110,62 @@ var PrivateDataExchanger = /** @class */ (function () {
     };
     // #endregion
     // #region -------------- Accept -------------------------------------------------------------------
-    PrivateDataExchanger.prototype.accept = function (exchangeIndex, passOwnerAddress, txExecutor) {
+    /**
+     * Accepts private data exchange proposition (should be called only by the passport owner)
+     * @param exchangeIndex - data exchange index
+     * @param txExecutor - transaction executor function
+     */
+    PrivateDataExchanger.prototype.accept = function (exchangeIndex, passportOwnerPrivateKey, ipfsClient, txExecutor) {
         return __awaiter(this, void 0, void 0, function () {
+            var status, nearFuture, exchangePubKeyPair, passportOwnerPrivateKeyPair, ecies, exchangeKey, privateReader, dataSecretKey, encryptedDataSecretKey, contract, tx, rawTx;
             return __generator(this, function (_a) {
-                throw new Error('Not implemented');
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getStatus(exchangeIndex)];
+                    case 1:
+                        status = _a.sent();
+                        if (status.state !== ExchangeState.Proposed) {
+                            throw new Error('Status must be "proposed"');
+                        }
+                        nearFuture = new Date();
+                        nearFuture.setTime(nearFuture.getTime() + 60 * 60 * 1000);
+                        if (status.stateExpirationTime < nearFuture) {
+                            throw new Error('Exchange is expired or will expire very soon');
+                        }
+                        exchangePubKeyPair = this.ec.keyPair({
+                            pub: status.encryptedExchangeKey,
+                        });
+                        passportOwnerPrivateKeyPair = this.ec.keyPair({
+                            priv: passportOwnerPrivateKey.replace('0x', ''),
+                            privEnc: 'hex',
+                        });
+                        ecies = new ecies_1.ECIES(passportOwnerPrivateKeyPair);
+                        exchangeKey = privateFactCommon_1.deriveSecretKeyringMaterial(ecies, exchangePubKeyPair, this.passportAddress, status.factProviderAddress, status.factKey);
+                        // Is decrypted exchange key valid?
+                        if (!compare_1.constantTimeCompare(status.exchangeKeyHash, exchangeKey.skmHash)) {
+                            throw new Error('Proposed exchange has invalid exchange key hash');
+                        }
+                        privateReader = new PrivateFactReader_1.PrivateFactReader();
+                        return [4 /*yield*/, privateReader.decryptSecretKey(passportOwnerPrivateKeyPair, {
+                                dataIpfsHash: status.dataIpfsHash,
+                                dataKeyHash: "0x" + Buffer.from(status.dataKeyHash).toString('hex'),
+                            }, status.factProviderAddress, this.passportAddress, status.factKey, ipfsClient)];
+                    case 2:
+                        dataSecretKey = _a.sent();
+                        encryptedDataSecretKey = [];
+                        exchangeKey.skm.forEach(function (value, i) {
+                            // tslint:disable-next-line: no-bitwise
+                            encryptedDataSecretKey[i] = dataSecretKey[i] ^ value;
+                        });
+                        contract = this.passportLogic.getContract();
+                        tx = contract.methods.acceptPrivateDataExchange("0x" + exchangeIndex.toString('hex'), encryptedDataSecretKey);
+                        return [4 /*yield*/, this.passportLogic.prepareRawTX(status.passportOwnerAddress, this.passportAddress, status.requesterStaked, tx)];
+                    case 3:
+                        rawTx = _a.sent();
+                        return [4 /*yield*/, txExecutor(rawTx)];
+                    case 4:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
             });
         });
     };
@@ -153,9 +215,9 @@ var PrivateDataExchanger = /** @class */ (function () {
                             factKey: conversion_1.hexToUnpaddedAscii(rawStatus.key),
                             factProviderAddress: rawStatus.factProvider,
                             passportOwnerAddress: rawStatus.passportOwner,
-                            passportOwnerStaked: rawStatus.passportOwnerValue,
+                            passportOwnerStaked: conversion_1.toBN(rawStatus.passportOwnerValue),
                             requesterAddress: rawStatus.dataRequester,
-                            requesterStaked: rawStatus.dataRequesterValue,
+                            requesterStaked: conversion_1.toBN(rawStatus.dataRequesterValue),
                             state: Number(rawStatus.state),
                             stateExpirationTime: new Date(rawStatus.stateExpired.toNumber() * 1000),
                         };

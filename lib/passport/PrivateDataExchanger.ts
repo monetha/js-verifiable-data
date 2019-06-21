@@ -11,7 +11,10 @@ import { PassportLogic } from 'lib/types/web3-contracts/PassportLogic';
 import passportLogicAbi from '../../config/PassportLogic.json';
 import { AbiItem } from 'web3-utils';
 import { ContractIO } from 'lib/transactionHelpers/ContractIO';
-import { hexToArray, hexToUnpaddedAscii } from 'lib/utils/conversion';
+import { hexToArray, hexToUnpaddedAscii, toBN } from 'lib/utils/conversion';
+import { IIPFSClient } from 'lib/models/IIPFSClient';
+import { constantTimeCompare } from 'lib/crypto/utils/compare';
+import { PrivateFactReader } from './PrivateFactReader';
 
 export class PrivateDataExchanger {
   private passportAddress: Address;
@@ -27,6 +30,14 @@ export class PrivateDataExchanger {
 
   // #region -------------- Propose -------------------------------------------------------------------
 
+  /**
+   * Creates private data exchange proposition
+   * @param factKey - fact key name to request data for
+   * @param factProviderAddress - fact provider address
+   * @param exchangeStakeWei - amount in WEI to stake
+   * @param requesterAddress - data requester address (the one who will submit the transaction)
+   * @param txExecutor - transaction executor function
+   */
   public async propose(
     factKey: string,
     factProviderAddress: Address,
@@ -50,7 +61,7 @@ export class PrivateDataExchanger {
     const tx = contract.methods.proposePrivateDataExchange(
       factProviderAddress,
       this.web3.utils.fromAscii(factKey),
-      encryptedExchangeKey as any,
+      `0x${Buffer.from(encryptedExchangeKey).toString('hex')}` as any,
       exchangeKeyData.skmHash,
     );
 
@@ -77,8 +88,84 @@ export class PrivateDataExchanger {
 
   // #region -------------- Accept -------------------------------------------------------------------
 
-  public async accept(exchangeIndex: BN, passOwnerAddress: Address, txExecutor: TxExecutor): Promise<void> {
-    throw new Error('Not implemented');
+  /**
+   * Accepts private data exchange proposition (should be called only by the passport owner)
+   * @param exchangeIndex - data exchange index
+   * @param txExecutor - transaction executor function
+   */
+  public async accept(exchangeIndex: BN, passportOwnerPrivateKey: string, ipfsClient: IIPFSClient, txExecutor: TxExecutor): Promise<void> {
+    const status = await this.getStatus(exchangeIndex);
+    if (status.state !== ExchangeState.Proposed) {
+      throw new Error('Status must be "proposed"');
+    }
+
+    // Check for expiration
+    const nearFuture = new Date();
+    nearFuture.setTime(nearFuture.getTime() + 60 * 60 * 1000);
+
+    if (status.stateExpirationTime < nearFuture) {
+      throw new Error('Exchange is expired or will expire very soon');
+    }
+
+    // Decrypt exchange key
+    const exchangePubKeyPair = this.ec.keyPair({
+      pub: status.encryptedExchangeKey,
+    });
+
+    const passportOwnerPrivateKeyPair = this.ec.keyPair({
+      priv: passportOwnerPrivateKey.replace('0x', ''),
+      privEnc: 'hex',
+    });
+
+    const ecies = new ECIES(passportOwnerPrivateKeyPair);
+
+    const exchangeKey = deriveSecretKeyringMaterial(
+      ecies,
+      exchangePubKeyPair,
+      this.passportAddress,
+      status.factProviderAddress,
+      status.factKey);
+
+    // Is decrypted exchange key valid?
+    if (!constantTimeCompare(status.exchangeKeyHash, exchangeKey.skmHash)) {
+      throw new Error('Proposed exchange has invalid exchange key hash');
+    }
+
+    // Decrypt data secret encryption key
+    const privateReader = new PrivateFactReader();
+    const dataSecretKey = await privateReader.decryptSecretKey(
+      passportOwnerPrivateKeyPair,
+      {
+        dataIpfsHash: status.dataIpfsHash,
+        dataKeyHash: `0x${Buffer.from(status.dataKeyHash).toString('hex')}`,
+      },
+      status.factProviderAddress,
+      this.passportAddress,
+      status.factKey,
+      ipfsClient,
+    );
+
+    // XOR data secret encryption key with exchange key
+    const encryptedDataSecretKey: number[] = [];
+    exchangeKey.skm.forEach((value, i) => {
+
+      // tslint:disable-next-line: no-bitwise
+      encryptedDataSecretKey[i] = dataSecretKey[i] ^ value;
+    });
+
+    // Accept private data exchange
+    const contract = this.passportLogic.getContract();
+    const tx = contract.methods.acceptPrivateDataExchange(`0x${exchangeIndex.toString('hex')}`, encryptedDataSecretKey);
+
+    // Execute transaction (owner stakes same amount as requester)
+    const rawTx = await this.passportLogic.prepareRawTX(
+      status.passportOwnerAddress,
+      this.passportAddress,
+      status.requesterStaked,
+      tx,
+    );
+
+    await txExecutor(rawTx);
   }
 
   // #endregion
@@ -121,9 +208,9 @@ export class PrivateDataExchanger {
       factKey: hexToUnpaddedAscii(rawStatus.key),
       factProviderAddress: rawStatus.factProvider,
       passportOwnerAddress: rawStatus.passportOwner,
-      passportOwnerStaked: rawStatus.passportOwnerValue as any,
+      passportOwnerStaked: toBN(rawStatus.passportOwnerValue),
       requesterAddress: rawStatus.dataRequester,
-      requesterStaked: rawStatus.dataRequesterValue as any,
+      requesterStaked: toBN(rawStatus.dataRequesterValue),
       state: Number(rawStatus.state) as ExchangeState,
       stateExpirationTime: new Date((rawStatus.stateExpired as any).toNumber() * 1000),
     };

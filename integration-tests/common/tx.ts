@@ -1,8 +1,8 @@
 import { IRawTX } from 'lib/models/IRawTX';
 import { TxExecutor } from 'lib/proto';
+import { toBN } from 'lib/utils/conversion';
 import Web3 from 'web3';
 import { Transaction } from 'web3-core';
-import BN from 'bn.js';
 
 export async function submitTransaction(web3: Web3, txData: IRawTX) {
   return new Promise<Transaction>(async (success, reject) => {
@@ -13,7 +13,7 @@ export async function submitTransaction(web3: Web3, txData: IRawTX) {
         nonce: Number(txData.nonce),
         gasPrice: txData.gasPrice,
         gas: txData.gasLimit,
-        value: new BN(txData.value),
+        value: toBN(txData.value),
         data: txData.data,
       })
         .on('transactionHash', async (hash) => {

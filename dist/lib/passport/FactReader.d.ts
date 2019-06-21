@@ -3,11 +3,11 @@ import { IIPFSClient } from '../models/IIPFSClient';
 import Web3 from 'web3';
 export interface IPrivateDataHashes {
     /**
-     *
+     * IPFS hash where encrypted data with its metadata is stored
      */
     dataIpfsHash: string;
     /**
-     *
+     * Hash of secret data encryption key in hex (with 0x prefix)
      */
     dataKeyHash: string;
 }

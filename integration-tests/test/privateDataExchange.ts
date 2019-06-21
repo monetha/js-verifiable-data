@@ -104,13 +104,21 @@ describe('Private data exchange', () => {
     const status = await exchanger.getStatus(exchangeData.exchangeIndex);
     expect(status.state).to.eq(ExchangeState.Proposed);
     expect(status.requesterAddress).to.eq(requesterAddress);
+    expect(status.requesterStaked.toNumber()).to.eq(stakeWei.toNumber());
   });
 
   it('Should accept proposal', async () => {
     await exchanger.accept(
       exchangeData.exchangeIndex,
-      passportOwner,
+      passportOwnerPrivateKey,
+      mockIPFSClient,
       txExecutor,
     );
+  });
+
+  it('Status should be accepted', async () => {
+    const status = await exchanger.getStatus(exchangeData.exchangeIndex);
+    expect(status.state).to.eq(ExchangeState.Accepted);
+    expect(status.passportOwnerStaked.toNumber()).to.eq(stakeWei.toNumber());
   });
 });
