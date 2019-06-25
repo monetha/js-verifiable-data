@@ -20,8 +20,6 @@ let otherPersonAddress: Address;
 
 let passportAddress: Address;
 let factProviderAddress: Address;
-let privateDataFactTxHash: string;
-let privateDataFactSecretKey: string;
 let exchanger: PrivateDataExchanger;
 const mockIPFSClient = new MockIPFSClient();
 
@@ -69,8 +67,6 @@ const preparePassport = async () => {
   const writer = new FactWriter(web3, passportAddress);
   const writeResult = await writer.setPrivateData(privateFactKey, privateFactValue, factProviderAddress, mockIPFSClient);
   receipt = await txExecutor(writeResult.tx);
-  privateDataFactTxHash = receipt.transactionHash;
-  privateDataFactSecretKey = Buffer.from(writeResult.dataKey).toString('hex');
 
   // Create exchanger
   exchanger = new PrivateDataExchanger(web3, passportAddress);
@@ -80,7 +76,7 @@ describe('Private data exchange', () => {
 
   // #region -------------- Main flow -------------------------------------------------------------------
 
-  describe('Main flow', () => {
+  describe('Main flow where requester finishes', () => {
     before(async () => {
       exchangeData = {};
       await preparePassport();
@@ -143,10 +139,81 @@ describe('Private data exchange', () => {
       expect(data).to.deep.eq(privateFactValue);
     });
 
+    it('Should NOT be able to decrypt fact with invalid exchange key', async () => {
+      await expectSdkError(
+        () => exchanger.getPrivateData(exchangeData.exchangeIndex, [1, 2, 3, 4], mockIPFSClient),
+        ErrorCode.InvalidExchangeKey);
+    });
+
+    it('Passport owner should NOT be able to finish proposal before expiration', async () => {
+      await expectSdkError(
+        () => exchanger.finish(exchangeData.exchangeIndex, passportOwner, txExecutor),
+        ErrorCode.PassOwnerCanCloseOnlyAfterExpiration);
+    });
+
+    it('Random user should NOT be able to finish proposal', async () => {
+      await expectSdkError(
+        () => exchanger.finish(exchangeData.exchangeIndex, otherPersonAddress, txExecutor),
+        ErrorCode.OnlyExchangeParticipantsCanClose);
+    });
+
     it('Requester should finish proposal', async () => {
       await exchanger.finish(
         exchangeData.exchangeIndex,
         requesterAddress,
+        txExecutor,
+      );
+    });
+
+    it('Status should be closed', async () => {
+      const status = await exchanger.getStatus(exchangeData.exchangeIndex);
+      expect(status.state).to.eq(ExchangeState.Closed);
+    });
+  });
+
+  describe('Main flow where passport owner finishes', () => {
+    let snapshotId: string;
+
+    before(async () => {
+      exchangeData = {};
+
+      await preparePassport();
+      snapshotId = await takeSnapshot(web3);
+
+      // Propose
+      const result = await exchanger.propose(
+        privateFactKey,
+        factProviderAddress,
+        stakeWei,
+        requesterAddress,
+        txExecutor,
+      );
+
+      exchangeData = {
+        ...exchangeData,
+        ...result,
+      };
+
+      // Accept
+      await exchanger.accept(
+        exchangeData.exchangeIndex,
+        passportOwnerPrivateKey,
+        mockIPFSClient,
+        txExecutor,
+      );
+    });
+
+    after(async () => {
+      await revertToSnapshot(web3, snapshotId);
+    });
+
+    it('Passport owner should finish proposal after expiration', async () => {
+
+      exchanger = await advanceTime(30);
+
+      await exchanger.finish(
+        exchangeData.exchangeIndex,
+        passportOwner,
         txExecutor,
       );
     });
@@ -197,16 +264,7 @@ describe('Private data exchange', () => {
 
     it('Passport owner should not be able to accept 24+ after proposal', async () => {
 
-      // Pass 30 hours in blockchain
-      await advanceTimeAndBlock(web3, 60 * 60 * 30);
-
-      exchanger = new PrivateDataExchanger(web3, passportAddress, () => {
-        const now = new Date();
-
-        // Now + 30h
-        now.setTime(now.getTime() + 60 * 60 * 30 * 1000);
-        return now;
-      });
+      exchanger = await advanceTime(30);
 
       await expectSdkError(
         () => exchanger.accept(exchangeData.exchangeIndex, passportOwnerPrivateKey, mockIPFSClient, txExecutor),
@@ -273,6 +331,70 @@ describe('Private data exchange', () => {
     });
   });
 
+  describe('Dispute after expiration', () => {
+    let snapshotId: string;
+
+    before(async () => {
+      exchangeData = {};
+
+      await preparePassport();
+      snapshotId = await takeSnapshot(web3);
+
+      // Propose
+      const result = await exchanger.propose(
+        privateFactKey,
+        factProviderAddress,
+        stakeWei,
+        requesterAddress,
+        txExecutor,
+      );
+
+      exchangeData = {
+        ...exchangeData,
+        ...result,
+      };
+
+      // Accept
+      await exchanger.accept(
+        exchangeData.exchangeIndex,
+        passportOwnerPrivateKey,
+        mockIPFSClient,
+        txExecutor,
+      );
+    });
+
+    after(async () => {
+      await revertToSnapshot(web3, snapshotId);
+    });
+
+    it('Should NOT open dispute after expiration', async () => {
+      exchanger = await advanceTime(30);
+
+      await expectSdkError(
+        () => exchanger.dispute(exchangeData.exchangeIndex, exchangeData.exchangeKey, txExecutor),
+        ErrorCode.ExchangeExpiredOrExpireSoon,
+      );
+    });
+  });
+
   // #endregion
 
 });
+
+// #region -------------- Helpers -------------------------------------------------------------------
+
+async function advanceTime(hours: number): Promise<PrivateDataExchanger> {
+
+  // Pass XX hours in blockchain
+  await advanceTimeAndBlock(web3, hours * 60 * 60);
+
+  return new PrivateDataExchanger(web3, passportAddress, () => {
+    const now = new Date();
+
+    // Now + XXh
+    now.setTime(now.getTime() + hours * 60 * 60 * 1000);
+    return now;
+  });
+}
+
+// #endregion
