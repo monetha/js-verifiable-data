@@ -22,6 +22,14 @@
     - [Private facts](#private-data)
       - [Writing private data](#writing-private-data)
       - [Reading private data](#reading-private-data)
+    - [Private data exchange](#private-data-exchange)
+      - [Proposing private data exchange](#proposing-private-data-exchange)
+      - [Getting status of private data exchange](#getting-status-of-private-data-exchange)
+      - [Accepting private data exchange](#accepting-private-data-exchange)
+      - [Reading private data after private data exchange acceptance](#reading-private-data-after-private-data-exchange-acceptance)
+      - [Closing private data exchange proposition when timed out](#closing-private-data-exchange-proposition-when-timed-out)
+      - [Closing private data exchange after acceptance](#closing-private-data-exchange-after-acceptance)
+      - [Opening dispute after private data exchange acceptance](#opening-dispute-after-private-data-exchange-acceptance)
   - [Permissioned blockchains support](#permissioned-blockchains-support)
     - [Quorum](#quorum)
 
@@ -566,7 +574,7 @@ ipfsClient.on('ready', async () => {
 result variable will contain such object (with different values):
 ```js
 {
-  // IPFS hash of directory where the encrypted data with it's metadata is store. This data will be stored in passport after transaction execution
+  // IPFS hash of directory where the encrypted data with it's metadata is stored. This data will be stored in passport after transaction execution
   dataIpfsHash: 'Qmabcde.....',
 
   // Byte array of secret encryption key, that is able to decrypt the data
@@ -649,7 +657,7 @@ result = await reader.getPrivateDataHashes('0xd8CD4f4640D9Df7ae39aDdF08AE2c6871F
 This will return:
 ```js
 {
-  // IPFS hash of directory where the encrypted data with it's metadata is store.
+  // IPFS hash of directory where the encrypted data with it's metadata is stored.
   dataIpfsHash: 'Qmabcde...',
 
   // Byte array of secret encryption key's hash.
@@ -710,7 +718,7 @@ This will return:
   key: 'secret_message',
   value: {
 
-    // IPFS hash of directory where the encrypted data with it's metadata is store.
+    // IPFS hash of directory where the encrypted data with it's metadata is stored.
     dataIpfsHash: 'Qmabcde...',
 
     // Byte array of secret encryption key's hash.
@@ -718,6 +726,294 @@ This will return:
   }
 }
 ```
+
+## Private data exchange
+
+Private data exchange engine enables participants to exchange private data via Passports in a secure manner. Anyone can
+request private data from the passport of user. This is achieved by running an interactive protocol between the passport
+owner and the data requester.
+
+How it works:
+
+1. The data requester initiates retrieval of private data from a passport by calling `PrivateDataExchanger.propose()` method. When executing this
+   method, the data requester specifies which fact provider data he wants to read, encrypts exchange key with the passport
+   owner's public key and transfers to the passport the funds that he is willing to pay for the private data.
+
+1. The passport owner receives an event from the Ethereum blockchain or directly from the data requester for the data
+   exchange proposition. If he is satisfied with the proposal, he executes the `PrivateDataExchanger.accept()` method. When executing this method,
+   the passport owner encrypts the data encryption key with the exchange key of data requester and
+   transfers the same amount of funds as the data requester to the passport as a guarantee of the validity of the data encryption key.
+
+   The passport owner has 24 hours to accept private data exchange. 24 hours after the exchange proposition, the data
+   requester can close the proposition and return staked funds back by calling `PrivateDataExchanger.timeout()` method.
+
+1. The data requester receives an event from the Ethereum blockchain or directly from the passport owner about accepted
+   private data exchange. It decrypts the data access key using exchange key and reads private data using `PrivateDataExchanger.getPrivateData()` method.
+   After that `PrivateDataExchanger.finish()` method is called, which returns all staked funds to the passport owner.
+
+   During the first 24 hours, the `PrivateDataExchanger.finish()` method can only be called by the data requester, after 24 hours - passport owner can call this method as well.
+
+1. If it is not possible to decrypt the data, the data requester calls the `PrivateDataExchanger.dispute()` method, revealing the exchange key.
+   The Ethereum contract code identifies the cheater and transfers all staked funds to the party who behaved honestly.
+   The data requester has 24 hours to open a dispute, otherwise the exchange is considered valid and the passport owner
+   can get all staked funds.
+
+This is how it looks in the state diagram:
+
+![PlantUML model](http://www.plantuml.com/plantuml/png/jPF1JWCX48RlFCKSTqtRW_7KWwbH4prfZ3VZWSBiGheB28DjtzujbLGQgscgUmAopFzz0ym2SK-nxvZI4W5xHskG68JNZhGrZBsSlS9uV0cFtZeRKC8Kt7POrSnOGl2wLGJMGAVDWWdUTIXXlfw2vCJ1url4GEXPEPqo6CEGli00jyzt3D_HK5hCIHMkXEAcnNkv6gLYJtdp21mFmLbF3qk3lcPe96nW6Ckx4_IL4EWeGVCq_9KvrmMxASoAwM7c7FGNpDVTPvj9zsZZW0oy8VHmVg4c9tUyHGfR1RbHW3aNYvr72Yyjld9covApqKO7TUHjW4f6hqqxM86Qr0nsd_N0pTeQX2g9vr-AipXiyzswRVRYJrIMEhX8MDMGBKuy6wYM2WsKYY0KSa9P7-dwuoNEKNlvEUfVspeitwJExJ-K48N049hOZROavVkO3SFOTny0)
+
+At any time, the `PrivateDataExchanger.getStatus()` method can be used to get detailed information about the private data exchange.
+
+### Proposing private data exchange
+
+To initiate the exchange of private data, the data requester must use `PrivateDataExchanger.propose()` method with these arguments:
+- `factKey` - fact key name to request data for
+- `factProviderAddress` - fact provider address
+- `exchangeStakeWei` - amount in WEI to stake
+- `requesterAddress` - data requester address (the one who will submit the transaction)
+- `txExecutor` - transaction executor function
+
+Let's try proposing exchanged for private fact using following parameters:
+- passport address: `0x4026a67a2C4746b94F168bd4d082708f78d7b29f`,
+- fact provider address: `0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E`
+- fact key: `secret_message`
+- wei to stake: `10000000000000000 wei` (which is equal to `0.01 ETH`).
+- requester address: `0xd2Bb3Aa3F2c0bdA6D8020f3228EabD4A89d8B951` (the one who will execute transaction)
+
+```js
+import { PrivateDataExchanger } from 'reputation-sdk';
+import BN from 'bn.js';
+import IPFS from 'ipfs';
+
+// Prepare web3 object
+...
+
+const exchanger = new PrivateDataExchanger(web3, `0x4026a67a2C4746b94F168bd4d082708f78d7b29f`);
+
+// txExecutor must be function which takes IRawTx object as a parameter (transaction data to execute),
+// executes it and returns transaction receipt.
+const txExecutor = async (rawTxData) => {
+
+  // This is a simplified example of implementation
+  return new Promise(async (success, reject) => {
+    try {
+      await web3.eth.sendTransaction({
+        from: rawTxData.from,
+        to: rawTxData.to,
+        nonce: Number(rawTxData.nonce),
+        gasPrice: rawTxData.gasPrice,
+        gas: rawTxData.gasLimit,
+        value: txData.value,
+        data: txData.data,
+      })
+        .on('receipt', async (receipt) => {
+          success(receipt);
+        });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+// ipfsClient can be any object that is able to communicate with IPFS as long as it implements
+// interface IIPFSClient in 'reputation-sdk'
+const ipfsClient = new IPFS();
+
+ipfsClient.on('ready', async () => {
+
+  const result = await exchanger.propose(
+    `secret_message`,
+    `0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E`,
+    new BN('10000000000000000', 10), // Because of long numbers BN library is used
+    `0xd2Bb3Aa3F2c0bdA6D8020f3228EabD4A89d8B951`,
+    txExecutor,
+  );
+
+  ...
+})
+
+```
+
+result variable will contain such object (with different values):
+```js
+{
+  // This is a generated index which will be used to reference this data exchange session
+  // in later method
+  exchangeIndex: /* A BN object, holding an integer like `1` */,
+
+  // A generated exchanged key, which will be used to decrypt private data after passport owner accepts the exchange
+  exchangeKey: [72, 16, 88, ...],
+
+  // Hash of exchange key
+  exchangeKeyHash: [172, 44, 16, ...],
+}
+```
+
+### Getting status of private data exchange
+
+To get detailed information about private data exchange session, use `PrivateDataExchanger.getStatus()` and provide exchange index.
+
+Let's get status for exchange index `1` we proposed in previous section:
+```js
+...
+
+const status = await exchanger.getStatus(new BN(1));
+
+...
+```
+
+status variable will contain such object (with different values):
+```js
+{
+  // IPFS hash of directory where the encrypted data with it's metadata is stored.
+  dataIpfsHash: 'Qmabcde...',
+
+  // Encrypted exchange key
+  encryptedExchangeKey: [211, 41, 28, ...],
+
+  // Hash of exchange key
+  exchangeKeyHash: [172, 44, 16, ...],
+
+  // Hash of secret data encryption key
+  dataKeyHash: [111, 42, 89, ...],
+
+  // Encrypted secret data encryption key
+  encryptedDataKey: [132, 231, 15, ...],
+
+  // Fact key that was requested
+  factKey: 'secret_message',
+
+  // Fact provider address
+  factProviderAddress: '0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E',
+
+  // Passport owner address
+  passportOwnerAddress: '0xD101709569D2dEc41f88d874Badd9c7CF1106AF7',
+
+  // Amount in WEI staked by passport owner. Since exchange was not accepted yet - amount will be 0
+  passportOwnerStaked: /* BN object with value 0 */,
+
+  // Private data requester address
+  requesterAddress: '0xd2Bb3Aa3F2c0bdA6D8020f3228EabD4A89d8B951',
+
+  // Amount in WEI staked by requester
+  requesterStaked: /* BN object with value 10000000000000000 */,
+
+  // Current data exchange state. Can be 0 (Closed), 1 (Proposed), 2 (Accepted)
+  // Use `ExchangeState` enum for possible values
+  state: 1,
+
+  // Date when exchange expires
+  stateExpirationTime: /* Date object with value like 2019-06-25 22:10:15 */,
+}
+```
+
+### Accepting private data exchange
+
+To accept the private data exchange after proposition, passport owner should execute `PrivateDataExchanger.accept()` method providing the following parameters:
+- `exchangeindex` - index of private data exchange to accept
+- `passportOwnerPrivateKey` - passport owner's Ethereum wallet private key
+- `ipfsClient` - IPFS client
+- `txExecutor` - transaction executor function
+
+Let's accept data exchange with index `1` which we proposed previously:
+```js
+...
+
+await exchanger.accept(new BN(1), '<passport owner private key>', ipfsClient, txExecutor);
+
+...
+```
+
+### Reading private data after private data exchange acceptance
+
+After a private data exchange proposition is accepted, the data requester can read the private data by calling `PrivateDataExchanger.getPrivateData()` and providing the following parameters:
+- `exchangeindex` - index of private data exchange to read data from
+- `exchangeKey` - exchange key, which is generated and known by data requester after proposition
+- `ipfsClient` - IPFS client
+
+Let's read private data for exchange inde `1` which was accepted in previous step:
+```js
+...
+
+const data = await exchanger.getPrivateData(new BN(1), [72, 16, 88, ...], ipfsClient);
+
+...
+```
+
+`data` will contain byte array of decrypted private data.
+
+### Closing private data exchange proposition when timed out
+
+If the passport owner ignored the request for the private data exchange, then after 24 hours, the data requester may close the request and return the staked funds by calling `PrivateDataExchanger.timeout()` method.
+
+Here is how data requester can close the private data exchange with index `1`:
+
+```js
+...
+
+await exchanger.timeout(new BN(1), txExecutor);
+
+...
+```
+
+### Closing private data exchange after acceptance
+
+After the data requester successfully read the private data, he can confirm this by invoking the `PrivateDataExchanger.finish()` method.
+When executing this method, the funds staked by the data requester and passport owner will be transferred to the passport owner.
+If the data requester does not send the finalization request withing a predefined timespan (24 hours), the passport owner is allowed to finalize private data exchange, preventing the escrow being locked-up indefinitely.
+
+Here is how data requester or passport owner can finish the private data exchange with index `1`:
+
+```js
+...
+
+// For data requester
+await exchanger.finish(new BN(1), `0xd2Bb3Aa3F2c0bdA6D8020f3228EabD4A89d8B951`, txExecutor);
+
+// OR for passport owner after 24h
+await exchanger.finish(new BN(1), `0xD101709569D2dEc41f88d874Badd9c7CF1106AF7`, txExecutor);
+
+...
+```
+
+### Opening dispute after private data exchange acceptance
+
+If it is not possible to decrypt the data, the data requester calls the `PrivateDataExchanger.dispute()` command within 24 hours after acceptance,
+revealing the exchange key. The logic of the passport is the arbitrator who determines who the cheater is.
+This is possible due to the fact that in the passport the hashes of both the data encryption key and the exchange key are saved, and the data encryption key is XORed with the exchange key during the private data exchange acceptance by the passport owner.
+
+When resolving a dispute, all staked funds are transferred to the side that behaved honestly.
+
+`dispute` methods takes these parameters:
+- `exchangeindex` - index of private data exchange to dispute
+- `exchangeKey` - exchange key, which is generated and known by data requester after proposition
+- `txExecutor` - transaction executor
+
+Let's simulate a situation where data requester raises a dispute where he pretends that he is not able to decrypt the data. Let's assume that exchange is accepted as in [Accepting private data exchange](#accepting-private-data-exchange). From there if data requester calls `dispute` method using:
+
+```js
+...
+
+const disputeResult = await exchanger.dispute(new BN(1), [72, 16, 88, ...], txExecutor);
+
+...
+```
+
+`disputeResult` will contain such information:
+```js
+{
+  // Status indicated whether requester succeeded disputing. If result is false then
+  // it means data requester has cheated and all staked funds is transferred to passport owner (and vice-versa)
+  success: false,
+
+  // Address of side who cheated (passport owner or data requester)
+  cheaterAddress: '0xd2Bb3Aa3F2c0bdA6D8020f3228EabD4A89d8B951',
+}
+```
+
+As we can see data requester has been decided as as cheater and all staked funds were transferred to passport owner.
+
+Using this SDK it is not possible to cheat as a passport owner. However, this possibility still remains in case fraudulent passport owner would call passport contract methods directly by providing incorrectly encrypted data.
 
 ## Permissioned blockchains support
 
