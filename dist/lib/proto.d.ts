@@ -13,6 +13,8 @@ import { IIPFSClient, IIPFSAddResult, IIPFSDag, IIPFSLink, IIPLD } from './model
 import { IPassportRef } from './models/IPassportRef';
 import { PrivateDataExchanger } from './passport/PrivateDataExchanger';
 import { TxExecutor } from './models/TxExecutor';
+import { ErrorCode } from './errors/ErrorCode';
+import { ISdkError } from './errors/SdkError';
 declare const _default: {
     PassportGenerator: typeof PassportGenerator;
     PassportOwnership: typeof PassportOwnership;
@@ -27,6 +29,7 @@ declare const _default: {
     EventType: typeof EventType;
     DataType: typeof DataType;
     PrivateDataExchanger: typeof PrivateDataExchanger;
+    ErrorCode: typeof ErrorCode;
 };
 export default _default;
-export { PassportGenerator, PassportOwnership, PassportReader, FactReader, FactWriter, FactRemover, PrivateFactReader, PrivateFactWriter, Permissions, FactHistoryReader, PrivateDataExchanger, EventType, DataType, IHistoryEvent, IIPFSClient, IIPFSAddResult, IFactValue, IPassportRef, IIPFSDag, IIPFSLink, IIPLD, TxExecutor, };
+export { PassportGenerator, PassportOwnership, PassportReader, FactReader, FactWriter, FactRemover, PrivateFactReader, PrivateFactWriter, Permissions, FactHistoryReader, PrivateDataExchanger, EventType, DataType, IHistoryEvent, IIPFSClient, IIPFSAddResult, IFactValue, IPassportRef, IIPFSDag, IIPFSLink, IIPLD, TxExecutor, ErrorCode, ISdkError, };

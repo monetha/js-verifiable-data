@@ -7,6 +7,8 @@ import { IIPFSClient } from '../models/IIPFSClient';
 import { IFactValue } from './FactHistoryReader';
 import { IPrivateDataHashes } from './FactReader';
 import { deriveSecretKeyringMaterial, ellipticCurveAlg, ipfsFileNames, unmarshalSecretKeyringMaterial } from './privateFactCommon';
+import { createSdkError } from 'lib/errors/SdkError';
+import { ErrorCode } from 'lib/errors/ErrorCode';
 const EC = ec;
 
 /**
@@ -116,7 +118,7 @@ export class PrivateFactReader {
     const skmData = deriveSecretKeyringMaterial(ecies, pubKeyPair, passportAddress, factProviderAddress, key);
 
     if (!constantTimeCompare(Array.from(Buffer.from(factProviderHashes.dataKeyHash.replace('0x', ''), 'hex')), skmData.skmHash)) {
-      throw new Error('Invalid passport owner key');
+      throw createSdkError(ErrorCode.InvalidPassportOwnerKey, 'Invalid passport owner private key');
     }
 
     return skmData.skm;

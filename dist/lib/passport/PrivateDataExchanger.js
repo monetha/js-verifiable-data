@@ -58,6 +58,8 @@ var compare_1 = require("../crypto/utils/compare");
 var PrivateFactReader_1 = require("./PrivateFactReader");
 var keccak256_1 = __importDefault(require("keccak256"));
 var string_1 = require("../utils/string");
+var SdkError_1 = require("../errors/SdkError");
+var ErrorCode_1 = require("../errors/ErrorCode");
 var PrivateDataExchanger = /** @class */ (function () {
     function PrivateDataExchanger(web3, passportAddress, currentTimeGetter) {
         this.ec = new elliptic_1.ec(privateFactCommon_1.ellipticCurveAlg);
@@ -103,7 +105,7 @@ var PrivateDataExchanger = /** @class */ (function () {
                         logs = abiDecoder.decodeLogs(receipt.logs);
                         exchangeIdxData = logs[0].events.find(function (e) { return e.name === 'exchangeIdx'; });
                         if (!exchangeIdxData) {
-                            throw new Error('Transaction receipt does not contain "exchangeIdx" in event logs');
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.MissingExchangeIdxInReceipt, 'Transaction receipt does not contain "exchangeIdx" in event logs');
                         }
                         return [2 /*return*/, {
                                 exchangeIndex: new bn_js_1.default(exchangeIdxData.value, 10),
@@ -123,19 +125,29 @@ var PrivateDataExchanger = /** @class */ (function () {
      */
     PrivateDataExchanger.prototype.accept = function (exchangeIndex, passportOwnerPrivateKey, ipfsClient, txExecutor) {
         return __awaiter(this, void 0, void 0, function () {
-            var status, nearFuture, exchangePubKeyPair, passportOwnerPrivateKeyPair, ecies, exchangeKey, privateReader, dataSecretKey, encryptedDataSecretKey, contract, tx, rawTx;
+            var status, nearFuture, account, exchangePubKeyPair, passportOwnerPrivateKeyPair, ecies, exchangeKey, privateReader, dataSecretKey, encryptedDataSecretKey, contract, tx, rawTx;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.getStatus(exchangeIndex)];
                     case 1:
                         status = _a.sent();
                         if (status.state !== ExchangeState.Proposed) {
-                            throw new Error('Status must be "proposed"');
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.StatusMustBeProposed, 'Status must be "proposed"');
                         }
                         nearFuture = this.getCurrentTime();
                         nearFuture.setTime(nearFuture.getTime() + 60 * 60 * 1000);
                         if (status.stateExpirationTime < nearFuture) {
-                            throw new Error('Exchange is expired or will expire very soon');
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.ExchangeExpiredOrExpireSoon, 'Exchange is expired or will expire very soon');
+                        }
+                        // Check if private key belongs to passport owner
+                        try {
+                            account = this.web3.eth.accounts.privateKeyToAccount("0x" + passportOwnerPrivateKey.replace('0x', ''));
+                            if (!string_1.ciEquals(account.address, status.passportOwnerAddress)) {
+                                throw new Error();
+                            }
+                        }
+                        catch (_b) {
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.InvalidPassportOwnerKey, 'Invalid passport owner private key');
                         }
                         exchangePubKeyPair = this.ec.keyPair({
                             pub: status.encryptedExchangeKey,
@@ -148,7 +160,7 @@ var PrivateDataExchanger = /** @class */ (function () {
                         exchangeKey = privateFactCommon_1.deriveSecretKeyringMaterial(ecies, exchangePubKeyPair, this.passportAddress, status.factProviderAddress, status.factKey);
                         // Is decrypted exchange key valid?
                         if (!compare_1.constantTimeCompare(status.exchangeKeyHash, exchangeKey.skmHash)) {
-                            throw new Error('Proposed exchange has invalid exchange key hash');
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.InvalidExchangeKeyHash, 'Exchange key hash in passport is invalid');
                         }
                         privateReader = new PrivateFactReader_1.PrivateFactReader();
                         return [4 /*yield*/, privateReader.decryptSecretKey(passportOwnerPrivateKeyPair, {
@@ -192,12 +204,12 @@ var PrivateDataExchanger = /** @class */ (function () {
                     case 1:
                         status = _a.sent();
                         if (status.state !== ExchangeState.Proposed) {
-                            throw new Error('Status must be "proposed"');
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.StatusMustBeProposed, 'Status must be "proposed"');
                         }
                         nowMinus1Min = this.getCurrentTime();
                         nowMinus1Min.setTime(nowMinus1Min.getTime() - 60 * 1000);
                         if (status.stateExpirationTime > nowMinus1Min) {
-                            throw new Error('Requester can close exchange only after expiration date');
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.CanOnlyCloseAfterExpiration, 'Exchange can only be closed after expiration date');
                         }
                         contract = this.passportLogic.getContract();
                         tx = contract.methods.timeoutPrivateDataExchange("0x" + exchangeIndex.toString('hex'));
@@ -230,16 +242,16 @@ var PrivateDataExchanger = /** @class */ (function () {
                     case 1:
                         status = _a.sent();
                         if (status.state !== ExchangeState.Accepted) {
-                            throw new Error('Status must be "accepted"');
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.StatusMustBeAccepted, 'Status must be "accepted"');
                         }
                         nearFuture = this.getCurrentTime();
                         nearFuture.setTime(nearFuture.getTime() + 60 * 60 * 1000);
                         if (status.stateExpirationTime < nearFuture) {
-                            throw new Error('Exchange is expired or will expire very soon');
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.ExchangeExpiredOrExpireSoon, 'Exchange is expired or will expire very soon');
                         }
                         exchangeKeyHash = Array.from(keccak256_1.default(Buffer.from(exchangeKey)));
                         if (!compare_1.constantTimeCompare(exchangeKeyHash, status.exchangeKeyHash)) {
-                            throw new Error('Invalid exchange key');
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.InvalidExchangeKey, 'Invalid exchange key');
                         }
                         contract = this.passportLogic.getContract();
                         tx = contract.methods.disputePrivateDataExchange("0x" + exchangeIndex.toString('hex'), exchangeKey);
@@ -256,11 +268,11 @@ var PrivateDataExchanger = /** @class */ (function () {
                         params = event.events;
                         success = params.find(function (e) { return e.name === 'successful'; });
                         if (success === undefined) {
-                            throw new Error('Transaction receipt does not contain "successful" in event logs');
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.MissingSuccessfulInReceipt, 'Transaction receipt does not contain "successful" in event logs');
                         }
                         cheater = params.find(function (e) { return e.name === 'cheater'; });
                         if (cheater === undefined) {
-                            throw new Error('Transaction receipt does not contain "cheater" in event logs');
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.MissingCheaterInReceipt, 'Transaction receipt does not contain "cheater" in event logs');
                         }
                         return [2 /*return*/, {
                                 cheaterAddress: cheater.value,
@@ -289,17 +301,17 @@ var PrivateDataExchanger = /** @class */ (function () {
                         status = _a.sent();
                         // Status should be accepted
                         if (status.state !== ExchangeState.Accepted) {
-                            throw new Error('Exchange status must be "accepted"');
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.StatusMustBeAccepted, 'Status must be "accepted"');
                         }
                         if (string_1.ciEquals(requesterOrPassOwnerAddress, status.passportOwnerAddress)) {
                             nowMinus1Min = this.getCurrentTime();
                             nowMinus1Min.setTime(nowMinus1Min.getTime() - 60 * 1000);
                             if (status.stateExpirationTime > nowMinus1Min) {
-                                throw new Error('Passport owner can close exchange only after expiration date');
+                                throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.PassOwnerCanCloseOnlyAfterExpiration, 'Passport owner can close exchange only after expiration date');
                             }
                         }
                         else if (!string_1.ciEquals(requesterOrPassOwnerAddress, status.requesterAddress)) {
-                            throw new Error('Only exchange participants can close the exchange');
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.OnlyExchangeParticipantsCanClose, 'Only exchange participants can close the exchange');
                         }
                         contract = this.passportLogic.getContract();
                         tx = contract.methods.finishPrivateDataExchange("0x" + exchangeIndex.toString('hex'));
@@ -368,11 +380,11 @@ var PrivateDataExchanger = /** @class */ (function () {
                         status = _a.sent();
                         // Status should be accepted or closed
                         if (status.state !== ExchangeState.Accepted && status.state !== ExchangeState.Closed) {
-                            throw new Error('Exchange status must be "accepted" or "closed"');
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.StatusMustBeAcceptedOrClosed, 'Exchange status must be "accepted" or "closed"');
                         }
                         exchangeKeyHash = Array.from(keccak256_1.default(Buffer.from(exchangeKey)));
                         if (!compare_1.constantTimeCompare(exchangeKeyHash, status.exchangeKeyHash)) {
-                            throw new Error('Invalid exchange key');
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.InvalidExchangeKey, 'Invalid exchange key');
                         }
                         dataSecretKey = [];
                         status.encryptedDataKey.forEach(function (value, i) {
@@ -381,7 +393,7 @@ var PrivateDataExchanger = /** @class */ (function () {
                         });
                         dataSecretKeyHash = Array.from(keccak256_1.default(Buffer.from(dataSecretKey)));
                         if (!compare_1.constantTimeCompare(dataSecretKeyHash, status.dataKeyHash)) {
-                            throw new Error('Decrypted secret key is invalid');
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.InvalidDecryptedSecretDataKey, 'Decrypted secret data key is invalid');
                         }
                         reader = new PrivateFactReader_1.PrivateFactReader();
                         return [2 /*return*/, reader.decryptPrivateData(status.dataIpfsHash, dataSecretKey, null, ipfsClient)];

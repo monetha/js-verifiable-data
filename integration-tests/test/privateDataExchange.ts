@@ -1,6 +1,8 @@
 import BN from 'bn.js';
-import { ethereumNetworkUrl, privateKeys, advanceTimeAndBlock, takeSnapshot, revertToSnapshot } from 'common/ganache';
+import { expectSdkError } from 'common/error';
+import { advanceTimeAndBlock, ethereumNetworkUrl, privateKeys, revertToSnapshot, takeSnapshot } from 'common/ganache';
 import { createTxExecutor } from 'common/tx';
+import { ErrorCode } from 'lib/errors/ErrorCode';
 import { Address } from 'lib/models/Address';
 import { FactWriter, PassportGenerator, PassportOwnership, PrivateDataExchanger } from 'lib/proto';
 import { MockIPFSClient } from 'mocks/MockIPFSClient';
@@ -76,9 +78,9 @@ const preparePassport = async () => {
 
 describe('Private data exchange', () => {
 
-  // #region -------------- Success flow -------------------------------------------------------------------
+  // #region -------------- Main flow -------------------------------------------------------------------
 
-  describe('Success flow', () => {
+  describe('Main flow', () => {
     before(async () => {
       exchangeData = {};
       await preparePassport();
@@ -108,6 +110,17 @@ describe('Private data exchange', () => {
       expect(status.state).to.eq(ExchangeState.Proposed);
       expect(status.requesterAddress.toLowerCase()).to.eq(requesterAddress.toLowerCase());
       expect(status.requesterStaked.toNumber()).to.eq(stakeWei.toNumber());
+    });
+
+    it('Should NOT accept proposal with invalid private key', async () => {
+      await expectSdkError(
+        () => exchanger.accept(
+          exchangeData.exchangeIndex,
+          `${passportOwnerPrivateKey}111111`,
+          mockIPFSClient,
+          txExecutor,
+        ),
+        ErrorCode.InvalidPassportOwnerKey);
     });
 
     it('Should accept proposal', async () => {
@@ -177,14 +190,12 @@ describe('Private data exchange', () => {
     });
 
     it('Requester should not be able to call timeout before proposal expiration', async () => {
-      try {
-        await exchanger.timeout(exchangeData.exchangeIndex, txExecutor);
-        assert.fail('No error was thrown');
-      } catch {
-      }
+      await expectSdkError(
+        () => exchanger.timeout(exchangeData.exchangeIndex, txExecutor),
+        ErrorCode.CanOnlyCloseAfterExpiration);
     });
 
-    it('Requester should be able to call timeout 24h+ after proposal', async () => {
+    it('Passport owner should not be able to accept 24+ after proposal', async () => {
 
       // Pass 30 hours in blockchain
       await advanceTimeAndBlock(web3, 60 * 60 * 30);
@@ -192,11 +203,17 @@ describe('Private data exchange', () => {
       exchanger = new PrivateDataExchanger(web3, passportAddress, () => {
         const now = new Date();
 
-        // Now + 25h
+        // Now + 30h
         now.setTime(now.getTime() + 60 * 60 * 30 * 1000);
         return now;
       });
 
+      await expectSdkError(
+        () => exchanger.accept(exchangeData.exchangeIndex, passportOwnerPrivateKey, mockIPFSClient, txExecutor),
+        ErrorCode.ExchangeExpiredOrExpireSoon);
+    });
+
+    it('Requester should be able to call timeout 24h+ after proposal', async () => {
       await exchanger.timeout(exchangeData.exchangeIndex, txExecutor);
     });
 

@@ -25,6 +25,8 @@ exports.EventType = IHistoryEvent_1.EventType;
 exports.DataType = IHistoryEvent_1.DataType;
 var PrivateDataExchanger_1 = require("./passport/PrivateDataExchanger");
 exports.PrivateDataExchanger = PrivateDataExchanger_1.PrivateDataExchanger;
+var ErrorCode_1 = require("./errors/ErrorCode");
+exports.ErrorCode = ErrorCode_1.ErrorCode;
 exports.default = {
     PassportGenerator: PassportGenerator_1.PassportGenerator,
     PassportOwnership: PassportOwnership_1.PassportOwnership,
@@ -39,4 +41,5 @@ exports.default = {
     EventType: IHistoryEvent_1.EventType,
     DataType: IHistoryEvent_1.DataType,
     PrivateDataExchanger: PrivateDataExchanger_1.PrivateDataExchanger,
+    ErrorCode: ErrorCode_1.ErrorCode,
 };

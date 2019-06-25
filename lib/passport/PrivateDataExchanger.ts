@@ -17,6 +17,8 @@ import { constantTimeCompare } from 'lib/crypto/utils/compare';
 import { PrivateFactReader } from './PrivateFactReader';
 import keccak256 from 'keccak256';
 import { ciEquals } from 'lib/utils/string';
+import { createSdkError } from 'lib/errors/SdkError';
+import { ErrorCode } from 'lib/errors/ErrorCode';
 
 export class PrivateDataExchanger {
   private passportAddress: Address;
@@ -82,7 +84,7 @@ export class PrivateDataExchanger {
     const logs = abiDecoder.decodeLogs(receipt.logs);
     const exchangeIdxData = logs[0].events.find(e => e.name === 'exchangeIdx');
     if (!exchangeIdxData) {
-      throw new Error('Transaction receipt does not contain "exchangeIdx" in event logs');
+      throw createSdkError(ErrorCode.MissingExchangeIdxInReceipt, 'Transaction receipt does not contain "exchangeIdx" in event logs');
     }
 
     return {
@@ -104,7 +106,7 @@ export class PrivateDataExchanger {
   public async accept(exchangeIndex: BN, passportOwnerPrivateKey: string, ipfsClient: IIPFSClient, txExecutor: TxExecutor): Promise<void> {
     const status = await this.getStatus(exchangeIndex);
     if (status.state !== ExchangeState.Proposed) {
-      throw new Error('Status must be "proposed"');
+      throw createSdkError(ErrorCode.StatusMustBeProposed, 'Status must be "proposed"');
     }
 
     // Check for expiration
@@ -112,7 +114,17 @@ export class PrivateDataExchanger {
     nearFuture.setTime(nearFuture.getTime() + 60 * 60 * 1000);
 
     if (status.stateExpirationTime < nearFuture) {
-      throw new Error('Exchange is expired or will expire very soon');
+      throw createSdkError(ErrorCode.ExchangeExpiredOrExpireSoon, 'Exchange is expired or will expire very soon');
+    }
+
+    // Check if private key belongs to passport owner
+    try {
+      const account = this.web3.eth.accounts.privateKeyToAccount(`0x${passportOwnerPrivateKey.replace('0x', '')}`);
+      if (!ciEquals(account.address, status.passportOwnerAddress)) {
+        throw new Error();
+      }
+    } catch {
+      throw createSdkError(ErrorCode.InvalidPassportOwnerKey, 'Invalid passport owner private key');
     }
 
     // Decrypt exchange key
@@ -136,7 +148,7 @@ export class PrivateDataExchanger {
 
     // Is decrypted exchange key valid?
     if (!constantTimeCompare(status.exchangeKeyHash, exchangeKey.skmHash)) {
-      throw new Error('Proposed exchange has invalid exchange key hash');
+      throw createSdkError(ErrorCode.InvalidExchangeKeyHash, 'Exchange key hash in passport is invalid');
     }
 
     // Decrypt data secret encryption key
@@ -189,7 +201,7 @@ export class PrivateDataExchanger {
   public async timeout(exchangeIndex: BN, txExecutor: TxExecutor): Promise<void> {
     const status = await this.getStatus(exchangeIndex);
     if (status.state !== ExchangeState.Proposed) {
-      throw new Error('Status must be "proposed"');
+      throw createSdkError(ErrorCode.StatusMustBeProposed, 'Status must be "proposed"');
     }
 
     // Data requester can call only after expiration date
@@ -197,7 +209,7 @@ export class PrivateDataExchanger {
     nowMinus1Min.setTime(nowMinus1Min.getTime() - 60 * 1000);
 
     if (status.stateExpirationTime > nowMinus1Min) {
-      throw new Error('Requester can close exchange only after expiration date');
+      throw createSdkError(ErrorCode.CanOnlyCloseAfterExpiration, 'Exchange can only be closed after expiration date');
     }
 
     // Timeout private data exchange
@@ -228,7 +240,7 @@ export class PrivateDataExchanger {
   public async dispute(exchangeIndex: BN, exchangeKey: number[], txExecutor: TxExecutor): Promise<IDisputeDataExchangeResult> {
     const status = await this.getStatus(exchangeIndex);
     if (status.state !== ExchangeState.Accepted) {
-      throw new Error('Status must be "accepted"');
+      throw createSdkError(ErrorCode.StatusMustBeAccepted, 'Status must be "accepted"');
     }
 
     // Check for expiration
@@ -236,13 +248,13 @@ export class PrivateDataExchanger {
     nearFuture.setTime(nearFuture.getTime() + 60 * 60 * 1000);
 
     if (status.stateExpirationTime < nearFuture) {
-      throw new Error('Exchange is expired or will expire very soon');
+      throw createSdkError(ErrorCode.ExchangeExpiredOrExpireSoon, 'Exchange is expired or will expire very soon');
     }
 
     // Validate exchange key
     const exchangeKeyHash = Array.from<number>(keccak256(Buffer.from(exchangeKey)));
     if (!constantTimeCompare(exchangeKeyHash, status.exchangeKeyHash)) {
-      throw new Error('Invalid exchange key');
+      throw createSdkError(ErrorCode.InvalidExchangeKey, 'Invalid exchange key');
     }
 
     // Dispute private data exchange
@@ -266,12 +278,12 @@ export class PrivateDataExchanger {
 
     const success = params.find(e => e.name === 'successful');
     if (success === undefined) {
-      throw new Error('Transaction receipt does not contain "successful" in event logs');
+      throw createSdkError(ErrorCode.MissingSuccessfulInReceipt, 'Transaction receipt does not contain "successful" in event logs');
     }
 
     const cheater = params.find(e => e.name === 'cheater');
     if (cheater === undefined) {
-      throw new Error('Transaction receipt does not contain "cheater" in event logs');
+      throw createSdkError(ErrorCode.MissingCheaterInReceipt, 'Transaction receipt does not contain "cheater" in event logs');
     }
 
     return {
@@ -296,7 +308,7 @@ export class PrivateDataExchanger {
 
     // Status should be accepted
     if (status.state !== ExchangeState.Accepted) {
-      throw new Error('Exchange status must be "accepted"');
+      throw createSdkError(ErrorCode.StatusMustBeAccepted, 'Status must be "accepted"');
     }
 
     if (ciEquals(requesterOrPassOwnerAddress, status.passportOwnerAddress)) {
@@ -306,10 +318,12 @@ export class PrivateDataExchanger {
       nowMinus1Min.setTime(nowMinus1Min.getTime() - 60 * 1000);
 
       if (status.stateExpirationTime > nowMinus1Min) {
-        throw new Error('Passport owner can close exchange only after expiration date');
+        throw createSdkError(ErrorCode.PassOwnerCanCloseOnlyAfterExpiration,
+          'Passport owner can close exchange only after expiration date');
       }
     } else if (!ciEquals(requesterOrPassOwnerAddress, status.requesterAddress)) {
-      throw new Error('Only exchange participants can close the exchange');
+      throw createSdkError(ErrorCode.OnlyExchangeParticipantsCanClose,
+        'Only exchange participants can close the exchange');
     }
 
     // Finish private data exchange
@@ -373,13 +387,13 @@ export class PrivateDataExchanger {
 
     // Status should be accepted or closed
     if (status.state !== ExchangeState.Accepted && status.state !== ExchangeState.Closed) {
-      throw new Error('Exchange status must be "accepted" or "closed"');
+      throw createSdkError(ErrorCode.StatusMustBeAcceptedOrClosed, 'Exchange status must be "accepted" or "closed"');
     }
 
     // Validate exchange key
     const exchangeKeyHash = Array.from<number>(keccak256(Buffer.from(exchangeKey)));
     if (!constantTimeCompare(exchangeKeyHash, status.exchangeKeyHash)) {
-      throw new Error('Invalid exchange key');
+      throw createSdkError(ErrorCode.InvalidExchangeKey, 'Invalid exchange key');
     }
 
     // Decrypt data secret encryption key using exchange key (by XOR'ing encrypted secret key with exchange key)
@@ -393,7 +407,7 @@ export class PrivateDataExchanger {
     // Validate secret key
     const dataSecretKeyHash = Array.from<number>(keccak256(Buffer.from(dataSecretKey)));
     if (!constantTimeCompare(dataSecretKeyHash, status.dataKeyHash)) {
-      throw new Error('Decrypted secret key is invalid');
+      throw createSdkError(ErrorCode.InvalidDecryptedSecretDataKey, 'Decrypted secret data key is invalid');
     }
 
     // Read data

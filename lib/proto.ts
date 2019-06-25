@@ -13,6 +13,8 @@ import { IIPFSClient, IIPFSAddResult, IIPFSDag, IIPFSLink, IIPLD } from './model
 import { IPassportRef } from './models/IPassportRef';
 import { PrivateDataExchanger } from './passport/PrivateDataExchanger';
 import { TxExecutor } from './models/TxExecutor';
+import { ErrorCode } from './errors/ErrorCode';
+import { ISdkError } from './errors/SdkError';
 
 export default {
   PassportGenerator,
@@ -28,6 +30,7 @@ export default {
   EventType,
   DataType,
   PrivateDataExchanger,
+  ErrorCode,
 };
 
 export {
@@ -53,4 +56,6 @@ export {
   IIPFSLink,
   IIPLD,
   TxExecutor,
+  ErrorCode,
+  ISdkError,
 };
