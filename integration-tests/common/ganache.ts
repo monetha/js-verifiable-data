@@ -1,3 +1,5 @@
+import Web3 from 'web3';
+
 // Tests assume that they were run using Ganache with '-m' parameter with mnemonic below
 // mnemonic: economy sight open cancel father goddess monkey mosquito mule village diet purpose
 //
@@ -17,3 +19,28 @@ export const privateKeys = [
 ];
 
 export const ethereumNetworkUrl = 'http://127.0.0.1:8545';
+
+export const advanceTimeAndBlock = async (web3: Web3, time: number) => {
+  await advanceTime(web3, time);
+  await advanceBlock(web3);
+
+  return Promise.resolve(web3.eth.getBlock('latest'));
+};
+
+export const advanceTime = async (web3: Web3, time: number) => {
+  await web3.currentProvider.send('evm_increaseTime', [time]);
+};
+
+export const advanceBlock = async (web3: Web3) => {
+  await web3.currentProvider.send('evm_mine', []);
+
+  return web3.eth.getBlock('latest');
+};
+
+export const takeSnapshot = async (web3: Web3): Promise<string> => {
+  return web3.currentProvider.send('evm_snapshot', []);
+};
+
+export const revertToSnapshot = async (web3: Web3, snapshotId: string) => {
+  await web3.currentProvider.send('evm_revert', [snapshotId]);
+};

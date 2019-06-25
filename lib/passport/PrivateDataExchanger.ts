@@ -23,11 +23,17 @@ export class PrivateDataExchanger {
   private web3: Web3;
   private passportLogic: ContractIO<PassportLogic>;
   private ec = new ec(ellipticCurveAlg);
+  private getCurrentTime: CurrentTimeGetter;
 
-  public constructor(web3: Web3, passportAddress: Address) {
+  public constructor(web3: Web3, passportAddress: Address, currentTimeGetter?: CurrentTimeGetter) {
     this.web3 = web3;
     this.passportAddress = passportAddress;
     this.passportLogic = new ContractIO(web3, passportLogicAbi as AbiItem[], passportAddress);
+
+    this.getCurrentTime = currentTimeGetter;
+    if (!currentTimeGetter) {
+      this.getCurrentTime = () => new Date();
+    }
   }
 
   // #region -------------- Propose -------------------------------------------------------------------
@@ -102,7 +108,7 @@ export class PrivateDataExchanger {
     }
 
     // Check for expiration
-    const nearFuture = new Date();
+    const nearFuture = this.getCurrentTime();
     nearFuture.setTime(nearFuture.getTime() + 60 * 60 * 1000);
 
     if (status.stateExpirationTime < nearFuture) {
@@ -174,8 +180,38 @@ export class PrivateDataExchanger {
 
   // #region -------------- Timeout -------------------------------------------------------------------
 
-  public async timeout(exchangeIndex: BN, requesterAddress: Address, txExecutor: TxExecutor): Promise<void> {
-    throw new Error('Not implemented');
+  /**
+   * Closes private data exchange after proposition has expired.
+   * This can be called only by data exchange requester.
+   * @param exchangeIndex - data exchange index
+   * @param txExecutor - transaction executor function
+   */
+  public async timeout(exchangeIndex: BN, txExecutor: TxExecutor): Promise<void> {
+    const status = await this.getStatus(exchangeIndex);
+    if (status.state !== ExchangeState.Proposed) {
+      throw new Error('Status must be "proposed"');
+    }
+
+    // Data requester can call only after expiration date
+    const nowMinus1Min = this.getCurrentTime();
+    nowMinus1Min.setTime(nowMinus1Min.getTime() - 60 * 1000);
+
+    if (status.stateExpirationTime > nowMinus1Min) {
+      throw new Error('Requester can close exchange only after expiration date');
+    }
+
+    // Timeout private data exchange
+    const contract = this.passportLogic.getContract();
+    const tx = contract.methods.timeoutPrivateDataExchange(`0x${exchangeIndex.toString('hex')}`);
+
+    const rawTx = await this.passportLogic.prepareRawTX(
+      status.requesterAddress,
+      this.passportAddress,
+      0,
+      tx,
+    );
+
+    await txExecutor(rawTx);
   }
 
   // #endregion
@@ -208,7 +244,7 @@ export class PrivateDataExchanger {
     if (ciEquals(requesterOrPassOwnerAddress, status.passportOwnerAddress)) {
 
       // Passport owner can finish only after expiration date
-      const nowMinus1Min = new Date();
+      const nowMinus1Min = this.getCurrentTime();
       nowMinus1Min.setTime(nowMinus1Min.getTime() - 60 * 1000);
 
       if (status.stateExpirationTime > nowMinus1Min) {
@@ -315,7 +351,9 @@ export class PrivateDataExchanger {
   // #endregion
 }
 
-// #region -------------- Interfaces -------------------------------------------------------------------
+// #region -------------- Types -------------------------------------------------------------------
+
+export type CurrentTimeGetter = () => Date;
 
 export interface IProposeDataExchangeResult {
   exchangeIndex: BN;

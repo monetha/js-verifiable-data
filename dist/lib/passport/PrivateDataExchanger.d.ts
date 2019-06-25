@@ -8,7 +8,8 @@ export declare class PrivateDataExchanger {
     private web3;
     private passportLogic;
     private ec;
-    constructor(web3: Web3, passportAddress: Address);
+    private getCurrentTime;
+    constructor(web3: Web3, passportAddress: Address, currentTimeGetter?: CurrentTimeGetter);
     /**
      * Creates private data exchange proposition
      * @param factKey - fact key name to request data for
@@ -24,7 +25,13 @@ export declare class PrivateDataExchanger {
      * @param txExecutor - transaction executor function
      */
     accept(exchangeIndex: BN, passportOwnerPrivateKey: string, ipfsClient: IIPFSClient, txExecutor: TxExecutor): Promise<void>;
-    timeout(exchangeIndex: BN, requesterAddress: Address, txExecutor: TxExecutor): Promise<void>;
+    /**
+     * Closes private data exchange after proposition has expired.
+     * This can be called only by data exchange requester.
+     * @param exchangeIndex - data exchange index
+     * @param txExecutor - transaction executor function
+     */
+    timeout(exchangeIndex: BN, txExecutor: TxExecutor): Promise<void>;
     dispute(exchangeIndex: BN, requesterOrPassOwnerAddress: Address, txExecutor: TxExecutor): Promise<IDisputeDataExchangeResult>;
     /**
      * Closes private data exchange after acceptance. It's supposed to be called by the data requester,
@@ -49,6 +56,7 @@ export declare class PrivateDataExchanger {
      */
     getPrivateData(exchangeIndex: BN, exchangeKey: number[], ipfsClient: IIPFSClient): Promise<number[]>;
 }
+export declare type CurrentTimeGetter = () => Date;
 export interface IProposeDataExchangeResult {
     exchangeIndex: BN;
     exchangeKey: number[];

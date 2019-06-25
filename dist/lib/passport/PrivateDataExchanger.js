@@ -59,11 +59,15 @@ var PrivateFactReader_1 = require("./PrivateFactReader");
 var keccak256_1 = __importDefault(require("keccak256"));
 var string_1 = require("../utils/string");
 var PrivateDataExchanger = /** @class */ (function () {
-    function PrivateDataExchanger(web3, passportAddress) {
+    function PrivateDataExchanger(web3, passportAddress, currentTimeGetter) {
         this.ec = new elliptic_1.ec(privateFactCommon_1.ellipticCurveAlg);
         this.web3 = web3;
         this.passportAddress = passportAddress;
         this.passportLogic = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
+        this.getCurrentTime = currentTimeGetter;
+        if (!currentTimeGetter) {
+            this.getCurrentTime = function () { return new Date(); };
+        }
     }
     // #region -------------- Propose -------------------------------------------------------------------
     /**
@@ -128,7 +132,7 @@ var PrivateDataExchanger = /** @class */ (function () {
                         if (status.state !== ExchangeState.Proposed) {
                             throw new Error('Status must be "proposed"');
                         }
-                        nearFuture = new Date();
+                        nearFuture = this.getCurrentTime();
                         nearFuture.setTime(nearFuture.getTime() + 60 * 60 * 1000);
                         if (status.stateExpirationTime < nearFuture) {
                             throw new Error('Exchange is expired or will expire very soon');
@@ -173,10 +177,38 @@ var PrivateDataExchanger = /** @class */ (function () {
     };
     // #endregion
     // #region -------------- Timeout -------------------------------------------------------------------
-    PrivateDataExchanger.prototype.timeout = function (exchangeIndex, requesterAddress, txExecutor) {
+    /**
+     * Closes private data exchange after proposition has expired.
+     * This can be called only by data exchange requester.
+     * @param exchangeIndex - data exchange index
+     * @param txExecutor - transaction executor function
+     */
+    PrivateDataExchanger.prototype.timeout = function (exchangeIndex, txExecutor) {
         return __awaiter(this, void 0, void 0, function () {
+            var status, nowMinus1Min, contract, tx, rawTx;
             return __generator(this, function (_a) {
-                throw new Error('Not implemented');
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getStatus(exchangeIndex)];
+                    case 1:
+                        status = _a.sent();
+                        if (status.state !== ExchangeState.Proposed) {
+                            throw new Error('Status must be "proposed"');
+                        }
+                        nowMinus1Min = this.getCurrentTime();
+                        nowMinus1Min.setTime(nowMinus1Min.getTime() - 60 * 1000);
+                        if (status.stateExpirationTime > nowMinus1Min) {
+                            throw new Error('Requester can close exchange only after expiration date');
+                        }
+                        contract = this.passportLogic.getContract();
+                        tx = contract.methods.timeoutPrivateDataExchange("0x" + exchangeIndex.toString('hex'));
+                        return [4 /*yield*/, this.passportLogic.prepareRawTX(status.requesterAddress, this.passportAddress, 0, tx)];
+                    case 2:
+                        rawTx = _a.sent();
+                        return [4 /*yield*/, txExecutor(rawTx)];
+                    case 3:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
             });
         });
     };
@@ -211,7 +243,7 @@ var PrivateDataExchanger = /** @class */ (function () {
                             throw new Error('Exchange status must be "accepted"');
                         }
                         if (string_1.ciEquals(requesterOrPassOwnerAddress, status.passportOwnerAddress)) {
-                            nowMinus1Min = new Date();
+                            nowMinus1Min = this.getCurrentTime();
                             nowMinus1Min.setTime(nowMinus1Min.getTime() - 60 * 1000);
                             if (status.stateExpirationTime > nowMinus1Min) {
                                 throw new Error('Passport owner can close exchange only after expiration date');

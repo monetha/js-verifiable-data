@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import { use } from 'chai';
 import chaiMoment from 'chai-moment';
-import { ethereumNetworkUrl, privateKeys } from 'common/ganache';
+import { ethereumNetworkUrl, privateKeys, advanceTimeAndBlock, takeSnapshot, revertToSnapshot } from 'common/ganache';
 import { createTxExecutor } from 'common/tx';
 import { Address } from 'lib/models/Address';
 import { FactWriter, PassportGenerator, PassportOwnership, PrivateDataExchanger } from 'lib/proto';
@@ -43,7 +43,7 @@ let exchangeData = {
   exchangeKeyHash: null,
 };
 
-before(async () => {
+const preparePassport = async () => {
   accounts = await web3.eth.getAccounts();
 
   // Accounts
@@ -79,65 +79,127 @@ before(async () => {
 
   // Create exchanger
   exchanger = new PrivateDataExchanger(web3, passportAddress);
-});
+};
 
 describe('Private data exchange', () => {
-  it('Should propose retrieval', async () => {
-    const result = await exchanger.propose(
-      privateFactKey,
-      factProviderAddress,
-      stakeWei,
-      requesterAddress,
-      txExecutor,
-    );
+  describe('Success flow', () => {
+    before(async () => {
+      await preparePassport();
+    });
 
-    exchangeData = {
-      ...exchangeData,
-      ...result,
-    };
+    it('Should propose retrieval', async () => {
+      const result = await exchanger.propose(
+        privateFactKey,
+        factProviderAddress,
+        stakeWei,
+        requesterAddress,
+        txExecutor,
+      );
 
-    expect(result.exchangeIndex).to.be.not.null.and.not.undefined;
-    expect(result.exchangeKey).to.have.length(32);
-    expect(result.exchangeKeyHash).to.have.length(32);
+      exchangeData = {
+        ...exchangeData,
+        ...result,
+      };
+
+      expect(result.exchangeIndex).to.be.not.null.and.not.undefined;
+      expect(result.exchangeKey).to.have.length(32);
+      expect(result.exchangeKeyHash).to.have.length(32);
+    });
+
+    it('Status should be proposed', async () => {
+      const status = await exchanger.getStatus(exchangeData.exchangeIndex);
+      expect(status.state).to.eq(ExchangeState.Proposed);
+      expect(status.requesterAddress).to.eq(requesterAddress);
+      expect(status.requesterStaked.toNumber()).to.eq(stakeWei.toNumber());
+    });
+
+    it('Should accept proposal', async () => {
+      await exchanger.accept(
+        exchangeData.exchangeIndex,
+        passportOwnerPrivateKey,
+        mockIPFSClient,
+        txExecutor,
+      );
+    });
+
+    it('Status should be accepted', async () => {
+      const status = await exchanger.getStatus(exchangeData.exchangeIndex);
+      expect(status.state).to.eq(ExchangeState.Accepted);
+      expect(status.passportOwnerStaked.toNumber()).to.eq(stakeWei.toNumber());
+    });
+
+    it('Should be able to decrypt fact with exchange key', async () => {
+      const data = await exchanger.getPrivateData(exchangeData.exchangeIndex, exchangeData.exchangeKey, mockIPFSClient);
+      expect(data).to.deep.eq(privateFactValue);
+    });
+
+    it('Requester should finish proposal', async () => {
+      await exchanger.finish(
+        exchangeData.exchangeIndex,
+        requesterAddress,
+        txExecutor,
+      );
+    });
+
+    it('Status should be closed', async () => {
+      const status = await exchanger.getStatus(exchangeData.exchangeIndex);
+      expect(status.state).to.eq(ExchangeState.Closed);
+    });
   });
 
-  it('Status should be proposed', async () => {
-    const status = await exchanger.getStatus(exchangeData.exchangeIndex);
-    expect(status.state).to.eq(ExchangeState.Proposed);
-    expect(status.requesterAddress).to.eq(requesterAddress);
-    expect(status.requesterStaked.toNumber()).to.eq(stakeWei.toNumber());
-  });
+  describe('Acceptance timeout', () => {
+    let snapshotId: string;
 
-  it('Should accept proposal', async () => {
-    await exchanger.accept(
-      exchangeData.exchangeIndex,
-      passportOwnerPrivateKey,
-      mockIPFSClient,
-      txExecutor,
-    );
-  });
+    before(async () => {
+      await preparePassport();
+      snapshotId = await takeSnapshot(web3);
 
-  it('Status should be accepted', async () => {
-    const status = await exchanger.getStatus(exchangeData.exchangeIndex);
-    expect(status.state).to.eq(ExchangeState.Accepted);
-    expect(status.passportOwnerStaked.toNumber()).to.eq(stakeWei.toNumber());
-  });
+      // Propose
+      const result = await exchanger.propose(
+        privateFactKey,
+        factProviderAddress,
+        stakeWei,
+        requesterAddress,
+        txExecutor,
+      );
 
-  it('Should be able to decrypt fact with exchange key', async () => {
-    const data = await exchanger.getPrivateData(exchangeData.exchangeIndex, exchangeData.exchangeKey, mockIPFSClient);
-    expect(data).to.deep.eq(privateFactValue);
-  });
+      exchangeData = {
+        ...exchangeData,
+        ...result,
+      };
+    });
 
-  it('Requester should finish proposal', async () => {
-    await exchanger.finish(
-      exchangeData.exchangeIndex,
-      requesterAddress,
-      txExecutor,
-    );
-  });
+    after(async () => {
+      await revertToSnapshot(web3, snapshotId);
+    });
 
-  it('Status should be closed', async () => {
-    const status = await exchanger.getStatus(exchangeData.exchangeIndex);
-    expect(status.state).to.eq(ExchangeState.Closed);
+    it('Requester should not be able to call timeout before propsal expiration', async () => {
+      try {
+        await exchanger.timeout(exchangeData.exchangeIndex, txExecutor);
+        assert.fail('No error was thrown');
+      } catch {
+      }
+    });
+
+    it('Requester should be able to call timeout 24h+ after proposal', async () => {
+
+      // Pass 30 hours in blockchain
+      await advanceTimeAndBlock(web3, 60 * 60 * 30);
+
+      exchanger = new PrivateDataExchanger(web3, passportAddress, () => {
+        const now = new Date();
+
+        // Now + 25h
+        now.setTime(now.getTime() + 60 * 60 * 30 * 1000);
+        return now;
+      });
+
+      await exchanger.timeout(exchangeData.exchangeIndex, txExecutor);
+    });
+
+    it('Status should be closed', async () => {
+      const status = await exchanger.getStatus(exchangeData.exchangeIndex);
+      expect(status.state).to.eq(ExchangeState.Closed);
+    });
   });
 });
