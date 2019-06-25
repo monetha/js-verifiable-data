@@ -1,6 +1,4 @@
 import BN from 'bn.js';
-import { use } from 'chai';
-import chaiMoment from 'chai-moment';
 import { ethereumNetworkUrl, privateKeys, advanceTimeAndBlock, takeSnapshot, revertToSnapshot } from 'common/ganache';
 import { createTxExecutor } from 'common/tx';
 import { Address } from 'lib/models/Address';
@@ -8,7 +6,6 @@ import { FactWriter, PassportGenerator, PassportOwnership, PrivateDataExchanger 
 import { MockIPFSClient } from 'mocks/MockIPFSClient';
 import Web3 from 'web3';
 import { ExchangeState } from 'lib/passport/PrivateDataExchanger';
-use(chaiMoment);
 
 let accounts;
 
@@ -37,11 +34,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider(ethereumNetworkUrl));
 
 const txExecutor = createTxExecutor(web3);
 
-let exchangeData = {
-  exchangeKey: null,
-  exchangeIndex: null,
-  exchangeKeyHash: null,
-};
+let exchangeData: any = {};
 
 const preparePassport = async () => {
   accounts = await web3.eth.getAccounts();
@@ -82,8 +75,12 @@ const preparePassport = async () => {
 };
 
 describe('Private data exchange', () => {
+
+  // #region -------------- Success flow -------------------------------------------------------------------
+
   describe('Success flow', () => {
     before(async () => {
+      exchangeData = {};
       await preparePassport();
     });
 
@@ -109,7 +106,7 @@ describe('Private data exchange', () => {
     it('Status should be proposed', async () => {
       const status = await exchanger.getStatus(exchangeData.exchangeIndex);
       expect(status.state).to.eq(ExchangeState.Proposed);
-      expect(status.requesterAddress).to.eq(requesterAddress);
+      expect(status.requesterAddress.toLowerCase()).to.eq(requesterAddress.toLowerCase());
       expect(status.requesterStaked.toNumber()).to.eq(stakeWei.toNumber());
     });
 
@@ -147,10 +144,16 @@ describe('Private data exchange', () => {
     });
   });
 
+  // #endregion
+
+  // #region -------------- Timeout -------------------------------------------------------------------
+
   describe('Acceptance timeout', () => {
     let snapshotId: string;
 
     before(async () => {
+      exchangeData = {};
+
       await preparePassport();
       snapshotId = await takeSnapshot(web3);
 
@@ -173,7 +176,7 @@ describe('Private data exchange', () => {
       await revertToSnapshot(web3, snapshotId);
     });
 
-    it('Requester should not be able to call timeout before propsal expiration', async () => {
+    it('Requester should not be able to call timeout before proposal expiration', async () => {
       try {
         await exchanger.timeout(exchangeData.exchangeIndex, txExecutor);
         assert.fail('No error was thrown');
@@ -202,4 +205,57 @@ describe('Private data exchange', () => {
       expect(status.state).to.eq(ExchangeState.Closed);
     });
   });
+
+  // #endregion
+
+  // #region -------------- Dispute -------------------------------------------------------------------
+
+  describe('Dispute when requester is cheater', () => {
+    before(async () => {
+      exchangeData = {};
+
+      await preparePassport();
+
+      // Propose
+      const result = await exchanger.propose(
+        privateFactKey,
+        factProviderAddress,
+        stakeWei,
+        requesterAddress,
+        txExecutor,
+      );
+
+      exchangeData = {
+        ...exchangeData,
+        ...result,
+      };
+
+      // Accept
+      await exchanger.accept(
+        exchangeData.exchangeIndex,
+        passportOwnerPrivateKey,
+        mockIPFSClient,
+        txExecutor,
+      );
+    });
+
+    it('Requester should open dispute and be marked as cheater', async () => {
+      const result = await exchanger.dispute(
+        exchangeData.exchangeIndex,
+        exchangeData.exchangeKey,
+        txExecutor,
+      );
+
+      expect(result.success, 'Dispute result should be unsuccessful').to.be.false;
+      expect(result.cheaterAddress.toLowerCase()).to.eq(requesterAddress.toLowerCase());
+    });
+
+    it('Status should be closed', async () => {
+      const status = await exchanger.getStatus(exchangeData.exchangeIndex);
+      expect(status.state).to.eq(ExchangeState.Closed);
+    });
+  });
+
+  // #endregion
+
 });

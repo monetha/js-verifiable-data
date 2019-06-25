@@ -1,5 +1,5 @@
 import BN from 'bn.js';
-import { toAscii, hexToString } from 'web3-utils';
+import { toAscii } from 'web3-utils';
 
 /**
  * Converts hex string (with or without 0x) to byte array
@@ -18,6 +18,18 @@ export function hexToArray(hexString: string): number[] {
  */
 export function hexToUnpaddedAscii(hexString: string): string {
   return toAscii(hexString).replace(/\u0000/g, '');
+}
+
+/**
+ * Converts hex string (with or without 0x) to boolean
+ * Zero or empty value resolves to false. Other values resolves to true.
+ */
+export function hexToBoolean(hexString: string): boolean {
+  if (!hexString) {
+    return false;
+  }
+
+  return toBN(hexString).toNumber() !== 0;
 }
 
 /**

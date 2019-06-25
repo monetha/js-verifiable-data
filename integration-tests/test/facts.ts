@@ -1,5 +1,3 @@
-import { expect, use } from 'chai';
-import chaiMoment from 'chai-moment';
 import { submitTransaction } from 'common/tx';
 import { PassportGenerator } from 'lib/passport/PassportGenerator';
 import { PassportOwnership } from 'lib/passport/PassportOwnership';
@@ -7,7 +5,6 @@ import { FactHistoryReader, FactReader, FactRemover, FactWriter, PassportReader,
 import Web3 from 'web3';
 import { ethereumNetworkUrl, privateKeys } from '../common/ganache';
 import { MockIPFSClient } from '../mocks/MockIPFSClient';
-use(chaiMoment);
 
 let accounts;
 let monethaOwner;

@@ -16,8 +16,6 @@
   "dependencies": {
     "bignumber.js": "9.0.0",
     "chai": "^4.2.0",
-    "chai-bignumber": "^3.0.0",
-    "chai-moment": "^0.1.0",
     "ganache-cli": "^6.4.3",
     "hash.js": "^1.1.7",
     "mocha": "^6.1.4",

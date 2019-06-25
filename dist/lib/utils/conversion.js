@@ -24,6 +24,17 @@ function hexToUnpaddedAscii(hexString) {
 }
 exports.hexToUnpaddedAscii = hexToUnpaddedAscii;
 /**
+ * Converts hex string (with or without 0x) to boolean
+ * Zero or empty value resolves to false. Other values resolves to true.
+ */
+function hexToBoolean(hexString) {
+    if (!hexString) {
+        return false;
+    }
+    return toBN(hexString).toNumber() !== 0;
+}
+exports.hexToBoolean = hexToBoolean;
+/**
  * Converts given value to BN
  */
 function toBN(value) {
