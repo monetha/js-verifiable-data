@@ -11,7 +11,7 @@ import { PassportLogic } from 'lib/types/web3-contracts/PassportLogic';
 import passportLogicAbi from '../../config/PassportLogic.json';
 import { AbiItem } from 'web3-utils';
 import { ContractIO } from 'lib/transactionHelpers/ContractIO';
-import { hexToArray, hexToUnpaddedAscii, toBN, hexToBoolean } from 'lib/utils/conversion';
+import { hexToArray, hexToUnpaddedAscii, toBN, hexToBoolean, toDate } from 'lib/utils/conversion';
 import { IIPFSClient } from 'lib/models/IIPFSClient';
 import { constantTimeCompare } from 'lib/crypto/utils/compare';
 import { PrivateFactReader } from './PrivateFactReader';
@@ -364,7 +364,7 @@ export class PrivateDataExchanger {
       requesterAddress: rawStatus.dataRequester,
       requesterStaked: toBN(rawStatus.dataRequesterValue),
       state: Number(rawStatus.state) as ExchangeState,
-      stateExpirationTime: new Date((rawStatus.stateExpired as any).toNumber() * 1000),
+      stateExpirationTime: toDate(rawStatus.stateExpired),
     };
 
     return status;

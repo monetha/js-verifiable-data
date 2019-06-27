@@ -17,3 +17,7 @@ export declare function hexToBoolean(hexString: string): boolean;
  * Converts given value to BN
  */
 export declare function toBN(value: string | number | BN | any): BN;
+/**
+ * Converts given value to date. Any numerical representation is expected to be UNIX timestamp
+ */
+export declare function toDate(value: string | number | BN | any): Date;

@@ -353,7 +353,7 @@ var PrivateDataExchanger = /** @class */ (function () {
                             requesterAddress: rawStatus.dataRequester,
                             requesterStaked: conversion_1.toBN(rawStatus.dataRequesterValue),
                             state: Number(rawStatus.state),
-                            stateExpirationTime: new Date(rawStatus.stateExpired.toNumber() * 1000),
+                            stateExpirationTime: conversion_1.toDate(rawStatus.stateExpired),
                         };
                         return [2 /*return*/, status];
                 }
