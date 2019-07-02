@@ -8,6 +8,7 @@ import { FactWriter, PassportGenerator, PassportOwnership, PrivateDataExchanger 
 import { MockIPFSClient } from 'mocks/MockIPFSClient';
 import Web3 from 'web3';
 import { ExchangeState } from 'lib/passport/PrivateDataExchanger';
+// import { IPFSClient } from 'common/IPFSClient';
 
 let accounts;
 
@@ -21,7 +22,8 @@ let otherPersonAddress: Address;
 let passportAddress: Address;
 let factProviderAddress: Address;
 let exchanger: PrivateDataExchanger;
-const mockIPFSClient = new MockIPFSClient();
+const ipfsClient = new MockIPFSClient();
+// const ipfsClient = new IPFSClient();
 
 const privateFactKey = 'privatedata_fact';
 const stakeWei = new BN('100000', 10);
@@ -65,7 +67,7 @@ const preparePassport = async () => {
 
   // Write some private fact
   const writer = new FactWriter(web3, passportAddress);
-  const writeResult = await writer.setPrivateData(privateFactKey, privateFactValue, factProviderAddress, mockIPFSClient);
+  const writeResult = await writer.setPrivateData(privateFactKey, privateFactValue, factProviderAddress, ipfsClient);
   receipt = await txExecutor(writeResult.tx);
 
   // Create exchanger
@@ -113,7 +115,7 @@ describe('Private data exchange', () => {
         () => exchanger.accept(
           exchangeData.exchangeIndex,
           `${passportOwnerPrivateKey}111111`,
-          mockIPFSClient,
+          ipfsClient,
           txExecutor,
         ),
         ErrorCode.InvalidPassportOwnerKey);
@@ -123,7 +125,7 @@ describe('Private data exchange', () => {
       await exchanger.accept(
         exchangeData.exchangeIndex,
         passportOwnerPrivateKey,
-        mockIPFSClient,
+        ipfsClient,
         txExecutor,
       );
     });
@@ -135,13 +137,13 @@ describe('Private data exchange', () => {
     });
 
     it('Should be able to decrypt fact with exchange key', async () => {
-      const data = await exchanger.getPrivateData(exchangeData.exchangeIndex, exchangeData.exchangeKey, mockIPFSClient);
+      const data = await exchanger.getPrivateData(exchangeData.exchangeIndex, exchangeData.exchangeKey, ipfsClient);
       expect(data).to.deep.eq(privateFactValue);
     });
 
     it('Should NOT be able to decrypt fact with invalid exchange key', async () => {
       await expectSdkError(
-        () => exchanger.getPrivateData(exchangeData.exchangeIndex, [1, 2, 3, 4], mockIPFSClient),
+        () => exchanger.getPrivateData(exchangeData.exchangeIndex, [1, 2, 3, 4], ipfsClient),
         ErrorCode.InvalidExchangeKey);
     });
 
@@ -198,7 +200,7 @@ describe('Private data exchange', () => {
       await exchanger.accept(
         exchangeData.exchangeIndex,
         passportOwnerPrivateKey,
-        mockIPFSClient,
+        ipfsClient,
         txExecutor,
       );
     });
@@ -267,7 +269,7 @@ describe('Private data exchange', () => {
       exchanger = await advanceTime(30);
 
       await expectSdkError(
-        () => exchanger.accept(exchangeData.exchangeIndex, passportOwnerPrivateKey, mockIPFSClient, txExecutor),
+        () => exchanger.accept(exchangeData.exchangeIndex, passportOwnerPrivateKey, ipfsClient, txExecutor),
         ErrorCode.ExchangeExpiredOrExpireSoon);
     });
 
@@ -309,7 +311,7 @@ describe('Private data exchange', () => {
       await exchanger.accept(
         exchangeData.exchangeIndex,
         passportOwnerPrivateKey,
-        mockIPFSClient,
+        ipfsClient,
         txExecutor,
       );
     });
@@ -358,7 +360,7 @@ describe('Private data exchange', () => {
       await exchanger.accept(
         exchangeData.exchangeIndex,
         passportOwnerPrivateKey,
-        mockIPFSClient,
+        ipfsClient,
         txExecutor,
       );
     });
