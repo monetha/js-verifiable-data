@@ -7,6 +7,7 @@
   },
   "scripts": {
     "test": "./node_modules/.bin/truffle test",
+    "test:quorum": "./node_modules/.bin/truffle test --network quorum",
     "ganache": "npm run ganache:stop && docker run -d --rm -p 8545:8545 --name ganache trufflesuite/ganache-cli:latest -m \"economy sight open cancel father goddess monkey mosquito mule village diet purpose\"",
     "ganache:stop": "docker rm ganache --force || true",
     "ganache:terminal": "./node_modules/.bin/ganache-cli -m \"economy sight open cancel father goddess monkey mosquito mule village diet purpose\""
