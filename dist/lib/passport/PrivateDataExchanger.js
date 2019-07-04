@@ -60,6 +60,13 @@ var keccak256_1 = __importDefault(require("keccak256"));
 var string_1 = require("../utils/string");
 var SdkError_1 = require("../errors/SdkError");
 var ErrorCode_1 = require("../errors/ErrorCode");
+var gasLimits = {
+    accept: 90000,
+    dispute: 60000,
+    finish: 60000,
+    propose: 500000,
+    timeout: 60000,
+};
 var PrivateDataExchanger = /** @class */ (function () {
     function PrivateDataExchanger(web3, passportAddress, currentTimeGetter) {
         this.ec = new elliptic_1.ec(privateFactCommon_1.ellipticCurveAlg);
@@ -94,7 +101,7 @@ var PrivateDataExchanger = /** @class */ (function () {
                         encryptedExchangeKey = ecies.getPublicKey().getPublic('array');
                         contract = this.passportLogic.getContract();
                         tx = contract.methods.proposePrivateDataExchange(factProviderAddress, this.web3.utils.fromAscii(factKey), "0x" + Buffer.from(encryptedExchangeKey).toString('hex'), exchangeKeyData.skmHash);
-                        return [4 /*yield*/, this.passportLogic.prepareRawTX(requesterAddress, this.passportAddress, exchangeStakeWei, tx)];
+                        return [4 /*yield*/, this.passportLogic.prepareRawTX(requesterAddress, this.passportAddress, exchangeStakeWei, tx, gasLimits.propose)];
                     case 2:
                         rawTx = _a.sent();
                         return [4 /*yield*/, txExecutor(rawTx)];
@@ -176,7 +183,7 @@ var PrivateDataExchanger = /** @class */ (function () {
                         });
                         contract = this.passportLogic.getContract();
                         tx = contract.methods.acceptPrivateDataExchange("0x" + exchangeIndex.toString('hex'), encryptedDataSecretKey);
-                        return [4 /*yield*/, this.passportLogic.prepareRawTX(status.passportOwnerAddress, this.passportAddress, status.requesterStaked, tx)];
+                        return [4 /*yield*/, this.passportLogic.prepareRawTX(status.passportOwnerAddress, this.passportAddress, status.requesterStaked, tx, gasLimits.accept)];
                     case 3:
                         rawTx = _a.sent();
                         return [4 /*yield*/, txExecutor(rawTx)];
@@ -213,7 +220,7 @@ var PrivateDataExchanger = /** @class */ (function () {
                         }
                         contract = this.passportLogic.getContract();
                         tx = contract.methods.timeoutPrivateDataExchange("0x" + exchangeIndex.toString('hex'));
-                        return [4 /*yield*/, this.passportLogic.prepareRawTX(status.requesterAddress, this.passportAddress, 0, tx)];
+                        return [4 /*yield*/, this.passportLogic.prepareRawTX(status.requesterAddress, this.passportAddress, 0, tx, gasLimits.timeout)];
                     case 2:
                         rawTx = _a.sent();
                         return [4 /*yield*/, txExecutor(rawTx)];
@@ -255,7 +262,7 @@ var PrivateDataExchanger = /** @class */ (function () {
                         }
                         contract = this.passportLogic.getContract();
                         tx = contract.methods.disputePrivateDataExchange("0x" + exchangeIndex.toString('hex'), exchangeKey);
-                        return [4 /*yield*/, this.passportLogic.prepareRawTX(status.requesterAddress, this.passportAddress, 0, tx)];
+                        return [4 /*yield*/, this.passportLogic.prepareRawTX(status.requesterAddress, this.passportAddress, 0, tx, gasLimits.dispute)];
                     case 2:
                         rawTx = _a.sent();
                         return [4 /*yield*/, txExecutor(rawTx)];
@@ -315,7 +322,7 @@ var PrivateDataExchanger = /** @class */ (function () {
                         }
                         contract = this.passportLogic.getContract();
                         tx = contract.methods.finishPrivateDataExchange("0x" + exchangeIndex.toString('hex'));
-                        return [4 /*yield*/, this.passportLogic.prepareRawTX(requesterOrPassOwnerAddress, this.passportAddress, 0, tx)];
+                        return [4 /*yield*/, this.passportLogic.prepareRawTX(requesterOrPassOwnerAddress, this.passportAddress, 0, tx, gasLimits.finish)];
                     case 2:
                         rawTx = _a.sent();
                         return [4 /*yield*/, txExecutor(rawTx)];
