@@ -1,21 +1,37 @@
+import EthereumTx from 'ethereumjs-tx';
 import { IRawTX } from 'lib/models/IRawTX';
 import { TxExecutor } from 'lib/proto';
 import { toBN } from 'lib/utils/conversion';
 import Web3 from 'web3';
 import { Transaction, TransactionReceipt } from 'web3-core';
+import { getAccounts, getPrivateKeys } from './network';
 
 export async function submitTransaction(web3: Web3, txData: IRawTX) {
+
   return new Promise<Transaction>(async (success, reject) => {
     try {
-      await web3.eth.sendTransaction({
-        from: txData.from,
+      const tx = new EthereumTx({
+        nonce: toBN(txData.nonce).toBuffer(),
+        gasPrice: toBN(txData.gasPrice).toBuffer(),
+        gasLimit: toBN(txData.gasLimit).toBuffer(),
         to: txData.to,
-        nonce: Number(txData.nonce),
-        gasPrice: txData.gasPrice,
-        gas: txData.gasLimit,
-        value: toBN(txData.value),
-        data: txData.data,
-      })
+        value: toBN(txData.value).toBuffer(),
+        data: Buffer.from(txData.data.replace('0x', ''), 'hex'),
+      });
+
+      const accounts = await getAccounts(web3);
+      const accountIndex = accounts.findIndex(a => a.toLowerCase() === txData.from.toLowerCase());
+      if (accountIndex === -1) {
+        throw new Error(`Not possible to execute tx because private key for address ${txData.from} is not known`);
+      }
+
+      const privateKeys = await getPrivateKeys(web3);
+      const privateKey = privateKeys[accountIndex];
+
+      tx.sign(Buffer.from(privateKey.replace('0x', ''), 'hex'));
+      const rawTx = `0x${tx.serialize().toString('hex')}`;
+
+      await web3.eth.sendSignedTransaction(rawTx)
         .on('transactionHash', async (hash) => {
           const transaction = await web3.eth.getTransaction(hash);
           success(transaction);

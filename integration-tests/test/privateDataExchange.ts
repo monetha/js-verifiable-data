@@ -30,7 +30,9 @@ const ipfsClient = new MockIPFSClient();
 // const ipfsClient = new IPFSClient();
 
 const privateFactKey = 'privatedata_fact';
-const stakeWei = new BN('100000', 10);
+
+// On quorum we use accounts which does not have money, so stake 0. However, on ganache - each account has eth
+const stakeWei = getNetwork() === NetworkType.Quorum ? new BN('0', 10) : new BN('100000', 10);
 const privateFactValue = [1, 2, 3, 4, 5, 6];
 
 const PassportFactory = artifacts.require('PassportFactory');
