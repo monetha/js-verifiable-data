@@ -9,6 +9,7 @@ import { MockIPFSClient } from 'mocks/MockIPFSClient';
 import Web3 from 'web3';
 import { ExchangeState } from 'lib/passport/PrivateDataExchanger';
 import { getNetworkUrl, getPrivateKeys, getAccounts, getNetwork, NetworkType } from 'common/network';
+import { logVerbose } from 'common/logger';
 // import { IPFSClient } from 'common/IPFSClient';
 
 let accounts: string[];
@@ -19,6 +20,7 @@ let passportOwner: Address;
 let passportOwnerPrivateKey: string;
 let passportFactoryAddress;
 let requesterAddress: Address;
+let requesterPrivateKey: Address;
 let otherPersonAddress: Address;
 
 let passportAddress: Address;
@@ -50,6 +52,7 @@ const preparePassport = async () => {
   passportOwnerPrivateKey = privateKeys[1];
   factProviderAddress = accounts[2];
   requesterAddress = accounts[3];
+  requesterPrivateKey = privateKeys[3];
   otherPersonAddress = accounts[4];
 
   const passportLogic = await PassportLogic.new({ from: monethaOwner });
@@ -75,6 +78,17 @@ const preparePassport = async () => {
 
   // Create exchanger
   exchanger = new PrivateDataExchanger(web3, passportAddress);
+
+  logVerbose('----------------------------------------------------------');
+  logVerbose('PASSPORT LOGIC:'.padEnd(30), passportLogic.address);
+  logVerbose('PASSPORT REGISTRY:'.padEnd(30), passportLogicRegistry.address);
+  logVerbose('PASSPORT FACTORY:'.padEnd(30), passportFactory.address);
+  logVerbose('PASSPORT:'.padEnd(30), passportAddress);
+  logVerbose('PASSPORT OWNER:'.padEnd(30), passportOwner);
+  logVerbose('PASSPORT OWNER PRIVATE KEY:'.padEnd(30), passportOwnerPrivateKey);
+  logVerbose('REQUESTER:'.padEnd(30), requesterAddress);
+  logVerbose('REQUESTER PRIVATE KEY:'.padEnd(30), requesterPrivateKey);
+  logVerbose('----------------------------------------------------------');
 };
 
 describe('Private data exchange', () => {

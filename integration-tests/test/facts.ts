@@ -5,6 +5,7 @@ import { PassportOwnership } from 'lib/passport/PassportOwnership';
 import { FactHistoryReader, FactReader, FactRemover, FactWriter, PassportReader, Permissions } from 'lib/proto';
 import Web3 from 'web3';
 import { MockIPFSClient } from '../mocks/MockIPFSClient';
+import { logVerbose } from 'common/logger';
 
 let accounts;
 let privateKeys;
@@ -14,6 +15,7 @@ let passportOwnerPrivateKey;
 let passportFactoryAddress;
 let passportAddress;
 let factProviderAddress;
+let factProviderPrivateKey;
 let privateDataFactSecretKey;
 const mockIPFSClient = new MockIPFSClient();
 
@@ -33,12 +35,23 @@ before(async () => {
   passportOwner = accounts[1];
   passportOwnerPrivateKey = privateKeys[1];
   factProviderAddress = accounts[2];
+  factProviderPrivateKey = privateKeys[2];
 
   const passportLogic = await PassportLogic.new({ from: monethaOwner });
   const passportLogicRegistry = await PassportLogicRegistry.new('0.1', passportLogic.address, { from: monethaOwner });
 
   const passportFactory = await PassportFactory.new(passportLogicRegistry.address, { from: monethaOwner });
   passportFactoryAddress = passportFactory.address;
+
+  logVerbose('----------------------------------------------------------');
+  logVerbose('PASSPORT LOGIC:'.padEnd(30), passportLogic.address);
+  logVerbose('PASSPORT REGISTRY:'.padEnd(30), passportLogicRegistry.address);
+  logVerbose('PASSPORT FACTORY:'.padEnd(30), passportFactory.address);
+  logVerbose('PASSPORT OWNER:'.padEnd(30), passportOwner);
+  logVerbose('PASSPORT OWNER PRIVATE KEY:'.padEnd(30), passportOwnerPrivateKey);
+  logVerbose('FACT PROVIDER:'.padEnd(30), factProviderAddress);
+  logVerbose('FACT PROVIDER PRIVATE KEY:'.padEnd(30), factProviderPrivateKey);
+  logVerbose('----------------------------------------------------------');
 });
 
 describe('Passport creation and facts', () => {
@@ -54,6 +67,10 @@ describe('Passport creation and facts', () => {
     passportAddress = `0x${receipt.logs[0].topics[1].slice(26)}`;
     expect(receipt.from.toLowerCase()).to.equal(passportOwner.toLowerCase());
     expect(receipt).to.have.property('to');
+
+    logVerbose('----------------------------------------------------------');
+    logVerbose('PASSPORT:'.padEnd(30), passportAddress);
+    logVerbose('----------------------------------------------------------');
   });
 
   it('Should be able to claim ownership', async () => {
@@ -129,6 +146,10 @@ describe('Passport creation and facts', () => {
 
     txHashes.privatedata_fact = await writeAndValidateFact(_ => writeResult.tx);
     privateDataFactSecretKey = Buffer.from(writeResult.dataKey).toString('hex');
+
+    logVerbose('----------------------------------------------------------');
+    logVerbose('PRIVATE FACT SECRET KEY:'.padEnd(30), privateDataFactSecretKey.toString('hex'));
+    logVerbose('----------------------------------------------------------');
   });
 
   // #endregion

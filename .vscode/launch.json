@@ -11,7 +11,8 @@
       "program": "${workspaceFolder}/integration-tests/node_modules/.bin/truffle",
       "args": [
         "test",
-        "${file}"
+        "${file}",
+        "--verbose"
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
@@ -32,7 +33,8 @@
         "test",
         "${file}",
         "--network",
-        "quorum"
+        "quorum",
+        "--verbose"
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
