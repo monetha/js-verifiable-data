@@ -95,17 +95,25 @@ export class ContractIO<TContract extends Contract = Contract> {
     return func(...args);
   }
 
-  public async prepareRawTX<TData>(fromAddress: Address, toAddress: Address, value: number | BN, data: TransactionObject<TData>): Promise<IRawTX> {
+  public async prepareRawTX<TData>(
+    fromAddress: Address,
+    toAddress: Address,
+    value: number | BN,
+    data: TransactionObject<TData>,
+    gasLimit?: number,
+  ): Promise<IRawTX> {
     const nonce = await this.getNonceFromBlockChain(fromAddress);
     const gasPrice = await this.getGasPriceFromBlockChain();
-    const gasLimit = await this.getEstimatedGas(data.encodeABI(), fromAddress, toAddress, value);
+    const actualGasLimit = (gasLimit > 0 || gasLimit === 0) ?
+      gasLimit :
+      await this.getEstimatedGas(data.encodeABI(), fromAddress, toAddress, value);
 
     return {
       from: fromAddress,
       to: toAddress,
       nonce,
       gasPrice,
-      gasLimit,
+      gasLimit: actualGasLimit,
       value,
       data: data.encodeABI(),
     };

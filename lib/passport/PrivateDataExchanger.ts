@@ -20,6 +20,14 @@ import { ciEquals } from 'lib/utils/string';
 import { createSdkError } from 'lib/errors/SdkError';
 import { ErrorCode } from 'lib/errors/ErrorCode';
 
+const gasLimits = {
+  accept: 90000,
+  dispute: 60000,
+  finish: 60000,
+  propose: 500000,
+  timeout: 60000,
+};
+
 export class PrivateDataExchanger {
   private passportAddress: Address;
   private web3: Web3;
@@ -76,7 +84,7 @@ export class PrivateDataExchanger {
     );
 
     // Execute transaction
-    const rawTx = await this.passportLogic.prepareRawTX(requesterAddress, this.passportAddress, exchangeStakeWei, tx);
+    const rawTx = await this.passportLogic.prepareRawTX(requesterAddress, this.passportAddress, exchangeStakeWei, tx, gasLimits.propose);
     const receipt = await txExecutor(rawTx);
 
     // Parse exchange index from tx receipt
@@ -183,6 +191,7 @@ export class PrivateDataExchanger {
       this.passportAddress,
       status.requesterStaked,
       tx,
+      gasLimits.accept,
     );
 
     await txExecutor(rawTx);
@@ -221,6 +230,7 @@ export class PrivateDataExchanger {
       this.passportAddress,
       0,
       tx,
+      gasLimits.timeout,
     );
 
     await txExecutor(rawTx);
@@ -266,6 +276,7 @@ export class PrivateDataExchanger {
       this.passportAddress,
       0,
       tx,
+      gasLimits.dispute,
     );
 
     const receipt = await txExecutor(rawTx);
@@ -335,6 +346,7 @@ export class PrivateDataExchanger {
       this.passportAddress,
       0,
       tx,
+      gasLimits.finish,
     );
 
     await txExecutor(rawTx);

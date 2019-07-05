@@ -1,82 +1,101 @@
-import { submitTransaction } from 'common/tx';
+import { getAccounts, getNetworkUrl, getPrivateKeys } from 'common/network';
+import { createTxExecutor } from 'common/tx';
 import { PassportGenerator } from 'lib/passport/PassportGenerator';
 import { PassportOwnership } from 'lib/passport/PassportOwnership';
 import { FactHistoryReader, FactReader, FactRemover, FactWriter, PassportReader, Permissions } from 'lib/proto';
 import Web3 from 'web3';
-import { ethereumNetworkUrl, privateKeys } from '../common/ganache';
 import { MockIPFSClient } from '../mocks/MockIPFSClient';
+import { logVerbose } from 'common/logger';
 
 let accounts;
+let privateKeys;
 let monethaOwner;
 let passportOwner;
 let passportOwnerPrivateKey;
 let passportFactoryAddress;
 let passportAddress;
 let factProviderAddress;
+let factProviderPrivateKey;
 let privateDataFactSecretKey;
 const mockIPFSClient = new MockIPFSClient();
 
 const PassportFactory = artifacts.require('PassportFactory');
 const PassportLogic = artifacts.require('PassportLogic');
 const PassportLogicRegistry = artifacts.require('PassportLogicRegistry');
-const web3 = new Web3(new Web3.providers.HttpProvider(ethereumNetworkUrl));
+const web3 = new Web3(new Web3.providers.HttpProvider(getNetworkUrl()));
 
 const txHashes: any = {};
+const txExecutor = createTxExecutor(web3);
 
 before(async () => {
-  console.log('Deploy PassportFactory contract and prepare accounts');
-  accounts = await web3.eth.getAccounts();
+  accounts = await getAccounts(web3);
+  privateKeys = await getPrivateKeys(web3);
 
   monethaOwner = accounts[0];
   passportOwner = accounts[1];
   passportOwnerPrivateKey = privateKeys[1];
   factProviderAddress = accounts[2];
+  factProviderPrivateKey = privateKeys[2];
 
   const passportLogic = await PassportLogic.new({ from: monethaOwner });
   const passportLogicRegistry = await PassportLogicRegistry.new('0.1', passportLogic.address, { from: monethaOwner });
 
   const passportFactory = await PassportFactory.new(passportLogicRegistry.address, { from: monethaOwner });
   passportFactoryAddress = passportFactory.address;
+
+  logVerbose('----------------------------------------------------------');
+  logVerbose('PASSPORT LOGIC:'.padEnd(30), passportLogic.address);
+  logVerbose('PASSPORT REGISTRY:'.padEnd(30), passportLogicRegistry.address);
+  logVerbose('PASSPORT FACTORY:'.padEnd(30), passportFactory.address);
+  logVerbose('PASSPORT OWNER:'.padEnd(30), passportOwner);
+  logVerbose('PASSPORT OWNER PRIVATE KEY:'.padEnd(30), passportOwnerPrivateKey);
+  logVerbose('FACT PROVIDER:'.padEnd(30), factProviderAddress);
+  logVerbose('FACT PROVIDER PRIVATE KEY:'.padEnd(30), factProviderPrivateKey);
+  logVerbose('----------------------------------------------------------');
 });
 
 describe('Passport creation and facts', () => {
   it('Should be able to create passport', async () => {
     // Given
     const generator = new PassportGenerator(web3, passportFactoryAddress);
+
     // When
-    const tx_data = await generator.createPassport(passportOwner);
-    const transaction = await submitTransaction(web3, tx_data);
-    const receipt = await web3.eth.getTransactionReceipt(transaction.hash);
+    const txData = await generator.createPassport(passportOwner);
+    const receipt = await txExecutor(txData);
+
     // Then
     passportAddress = `0x${receipt.logs[0].topics[1].slice(26)}`;
-    expect(transaction.from).to.equal(passportOwner);
-    expect(transaction).to.have.property('to');
-    expect(transaction).to.have.property('input');
-    expect(transaction.input).to.equal('0x2ec0faad'); // '0x2ec0faad' is createPassport() method id
+    expect(receipt.from.toLowerCase()).to.equal(passportOwner.toLowerCase());
+    expect(receipt).to.have.property('to');
+
+    logVerbose('----------------------------------------------------------');
+    logVerbose('PASSPORT:'.padEnd(30), passportAddress);
+    logVerbose('----------------------------------------------------------');
   });
 
   it('Should be able to claim ownership', async () => {
     // Given
     const generator = new PassportOwnership(web3, passportAddress);
+
     // When
-    const response = await generator.claimOwnership(passportOwner);
-    const transaction = await submitTransaction(web3, response);
+    const txData = await generator.claimOwnership(passportOwner);
+    const receipt = await txExecutor(txData);
+
     // Then
-    expect(transaction.from).to.equal(passportOwner);
-    expect(transaction).to.have.property('to');
-    expect(transaction).to.have.property('input');
-    expect(transaction.input).to.equal('0x4e71e0c8'); // '0x2ec0faad' is claimOwnership() method id
+    expect(receipt.from.toLowerCase()).to.equal(passportOwner.toLowerCase());
+    expect(receipt).to.have.property('to');
   });
 
   it('Should be able to get a list of all created passports', async () => {
     // Given
-    const reader = new PassportReader(web3, ethereumNetworkUrl);
+    const reader = new PassportReader(web3, getNetworkUrl());
 
     // When
-    const response = await reader.getPassportsList(passportFactoryAddress);
+    const passports = await reader.getPassportsList(passportFactoryAddress);
+
     // Then
-    expect(response[0]).to.have.property('passportAddress');
-    expect(response[0]).to.have.property('ownerAddress');
+    expect(passports[0]).to.have.property('passportAddress');
+    expect(passports[0]).to.have.property('ownerAddress');
   });
 
   // #region -------------- Fact writing -------------------------------------------------------------------
@@ -127,6 +146,10 @@ describe('Passport creation and facts', () => {
 
     txHashes.privatedata_fact = await writeAndValidateFact(_ => writeResult.tx);
     privateDataFactSecretKey = Buffer.from(writeResult.dataKey).toString('hex');
+
+    logVerbose('----------------------------------------------------------');
+    logVerbose('PRIVATE FACT SECRET KEY:'.padEnd(30), privateDataFactSecretKey.toString('hex'));
+    logVerbose('----------------------------------------------------------');
   });
 
   // #endregion
@@ -290,11 +313,13 @@ describe('Passport creation and facts', () => {
 
   it('Should be able read facts history.', async () => {
     // Given
-    const reader = new PassportReader(web3, ethereumNetworkUrl);
+    const reader = new PassportReader(web3, getNetworkUrl());
+
     // When
     const response = await reader.readPassportHistory(passportAddress);
+
     // Then
-    expect(response[1].factProviderAddress).to.equal(factProviderAddress.toLowerCase());
+    expect(response[1].factProviderAddress.toLowerCase()).to.equal(factProviderAddress.toLowerCase());
     expect(response[1]).to.have.property('blockNumber');
     expect(response[1]).to.have.property('transactionHash');
     expect(JSON.stringify(response)).to.contains('string_fact');
@@ -307,13 +332,14 @@ describe('Passport creation and facts', () => {
   it('Should be able to whitelist fact provider.', async () => {
     // Given
     const permissions = new Permissions(web3, passportAddress);
+
     // When
-    const response = await permissions.addFactProviderToWhitelist(factProviderAddress, passportOwner);
-    const transaction = await submitTransaction(web3, response);
+    const txData = await permissions.addFactProviderToWhitelist(factProviderAddress, passportOwner);
+    const receipt = await txExecutor(txData);
+
     // Then
-    expect(transaction.from).to.equal(passportOwner);
-    expect(transaction).to.have.property('to');
-    expect(transaction).to.have.property('input');
+    expect(receipt.from.toLowerCase()).to.equal(passportOwner.toLowerCase());
+    expect(receipt).to.have.property('to');
   });
 
   // #endregion
@@ -326,19 +352,18 @@ async function writeAndValidateFact(writeFact: (writer: FactWriter) => any) {
   const writer = new FactWriter(web3, passportAddress);
 
   // When
-  const response = await writeFact(writer);
-  const transaction = await submitTransaction(web3, response);
+  const txData = await writeFact(writer);
+  const receipt = await txExecutor(txData);
 
   // Then
-  expect(transaction.from).to.equal(factProviderAddress);
-  expect(transaction).to.have.property('to');
-  expect(transaction).to.have.property('input');
-  return transaction.hash;
+  expect(receipt.from.toLowerCase()).to.equal(factProviderAddress.toLowerCase());
+  expect(receipt).to.have.property('to');
+  return receipt.transactionHash;
 }
 
 async function readAndValidateFact(readFact: (reader: FactReader) => any, expectedValue) {
   // Given
-  const reader = new FactReader(web3, ethereumNetworkUrl, passportAddress);
+  const reader = new FactReader(web3, getNetworkUrl(), passportAddress);
 
   // When
   const response = await readFact(reader);
@@ -366,13 +391,12 @@ async function deleteAndValidateFact(deleteFact: (remover: FactRemover) => any) 
   const remover = new FactRemover(web3, passportAddress);
 
   // When
-  const response = await deleteFact(remover);
-  const transaction = await submitTransaction(web3, response);
+  const txData = await deleteFact(remover);
+  const transaction = await txExecutor(txData);
 
   // Then
-  expect(transaction.from).to.equal(factProviderAddress);
+  expect(transaction.from.toLowerCase()).to.equal(factProviderAddress.toLowerCase());
   expect(transaction).to.have.property('to');
-  expect(transaction).to.have.property('input');
 }
 
 // #endregion

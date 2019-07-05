@@ -25,6 +25,14 @@ module.exports = {
       port: 8545,
       timeoutBlocks: 100,
       network_id: "*" // Match any network id
+    },
+    quorum: {
+      host: "127.0.0.1",
+      port: 22000,
+      timeoutBlocks: 100,
+      network_id: "*", // Match any network id
+      gasPrice: 0,
+      type: "quorum"
     }
   },
   compilers: {

@@ -112,26 +112,32 @@ var ContractIO = /** @class */ (function () {
             });
         });
     };
-    ContractIO.prototype.prepareRawTX = function (fromAddress, toAddress, value, data) {
+    ContractIO.prototype.prepareRawTX = function (fromAddress, toAddress, value, data, gasLimit) {
         return __awaiter(this, void 0, void 0, function () {
-            var nonce, gasPrice, gasLimit;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var nonce, gasPrice, actualGasLimit, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0: return [4 /*yield*/, this.getNonceFromBlockChain(fromAddress)];
                     case 1:
-                        nonce = _a.sent();
+                        nonce = _b.sent();
                         return [4 /*yield*/, this.getGasPriceFromBlockChain()];
                     case 2:
-                        gasPrice = _a.sent();
-                        return [4 /*yield*/, this.getEstimatedGas(data.encodeABI(), fromAddress, toAddress, value)];
-                    case 3:
-                        gasLimit = _a.sent();
+                        gasPrice = _b.sent();
+                        if (!(gasLimit > 0 || gasLimit === 0)) return [3 /*break*/, 3];
+                        _a = gasLimit;
+                        return [3 /*break*/, 5];
+                    case 3: return [4 /*yield*/, this.getEstimatedGas(data.encodeABI(), fromAddress, toAddress, value)];
+                    case 4:
+                        _a = _b.sent();
+                        _b.label = 5;
+                    case 5:
+                        actualGasLimit = _a;
                         return [2 /*return*/, {
                                 from: fromAddress,
                                 to: toAddress,
                                 nonce: nonce,
                                 gasPrice: gasPrice,
-                                gasLimit: gasLimit,
+                                gasLimit: actualGasLimit,
                                 value: value,
                                 data: data.encodeABI(),
                             }];

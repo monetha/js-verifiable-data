@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 import { expectSdkError } from 'common/error';
-import { advanceTimeAndBlock, ethereumNetworkUrl, privateKeys, revertToSnapshot, takeSnapshot } from 'common/ganache';
+import { advanceTimeAndBlock, revertToSnapshot, takeSnapshot } from 'common/ganache';
 import { createTxExecutor } from 'common/tx';
 import { ErrorCode } from 'lib/errors/ErrorCode';
 import { Address } from 'lib/models/Address';
@@ -8,15 +8,19 @@ import { FactWriter, PassportGenerator, PassportOwnership, PrivateDataExchanger 
 import { MockIPFSClient } from 'mocks/MockIPFSClient';
 import Web3 from 'web3';
 import { ExchangeState } from 'lib/passport/PrivateDataExchanger';
+import { getNetworkUrl, getPrivateKeys, getAccounts, getNetwork, NetworkType } from 'common/network';
+import { logVerbose } from 'common/logger';
 // import { IPFSClient } from 'common/IPFSClient';
 
-let accounts;
+let accounts: string[];
+let privateKeys: string[];
 
 let monethaOwner: Address;
 let passportOwner: Address;
 let passportOwnerPrivateKey: string;
 let passportFactoryAddress;
 let requesterAddress: Address;
+let requesterPrivateKey: Address;
 let otherPersonAddress: Address;
 
 let passportAddress: Address;
@@ -26,20 +30,23 @@ const ipfsClient = new MockIPFSClient();
 // const ipfsClient = new IPFSClient();
 
 const privateFactKey = 'privatedata_fact';
-const stakeWei = new BN('100000', 10);
+
+// On quorum we use accounts which does not have money, so stake 0. However, on ganache - each account has eth
+const stakeWei = getNetwork() === NetworkType.Quorum ? new BN('0', 10) : new BN('100000', 10);
 const privateFactValue = [1, 2, 3, 4, 5, 6];
 
 const PassportFactory = artifacts.require('PassportFactory');
 const PassportLogic = artifacts.require('PassportLogic');
 const PassportLogicRegistry = artifacts.require('PassportLogicRegistry');
-const web3 = new Web3(new Web3.providers.HttpProvider(ethereumNetworkUrl));
+const web3 = new Web3(new Web3.providers.HttpProvider(getNetworkUrl()));
 
 const txExecutor = createTxExecutor(web3);
 
 let exchangeData: any = {};
 
 const preparePassport = async () => {
-  accounts = await web3.eth.getAccounts();
+  accounts = await getAccounts(web3);
+  privateKeys = await getPrivateKeys(web3);
 
   // Accounts
   monethaOwner = accounts[0];
@@ -47,6 +54,7 @@ const preparePassport = async () => {
   passportOwnerPrivateKey = privateKeys[1];
   factProviderAddress = accounts[2];
   requesterAddress = accounts[3];
+  requesterPrivateKey = privateKeys[3];
   otherPersonAddress = accounts[4];
 
   const passportLogic = await PassportLogic.new({ from: monethaOwner });
@@ -72,6 +80,17 @@ const preparePassport = async () => {
 
   // Create exchanger
   exchanger = new PrivateDataExchanger(web3, passportAddress);
+
+  logVerbose('----------------------------------------------------------');
+  logVerbose('PASSPORT LOGIC:'.padEnd(30), passportLogic.address);
+  logVerbose('PASSPORT REGISTRY:'.padEnd(30), passportLogicRegistry.address);
+  logVerbose('PASSPORT FACTORY:'.padEnd(30), passportFactory.address);
+  logVerbose('PASSPORT:'.padEnd(30), passportAddress);
+  logVerbose('PASSPORT OWNER:'.padEnd(30), passportOwner);
+  logVerbose('PASSPORT OWNER PRIVATE KEY:'.padEnd(30), passportOwnerPrivateKey);
+  logVerbose('REQUESTER:'.padEnd(30), requesterAddress);
+  logVerbose('REQUESTER PRIVATE KEY:'.padEnd(30), requesterPrivateKey);
+  logVerbose('----------------------------------------------------------');
 };
 
 describe('Private data exchange', () => {
@@ -173,115 +192,121 @@ describe('Private data exchange', () => {
     });
   });
 
-  describe('Main flow where passport owner finishes', () => {
-    let snapshotId: string;
+  if (getNetwork() === NetworkType.Ganache) {
 
-    before(async () => {
-      exchangeData = {};
+    describe('Main flow where passport owner finishes', () => {
+      let snapshotId: string;
 
-      await preparePassport();
-      snapshotId = await takeSnapshot(web3);
+      before(async () => {
+        exchangeData = {};
 
-      // Propose
-      const result = await exchanger.propose(
-        privateFactKey,
-        factProviderAddress,
-        stakeWei,
-        requesterAddress,
-        txExecutor,
-      );
+        await preparePassport();
+        snapshotId = await takeSnapshot(web3);
 
-      exchangeData = {
-        ...exchangeData,
-        ...result,
-      };
+        // Propose
+        const result = await exchanger.propose(
+          privateFactKey,
+          factProviderAddress,
+          stakeWei,
+          requesterAddress,
+          txExecutor,
+        );
 
-      // Accept
-      await exchanger.accept(
-        exchangeData.exchangeIndex,
-        passportOwnerPrivateKey,
-        ipfsClient,
-        txExecutor,
-      );
+        exchangeData = {
+          ...exchangeData,
+          ...result,
+        };
+
+        // Accept
+        await exchanger.accept(
+          exchangeData.exchangeIndex,
+          passportOwnerPrivateKey,
+          ipfsClient,
+          txExecutor,
+        );
+      });
+
+      after(async () => {
+        await revertToSnapshot(web3, snapshotId);
+      });
+
+      it('Passport owner should finish proposal after expiration', async () => {
+
+        exchanger = await advanceTime(30);
+
+        await exchanger.finish(
+          exchangeData.exchangeIndex,
+          passportOwner,
+          txExecutor,
+        );
+      });
+
+      it('Status should be closed', async () => {
+        const status = await exchanger.getStatus(exchangeData.exchangeIndex);
+        expect(status.state).to.eq(ExchangeState.Closed);
+      });
     });
-
-    after(async () => {
-      await revertToSnapshot(web3, snapshotId);
-    });
-
-    it('Passport owner should finish proposal after expiration', async () => {
-
-      exchanger = await advanceTime(30);
-
-      await exchanger.finish(
-        exchangeData.exchangeIndex,
-        passportOwner,
-        txExecutor,
-      );
-    });
-
-    it('Status should be closed', async () => {
-      const status = await exchanger.getStatus(exchangeData.exchangeIndex);
-      expect(status.state).to.eq(ExchangeState.Closed);
-    });
-  });
+  }
 
   // #endregion
 
   // #region -------------- Timeout -------------------------------------------------------------------
 
-  describe('Acceptance timeout', () => {
-    let snapshotId: string;
+  if (getNetwork() === NetworkType.Ganache) {
 
-    before(async () => {
-      exchangeData = {};
+    describe('Acceptance timeout', () => {
+      let snapshotId: string;
 
-      await preparePassport();
-      snapshotId = await takeSnapshot(web3);
+      before(async () => {
+        exchangeData = {};
 
-      // Propose
-      const result = await exchanger.propose(
-        privateFactKey,
-        factProviderAddress,
-        stakeWei,
-        requesterAddress,
-        txExecutor,
-      );
+        await preparePassport();
+        snapshotId = await takeSnapshot(web3);
 
-      exchangeData = {
-        ...exchangeData,
-        ...result,
-      };
+        // Propose
+        const result = await exchanger.propose(
+          privateFactKey,
+          factProviderAddress,
+          stakeWei,
+          requesterAddress,
+          txExecutor,
+        );
+
+        exchangeData = {
+          ...exchangeData,
+          ...result,
+        };
+      });
+
+      after(async () => {
+        await revertToSnapshot(web3, snapshotId);
+      });
+
+      it('Requester should not be able to call timeout before proposal expiration', async () => {
+        await expectSdkError(
+          () => exchanger.timeout(exchangeData.exchangeIndex, txExecutor),
+          ErrorCode.CanOnlyCloseAfterExpiration);
+      });
+
+      it('Passport owner should not be able to accept 24+ after proposal', async () => {
+
+        exchanger = await advanceTime(30);
+
+        await expectSdkError(
+          () => exchanger.accept(exchangeData.exchangeIndex, passportOwnerPrivateKey, ipfsClient, txExecutor),
+          ErrorCode.ExchangeExpiredOrExpireSoon);
+      });
+
+      it('Requester should be able to call timeout 24h+ after proposal', async () => {
+        await exchanger.timeout(exchangeData.exchangeIndex, txExecutor);
+      });
+
+      it('Status should be closed', async () => {
+        const status = await exchanger.getStatus(exchangeData.exchangeIndex);
+        expect(status.state).to.eq(ExchangeState.Closed);
+      });
     });
-
-    after(async () => {
-      await revertToSnapshot(web3, snapshotId);
-    });
-
-    it('Requester should not be able to call timeout before proposal expiration', async () => {
-      await expectSdkError(
-        () => exchanger.timeout(exchangeData.exchangeIndex, txExecutor),
-        ErrorCode.CanOnlyCloseAfterExpiration);
-    });
-
-    it('Passport owner should not be able to accept 24+ after proposal', async () => {
-
-      exchanger = await advanceTime(30);
-
-      await expectSdkError(
-        () => exchanger.accept(exchangeData.exchangeIndex, passportOwnerPrivateKey, ipfsClient, txExecutor),
-        ErrorCode.ExchangeExpiredOrExpireSoon);
-    });
-
-    it('Requester should be able to call timeout 24h+ after proposal', async () => {
-      await exchanger.timeout(exchangeData.exchangeIndex, txExecutor);
-    });
-
-    it('Status should be closed', async () => {
-      const status = await exchanger.getStatus(exchangeData.exchangeIndex);
-      expect(status.state).to.eq(ExchangeState.Closed);
-    });
-  });
+  }
 
   // #endregion
 
@@ -333,51 +358,55 @@ describe('Private data exchange', () => {
     });
   });
 
-  describe('Dispute after expiration', () => {
-    let snapshotId: string;
+  if (getNetwork() === NetworkType.Ganache) {
 
-    before(async () => {
-      exchangeData = {};
+    describe('Dispute after expiration', () => {
+      let snapshotId: string;
 
-      await preparePassport();
-      snapshotId = await takeSnapshot(web3);
+      before(async () => {
+        exchangeData = {};
 
-      // Propose
-      const result = await exchanger.propose(
-        privateFactKey,
-        factProviderAddress,
-        stakeWei,
-        requesterAddress,
-        txExecutor,
-      );
+        await preparePassport();
+        snapshotId = await takeSnapshot(web3);
 
-      exchangeData = {
-        ...exchangeData,
-        ...result,
-      };
+        // Propose
+        const result = await exchanger.propose(
+          privateFactKey,
+          factProviderAddress,
+          stakeWei,
+          requesterAddress,
+          txExecutor,
+        );
 
-      // Accept
-      await exchanger.accept(
-        exchangeData.exchangeIndex,
-        passportOwnerPrivateKey,
-        ipfsClient,
-        txExecutor,
-      );
+        exchangeData = {
+          ...exchangeData,
+          ...result,
+        };
+
+        // Accept
+        await exchanger.accept(
+          exchangeData.exchangeIndex,
+          passportOwnerPrivateKey,
+          ipfsClient,
+          txExecutor,
+        );
+      });
+
+      after(async () => {
+        await revertToSnapshot(web3, snapshotId);
+      });
+
+      it('Should NOT open dispute after expiration', async () => {
+        exchanger = await advanceTime(30);
+
+        await expectSdkError(
+          () => exchanger.dispute(exchangeData.exchangeIndex, exchangeData.exchangeKey, txExecutor),
+          ErrorCode.ExchangeExpiredOrExpireSoon,
+        );
+      });
     });
 
-    after(async () => {
-      await revertToSnapshot(web3, snapshotId);
-    });
-
-    it('Should NOT open dispute after expiration', async () => {
-      exchanger = await advanceTime(30);
-
-      await expectSdkError(
-        () => exchanger.dispute(exchangeData.exchangeIndex, exchangeData.exchangeKey, txExecutor),
-        ErrorCode.ExchangeExpiredOrExpireSoon,
-      );
-    });
-  });
+  }
 
   // #endregion
 
