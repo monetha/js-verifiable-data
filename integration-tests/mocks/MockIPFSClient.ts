@@ -1,6 +1,5 @@
-
 import { sha256 } from 'hash.js';
-import { IIPFSClient, IIPFSAddResult, IIPFSDag, IIPFSLink, IIPLD } from 'lib/proto';
+import { IIPFSClient, IIPFSAddResult, IIPFSDag, IIPFSLink, IIPLD } from '../../dist/lib/proto';
 
 export class MockIPFSClient implements IIPFSClient {
   public dag: MockIPFSDag;

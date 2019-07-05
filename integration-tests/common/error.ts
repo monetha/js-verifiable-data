@@ -1,5 +1,5 @@
-import { ErrorCode } from 'lib/errors/ErrorCode';
-import { ISdkError } from 'lib/errors/SdkError';
+import { ErrorCode } from '../../dist/lib/errors/ErrorCode';
+import { ISdkError } from '../../dist/lib/errors/SdkError';
 
 export async function expectSdkError(func: () => Promise<any>, code: ErrorCode) {
   try {

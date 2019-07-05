@@ -3,7 +3,7 @@ import { getTxData, IMethodInfo } from '../utils/getTxData';
 import Web3 from 'web3';
 import { IPrivateDataHashes } from './FactReader';
 import { PrivateFactReader } from './PrivateFactReader';
-import { hexToUnpaddedAscii } from 'lib/utils/conversion';
+import { hexToUnpaddedAscii } from '../utils/conversion';
 
 export interface IFactValue<TValue> {
   factProviderAddress: string;

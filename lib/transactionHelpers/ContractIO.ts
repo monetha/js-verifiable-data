@@ -3,7 +3,7 @@ import { IRawTX } from '../models/IRawTX';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import { Contract } from 'web3-eth-contract';
-import { TransactionObject } from 'lib/types/web3-contracts/types';
+import { TransactionObject } from '../types/web3-contracts/types';
 import BN from 'bn.js';
 
 /**

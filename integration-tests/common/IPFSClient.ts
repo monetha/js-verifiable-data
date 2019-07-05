@@ -1,4 +1,4 @@
-import { IIPFSClient } from 'lib/proto';
+import { IIPFSClient } from '../../dist/lib/proto';
 import FormData from 'form-data';
 import fetch from 'node-fetch';
 

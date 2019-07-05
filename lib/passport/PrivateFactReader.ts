@@ -7,8 +7,8 @@ import { IIPFSClient } from '../models/IIPFSClient';
 import { IFactValue } from './FactHistoryReader';
 import { IPrivateDataHashes } from './FactReader';
 import { deriveSecretKeyringMaterial, ellipticCurveAlg, ipfsFileNames, unmarshalSecretKeyringMaterial } from './privateFactCommon';
-import { createSdkError } from 'lib/errors/SdkError';
-import { ErrorCode } from 'lib/errors/ErrorCode';
+import { createSdkError } from '../errors/SdkError';
+import { ErrorCode } from '../errors/ErrorCode';
 const EC = ec;
 
 /**

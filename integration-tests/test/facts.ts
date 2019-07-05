@@ -1,8 +1,8 @@
 import { getAccounts, getNetworkUrl, getPrivateKeys } from 'common/network';
 import { createTxExecutor } from 'common/tx';
-import { PassportGenerator } from 'lib/passport/PassportGenerator';
-import { PassportOwnership } from 'lib/passport/PassportOwnership';
-import { FactHistoryReader, FactReader, FactRemover, FactWriter, PassportReader, Permissions } from 'lib/proto';
+import { PassportGenerator } from '../../dist/lib/passport/PassportGenerator';
+import { PassportOwnership } from '../../dist/lib/passport/PassportOwnership';
+import { FactHistoryReader, FactReader, FactRemover, FactWriter, PassportReader, Permissions } from '../../dist/lib/proto';
 import Web3 from 'web3';
 import { MockIPFSClient } from '../mocks/MockIPFSClient';
 import { logVerbose } from 'common/logger';

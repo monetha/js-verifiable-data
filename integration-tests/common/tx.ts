@@ -1,7 +1,7 @@
 import EthereumTx from 'ethereumjs-tx';
-import { IRawTX } from 'lib/models/IRawTX';
-import { TxExecutor } from 'lib/proto';
-import { toBN } from 'lib/utils/conversion';
+import { IRawTX } from '../../dist/lib/models/IRawTX';
+import { TxExecutor } from '../../dist/lib/proto';
+import { toBN } from '../../dist/lib/utils/conversion';
 import Web3 from 'web3';
 import { Transaction, TransactionReceipt } from 'web3-core';
 import { getAccounts, getPrivateKeys } from './network';

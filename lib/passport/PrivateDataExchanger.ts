@@ -3,22 +3,22 @@ import { Address } from '../models/Address';
 import BN from 'bn.js';
 import { TxExecutor } from '../models/TxExecutor';
 import Web3 from 'web3';
-import { PassportOwnership } from 'lib/proto';
-import { ECIES } from 'lib/crypto/ecies/ecies';
+import { PassportOwnership } from '../proto';
+import { ECIES } from '../crypto/ecies/ecies';
 import { ec } from 'elliptic';
 import { ellipticCurveAlg, deriveSecretKeyringMaterial } from './privateFactCommon';
-import { PassportLogic } from 'lib/types/web3-contracts/PassportLogic';
+import { PassportLogic } from '../types/web3-contracts/PassportLogic';
 import passportLogicAbi from '../../config/PassportLogic.json';
 import { AbiItem } from 'web3-utils';
-import { ContractIO } from 'lib/transactionHelpers/ContractIO';
-import { hexToArray, hexToUnpaddedAscii, toBN, hexToBoolean, toDate } from 'lib/utils/conversion';
-import { IIPFSClient } from 'lib/models/IIPFSClient';
-import { constantTimeCompare } from 'lib/crypto/utils/compare';
+import { ContractIO } from '../transactionHelpers/ContractIO';
+import { hexToArray, hexToUnpaddedAscii, toBN, hexToBoolean, toDate } from '../utils/conversion';
+import { IIPFSClient } from '../models/IIPFSClient';
+import { constantTimeCompare } from '../crypto/utils/compare';
 import { PrivateFactReader } from './PrivateFactReader';
 import keccak256 from 'keccak256';
-import { ciEquals } from 'lib/utils/string';
-import { createSdkError } from 'lib/errors/SdkError';
-import { ErrorCode } from 'lib/errors/ErrorCode';
+import { ciEquals } from '../utils/string';
+import { createSdkError } from '../errors/SdkError';
+import { ErrorCode } from '../errors/ErrorCode';
 
 const gasLimits = {
   accept: 90000,
