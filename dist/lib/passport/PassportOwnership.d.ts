@@ -9,7 +9,7 @@ export declare class PassportOwnership {
     /**
      * After the passport is created, the owner must call this method to become a full passport owner
      */
-    claimOwnership(passportOwnerAddress: Address): Promise<import("../models/IRawTX.js").IRawTX>;
+    claimOwnership(passportOwnerAddress: Address): Promise<import("../proto.js").IRawTX>;
     /**
      * Returns passport owner address
      */

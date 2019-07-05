@@ -16,6 +16,6 @@ export declare class PrivateFactWriter {
         dataIpfsHash: any;
         dataKey: number[];
         dataKeyHash: number[];
-        tx: import("../models/IRawTX").IRawTX;
+        tx: import("../proto").IRawTX;
     }>;
 }

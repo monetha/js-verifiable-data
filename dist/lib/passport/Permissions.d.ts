@@ -9,11 +9,11 @@ export declare class Permissions {
     /**
      * Adds factProvider to whitelist
      */
-    addFactProviderToWhitelist(factProviderAddress: Address, passportOwnerAddress: Address): Promise<import("../models/IRawTX").IRawTX>;
+    addFactProviderToWhitelist(factProviderAddress: Address, passportOwnerAddress: Address): Promise<import("../proto").IRawTX>;
     /**
      * Removes fact provider from whitelist
      */
-    removeFactProviderFromWhitelist(factProviderAddress: Address, passportOwnerAddress: Address): Promise<import("../models/IRawTX").IRawTX>;
+    removeFactProviderFromWhitelist(factProviderAddress: Address, passportOwnerAddress: Address): Promise<import("../proto").IRawTX>;
     /**
      * Checks if fact provider is whitelisted
      */
@@ -29,5 +29,5 @@ export declare class Permissions {
     /**
      * Sets permission for passport whether only whitelisted fact providers could write facts to it
      */
-    setWhitelistOnlyPermission(onlyWhitelistedProviders: boolean, passportOwnerAddress: Address): Promise<import("../models/IRawTX").IRawTX>;
+    setWhitelistOnlyPermission(onlyWhitelistedProviders: boolean, passportOwnerAddress: Address): Promise<import("../proto").IRawTX>;
 }

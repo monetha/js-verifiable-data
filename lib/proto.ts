@@ -15,6 +15,8 @@ import { PrivateDataExchanger } from './passport/PrivateDataExchanger';
 import { TxExecutor } from './models/TxExecutor';
 import { ErrorCode } from './errors/ErrorCode';
 import { ISdkError } from './errors/SdkError';
+import { fetchEvents } from './utils/fetchEvents';
+import { IRawTX } from './models/IRawTX';
 
 export default {
   PassportGenerator,
@@ -58,4 +60,6 @@ export {
   TxExecutor,
   ErrorCode,
   ISdkError,
+  fetchEvents,
+  IRawTX,
 };
