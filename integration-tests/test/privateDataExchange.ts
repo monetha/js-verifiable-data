@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import { expectSdkError } from 'common/error';
 import { advanceTimeAndBlock, revertToSnapshot, takeSnapshot } from 'common/ganache';
-import { createTxExecutor } from 'common/tx';
+import { createTxExecutor, isPrivateTxMode } from 'common/tx';
 import { ErrorCode } from 'lib/errors/ErrorCode';
 import { Address } from 'lib/models/Address';
 import { FactWriter, PassportGenerator, PassportOwnership, PrivateDataExchanger } from 'lib/proto';
@@ -10,6 +10,7 @@ import Web3 from 'web3';
 import { ExchangeState } from 'lib/passport/PrivateDataExchanger';
 import { getNetworkUrl, getPrivateKeys, getAccounts, getNetwork, NetworkType } from 'common/network';
 import { logVerbose } from 'common/logger';
+import { getNodePublicKeys } from 'common/quorum';
 // import { IPFSClient } from 'common/IPFSClient';
 
 let accounts: string[];
@@ -31,8 +32,19 @@ const ipfsClient = new MockIPFSClient();
 
 const privateFactKey = 'privatedata_fact';
 
-// On quorum we use accounts which does not have money, so stake 0. However, on ganache - each account has eth
-const stakeWei = getNetwork() === NetworkType.Quorum ? new BN('0', 10) : new BN('100000', 10);
+let stakeWei = new BN('100000', 10);
+const contractCreationParams: any = {};
+
+if (getNetwork() === NetworkType.Quorum) {
+
+  // On quorum we use accounts which does not have money, so stake 0. However, on ganache - each account has eth
+  stakeWei = new BN('0', 10);
+
+  if (isPrivateTxMode) {
+    contractCreationParams.privateFor = [getNodePublicKeys()[1]];
+  }
+}
+
 const privateFactValue = [1, 2, 3, 4, 5, 6];
 
 const PassportFactory = artifacts.require('PassportFactory');
@@ -57,9 +69,9 @@ const preparePassport = async () => {
   requesterPrivateKey = privateKeys[3];
   otherPersonAddress = accounts[4];
 
-  const passportLogic = await PassportLogic.new({ from: monethaOwner });
-  const passportLogicRegistry = await PassportLogicRegistry.new('0.1', passportLogic.address, { from: monethaOwner });
-  const passportFactory = await PassportFactory.new(passportLogicRegistry.address, { from: monethaOwner });
+  const passportLogic = await PassportLogic.new({ from: monethaOwner, ...contractCreationParams });
+  const passportLogicRegistry = await PassportLogicRegistry.new('0.1', passportLogic.address, { from: monethaOwner, ...contractCreationParams });
+  const passportFactory = await PassportFactory.new(passportLogicRegistry.address, { from: monethaOwner, ...contractCreationParams });
   passportFactoryAddress = passportFactory.address;
 
   // Create passport

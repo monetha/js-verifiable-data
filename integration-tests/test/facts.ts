@@ -1,11 +1,12 @@
-import { getAccounts, getNetworkUrl, getPrivateKeys } from 'common/network';
-import { createTxExecutor } from 'common/tx';
+import { getAccounts, getNetworkUrl, getPrivateKeys, getNetwork, NetworkType } from 'common/network';
+import { createTxExecutor, isPrivateTxMode } from 'common/tx';
 import { PassportGenerator } from 'lib/passport/PassportGenerator';
 import { PassportOwnership } from 'lib/passport/PassportOwnership';
 import { FactHistoryReader, FactReader, FactRemover, FactWriter, PassportReader, Permissions } from 'lib/proto';
 import Web3 from 'web3';
 import { MockIPFSClient } from '../mocks/MockIPFSClient';
 import { logVerbose } from 'common/logger';
+import { getNodePublicKeys } from 'common/quorum';
 
 let accounts;
 let privateKeys;
@@ -23,6 +24,11 @@ const PassportFactory = artifacts.require('PassportFactory');
 const PassportLogic = artifacts.require('PassportLogic');
 const PassportLogicRegistry = artifacts.require('PassportLogicRegistry');
 const web3 = new Web3(new Web3.providers.HttpProvider(getNetworkUrl()));
+const contractCreationParams: any = {};
+
+if (getNetwork() === NetworkType.Quorum && isPrivateTxMode) {
+  contractCreationParams.privateFor = [getNodePublicKeys()[1]];
+}
 
 const txHashes: any = {};
 const txExecutor = createTxExecutor(web3);
@@ -37,10 +43,10 @@ before(async () => {
   factProviderAddress = accounts[2];
   factProviderPrivateKey = privateKeys[2];
 
-  const passportLogic = await PassportLogic.new({ from: monethaOwner });
-  const passportLogicRegistry = await PassportLogicRegistry.new('0.1', passportLogic.address, { from: monethaOwner });
+  const passportLogic = await PassportLogic.new({ from: monethaOwner, ...contractCreationParams });
+  const passportLogicRegistry = await PassportLogicRegistry.new('0.1', passportLogic.address, { from: monethaOwner, ...contractCreationParams });
 
-  const passportFactory = await PassportFactory.new(passportLogicRegistry.address, { from: monethaOwner });
+  const passportFactory = await PassportFactory.new(passportLogicRegistry.address, { from: monethaOwner, ...contractCreationParams });
   passportFactoryAddress = passportFactory.address;
 
   logVerbose('----------------------------------------------------------');

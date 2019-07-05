@@ -4,10 +4,12 @@ import { TxExecutor } from 'lib/proto';
 import { toBN } from 'lib/utils/conversion';
 import Web3 from 'web3';
 import { Transaction, TransactionReceipt } from 'web3-core';
-import { getAccounts, getPrivateKeys } from './network';
+import { getAccounts, getPrivateKeys, getNetwork, NetworkType } from './network';
+import { submitPrivateTransaction } from './quorum';
+
+export const isPrivateTxMode: boolean = process.argv.includes('--private');
 
 export async function submitTransaction(web3: Web3, txData: IRawTX) {
-
   return new Promise<Transaction>(async (success, reject) => {
     try {
       const tx = new EthereumTx({
@@ -76,6 +78,10 @@ const waitForTxToFinish = (web3: Web3, txHash: string): Promise<TransactionRecei
 
 export const createTxExecutor = (web3: Web3): TxExecutor => {
   return async (txData: IRawTX) => {
+    if (isPrivateTxMode && getNetwork() === NetworkType.Quorum) {
+      return submitPrivateTransaction(web3, txData);
+    }
+
     const tx = await submitTransaction(web3, txData);
 
     return waitForTxToFinish(web3, tx.hash);

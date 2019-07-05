@@ -1,3 +1,9 @@
+import { IRawTX } from 'lib/models/IRawTX';
+import { toBN } from 'lib/utils/conversion';
+import quorumjs from 'quorum-js';
+import Web3 from 'web3';
+import { TransactionReceipt } from 'web3-core';
+
 export function getAccounts(): string[] {
   return [
     // First entry matches first node account
@@ -32,4 +38,54 @@ export function getPrivateKeys(): string[] {
     '0x385e61c258ee042debd606bfab24e27aadae3a4acdb07828994d27fe343249c8',
     '0xffc607dafc5568ac460d73384ed06baa72e9268995501d048aea7ed6448a32a1',
   ];
+}
+
+export function getNodePublicKeys(): string[] {
+  return [
+    'BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=',
+    'QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=',
+    '1iTZde/ndBHvzhcl7V68x44Vx7pl8nwx9LqnM/AfJUg=',
+    'oNspPPgszVUFw0qmGFfWwh1uxVUXgvBxleXORHj07g8=',
+    'R56gy4dn24YOjwyesTczYa8m5xhP6hF2uTMCju/1xkY=',
+    'UfNSeSGySeKg11DVNEnqrUtxYRVor4+CvluI8tVv62Y=',
+    'ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=',
+  ];
+}
+
+export async function submitPrivateTransaction(web3: Web3, txData: IRawTX): Promise<TransactionReceipt> {
+  const accounts = getAccounts();
+  const accountIndex = accounts.findIndex(a => a.toLowerCase() === txData.from.toLowerCase());
+  if (accountIndex === -1) {
+    throw new Error(`Not possible to execute tx because private key for address ${txData.from} is not known`);
+  }
+
+  const privateKeys = getPrivateKeys();
+  const privateKey = privateKeys[accountIndex];
+
+  const account = web3.eth.accounts.privateKeyToAccount(privateKey);
+
+  const enclaveOptions = {
+    // TODO: take from config file
+    privateUrl: 'http://172.17.65.36:9081',
+  };
+
+  const rawTransactionManager = quorumjs.RawTransactionManager(web3, enclaveOptions);
+
+  const nodePubKeys = getNodePublicKeys();
+
+  const tx = await rawTransactionManager.sendRawTransaction({
+    gasPrice: 0,
+    gasLimit: txData.gasLimit,
+    to: txData.to,
+    value: toBN(txData.value).toNumber(),
+    data: txData.data,
+    from: account,
+    nonce: toBN(txData.nonce).toNumber(),
+    isPrivate: true,
+    // privateFrom: 'BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=',
+    // privateFor: ['ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc='],
+    privateFor: [nodePubKeys[1]],
+  });
+
+  return tx;
 }
