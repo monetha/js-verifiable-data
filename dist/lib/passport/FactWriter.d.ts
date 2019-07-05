@@ -16,49 +16,49 @@ export declare class FactWriter {
      * @param key fact key
      * @param value value to store
      */
-    setString(key: string, value: string, factProviderAddress: Address): Promise<import("../models/IRawTX").IRawTX>;
+    setString(key: string, value: string, factProviderAddress: Address): Promise<import("../proto").IRawTX>;
     /**
      * Writes bytes type fact to passport
      *
      * @param key fact key
      * @param value value to store
      */
-    setBytes(key: string, value: number[], factProviderAddress: Address): Promise<import("../models/IRawTX").IRawTX>;
+    setBytes(key: string, value: number[], factProviderAddress: Address): Promise<import("../proto").IRawTX>;
     /**
      * Writes address type fact to passport
      *
      * @param key fact key
      * @param value value to store
      */
-    setAddress(key: string, value: Address, factProviderAddress: Address): Promise<import("../models/IRawTX").IRawTX>;
+    setAddress(key: string, value: Address, factProviderAddress: Address): Promise<import("../proto").IRawTX>;
     /**
      * Writes uint type fact to passport
      *
      * @param key fact key
      * @param value value to store
      */
-    setUint(key: string, value: number, factProviderAddress: Address): Promise<import("../models/IRawTX").IRawTX>;
+    setUint(key: string, value: number, factProviderAddress: Address): Promise<import("../proto").IRawTX>;
     /**
      * Writes int type fact to passport
      *
      * @param key fact key
      * @param value value to store
      */
-    setInt(key: string, value: number, factProviderAddress: Address): Promise<import("../models/IRawTX").IRawTX>;
+    setInt(key: string, value: number, factProviderAddress: Address): Promise<import("../proto").IRawTX>;
     /**
      * Writes boolean type fact to passport
      *
      * @param key fact key
      * @param value value to store
      */
-    setBool(key: string, value: boolean, factProviderAddress: Address): Promise<import("../models/IRawTX").IRawTX>;
+    setBool(key: string, value: boolean, factProviderAddress: Address): Promise<import("../proto").IRawTX>;
     /**
      * Writes TX data type fact to passport
      *
      * @param key fact key
      * @param value value to store
      */
-    setTxdata(key: string, value: number[], factProviderAddress: Address): Promise<import("../models/IRawTX").IRawTX>;
+    setTxdata(key: string, value: number[], factProviderAddress: Address): Promise<import("../proto").IRawTX>;
     /**
      * Writes IPFS hash data type fact to passport
      *
@@ -66,7 +66,7 @@ export declare class FactWriter {
      * @param value value to store on IPFS
      * @param ipfs IPFS client
      */
-    setIPFSData(key: string, value: any, factProviderAddress: Address, ipfs: IIPFSClient): Promise<import("../models/IRawTX").IRawTX>;
+    setIPFSData(key: string, value: any, factProviderAddress: Address, ipfs: IIPFSClient): Promise<import("../proto").IRawTX>;
     /**
      * Writes private data value to IPFS by encrypting it and then storing IPFS hashes of encrypted data to passport fact.
      * Data can be decrypted using passport owner's wallet private key or a secret key which is returned as a result of this call.
@@ -78,13 +78,13 @@ export declare class FactWriter {
         dataIpfsHash: any;
         dataKey: number[];
         dataKeyHash: number[];
-        tx: import("../models/IRawTX").IRawTX;
+        tx: import("../proto").IRawTX;
     }>;
     /**
      * Writes IPFS hash of encrypted private data and hash of data encryption key
      * @param key fact key
      * @param value value to store
      */
-    setPrivateDataHashes(key: string, value: IPrivateDataHashes, factProviderAddress: Address): Promise<import("../models/IRawTX").IRawTX>;
+    setPrivateDataHashes(key: string, value: IPrivateDataHashes, factProviderAddress: Address): Promise<import("../proto").IRawTX>;
     private set;
 }

@@ -27,6 +27,8 @@ var PrivateDataExchanger_1 = require("./passport/PrivateDataExchanger");
 exports.PrivateDataExchanger = PrivateDataExchanger_1.PrivateDataExchanger;
 var ErrorCode_1 = require("./errors/ErrorCode");
 exports.ErrorCode = ErrorCode_1.ErrorCode;
+var fetchEvents_1 = require("./utils/fetchEvents");
+exports.fetchEvents = fetchEvents_1.fetchEvents;
 exports.default = {
     PassportGenerator: PassportGenerator_1.PassportGenerator,
     PassportOwnership: PassportOwnership_1.PassportOwnership,
