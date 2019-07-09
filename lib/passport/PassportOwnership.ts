@@ -1,3 +1,4 @@
+import { IEthOptions } from 'lib/models/IEthOptions';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import passportLogicAbi from '../../config/PassportLogic.json';
@@ -11,9 +12,11 @@ import { getSenderPublicKey, getTxData } from '../utils/getTxData';
  */
 export class PassportOwnership {
   private contract: ContractIO<PassportLogic>;
+  private options: IEthOptions;
 
-  constructor(web3: Web3, passportAddress: Address) {
+  constructor(web3: Web3, passportAddress: Address, options?: IEthOptions) {
     this.contract = new ContractIO(web3, passportLogicAbi as AbiItem[], passportAddress);
+    this.options = options || {};
   }
 
   /**
@@ -53,7 +56,7 @@ export class PassportOwnership {
     }
 
     const web3 = this.contract.getWeb3();
-    const txInfo = await getTxData(transferredEvent.transactionHash, web3);
+    const txInfo = await getTxData(transferredEvent.transactionHash, web3, this.options.txRetriever);
     const { tx } = txInfo;
 
     return Array.from(getSenderPublicKey(tx as any));

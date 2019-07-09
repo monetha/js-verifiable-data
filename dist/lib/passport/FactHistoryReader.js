@@ -46,15 +46,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var conversion_1 = require("../utils/conversion");
 var getTxData_1 = require("../utils/getTxData");
 var PrivateFactReader_1 = require("./PrivateFactReader");
-var conversion_1 = require("../utils/conversion");
+// #endregion
 /**
  * Class to read historic facts from the passport
  */
 var FactHistoryReader = /** @class */ (function () {
-    function FactHistoryReader(web3) {
+    function FactHistoryReader(web3, options) {
         this.web3 = web3;
+        this.options = options || {};
     }
     /**
      * Read string type fact from transaction
@@ -64,7 +66,7 @@ var FactHistoryReader = /** @class */ (function () {
             var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
+                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3, this.options.txRetriever)];
                     case 1:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
@@ -87,7 +89,7 @@ var FactHistoryReader = /** @class */ (function () {
             var txInfo, methodInfo, value, hexValue;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
+                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3, this.options.txRetriever)];
                     case 1:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
@@ -115,7 +117,7 @@ var FactHistoryReader = /** @class */ (function () {
             var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
+                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3, this.options.txRetriever)];
                     case 1:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
@@ -138,7 +140,7 @@ var FactHistoryReader = /** @class */ (function () {
             var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
+                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3, this.options.txRetriever)];
                     case 1:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
@@ -161,7 +163,7 @@ var FactHistoryReader = /** @class */ (function () {
             var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
+                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3, this.options.txRetriever)];
                     case 1:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
@@ -184,7 +186,7 @@ var FactHistoryReader = /** @class */ (function () {
             var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
+                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3, this.options.txRetriever)];
                     case 1:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
@@ -207,7 +209,7 @@ var FactHistoryReader = /** @class */ (function () {
             var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
+                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3, this.options.txRetriever)];
                     case 1:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
@@ -233,7 +235,7 @@ var FactHistoryReader = /** @class */ (function () {
             var txInfo, methodInfo, _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
+                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3, this.options.txRetriever)];
                     case 1:
                         txInfo = _b.sent();
                         methodInfo = txInfo.methodInfo;
@@ -308,7 +310,7 @@ var FactHistoryReader = /** @class */ (function () {
             var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3)];
+                    case 0: return [4 /*yield*/, getTxData_1.getTxData(txHash, this.web3, this.options.txRetriever)];
                     case 1:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;

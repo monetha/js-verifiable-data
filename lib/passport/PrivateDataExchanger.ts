@@ -19,6 +19,7 @@ import keccak256 from 'keccak256';
 import { ciEquals } from 'lib/utils/string';
 import { createSdkError } from 'lib/errors/SdkError';
 import { ErrorCode } from 'lib/errors/ErrorCode';
+import { IEthOptions } from 'lib/models/IEthOptions';
 
 const gasLimits = {
   accept: 90000,
@@ -34,8 +35,9 @@ export class PrivateDataExchanger {
   private passportLogic: ContractIO<PassportLogic>;
   private ec = new ec(ellipticCurveAlg);
   private getCurrentTime: CurrentTimeGetter;
+  private options: IEthOptions;
 
-  public constructor(web3: Web3, passportAddress: Address, currentTimeGetter?: CurrentTimeGetter) {
+  public constructor(web3: Web3, passportAddress: Address, currentTimeGetter?: CurrentTimeGetter, options?: IEthOptions) {
     this.web3 = web3;
     this.passportAddress = passportAddress;
     this.passportLogic = new ContractIO(web3, passportLogicAbi as AbiItem[], passportAddress);
@@ -44,6 +46,8 @@ export class PrivateDataExchanger {
     if (!currentTimeGetter) {
       this.getCurrentTime = () => new Date();
     }
+
+    this.options = options || {};
   }
 
   // #region -------------- Propose -------------------------------------------------------------------
@@ -65,7 +69,7 @@ export class PrivateDataExchanger {
   ): Promise<IProposeDataExchangeResult> {
 
     // Get owner public key
-    const ownerPublicKeyBytes = await new PassportOwnership(this.web3, this.passportAddress).getOwnerPublicKey();
+    const ownerPublicKeyBytes = await new PassportOwnership(this.web3, this.passportAddress, this.options).getOwnerPublicKey();
     const ownerPubKeyPair = this.ec.keyFromPublic(Buffer.from(ownerPublicKeyBytes));
 
     // Create exchange key to be shared with passport owner

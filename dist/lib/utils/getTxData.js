@@ -57,15 +57,22 @@ var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.j
  * @param txHash transaction hash
  * @param web3 web3 instance
  */
-exports.getTxData = function (txHash, web3) { return __awaiter(_this, void 0, void 0, function () {
+exports.getTxData = function (txHash, web3, customTxRetriever) { return __awaiter(_this, void 0, void 0, function () {
     var tx, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 abiDecoder.addABI(PassportLogic_json_1.default);
-                return [4 /*yield*/, web3.eth.getTransaction(txHash)];
+                if (!customTxRetriever) return [3 /*break*/, 2];
+                return [4 /*yield*/, customTxRetriever(txHash, web3)];
             case 1:
                 tx = _a.sent();
+                return [3 /*break*/, 4];
+            case 2: return [4 /*yield*/, web3.eth.getTransaction(txHash)];
+            case 3:
+                tx = _a.sent();
+                _a.label = 4;
+            case 4:
                 result = {
                     tx: tx,
                     methodInfo: abiDecoder.decodeMethod(tx.input),

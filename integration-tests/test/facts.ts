@@ -6,7 +6,8 @@ import { FactHistoryReader, FactReader, FactRemover, FactWriter, PassportReader,
 import Web3 from 'web3';
 import { MockIPFSClient } from '../mocks/MockIPFSClient';
 import { logVerbose } from 'common/logger';
-import { getNodePublicKeys } from 'common/quorum';
+import { getNodePublicKeys, getPrivateTx } from 'common/quorum';
+import { IEthOptions } from 'lib/models/IEthOptions';
 
 let accounts;
 let privateKeys;
@@ -25,9 +26,13 @@ const PassportLogic = artifacts.require('PassportLogic');
 const PassportLogicRegistry = artifacts.require('PassportLogicRegistry');
 const web3 = new Web3(new Web3.providers.HttpProvider(getNetworkUrl()));
 const contractCreationParams: any = {};
+let options: IEthOptions = null;
 
 if (getNetwork() === NetworkType.Quorum && isPrivateTxMode) {
   contractCreationParams.privateFor = [getNodePublicKeys()[1]];
+  options = {
+    txRetriever: getPrivateTx,
+  };
 }
 
 const txHashes: any = {};
@@ -147,7 +152,7 @@ describe('Passport creation and facts', () => {
   });
 
   it('Should be able to write PrivateData fact', async () => {
-    const writer = new FactWriter(web3, passportAddress);
+    const writer = new FactWriter(web3, passportAddress, options);
     const writeResult = await writer.setPrivateData('privatedata_fact', [1, 2, 3, 4, 5, 6], factProviderAddress, mockIPFSClient);
 
     txHashes.privatedata_fact = await writeAndValidateFact(_ => writeResult.tx);
@@ -355,7 +360,7 @@ describe('Passport creation and facts', () => {
 
 async function writeAndValidateFact(writeFact: (writer: FactWriter) => any) {
   // Given
-  const writer = new FactWriter(web3, passportAddress);
+  const writer = new FactWriter(web3, passportAddress, options);
 
   // When
   const txData = await writeFact(writer);
@@ -369,7 +374,7 @@ async function writeAndValidateFact(writeFact: (writer: FactWriter) => any) {
 
 async function readAndValidateFact(readFact: (reader: FactReader) => any, expectedValue) {
   // Given
-  const reader = new FactReader(web3, getNetworkUrl(), passportAddress);
+  const reader = new FactReader(web3, getNetworkUrl(), passportAddress, options);
 
   // When
   const response = await readFact(reader);
@@ -380,7 +385,7 @@ async function readAndValidateFact(readFact: (reader: FactReader) => any, expect
 
 async function readAndValidateTxFact(readFact: (reader: FactHistoryReader) => any, expectedValue) {
   // Given
-  const reader = new FactHistoryReader(web3);
+  const reader = new FactHistoryReader(web3, options);
 
   // When
   const response = await readFact(reader);

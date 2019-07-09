@@ -2,7 +2,7 @@ import { IRawTX } from 'lib/models/IRawTX';
 import { toBN } from 'lib/utils/conversion';
 import quorumjs from 'quorum-js';
 import Web3 from 'web3';
-import { TransactionReceipt } from 'web3-core';
+import { TransactionReceipt, Transaction } from 'web3-core';
 
 export function getAccounts(): string[] {
   return [
@@ -66,7 +66,7 @@ export async function submitPrivateTransaction(web3: Web3, txData: IRawTX): Prom
 
   const enclaveOptions = {
     // TODO: take from config file
-    privateUrl: 'http://172.17.65.36:9081',
+    privateUrl: 'http://172.17.65.40:9081',
   };
 
   const rawTransactionManager = quorumjs.RawTransactionManager(web3, enclaveOptions);
@@ -86,6 +86,15 @@ export async function submitPrivateTransaction(web3: Web3, txData: IRawTX): Prom
     // privateFor: ['ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc='],
     privateFor: [nodePubKeys[1]],
   });
+
+  return tx;
+}
+
+export async function getPrivateTx(txHash: string, web3: Web3): Promise<Transaction> {
+  const tx = await web3.eth.getTransaction(txHash);
+
+  // Input is only a hash. Decode it using `eth_getQuorumPayload`
+  tx.input = await web3.currentProvider.send('eth_getQuorumPayload', [tx.input]);
 
   return tx;
 }

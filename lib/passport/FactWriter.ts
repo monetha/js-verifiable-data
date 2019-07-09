@@ -7,18 +7,21 @@ import passportLogicAbi from '../../config/PassportLogic.json';
 import { IPrivateDataHashes } from './FactReader';
 import { PassportLogic } from '../types/web3-contracts/PassportLogic';
 import { PrivateFactWriter } from './PrivateFactWriter';
+import { IEthOptions } from 'lib/models/IEthOptions';
 
 /**
  * Class to write facts to passport
  */
 export class FactWriter {
   private contractIO: ContractIO<PassportLogic>;
+  private options: IEthOptions;
 
   public get web3() { return this.contractIO.getWeb3(); }
   public get passportAddress() { return this.contractIO.getContractAddress(); }
 
-  constructor(web3: Web3, passportAddress: Address) {
+  constructor(web3: Web3, passportAddress: Address, options?: IEthOptions) {
     this.contractIO = new ContractIO(web3, passportLogicAbi as AbiItem[], passportAddress);
+    this.options = options || {};
   }
 
   /**
@@ -121,7 +124,7 @@ export class FactWriter {
    * @param ipfs IPFS client
    */
   public async setPrivateData(key: string, value: number[], factProviderAddress: Address, ipfs: IIPFSClient) {
-    const privateWriter = new PrivateFactWriter(this);
+    const privateWriter = new PrivateFactWriter(this, this.options);
 
     return privateWriter.setPrivateData(factProviderAddress, key, value, ipfs);
   }

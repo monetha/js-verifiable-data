@@ -28,10 +28,18 @@ export interface ITxData {
  * @param txHash transaction hash
  * @param web3 web3 instance
  */
-export const getTxData = async (txHash: string, web3: Web3): Promise<ITxData> => {
+export const getTxData = async (
+  txHash: string,
+  web3: Web3,
+  customTxRetriever?: (txHash: string, web3: Web3) => Promise<Transaction>): Promise<ITxData> => {
   abiDecoder.addABI(passportLogicAbi);
 
-  const tx = await web3.eth.getTransaction(txHash);
+  let tx: Transaction;
+  if (customTxRetriever) {
+    tx = await customTxRetriever(txHash, web3);
+  } else {
+    tx = await web3.eth.getTransaction(txHash);
+  }
 
   const result = {
     tx,

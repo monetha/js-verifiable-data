@@ -45,8 +45,9 @@ var getTxData_1 = require("../utils/getTxData");
  * Class to change passport ownership
  */
 var PassportOwnership = /** @class */ (function () {
-    function PassportOwnership(web3, passportAddress) {
+    function PassportOwnership(web3, passportAddress, options) {
         this.contract = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
+        this.options = options || {};
     }
     /**
      * After the passport is created, the owner must call this method to become a full passport owner
@@ -100,7 +101,7 @@ var PassportOwnership = /** @class */ (function () {
                             throw new Error('Failed to get ownership transfer event');
                         }
                         web3 = this.contract.getWeb3();
-                        return [4 /*yield*/, getTxData_1.getTxData(transferredEvent.transactionHash, web3)];
+                        return [4 /*yield*/, getTxData_1.getTxData(transferredEvent.transactionHash, web3, this.options.txRetriever)];
                     case 3:
                         txInfo = _a.sent();
                         tx = txInfo.tx;

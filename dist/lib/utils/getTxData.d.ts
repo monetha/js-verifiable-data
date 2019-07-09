@@ -20,7 +20,7 @@ export interface ITxData {
  * @param txHash transaction hash
  * @param web3 web3 instance
  */
-export declare const getTxData: (txHash: string, web3: Web3) => Promise<ITxData>;
+export declare const getTxData: (txHash: string, web3: Web3, customTxRetriever?: (txHash: string, web3: Web3) => Promise<Transaction>) => Promise<ITxData>;
 /**
  * Gets sender's elliptic curve public key (prefixed with byte 4)
  */

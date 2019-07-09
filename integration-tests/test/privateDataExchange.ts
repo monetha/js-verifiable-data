@@ -10,7 +10,8 @@ import Web3 from 'web3';
 import { ExchangeState } from 'lib/passport/PrivateDataExchanger';
 import { getNetworkUrl, getPrivateKeys, getAccounts, getNetwork, NetworkType } from 'common/network';
 import { logVerbose } from 'common/logger';
-import { getNodePublicKeys } from 'common/quorum';
+import { getNodePublicKeys, getPrivateTx } from 'common/quorum';
+import { IEthOptions } from 'lib/models/IEthOptions';
 // import { IPFSClient } from 'common/IPFSClient';
 
 let accounts: string[];
@@ -29,6 +30,7 @@ let factProviderAddress: Address;
 let exchanger: PrivateDataExchanger;
 const ipfsClient = new MockIPFSClient();
 // const ipfsClient = new IPFSClient();
+let options: IEthOptions = null;
 
 const privateFactKey = 'privatedata_fact';
 
@@ -42,6 +44,9 @@ if (getNetwork() === NetworkType.Quorum) {
 
   if (isPrivateTxMode) {
     contractCreationParams.privateFor = [getNodePublicKeys()[1]];
+    options = {
+      txRetriever: getPrivateTx,
+    };
   }
 }
 
@@ -86,12 +91,12 @@ const preparePassport = async () => {
   await txExecutor(txData);
 
   // Write some private fact
-  const writer = new FactWriter(web3, passportAddress);
+  const writer = new FactWriter(web3, passportAddress, options);
   const writeResult = await writer.setPrivateData(privateFactKey, privateFactValue, factProviderAddress, ipfsClient);
   receipt = await txExecutor(writeResult.tx);
 
   // Create exchanger
-  exchanger = new PrivateDataExchanger(web3, passportAddress);
+  exchanger = new PrivateDataExchanger(web3, passportAddress, null, options);
 
   logVerbose('----------------------------------------------------------');
   logVerbose('PASSPORT LOGIC:'.padEnd(30), passportLogic.address);
@@ -437,7 +442,8 @@ async function advanceTime(hours: number): Promise<PrivateDataExchanger> {
     // Now + XXh
     now.setTime(now.getTime() + hours * 60 * 60 * 1000);
     return now;
-  });
+  },
+  options);
 }
 
 // #endregion
