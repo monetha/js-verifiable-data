@@ -3,6 +3,7 @@ import { toBN } from 'lib/utils/conversion';
 import quorumjs from 'quorum-js';
 import Web3 from 'web3';
 import { TransactionReceipt, Transaction } from 'web3-core';
+import { getNetworkConfig } from './network';
 
 export function getAccounts(): string[] {
   return [
@@ -64,9 +65,10 @@ export async function submitPrivateTransaction(web3: Web3, txData: IRawTX): Prom
 
   const account = web3.eth.accounts.privateKeyToAccount(privateKey);
 
+  const networkConfig = getNetworkConfig();
+
   const enclaveOptions = {
-    // TODO: take from config file
-    privateUrl: 'http://172.17.65.40:9081',
+    privateUrl: `http://${networkConfig.host}:${networkConfig.enclavePort}`,
   };
 
   const rawTransactionManager = quorumjs.RawTransactionManager(web3, enclaveOptions);

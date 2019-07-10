@@ -29,6 +29,7 @@ module.exports = {
     quorum: {
       host: "127.0.0.1",
       port: 22000,
+      enclavePort: 9081,
       timeoutBlocks: 100,
       network_id: "*", // Match any network id
       gasPrice: 0,
