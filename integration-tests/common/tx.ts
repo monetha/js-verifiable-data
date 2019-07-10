@@ -1,11 +1,9 @@
 import EthereumTx from 'ethereumjs-tx';
-import { IRawTX } from 'lib/models/IRawTX';
-import { TxExecutor } from 'lib/proto';
-import { toBN } from 'lib/utils/conversion';
 import Web3 from 'web3';
 import { Transaction, TransactionReceipt } from 'web3-core';
 import { getAccounts, getPrivateKeys, getNetwork, NetworkType } from './network';
 import { submitPrivateTransaction } from './quorum';
+import { IRawTX, toBN, TxExecutor } from 'reputation-sdk';
 
 export const isPrivateTxMode: boolean = process.argv.includes('--private');
 

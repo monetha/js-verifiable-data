@@ -7,8 +7,8 @@ import { IIPFSClient } from '../models/IIPFSClient';
 import { ContractIO } from '../transactionHelpers/ContractIO';
 import { PassportLogic } from '../types/web3-contracts/PassportLogic';
 import { fetchEvents } from '../utils/fetchEvents';
-import { getTxData } from '../utils/getTxData';
 import { PrivateFactReader } from './PrivateFactReader';
+import { getSignedTx, decodeTx } from 'lib/utils/tx';
 
 // #region -------------- Interfaces -------------------------------------------------------------------
 
@@ -134,7 +134,8 @@ export class FactReader {
 
     const blockNumHex = this.web3.utils.toHex(data);
     const events = await fetchEvents(this.ethNetworkUrl, blockNumHex, blockNumHex, this.passportAddress);
-    const txInfo = await getTxData(events[0].transactionHash, this.web3, this.options.txRetriever);
+    const signedTx = await getSignedTx(events[0].transactionHash, this.web3, this.options);
+    const txInfo = await decodeTx(signedTx, this.web3, this.options);
     const txDataString = txInfo.methodInfo.params[1].value;
     const txData = this.web3.utils.hexToBytes(txDataString);
 

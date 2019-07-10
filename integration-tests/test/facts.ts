@@ -1,13 +1,10 @@
-import { getAccounts, getNetworkUrl, getPrivateKeys, getNetwork, NetworkType } from 'common/network';
+import { logVerbose } from 'common/logger';
+import { getAccounts, getNetwork, getNetworkUrl, getPrivateKeys, NetworkType } from 'common/network';
+import { getNodePublicKeys } from 'common/quorum';
 import { createTxExecutor, isPrivateTxMode } from 'common/tx';
-import { PassportGenerator } from 'lib/passport/PassportGenerator';
-import { PassportOwnership } from 'lib/passport/PassportOwnership';
-import { FactHistoryReader, FactReader, FactRemover, FactWriter, PassportReader, Permissions } from 'lib/proto';
+import { ext, FactHistoryReader, FactReader, FactRemover, FactWriter, IEthOptions, PassportGenerator, PassportOwnership, PassportReader, Permissions } from 'reputation-sdk';
 import Web3 from 'web3';
 import { MockIPFSClient } from '../mocks/MockIPFSClient';
-import { logVerbose } from 'common/logger';
-import { getNodePublicKeys, getPrivateTx } from 'common/quorum';
-import { IEthOptions } from 'lib/models/IEthOptions';
 
 let accounts;
 let privateKeys;
@@ -31,7 +28,8 @@ let options: IEthOptions = null;
 if (getNetwork() === NetworkType.Quorum && isPrivateTxMode) {
   contractCreationParams.privateFor = [getNodePublicKeys()[1]];
   options = {
-    txRetriever: getPrivateTx,
+    signedTxRetriever: ext.quorum.getSignedPrivateTx,
+    txDecoder: ext.quorum.decodePrivateTx,
   };
 }
 

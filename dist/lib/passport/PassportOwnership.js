@@ -40,7 +40,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 var ContractIO_1 = require("../transactionHelpers/ContractIO");
-var getTxData_1 = require("../utils/getTxData");
+var tx_1 = require("../utils/tx");
 /**
  * Class to change passport ownership
  */
@@ -85,7 +85,7 @@ var PassportOwnership = /** @class */ (function () {
      */
     PassportOwnership.prototype.getOwnerPublicKey = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var ownerAddress, transferredEvent, web3, txInfo, tx;
+            var ownerAddress, transferredEvent, web3, tx;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.getOwnerAddress()];
@@ -101,11 +101,10 @@ var PassportOwnership = /** @class */ (function () {
                             throw new Error('Failed to get ownership transfer event');
                         }
                         web3 = this.contract.getWeb3();
-                        return [4 /*yield*/, getTxData_1.getTxData(transferredEvent.transactionHash, web3, this.options.txRetriever)];
+                        return [4 /*yield*/, tx_1.getSignedTx(transferredEvent.transactionHash, web3, this.options)];
                     case 3:
-                        txInfo = _a.sent();
-                        tx = txInfo.tx;
-                        return [2 /*return*/, Array.from(getTxData_1.getSenderPublicKey(tx))];
+                        tx = _a.sent();
+                        return [2 /*return*/, Array.from(tx_1.getSenderPublicKey(tx))];
                 }
             });
         });

@@ -2,16 +2,12 @@ import BN from 'bn.js';
 import { expectSdkError } from 'common/error';
 import { advanceTimeAndBlock, revertToSnapshot, takeSnapshot } from 'common/ganache';
 import { createTxExecutor, isPrivateTxMode } from 'common/tx';
-import { ErrorCode } from 'lib/errors/ErrorCode';
-import { Address } from 'lib/models/Address';
-import { FactWriter, PassportGenerator, PassportOwnership, PrivateDataExchanger } from 'lib/proto';
+import { FactWriter, PassportGenerator, PassportOwnership, PrivateDataExchanger, Address, IEthOptions, ext, ExchangeState, ErrorCode } from 'reputation-sdk';
 import { MockIPFSClient } from 'mocks/MockIPFSClient';
 import Web3 from 'web3';
-import { ExchangeState } from 'lib/passport/PrivateDataExchanger';
 import { getNetworkUrl, getPrivateKeys, getAccounts, getNetwork, NetworkType } from 'common/network';
 import { logVerbose } from 'common/logger';
-import { getNodePublicKeys, getPrivateTx } from 'common/quorum';
-import { IEthOptions } from 'lib/models/IEthOptions';
+import { getNodePublicKeys } from 'common/quorum';
 // import { IPFSClient } from 'common/IPFSClient';
 
 let accounts: string[];
@@ -45,7 +41,8 @@ if (getNetwork() === NetworkType.Quorum) {
   if (isPrivateTxMode) {
     contractCreationParams.privateFor = [getNodePublicKeys()[1]];
     options = {
-      txRetriever: getPrivateTx,
+      signedTxRetriever: ext.quorum.getSignedPrivateTx,
+      txDecoder: ext.quorum.decodePrivateTx,
     };
   }
 }
@@ -443,7 +440,7 @@ async function advanceTime(hours: number): Promise<PrivateDataExchanger> {
     now.setTime(now.getTime() + hours * 60 * 60 * 1000);
     return now;
   },
-  options);
+    options);
 }
 
 // #endregion

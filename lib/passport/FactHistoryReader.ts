@@ -2,7 +2,7 @@ import { IEthOptions } from 'lib/models/IEthOptions';
 import { hexToUnpaddedAscii } from 'lib/utils/conversion';
 import Web3 from 'web3';
 import { IIPFSClient } from '../models/IIPFSClient';
-import { getTxData, IMethodInfo } from '../utils/getTxData';
+import { IMethodInfo, getSignedTx, decodeTx } from '../utils/tx';
 import { IPrivateDataHashes } from './FactReader';
 import { PrivateFactReader } from './PrivateFactReader';
 
@@ -34,7 +34,8 @@ export class FactHistoryReader {
    * Read string type fact from transaction
    */
   public async getString(txHash: string): Promise<IFactValue<string>> {
-    const txInfo = await getTxData(txHash, this.web3, this.options.txRetriever);
+    const signedTx = await getSignedTx(txHash, this.web3, this.options);
+    const txInfo = await decodeTx(signedTx, this.web3, this.options);
     const { methodInfo } = txInfo;
 
     this.validateMethodSignature(methodInfo, 'setString');
@@ -51,7 +52,8 @@ export class FactHistoryReader {
    * Read bytes type fact from transaction
    */
   public async getBytes(txHash: string): Promise<IFactValue<number[]>> {
-    const txInfo = await getTxData(txHash, this.web3, this.options.txRetriever);
+    const signedTx = await getSignedTx(txHash, this.web3, this.options);
+    const txInfo = await decodeTx(signedTx, this.web3, this.options);
     const { methodInfo } = txInfo;
 
     this.validateMethodSignature(methodInfo, 'setBytes');
@@ -74,7 +76,8 @@ export class FactHistoryReader {
    * Read address type fact from transaction
    */
   public async getAddress(txHash: string): Promise<IFactValue<string>> {
-    const txInfo = await getTxData(txHash, this.web3, this.options.txRetriever);
+    const signedTx = await getSignedTx(txHash, this.web3, this.options);
+    const txInfo = await decodeTx(signedTx, this.web3, this.options);
     const { methodInfo } = txInfo;
 
     this.validateMethodSignature(methodInfo, 'setAddress');
@@ -91,7 +94,8 @@ export class FactHistoryReader {
    * Read uint type fact from transaction
    */
   public async getUint(txHash: string): Promise<IFactValue<number>> {
-    const txInfo = await getTxData(txHash, this.web3, this.options.txRetriever);
+    const signedTx = await getSignedTx(txHash, this.web3, this.options);
+    const txInfo = await decodeTx(signedTx, this.web3, this.options);
     const { methodInfo } = txInfo;
 
     this.validateMethodSignature(methodInfo, 'setUint');
@@ -108,7 +112,8 @@ export class FactHistoryReader {
    * Read int type fact from transaction
    */
   public async getInt(txHash: string): Promise<IFactValue<number>> {
-    const txInfo = await getTxData(txHash, this.web3, this.options.txRetriever);
+    const signedTx = await getSignedTx(txHash, this.web3, this.options);
+    const txInfo = await decodeTx(signedTx, this.web3, this.options);
     const { methodInfo } = txInfo;
 
     this.validateMethodSignature(methodInfo, 'setInt');
@@ -125,7 +130,8 @@ export class FactHistoryReader {
    * Read boolean type fact from transaction
    */
   public async getBool(txHash: string): Promise<IFactValue<boolean>> {
-    const txInfo = await getTxData(txHash, this.web3, this.options.txRetriever);
+    const signedTx = await getSignedTx(txHash, this.web3, this.options);
+    const txInfo = await decodeTx(signedTx, this.web3, this.options);
     const { methodInfo } = txInfo;
 
     this.validateMethodSignature(methodInfo, 'setBool');
@@ -142,7 +148,8 @@ export class FactHistoryReader {
    * Read TX data type fact from transaction
    */
   public async getTxdata(txHash: string): Promise<IFactValue<number[]>> {
-    const txInfo = await getTxData(txHash, this.web3, this.options.txRetriever);
+    const signedTx = await getSignedTx(txHash, this.web3, this.options);
+    const txInfo = await decodeTx(signedTx, this.web3, this.options);
     const { methodInfo } = txInfo;
 
     this.validateMethodSignature(methodInfo, 'setTxDataBlockNumber');
@@ -162,7 +169,8 @@ export class FactHistoryReader {
    * @returns data stored in IPFS
    */
   public async getIPFSData(txHash: string, ipfs: IIPFSClient): Promise<IFactValue<any>> {
-    const txInfo = await getTxData(txHash, this.web3, this.options.txRetriever);
+    const signedTx = await getSignedTx(txHash, this.web3, this.options);
+    const txInfo = await decodeTx(signedTx, this.web3, this.options);
     const { methodInfo } = txInfo;
 
     this.validateMethodSignature(methodInfo, 'setIPFSHash');
@@ -229,7 +237,8 @@ export class FactHistoryReader {
    * Read private data hashes fact from transaction
    */
   public async getPrivateDataHashes(txHash: string): Promise<IFactValue<IPrivateDataHashes>> {
-    const txInfo = await getTxData(txHash, this.web3, this.options.txRetriever);
+    const signedTx = await getSignedTx(txHash, this.web3, this.options);
+    const txInfo = await decodeTx(signedTx, this.web3, this.options);
     const { methodInfo } = txInfo;
 
     this.validateMethodSignature(methodInfo, 'setPrivateDataHashes');

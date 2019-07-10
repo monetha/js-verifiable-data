@@ -11,12 +11,19 @@ import { FactHistoryReader, IFactValue } from './passport/FactHistoryReader';
 import { EventType, DataType, IHistoryEvent } from './models/IHistoryEvent';
 import { IIPFSClient, IIPFSAddResult, IIPFSDag, IIPFSLink, IIPLD } from './models/IIPFSClient';
 import { IPassportRef } from './models/IPassportRef';
-import { PrivateDataExchanger } from './passport/PrivateDataExchanger';
+import { IEthOptions } from './models/IEthOptions';
+import { PrivateDataExchanger, ExchangeState } from './passport/PrivateDataExchanger';
 import { TxExecutor } from './models/TxExecutor';
 import { ErrorCode } from './errors/ErrorCode';
 import { ISdkError } from './errors/SdkError';
+import * as quorum from './extensions/quorum';
 import { fetchEvents } from './utils/fetchEvents';
+import { Address } from './models/Address';
 import { IRawTX } from './models/IRawTX';
+import { toBN } from './utils/conversion';
+declare const ext: {
+    quorum: typeof quorum;
+};
 declare const _default: {
     PassportGenerator: typeof PassportGenerator;
     PassportOwnership: typeof PassportOwnership;
@@ -32,6 +39,11 @@ declare const _default: {
     DataType: typeof DataType;
     PrivateDataExchanger: typeof PrivateDataExchanger;
     ErrorCode: typeof ErrorCode;
+    ExchangeState: typeof ExchangeState;
+    ext: {
+        quorum: typeof quorum;
+    };
+    toBN: typeof toBN;
 };
 export default _default;
-export { PassportGenerator, PassportOwnership, PassportReader, FactReader, FactWriter, FactRemover, PrivateFactReader, PrivateFactWriter, Permissions, FactHistoryReader, PrivateDataExchanger, EventType, DataType, IHistoryEvent, IIPFSClient, IIPFSAddResult, IFactValue, IPassportRef, IIPFSDag, IIPFSLink, IIPLD, TxExecutor, ErrorCode, ISdkError, fetchEvents, IRawTX, };
+export { PassportGenerator, PassportOwnership, PassportReader, FactReader, FactWriter, FactRemover, PrivateFactReader, PrivateFactWriter, Permissions, FactHistoryReader, PrivateDataExchanger, EventType, DataType, IHistoryEvent, IIPFSClient, IIPFSAddResult, IFactValue, IPassportRef, IIPFSDag, IIPFSLink, IIPLD, IRawTX, TxExecutor, ErrorCode, ISdkError, fetchEvents, IEthOptions, Address, ExchangeState, ext, toBN, };

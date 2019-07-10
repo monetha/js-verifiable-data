@@ -1,5 +1,4 @@
-import { ErrorCode } from 'lib/errors/ErrorCode';
-import { ISdkError } from 'lib/errors/SdkError';
+import { ErrorCode, ISdkError } from 'reputation-sdk';
 
 export async function expectSdkError(func: () => Promise<any>, code: ErrorCode) {
   try {

@@ -5,7 +5,7 @@ import passportLogicAbi from '../../config/PassportLogic.json';
 import { Address } from '../models/Address';
 import { ContractIO } from '../transactionHelpers/ContractIO';
 import { PassportLogic } from '../types/web3-contracts/PassportLogic';
-import { getSenderPublicKey, getTxData } from '../utils/getTxData';
+import { getSenderPublicKey, getSignedTx } from '../utils/tx';
 
 /**
  * Class to change passport ownership
@@ -56,8 +56,7 @@ export class PassportOwnership {
     }
 
     const web3 = this.contract.getWeb3();
-    const txInfo = await getTxData(transferredEvent.transactionHash, web3, this.options.txRetriever);
-    const { tx } = txInfo;
+    const tx = await getSignedTx(transferredEvent.transactionHash, web3, this.options);
 
     return Array.from(getSenderPublicKey(tx as any));
   }

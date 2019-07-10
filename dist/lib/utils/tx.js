@@ -52,30 +52,35 @@ var ethereumjs_tx_1 = __importDefault(require("ethereumjs-tx"));
 var ethereumjs_util_1 = __importDefault(require("ethereumjs-util"));
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 /**
- * Decodes transaction data using the transaction hash
- *
- * @param txHash transaction hash
- * @param web3 web3 instance
+ * Gets transaction by hash. Retrieved TX data will be the one which was signed with private key.
  */
-exports.getTxData = function (txHash, web3, customTxRetriever) { return __awaiter(_this, void 0, void 0, function () {
-    var tx, result;
+exports.getSignedTx = function (txHash, web3, options) { return __awaiter(_this, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        if (options && options.signedTxRetriever) {
+            return [2 /*return*/, options.signedTxRetriever(txHash, web3)];
+        }
+        return [2 /*return*/, web3.eth.getTransaction(txHash)];
+    });
+}); };
+/**
+ * Transforms given transaction (using options.txDecoder if specified) and decodes tx input method. *
+ */
+exports.decodeTx = function (tx, web3, options) { return __awaiter(_this, void 0, void 0, function () {
+    var decodedTx, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 abiDecoder.addABI(PassportLogic_json_1.default);
-                if (!customTxRetriever) return [3 /*break*/, 2];
-                return [4 /*yield*/, customTxRetriever(txHash, web3)];
+                decodedTx = tx;
+                if (!(options && options.txDecoder)) return [3 /*break*/, 2];
+                return [4 /*yield*/, options.txDecoder(tx, web3)];
             case 1:
-                tx = _a.sent();
-                return [3 /*break*/, 4];
-            case 2: return [4 /*yield*/, web3.eth.getTransaction(txHash)];
-            case 3:
-                tx = _a.sent();
-                _a.label = 4;
-            case 4:
+                decodedTx = _a.sent();
+                _a.label = 2;
+            case 2:
                 result = {
-                    tx: tx,
-                    methodInfo: abiDecoder.decodeMethod(tx.input),
+                    tx: decodedTx,
+                    methodInfo: abiDecoder.decodeMethod(decodedTx.input),
                 };
                 return [2 /*return*/, result];
         }

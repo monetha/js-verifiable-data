@@ -1,4 +1,11 @@
 "use strict";
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var PassportGenerator_1 = require("./passport/PassportGenerator");
 exports.PassportGenerator = PassportGenerator_1.PassportGenerator;
@@ -25,10 +32,18 @@ exports.EventType = IHistoryEvent_1.EventType;
 exports.DataType = IHistoryEvent_1.DataType;
 var PrivateDataExchanger_1 = require("./passport/PrivateDataExchanger");
 exports.PrivateDataExchanger = PrivateDataExchanger_1.PrivateDataExchanger;
+exports.ExchangeState = PrivateDataExchanger_1.ExchangeState;
 var ErrorCode_1 = require("./errors/ErrorCode");
 exports.ErrorCode = ErrorCode_1.ErrorCode;
+var quorum = __importStar(require("./extensions/quorum"));
 var fetchEvents_1 = require("./utils/fetchEvents");
 exports.fetchEvents = fetchEvents_1.fetchEvents;
+var conversion_1 = require("./utils/conversion");
+exports.toBN = conversion_1.toBN;
+var ext = {
+    quorum: quorum,
+};
+exports.ext = ext;
 exports.default = {
     PassportGenerator: PassportGenerator_1.PassportGenerator,
     PassportOwnership: PassportOwnership_1.PassportOwnership,
@@ -44,4 +59,7 @@ exports.default = {
     DataType: IHistoryEvent_1.DataType,
     PrivateDataExchanger: PrivateDataExchanger_1.PrivateDataExchanger,
     ErrorCode: ErrorCode_1.ErrorCode,
+    ExchangeState: PrivateDataExchanger_1.ExchangeState,
+    ext: ext,
+    toBN: conversion_1.toBN,
 };

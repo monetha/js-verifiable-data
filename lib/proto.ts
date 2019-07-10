@@ -11,12 +11,20 @@ import { FactHistoryReader, IFactValue } from './passport/FactHistoryReader';
 import { EventType, DataType, IHistoryEvent } from './models/IHistoryEvent';
 import { IIPFSClient, IIPFSAddResult, IIPFSDag, IIPFSLink, IIPLD } from './models/IIPFSClient';
 import { IPassportRef } from './models/IPassportRef';
-import { PrivateDataExchanger } from './passport/PrivateDataExchanger';
+import { IEthOptions } from './models/IEthOptions';
+import { PrivateDataExchanger, ExchangeState } from './passport/PrivateDataExchanger';
 import { TxExecutor } from './models/TxExecutor';
 import { ErrorCode } from './errors/ErrorCode';
 import { ISdkError } from './errors/SdkError';
+import * as quorum from './extensions/quorum';
 import { fetchEvents } from './utils/fetchEvents';
+import { Address } from './models/Address';
 import { IRawTX } from './models/IRawTX';
+import { toBN } from './utils/conversion';
+
+const ext = {
+  quorum,
+};
 
 export default {
   PassportGenerator,
@@ -33,6 +41,9 @@ export default {
   DataType,
   PrivateDataExchanger,
   ErrorCode,
+  ExchangeState,
+  ext,
+  toBN,
 };
 
 export {
@@ -57,9 +68,14 @@ export {
   IIPFSDag,
   IIPFSLink,
   IIPLD,
+  IRawTX,
   TxExecutor,
   ErrorCode,
   ISdkError,
   fetchEvents,
-  IRawTX,
+  IEthOptions,
+  Address,
+  ExchangeState,
+  ext,
+  toBN,
 };
