@@ -50,6 +50,14 @@ export function getNetworkUrl(): string {
 }
 
 /**
+ * Gets ethereum network url node 2
+ */
+export function getNetworkUrlNode2(): string {
+  const networkConfig = getNetworkConfig();
+  return `http://${networkConfig.host}:22002`;
+}
+
+/**
  * Gets account addresses
  */
 export async function getAccounts(web3: Web3): Promise<string[]> {

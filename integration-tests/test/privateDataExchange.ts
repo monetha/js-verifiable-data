@@ -5,7 +5,7 @@ import { createTxExecutor, isPrivateTxMode } from 'common/tx';
 import { FactWriter, PassportGenerator, PassportOwnership, PrivateDataExchanger, Address, IEthOptions, ext, ExchangeState, ErrorCode } from 'reputation-sdk';
 import { MockIPFSClient } from 'mocks/MockIPFSClient';
 import Web3 from 'web3';
-import { getNetworkUrl, getPrivateKeys, getAccounts, getNetwork, NetworkType } from 'common/network';
+import { getNetworkUrl, getPrivateKeys, getAccounts, getNetwork, NetworkType, getNetworkUrlNode2 } from 'common/network';
 import { logVerbose } from 'common/logger';
 import { getNodePublicKeys } from 'common/quorum';
 // import { IPFSClient } from 'common/IPFSClient';
@@ -79,6 +79,7 @@ const preparePassport = async () => {
   // Create passport
   const generator = new PassportGenerator(web3, passportFactoryAddress);
   let txData = await generator.createPassport(passportOwner);
+
   let receipt = await txExecutor(txData);
   passportAddress = `0x${receipt.logs[0].topics[1].slice(26)}`;
 
@@ -423,7 +424,6 @@ describe('Private data exchange', () => {
   }
 
   // #endregion
-
 });
 
 // #region -------------- Helpers -------------------------------------------------------------------

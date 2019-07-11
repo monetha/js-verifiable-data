@@ -81,6 +81,7 @@ export const createTxExecutor = (web3: Web3): TxExecutor => {
     }
 
     const tx = await submitTransaction(web3, txData);
+   
 
     return waitForTxToFinish(web3, tx.hash);
   };
