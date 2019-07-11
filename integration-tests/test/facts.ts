@@ -1,5 +1,5 @@
 import { logVerbose } from 'common/logger';
-import { getAccounts, getNetwork, getNetworkUrl, getPrivateKeys, NetworkType } from 'common/network';
+import { getAccounts, getNetwork, getNetworkUrl, getPrivateKeys, NetworkType, getNetworkUrlNode2 } from 'common/network';
 import { getNodePublicKeys } from 'common/quorum';
 import { createTxExecutor, isPrivateTxMode } from 'common/tx';
 import { ext, FactHistoryReader, FactReader, FactRemover, FactWriter, IEthOptions, PassportGenerator, PassportOwnership, PassportReader, Permissions } from 'verifiable-data';
@@ -82,6 +82,23 @@ describe('Passport creation and facts', () => {
     logVerbose('----------------------------------------------------------');
   });
 
+  if (isPrivateTxMode && getNetwork() === NetworkType.Quorum) {
+    const web3Node2 = new Web3(new Web3.providers.HttpProvider(getNetworkUrlNode2()));
+    it('Created passport should not be visible from other nodes', async () => {
+      // Create passport
+      const generator = new PassportGenerator(web3, passportFactoryAddress);
+      let txData = await generator.createPassport(passportOwner);
+      let receipt = await txExecutor(txData);
+
+      const receiptFromMainNode = await web3.eth.getTransactionReceipt(receipt.transactionHash);
+      expect(receiptFromMainNode.logs[0]).to.have.property('topics');
+      expect(receiptFromMainNode.logs.length).to.greaterThan(0);
+
+      const receiptFromNode2 = await web3Node2.eth.getTransactionReceipt(receipt.transactionHash);
+      expect(receiptFromNode2.logs.length).to.equal(0);
+    });
+  }
+
   it('Should be able to claim ownership', async () => {
     // Given
     const ownership = new PassportOwnership(web3, passportAddress);
@@ -106,6 +123,20 @@ describe('Passport creation and facts', () => {
     expect(passports[0]).to.have.property('passportAddress');
     expect(passports[0]).to.have.property('ownerAddress');
   });
+
+  if (isPrivateTxMode && getNetwork() === NetworkType.Quorum) {
+    it('Should not be able to get a list of all created passports from other node', async () => {
+      // Given
+      const web3Node2 = new Web3(new Web3.providers.HttpProvider(getNetworkUrlNode2()));
+      const reader = new PassportReader(web3Node2, getNetworkUrlNode2());
+
+      // When
+      const passports = await reader.getPassportsList(passportFactoryAddress);
+
+      // Then
+      expect(passports.length).to.equal(0);
+    });
+  }
 
   // #region -------------- Fact writing -------------------------------------------------------------------
 
