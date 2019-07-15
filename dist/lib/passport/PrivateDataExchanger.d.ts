@@ -3,13 +3,15 @@ import BN from 'bn.js';
 import { TxExecutor } from '../models/TxExecutor';
 import Web3 from 'web3';
 import { IIPFSClient } from '../models/IIPFSClient';
+import { IEthOptions } from '../models/IEthOptions';
 export declare class PrivateDataExchanger {
     private passportAddress;
     private web3;
     private passportLogic;
     private ec;
     private getCurrentTime;
-    constructor(web3: Web3, passportAddress: Address, currentTimeGetter?: CurrentTimeGetter);
+    private options;
+    constructor(web3: Web3, passportAddress: Address, currentTimeGetter?: CurrentTimeGetter, options?: IEthOptions);
     /**
      * Creates private data exchange proposition
      * @param factKey - fact key name to request data for

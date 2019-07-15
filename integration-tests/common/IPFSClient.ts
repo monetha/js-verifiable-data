@@ -1,4 +1,4 @@
-import { IIPFSClient } from 'lib/proto';
+import { IIPFSClient } from 'reputation-sdk';
 import FormData from 'form-data';
 import fetch from 'node-fetch';
 

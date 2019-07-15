@@ -45,8 +45,9 @@ var PrivateFactWriter_1 = require("./PrivateFactWriter");
  * Class to write facts to passport
  */
 var FactWriter = /** @class */ (function () {
-    function FactWriter(web3, passportAddress) {
+    function FactWriter(web3, passportAddress, options) {
         this.contractIO = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
+        this.options = options || {};
     }
     Object.defineProperty(FactWriter.prototype, "web3", {
         get: function () { return this.contractIO.getWeb3(); },
@@ -186,7 +187,7 @@ var FactWriter = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var privateWriter;
             return __generator(this, function (_a) {
-                privateWriter = new PrivateFactWriter_1.PrivateFactWriter(this);
+                privateWriter = new PrivateFactWriter_1.PrivateFactWriter(this, this.options);
                 return [2 /*return*/, privateWriter.setPrivateData(factProviderAddress, key, value, ipfs)];
             });
         });

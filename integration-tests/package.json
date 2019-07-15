@@ -8,6 +8,7 @@
   "scripts": {
     "test": "./node_modules/.bin/truffle test",
     "test:quorum": "./node_modules/.bin/truffle test --network quorum",
+    "test:quorum-private": "./node_modules/.bin/truffle test --network quorum --private",
     "ganache": "npm run ganache:stop && docker run -d --rm -p 8545:8545 --name ganache trufflesuite/ganache-cli:latest -m \"economy sight open cancel father goddess monkey mosquito mule village diet purpose\"",
     "ganache:stop": "docker rm ganache --force || true",
     "ganache:terminal": "./node_modules/.bin/ganache-cli -m \"economy sight open cancel father goddess monkey mosquito mule village diet purpose\""
@@ -22,6 +23,7 @@
     "mocha": "^6.1.4",
     "node-fetch": "^2.6.0",
     "openzeppelin-solidity": "^1.12.0",
+    "quorum-js": "^0.3.0",
     "solc": "^0.4.24",
     "truffle": "^5.0.21",
     "truffle-flattener": "^1.3.0",

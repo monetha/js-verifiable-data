@@ -68,7 +68,7 @@ var gasLimits = {
     timeout: 60000,
 };
 var PrivateDataExchanger = /** @class */ (function () {
-    function PrivateDataExchanger(web3, passportAddress, currentTimeGetter) {
+    function PrivateDataExchanger(web3, passportAddress, currentTimeGetter, options) {
         this.ec = new elliptic_1.ec(privateFactCommon_1.ellipticCurveAlg);
         this.web3 = web3;
         this.passportAddress = passportAddress;
@@ -77,6 +77,7 @@ var PrivateDataExchanger = /** @class */ (function () {
         if (!currentTimeGetter) {
             this.getCurrentTime = function () { return new Date(); };
         }
+        this.options = options || {};
     }
     // #region -------------- Propose -------------------------------------------------------------------
     /**
@@ -92,7 +93,7 @@ var PrivateDataExchanger = /** @class */ (function () {
             var ownerPublicKeyBytes, ownerPubKeyPair, ecies, exchangeKeyData, encryptedExchangeKey, contract, tx, rawTx, receipt, logs, exchangeIdxData;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, new proto_1.PassportOwnership(this.web3, this.passportAddress).getOwnerPublicKey()];
+                    case 0: return [4 /*yield*/, new proto_1.PassportOwnership(this.web3, this.passportAddress, this.options).getOwnerPublicKey()];
                     case 1:
                         ownerPublicKeyBytes = _a.sent();
                         ownerPubKeyPair = this.ec.keyFromPublic(Buffer.from(ownerPublicKeyBytes));

@@ -1,13 +1,14 @@
-import { Address } from '../models/Address';
-import { fetchEvents } from '../utils/fetchEvents';
-import { getTxData } from '../utils/getTxData';
-import { ContractIO } from '../transactionHelpers/ContractIO';
-import { IIPFSClient } from '../models/IIPFSClient';
+import { IEthOptions } from 'lib/models/IEthOptions';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import passportLogicAbi from '../../config/PassportLogic.json';
+import { Address } from '../models/Address';
+import { IIPFSClient } from '../models/IIPFSClient';
+import { ContractIO } from '../transactionHelpers/ContractIO';
 import { PassportLogic } from '../types/web3-contracts/PassportLogic';
+import { fetchEvents } from '../utils/fetchEvents';
 import { PrivateFactReader } from './PrivateFactReader';
+import { getSignedTx, decodeTx } from 'lib/utils/tx';
 
 // #region -------------- Interfaces -------------------------------------------------------------------
 
@@ -32,13 +33,15 @@ export interface IPrivateDataHashes {
 export class FactReader {
   private contractIO: ContractIO<PassportLogic>;
   private ethNetworkUrl: string;
+  private options: IEthOptions;
 
   public get web3() { return this.contractIO.getWeb3(); }
   public get passportAddress() { return this.contractIO.getContractAddress(); }
 
-  constructor(web3: Web3, ethNetworkUrl: string, passportAddress: Address) {
+  constructor(web3: Web3, ethNetworkUrl: string, passportAddress: Address, options?: IEthOptions) {
     this.ethNetworkUrl = ethNetworkUrl;
     this.contractIO = new ContractIO(web3, passportLogicAbi as AbiItem[], passportAddress);
+    this.options = options || {};
   }
 
   /**
@@ -131,7 +134,8 @@ export class FactReader {
 
     const blockNumHex = this.web3.utils.toHex(data);
     const events = await fetchEvents(this.ethNetworkUrl, blockNumHex, blockNumHex, this.passportAddress);
-    const txInfo = await getTxData(events[0].transactionHash, this.web3);
+    const signedTx = await getSignedTx(events[0].transactionHash, this.web3, this.options);
+    const txInfo = await decodeTx(signedTx, this.web3, this.options);
     const txDataString = txInfo.methodInfo.params[1].value;
     const txData = this.web3.utils.hexToBytes(txDataString);
 

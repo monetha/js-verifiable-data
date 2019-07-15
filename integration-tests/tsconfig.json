@@ -12,9 +12,12 @@
     ],
     "baseUrl": ".",
     "paths": {
+      "reputation-sdk": [
+        "../lib/proto.ts"
+      ],
       "lib/*": [
         "../lib/*"
-      ],
+      ]
     }
   },
   "exclude": [
@@ -22,7 +25,7 @@
   ],
   "include": [
     "./**/*",
-    "./../lib/**/*",
+    "./../lib/proto.ts",
     "./../config/*"
   ]
 }

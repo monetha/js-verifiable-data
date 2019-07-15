@@ -5,6 +5,7 @@ import ethUtil from 'ethereumjs-util';
 import Web3 from 'web3';
 import { RLPEncodedTransaction, Transaction } from 'web3-core';
 import passportLogicAbi from '../../config/PassportLogic.json';
+import { IEthOptions } from 'lib/models/IEthOptions.js';
 
 export interface IMethodInfo {
   name: string;
@@ -23,19 +24,31 @@ export interface ITxData {
 }
 
 /**
- * Decodes transaction data using the transaction hash
- *
- * @param txHash transaction hash
- * @param web3 web3 instance
+ * Gets transaction by hash. Retrieved TX data will be the one which was signed with private key.
  */
-export const getTxData = async (txHash: string, web3: Web3): Promise<ITxData> => {
+export const getSignedTx = async (txHash: string, web3: Web3, options?: IEthOptions) => {
+  if (options && options.signedTxRetriever) {
+    return options.signedTxRetriever(txHash, web3);
+  }
+
+  return web3.eth.getTransaction(txHash);
+};
+
+/**
+ * Transforms given transaction (using options.txDecoder if specified) and decodes tx input method. *
+ */
+export const decodeTx = async(tx: Transaction, web3: Web3, options?: IEthOptions) => {
   abiDecoder.addABI(passportLogicAbi);
 
-  const tx = await web3.eth.getTransaction(txHash);
+  let decodedTx = tx;
+
+  if (options && options.txDecoder) {
+    decodedTx = await options.txDecoder(tx, web3);
+  }
 
   const result = {
-    tx,
-    methodInfo: abiDecoder.decodeMethod(tx.input),
+    tx: decodedTx,
+    methodInfo: abiDecoder.decodeMethod(decodedTx.input),
   };
 
   return result;

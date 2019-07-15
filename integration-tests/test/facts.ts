@@ -1,11 +1,10 @@
-import { getAccounts, getNetworkUrl, getPrivateKeys } from 'common/network';
-import { createTxExecutor } from 'common/tx';
-import { PassportGenerator } from 'lib/passport/PassportGenerator';
-import { PassportOwnership } from 'lib/passport/PassportOwnership';
-import { FactHistoryReader, FactReader, FactRemover, FactWriter, PassportReader, Permissions } from 'lib/proto';
+import { logVerbose } from 'common/logger';
+import { getAccounts, getNetwork, getNetworkUrl, getPrivateKeys, NetworkType } from 'common/network';
+import { getNodePublicKeys } from 'common/quorum';
+import { createTxExecutor, isPrivateTxMode } from 'common/tx';
+import { ext, FactHistoryReader, FactReader, FactRemover, FactWriter, IEthOptions, PassportGenerator, PassportOwnership, PassportReader, Permissions } from 'reputation-sdk';
 import Web3 from 'web3';
 import { MockIPFSClient } from '../mocks/MockIPFSClient';
-import { logVerbose } from 'common/logger';
 
 let accounts;
 let privateKeys;
@@ -23,6 +22,16 @@ const PassportFactory = artifacts.require('PassportFactory');
 const PassportLogic = artifacts.require('PassportLogic');
 const PassportLogicRegistry = artifacts.require('PassportLogicRegistry');
 const web3 = new Web3(new Web3.providers.HttpProvider(getNetworkUrl()));
+const contractCreationParams: any = {};
+let options: IEthOptions = null;
+
+if (getNetwork() === NetworkType.Quorum && isPrivateTxMode) {
+  contractCreationParams.privateFor = [getNodePublicKeys()[1]];
+  options = {
+    signedTxRetriever: ext.quorum.getSignedPrivateTx,
+    txDecoder: ext.quorum.decodePrivateTx,
+  };
+}
 
 const txHashes: any = {};
 const txExecutor = createTxExecutor(web3);
@@ -37,10 +46,10 @@ before(async () => {
   factProviderAddress = accounts[2];
   factProviderPrivateKey = privateKeys[2];
 
-  const passportLogic = await PassportLogic.new({ from: monethaOwner });
-  const passportLogicRegistry = await PassportLogicRegistry.new('0.1', passportLogic.address, { from: monethaOwner });
+  const passportLogic = await PassportLogic.new({ from: monethaOwner, ...contractCreationParams });
+  const passportLogicRegistry = await PassportLogicRegistry.new('0.1', passportLogic.address, { from: monethaOwner, ...contractCreationParams });
 
-  const passportFactory = await PassportFactory.new(passportLogicRegistry.address, { from: monethaOwner });
+  const passportFactory = await PassportFactory.new(passportLogicRegistry.address, { from: monethaOwner, ...contractCreationParams });
   passportFactoryAddress = passportFactory.address;
 
   logVerbose('----------------------------------------------------------');
@@ -141,7 +150,7 @@ describe('Passport creation and facts', () => {
   });
 
   it('Should be able to write PrivateData fact', async () => {
-    const writer = new FactWriter(web3, passportAddress);
+    const writer = new FactWriter(web3, passportAddress, options);
     const writeResult = await writer.setPrivateData('privatedata_fact', [1, 2, 3, 4, 5, 6], factProviderAddress, mockIPFSClient);
 
     txHashes.privatedata_fact = await writeAndValidateFact(_ => writeResult.tx);
@@ -349,7 +358,7 @@ describe('Passport creation and facts', () => {
 
 async function writeAndValidateFact(writeFact: (writer: FactWriter) => any) {
   // Given
-  const writer = new FactWriter(web3, passportAddress);
+  const writer = new FactWriter(web3, passportAddress, options);
 
   // When
   const txData = await writeFact(writer);
@@ -363,7 +372,7 @@ async function writeAndValidateFact(writeFact: (writer: FactWriter) => any) {
 
 async function readAndValidateFact(readFact: (reader: FactReader) => any, expectedValue) {
   // Given
-  const reader = new FactReader(web3, getNetworkUrl(), passportAddress);
+  const reader = new FactReader(web3, getNetworkUrl(), passportAddress, options);
 
   // When
   const response = await readFact(reader);
@@ -374,7 +383,7 @@ async function readAndValidateFact(readFact: (reader: FactReader) => any, expect
 
 async function readAndValidateTxFact(readFact: (reader: FactHistoryReader) => any, expectedValue) {
   // Given
-  const reader = new FactHistoryReader(web3);
+  const reader = new FactHistoryReader(web3, options);
 
   // When
   const response = await readFact(reader);

@@ -38,19 +38,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var fetchEvents_1 = require("../utils/fetchEvents");
-var getTxData_1 = require("../utils/getTxData");
-var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
+var ContractIO_1 = require("../transactionHelpers/ContractIO");
+var fetchEvents_1 = require("../utils/fetchEvents");
 var PrivateFactReader_1 = require("./PrivateFactReader");
+var tx_1 = require("../utils/tx");
 // #endregion
 /**
  * Class to read latest facts from the passport
  */
 var FactReader = /** @class */ (function () {
-    function FactReader(web3, ethNetworkUrl, passportAddress) {
+    function FactReader(web3, ethNetworkUrl, passportAddress, options) {
         this.ethNetworkUrl = ethNetworkUrl;
         this.contractIO = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
+        this.options = options || {};
     }
     Object.defineProperty(FactReader.prototype, "web3", {
         get: function () { return this.contractIO.getWeb3(); },
@@ -175,7 +176,7 @@ var FactReader = /** @class */ (function () {
      */
     FactReader.prototype.getTxdata = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
-            var data, blockNumHex, events, txInfo, txDataString, txData;
+            var data, blockNumHex, events, signedTx, txInfo, txDataString, txData;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.get('getTxDataBlockNumber', factProviderAddress, key)];
@@ -188,8 +189,11 @@ var FactReader = /** @class */ (function () {
                         return [4 /*yield*/, fetchEvents_1.fetchEvents(this.ethNetworkUrl, blockNumHex, blockNumHex, this.passportAddress)];
                     case 2:
                         events = _a.sent();
-                        return [4 /*yield*/, getTxData_1.getTxData(events[0].transactionHash, this.web3)];
+                        return [4 /*yield*/, tx_1.getSignedTx(events[0].transactionHash, this.web3, this.options)];
                     case 3:
+                        signedTx = _a.sent();
+                        return [4 /*yield*/, tx_1.decodeTx(signedTx, this.web3, this.options)];
+                    case 4:
                         txInfo = _a.sent();
                         txDataString = txInfo.methodInfo.params[1].value;
                         txData = this.web3.utils.hexToBytes(txDataString);
