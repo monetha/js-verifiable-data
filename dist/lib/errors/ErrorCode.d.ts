@@ -12,5 +12,9 @@ export declare enum ErrorCode {
     InvalidExchangeKey = "InvalidExchangeKey",
     InvalidDecryptedSecretDataKey = "InvalidDecryptedSecretDataKey",
     InvalidPassportOwnerKey = "InvalidPassportOwnerKey",
-    CanOnlyCloseAfterExpiration = "CanOnlyCloseAfterExpiration"
+    CanOnlyCloseAfterExpiration = "CanOnlyCloseAfterExpiration",
+    OwnershipNotClaimed = "OwnershipNotClaimed",
+    FailedToGetOwnershipEvent = "FailedToGetOwnershipEvent",
+    MethodSignatureInvalid = "MethodSignatureInvalid",
+    InvalidIPFSObject = "InvalidIPFSObject"
 }

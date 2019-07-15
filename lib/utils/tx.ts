@@ -3,9 +3,11 @@ import BN from 'bn.js';
 import EthTx from 'ethereumjs-tx';
 import ethUtil from 'ethereumjs-util';
 import Web3 from 'web3';
-import { RLPEncodedTransaction, Transaction } from 'web3-core';
+import { RLPEncodedTransaction, Transaction, TransactionConfig } from 'web3-core';
 import passportLogicAbi from '../../config/PassportLogic.json';
-import { IEthOptions } from 'lib/models/IEthOptions.js';
+import { IEthOptions } from 'lib/models/IEthOptions';
+import { Address } from 'lib/models/Address';
+import { TransactionObject } from 'lib/types/web3-contracts/types';
 
 export interface IMethodInfo {
   name: string;
@@ -73,4 +75,38 @@ export const getSenderPublicKey = (tx: RLPEncodedTransaction['tx']) => {
 
   // To be a valid EC public key - it must be prefixed with byte 4
   return Buffer.concat([Buffer.from([4]), ethTx.getSenderPublicKey()]);
+};
+
+/**
+ * Prepares transaction configuration for execution.
+ * This includes nonce, gas price and gas limit estimation
+ */
+export const prepareTxConfig = async <TData>(
+  web3: Web3,
+  from: Address,
+  to: Address,
+  data: TransactionObject<TData>,
+  value: number | BN = 0,
+  gasLimit?: number,
+): Promise<TransactionConfig> => {
+  const nonce = await web3.eth.getTransactionCount(from);
+  const gasPrice = await web3.eth.getGasPrice();
+  const actualGasLimit = (gasLimit > 0 || gasLimit === 0) ?
+    gasLimit :
+    await web3.eth.estimateGas({
+      data: data.encodeABI(),
+      from,
+      to,
+      value,
+    });
+
+  return {
+    from,
+    to,
+    nonce,
+    gasPrice,
+    gas: actualGasLimit,
+    value,
+    data: data.encodeABI(),
+  };
 };

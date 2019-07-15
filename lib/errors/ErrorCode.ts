@@ -13,4 +13,8 @@ export enum ErrorCode {
   InvalidDecryptedSecretDataKey = 'InvalidDecryptedSecretDataKey',
   InvalidPassportOwnerKey = 'InvalidPassportOwnerKey',
   CanOnlyCloseAfterExpiration = 'CanOnlyCloseAfterExpiration',
+  OwnershipNotClaimed = 'OwnershipNotClaimed',
+  FailedToGetOwnershipEvent = 'FailedToGetOwnershipEvent',
+  MethodSignatureInvalid = 'MethodSignatureInvalid',
+  InvalidIPFSObject = 'InvalidIPFSObject',
 }

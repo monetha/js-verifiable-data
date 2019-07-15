@@ -38,11 +38,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var tx_1 = require("../utils/tx");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
-var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var fetchEvents_1 = require("../utils/fetchEvents");
 var PrivateFactReader_1 = require("./PrivateFactReader");
-var tx_1 = require("../utils/tx");
 // #endregion
 /**
  * Class to read latest facts from the passport
@@ -50,24 +49,17 @@ var tx_1 = require("../utils/tx");
 var FactReader = /** @class */ (function () {
     function FactReader(web3, ethNetworkUrl, passportAddress, options) {
         this.ethNetworkUrl = ethNetworkUrl;
-        this.contractIO = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
+        this.contract = new web3.eth.Contract(PassportLogic_json_1.default, passportAddress);
         this.options = options || {};
+        this.web3 = web3;
     }
-    Object.defineProperty(FactReader.prototype, "web3", {
-        get: function () { return this.contractIO.getWeb3(); },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(FactReader.prototype, "passportAddress", {
-        get: function () { return this.contractIO.getContractAddress(); },
+        get: function () { return this.contract.address; },
         enumerable: true,
         configurable: true
     });
     /**
      * Read string type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
      */
     FactReader.prototype.getString = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
@@ -78,9 +70,6 @@ var FactReader = /** @class */ (function () {
     };
     /**
      * Read bytes type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
      */
     FactReader.prototype.getBytes = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
@@ -100,9 +89,6 @@ var FactReader = /** @class */ (function () {
     };
     /**
      * Read address type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
      */
     FactReader.prototype.getAddress = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
@@ -113,9 +99,6 @@ var FactReader = /** @class */ (function () {
     };
     /**
      * Read uint type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
      */
     FactReader.prototype.getUint = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
@@ -135,9 +118,6 @@ var FactReader = /** @class */ (function () {
     };
     /**
      * Read int type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
      */
     FactReader.prototype.getInt = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
@@ -157,9 +137,6 @@ var FactReader = /** @class */ (function () {
     };
     /**
      * Read boolean type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
      */
     FactReader.prototype.getBool = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
@@ -170,9 +147,6 @@ var FactReader = /** @class */ (function () {
     };
     /**
      * Read TX data type fact from passport
-     *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
      */
     FactReader.prototype.getTxdata = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
@@ -205,8 +179,6 @@ var FactReader = /** @class */ (function () {
     /**
      * Read IPFS hash type fact from passport
      *
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
      * @param ipfs IPFS client
      *
      * @returns data stored in IPFS
@@ -230,8 +202,7 @@ var FactReader = /** @class */ (function () {
     };
     /**
      * Read private data fact value using IPFS by decrypting it using passport owner private key.
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
+     *
      * @param passportOwnerPrivateKey private passport owner wallet key in hex, used for data decryption
      * @param ipfs IPFS client
      */
@@ -260,8 +231,7 @@ var FactReader = /** @class */ (function () {
     };
     /**
      * Read private data fact value using IPFS by decrypting it using secret key, generated at the time of writing.
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
+     *
      * @param secretKey secret key in hex, used for data decryption
      * @param ipfs IPFS client
      */
@@ -285,8 +255,6 @@ var FactReader = /** @class */ (function () {
     };
     /**
      * Read private data hashes fact from the passport.
-     * @param factProviderAddress fact provider to read fact for
-     * @param key fact key
      */
     FactReader.prototype.getPrivateDataHashes = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
@@ -295,7 +263,7 @@ var FactReader = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         preparedKey = this.web3.utils.fromAscii(key);
-                        tx = this.contractIO.getContract().methods.getPrivateDataHashes(factProviderAddress, preparedKey);
+                        tx = this.contract.methods.getPrivateDataHashes(factProviderAddress, preparedKey);
                         return [4 /*yield*/, tx.call()];
                     case 1:
                         result = _a.sent();
@@ -312,16 +280,17 @@ var FactReader = /** @class */ (function () {
     };
     FactReader.prototype.get = function (method, factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
-            var preparedKey, result;
+            var preparedKey, func, result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         preparedKey = this.web3.utils.fromAscii(key);
-                        return [4 /*yield*/, this.contractIO.readData(method, [factProviderAddress, preparedKey])];
+                        func = this.contract.methods[method];
+                        return [4 /*yield*/, func(factProviderAddress, preparedKey).call()];
                     case 1:
                         result = _a.sent();
                         // Return null in case if value was not initialized
-                        if (!result[0]) {
+                        if (!result || !result[0]) {
                             return [2 /*return*/, null];
                         }
                         return [2 /*return*/, result[1]];

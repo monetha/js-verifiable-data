@@ -19,7 +19,6 @@ import { ISdkError } from './errors/SdkError';
 import * as quorum from './extensions/quorum';
 import { fetchEvents } from './utils/fetchEvents';
 import { Address } from './models/Address';
-import { IRawTX } from './models/IRawTX';
 import { toBN } from './utils/conversion';
 
 const ext = {
@@ -68,7 +67,6 @@ export {
   IIPFSDag,
   IIPFSLink,
   IIPLD,
-  IRawTX,
   TxExecutor,
   ErrorCode,
   ISdkError,

@@ -49,9 +49,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var conversion_1 = require("../utils/conversion");
 var tx_1 = require("../utils/tx");
 var PrivateFactReader_1 = require("./PrivateFactReader");
+var SdkError_1 = require("../errors/SdkError");
+var ErrorCode_1 = require("../errors/ErrorCode");
 // #endregion
 /**
- * Class to read historic facts from the passport
+ * Class to read historic fact changes from the passport
  */
 var FactHistoryReader = /** @class */ (function () {
     function FactHistoryReader(web3, options) {
@@ -357,7 +359,7 @@ var FactHistoryReader = /** @class */ (function () {
     };
     FactHistoryReader.prototype.validateMethodSignature = function (methodInfo, expectedName) {
         if (methodInfo.name !== expectedName) {
-            throw new Error("Input method signature for transaction must be \"" + expectedName + "\". Got \"" + methodInfo.name + "\"");
+            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.MethodSignatureInvalid, "Input method signature for transaction must be \"" + expectedName + "\". Got \"" + methodInfo.name + "\"");
         }
     };
     return FactHistoryReader;

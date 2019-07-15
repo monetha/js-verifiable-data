@@ -1,57 +1,47 @@
-import { Address } from '../models/Address';
 import Web3 from 'web3';
+import { Address } from '../models/Address';
 /**
  * Class for fact deletion
  */
 export declare class FactRemover {
-    private contractIO;
-    private readonly web3;
+    private contract;
+    private web3;
     constructor(web3: Web3, passportAddress: Address);
     /**
      * Deletes string type fact from passport
-     * @param key fact key
-     * @param factProviderAddress
      */
-    deleteString(key: string, factProviderAddress: Address): Promise<import("../proto").IRawTX>;
+    deleteString(key: string, factProviderAddress: Address): Promise<import("web3-core").TransactionConfig>;
     /**
      * Deletes byte type fact from passport
-     * @param key fact key
      */
-    deleteBytes(key: string, factProviderAddress: Address): Promise<import("../proto").IRawTX>;
+    deleteBytes(key: string, factProviderAddress: Address): Promise<import("web3-core").TransactionConfig>;
     /**
      * Deletes address type fact from passport
-     * @param key fact key
      */
-    deleteAddress(key: string, factProviderAddress: Address): Promise<import("../proto").IRawTX>;
+    deleteAddress(key: string, factProviderAddress: Address): Promise<import("web3-core").TransactionConfig>;
     /**
      * Deletes uint type fact from passport
-     * @param key fact key
      */
-    deleteUint(key: string, factProviderAddress: Address): Promise<import("../proto").IRawTX>;
+    deleteUint(key: string, factProviderAddress: Address): Promise<import("web3-core").TransactionConfig>;
     /**
      * Deletes int type fact from passport
-     * @param key fact key
      */
-    deleteInt(key: string, factProviderAddress: Address): Promise<import("../proto").IRawTX>;
+    deleteInt(key: string, factProviderAddress: Address): Promise<import("web3-core").TransactionConfig>;
     /**
      * Deletes bool type fact from passport
-     * @param key fact key
      */
-    deleteBool(key: string, factProviderAddress: Address): Promise<import("../proto").IRawTX>;
+    deleteBool(key: string, factProviderAddress: Address): Promise<import("web3-core").TransactionConfig>;
     /**
      * Deletes txdata type fact from passport
-     * @param key fact key
      */
-    deleteTxdata(key: string, factProviderAddress: Address): Promise<import("../proto").IRawTX>;
+    deleteTxdata(key: string, factProviderAddress: Address): Promise<import("web3-core").TransactionConfig>;
     /**
      * Deletes IPFS hash type fact from passport
-     * @param key fact key
      */
-    deleteIPFSHash(key: string, factProviderAddress: Address): Promise<import("../proto").IRawTX>;
+    deleteIPFSHash(key: string, factProviderAddress: Address): Promise<import("web3-core").TransactionConfig>;
     /**
      * Deletes privateDataHashes type fact from passport
-     * @param key fact key
      */
-    deletePrivateDataHashes(key: string, factProviderAddress: Address): Promise<import("../proto").IRawTX>;
+    deletePrivateDataHashes(key: string, factProviderAddress: Address): Promise<import("web3-core").TransactionConfig>;
     private delete;
 }

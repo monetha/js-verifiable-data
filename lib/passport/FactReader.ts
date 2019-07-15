@@ -1,14 +1,13 @@
 import { IEthOptions } from 'lib/models/IEthOptions';
+import { decodeTx, getSignedTx } from 'lib/utils/tx';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import passportLogicAbi from '../../config/PassportLogic.json';
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
-import { ContractIO } from '../transactionHelpers/ContractIO';
 import { PassportLogic } from '../types/web3-contracts/PassportLogic';
 import { fetchEvents } from '../utils/fetchEvents';
 import { PrivateFactReader } from './PrivateFactReader';
-import { getSignedTx, decodeTx } from 'lib/utils/tx';
 
 // #region -------------- Interfaces -------------------------------------------------------------------
 
@@ -31,24 +30,22 @@ export interface IPrivateDataHashes {
  * Class to read latest facts from the passport
  */
 export class FactReader {
-  private contractIO: ContractIO<PassportLogic>;
+  private contract: PassportLogic;
   private ethNetworkUrl: string;
   private options: IEthOptions;
+  private web3: Web3;
 
-  public get web3() { return this.contractIO.getWeb3(); }
-  public get passportAddress() { return this.contractIO.getContractAddress(); }
+  public get passportAddress() { return this.contract.address; }
 
   constructor(web3: Web3, ethNetworkUrl: string, passportAddress: Address, options?: IEthOptions) {
     this.ethNetworkUrl = ethNetworkUrl;
-    this.contractIO = new ContractIO(web3, passportLogicAbi as AbiItem[], passportAddress);
+    this.contract = new web3.eth.Contract(passportLogicAbi as AbiItem[], passportAddress);
     this.options = options || {};
+    this.web3 = web3;
   }
 
   /**
    * Read string type fact from passport
-   *
-   * @param factProviderAddress fact provider to read fact for
-   * @param key fact key
    */
   public async getString(factProviderAddress: Address, key: string): Promise<string> {
     return this.get('getString', factProviderAddress, key);
@@ -56,9 +53,6 @@ export class FactReader {
 
   /**
    * Read bytes type fact from passport
-   *
-   * @param factProviderAddress fact provider to read fact for
-   * @param key fact key
    */
   public async getBytes(factProviderAddress: Address, key: string): Promise<number[]> {
     const value = await this.get('getBytes', factProviderAddress, key);
@@ -71,9 +65,6 @@ export class FactReader {
 
   /**
    * Read address type fact from passport
-   *
-   * @param factProviderAddress fact provider to read fact for
-   * @param key fact key
    */
   public async getAddress(factProviderAddress: Address, key: string): Promise<string> {
     return this.get('getAddress', factProviderAddress, key);
@@ -81,9 +72,6 @@ export class FactReader {
 
   /**
    * Read uint type fact from passport
-   *
-   * @param factProviderAddress fact provider to read fact for
-   * @param key fact key
    */
   public async getUint(factProviderAddress: Address, key: string): Promise<number> {
     const value = await this.get('getUint', factProviderAddress, key);
@@ -96,9 +84,6 @@ export class FactReader {
 
   /**
    * Read int type fact from passport
-   *
-   * @param factProviderAddress fact provider to read fact for
-   * @param key fact key
    */
   public async getInt(factProviderAddress: Address, key: string): Promise<number> {
     const value = await this.get('getInt', factProviderAddress, key);
@@ -111,9 +96,6 @@ export class FactReader {
 
   /**
    * Read boolean type fact from passport
-   *
-   * @param factProviderAddress fact provider to read fact for
-   * @param key fact key
    */
   public async getBool(factProviderAddress: Address, key: string): Promise<boolean> {
     return this.get('getBool', factProviderAddress, key);
@@ -121,9 +103,6 @@ export class FactReader {
 
   /**
    * Read TX data type fact from passport
-   *
-   * @param factProviderAddress fact provider to read fact for
-   * @param key fact key
    */
   public async getTxdata(factProviderAddress: Address, key: string): Promise<number[]> {
     const data = await this.get('getTxDataBlockNumber', factProviderAddress, key);
@@ -145,8 +124,6 @@ export class FactReader {
   /**
    * Read IPFS hash type fact from passport
    *
-   * @param factProviderAddress fact provider to read fact for
-   * @param key fact key
    * @param ipfs IPFS client
    *
    * @returns data stored in IPFS
@@ -163,8 +140,7 @@ export class FactReader {
 
   /**
    * Read private data fact value using IPFS by decrypting it using passport owner private key.
-   * @param factProviderAddress fact provider to read fact for
-   * @param key fact key
+   *
    * @param passportOwnerPrivateKey private passport owner wallet key in hex, used for data decryption
    * @param ipfs IPFS client
    */
@@ -189,8 +165,7 @@ export class FactReader {
 
   /**
    * Read private data fact value using IPFS by decrypting it using secret key, generated at the time of writing.
-   * @param factProviderAddress fact provider to read fact for
-   * @param key fact key
+   *
    * @param secretKey secret key in hex, used for data decryption
    * @param ipfs IPFS client
    */
@@ -207,13 +182,11 @@ export class FactReader {
 
   /**
    * Read private data hashes fact from the passport.
-   * @param factProviderAddress fact provider to read fact for
-   * @param key fact key
    */
   public async getPrivateDataHashes(factProviderAddress: Address, key: string): Promise<IPrivateDataHashes> {
     const preparedKey = this.web3.utils.fromAscii(key);
 
-    const tx = this.contractIO.getContract().methods.getPrivateDataHashes(factProviderAddress, preparedKey);
+    const tx = this.contract.methods.getPrivateDataHashes(factProviderAddress, preparedKey);
     const result = await tx.call();
 
     if (!result.success) {
@@ -226,16 +199,14 @@ export class FactReader {
     };
   }
 
-  private async get(method: string, factProviderAddress: Address, key: string) {
+  private async get(method: keyof PassportLogic['methods'], factProviderAddress: Address, key: string) {
     const preparedKey = this.web3.utils.fromAscii(key);
 
-    // Contract returns result = (bool success, any value) as an array, each parameter is mapped in an array by its' index
-    // success - flag which determines if value was written prior reading or this is a default value from Ethereum storage
-    // value - data read from Ethereum storage
-    const result = await this.contractIO.readData(method, [factProviderAddress, preparedKey]);
+    const func = this.contract.methods[method] as any;
+    const result: [boolean, any] = await func(factProviderAddress, preparedKey).call();
 
     // Return null in case if value was not initialized
-    if (!result[0]) {
+    if (!result || !result[0]) {
       return null;
     }
 

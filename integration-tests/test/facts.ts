@@ -84,10 +84,10 @@ describe('Passport creation and facts', () => {
 
   it('Should be able to claim ownership', async () => {
     // Given
-    const generator = new PassportOwnership(web3, passportAddress);
+    const ownership = new PassportOwnership(web3, passportAddress);
 
     // When
-    const txData = await generator.claimOwnership(passportOwner);
+    const txData = await ownership.claimOwnership(passportOwner);
     const receipt = await txExecutor(txData);
 
     // Then

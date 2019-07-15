@@ -46,9 +46,9 @@ var EC = elliptic_1.ec;
  * Class to write private facts
  */
 var PrivateFactWriter = /** @class */ (function () {
-    function PrivateFactWriter(factWriter, options) {
+    function PrivateFactWriter(web3, factWriter, options) {
         this.ec = new EC(privateFactCommon_1.ellipticCurveAlg);
-        this.ownership = new PassportOwnership_1.PassportOwnership(factWriter.web3, factWriter.passportAddress, options);
+        this.ownership = new PassportOwnership_1.PassportOwnership(web3, factWriter.passportAddress, options);
         this.writer = factWriter;
     }
     /**

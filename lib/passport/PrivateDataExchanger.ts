@@ -1,25 +1,25 @@
 import * as abiDecoder from 'abi-decoder';
-import { Address } from '../models/Address';
 import BN from 'bn.js';
-import { TxExecutor } from '../models/TxExecutor';
-import Web3 from 'web3';
-import { PassportOwnership } from 'lib/proto';
-import { ECIES } from 'lib/crypto/ecies/ecies';
 import { ec } from 'elliptic';
-import { ellipticCurveAlg, deriveSecretKeyringMaterial } from './privateFactCommon';
-import { PassportLogic } from 'lib/types/web3-contracts/PassportLogic';
-import passportLogicAbi from '../../config/PassportLogic.json';
-import { AbiItem } from 'web3-utils';
-import { ContractIO } from 'lib/transactionHelpers/ContractIO';
-import { hexToArray, hexToUnpaddedAscii, toBN, hexToBoolean, toDate } from 'lib/utils/conversion';
-import { IIPFSClient } from 'lib/models/IIPFSClient';
-import { constantTimeCompare } from 'lib/crypto/utils/compare';
-import { PrivateFactReader } from './PrivateFactReader';
 import keccak256 from 'keccak256';
-import { ciEquals } from 'lib/utils/string';
-import { createSdkError } from 'lib/errors/SdkError';
+import { ECIES } from 'lib/crypto/ecies/ecies';
+import { constantTimeCompare } from 'lib/crypto/utils/compare';
 import { ErrorCode } from 'lib/errors/ErrorCode';
+import { createSdkError } from 'lib/errors/SdkError';
 import { IEthOptions } from 'lib/models/IEthOptions';
+import { IIPFSClient } from 'lib/models/IIPFSClient';
+import { PassportOwnership } from 'lib/proto';
+import { PassportLogic } from 'lib/types/web3-contracts/PassportLogic';
+import { hexToArray, hexToBoolean, hexToUnpaddedAscii, toBN, toDate } from 'lib/utils/conversion';
+import { ciEquals } from 'lib/utils/string';
+import Web3 from 'web3';
+import { AbiItem } from 'web3-utils';
+import passportLogicAbi from '../../config/PassportLogic.json';
+import { Address } from '../models/Address';
+import { TxExecutor } from '../models/TxExecutor';
+import { deriveSecretKeyringMaterial, ellipticCurveAlg } from './privateFactCommon';
+import { PrivateFactReader } from './PrivateFactReader';
+import { prepareTxConfig } from 'lib/utils/tx';
 
 const gasLimits = {
   accept: 90000,
@@ -32,7 +32,7 @@ const gasLimits = {
 export class PrivateDataExchanger {
   private passportAddress: Address;
   private web3: Web3;
-  private passportLogic: ContractIO<PassportLogic>;
+  private contract: PassportLogic;
   private ec = new ec(ellipticCurveAlg);
   private getCurrentTime: CurrentTimeGetter;
   private options: IEthOptions;
@@ -40,7 +40,7 @@ export class PrivateDataExchanger {
   public constructor(web3: Web3, passportAddress: Address, currentTimeGetter?: CurrentTimeGetter, options?: IEthOptions) {
     this.web3 = web3;
     this.passportAddress = passportAddress;
-    this.passportLogic = new ContractIO(web3, passportLogicAbi as AbiItem[], passportAddress);
+    this.contract = new web3.eth.Contract(passportLogicAbi as AbiItem[], passportAddress);
 
     this.getCurrentTime = currentTimeGetter;
     if (!currentTimeGetter) {
@@ -79,8 +79,7 @@ export class PrivateDataExchanger {
     const encryptedExchangeKey = ecies.getPublicKey().getPublic('array');
 
     // Propose private data exchange
-    const contract = this.passportLogic.getContract();
-    const tx = contract.methods.proposePrivateDataExchange(
+    const txData = this.contract.methods.proposePrivateDataExchange(
       factProviderAddress,
       this.web3.utils.fromAscii(factKey),
       `0x${Buffer.from(encryptedExchangeKey).toString('hex')}` as any,
@@ -88,8 +87,8 @@ export class PrivateDataExchanger {
     );
 
     // Execute transaction
-    const rawTx = await this.passportLogic.prepareRawTX(requesterAddress, this.passportAddress, exchangeStakeWei, tx, gasLimits.propose);
-    const receipt = await txExecutor(rawTx);
+    const txConfig = await prepareTxConfig(this.web3, requesterAddress, this.passportAddress, txData, exchangeStakeWei, gasLimits.propose);
+    const receipt = await txExecutor(txConfig);
 
     // Parse exchange index from tx receipt
     abiDecoder.addABI(passportLogicAbi);
@@ -186,19 +185,19 @@ export class PrivateDataExchanger {
     });
 
     // Accept private data exchange
-    const contract = this.passportLogic.getContract();
-    const tx = contract.methods.acceptPrivateDataExchange(`0x${exchangeIndex.toString('hex')}`, encryptedDataSecretKey);
+    const txData = this.contract.methods.acceptPrivateDataExchange(`0x${exchangeIndex.toString('hex')}`, encryptedDataSecretKey);
 
     // Execute transaction (owner stakes same amount as requester)
-    const rawTx = await this.passportLogic.prepareRawTX(
+    const txConfig = await prepareTxConfig(
+      this.web3,
       status.passportOwnerAddress,
       this.passportAddress,
+      txData,
       status.requesterStaked,
-      tx,
       gasLimits.accept,
     );
 
-    await txExecutor(rawTx);
+    await txExecutor(txConfig);
   }
 
   // #endregion
@@ -226,18 +225,18 @@ export class PrivateDataExchanger {
     }
 
     // Timeout private data exchange
-    const contract = this.passportLogic.getContract();
-    const tx = contract.methods.timeoutPrivateDataExchange(`0x${exchangeIndex.toString('hex')}`);
+    const txData = this.contract.methods.timeoutPrivateDataExchange(`0x${exchangeIndex.toString('hex')}`);
 
-    const rawTx = await this.passportLogic.prepareRawTX(
+    const txConfig = await prepareTxConfig(
+      this.web3,
       status.requesterAddress,
       this.passportAddress,
+      txData,
       0,
-      tx,
       gasLimits.timeout,
     );
 
-    await txExecutor(rawTx);
+    await txExecutor(txConfig);
   }
 
   // #endregion
@@ -272,18 +271,18 @@ export class PrivateDataExchanger {
     }
 
     // Dispute private data exchange
-    const contract = this.passportLogic.getContract();
-    const tx = contract.methods.disputePrivateDataExchange(`0x${exchangeIndex.toString('hex')}`, exchangeKey);
+    const txData = this.contract.methods.disputePrivateDataExchange(`0x${exchangeIndex.toString('hex')}`, exchangeKey);
 
-    const rawTx = await this.passportLogic.prepareRawTX(
+    const txConfig = await prepareTxConfig(
+      this.web3,
       status.requesterAddress,
       this.passportAddress,
+      txData,
       0,
-      tx,
       gasLimits.dispute,
     );
 
-    const receipt = await txExecutor(rawTx);
+    const receipt = await txExecutor(txConfig);
 
     // Parse cheater address and dispute result
     abiDecoder.addABI(passportLogicAbi);
@@ -342,18 +341,18 @@ export class PrivateDataExchanger {
     }
 
     // Finish private data exchange
-    const contract = this.passportLogic.getContract();
-    const tx = contract.methods.finishPrivateDataExchange(`0x${exchangeIndex.toString('hex')}`);
+    const txData = this.contract.methods.finishPrivateDataExchange(`0x${exchangeIndex.toString('hex')}`);
 
-    const rawTx = await this.passportLogic.prepareRawTX(
+    const txConfig = await prepareTxConfig(
+      this.web3,
       requesterOrPassOwnerAddress,
       this.passportAddress,
+      txData,
       0,
-      tx,
       gasLimits.finish,
     );
 
-    await txExecutor(rawTx);
+    await txExecutor(txConfig);
   }
 
   // #endregion
@@ -365,7 +364,7 @@ export class PrivateDataExchanger {
    * @param exchangeIndex - data exchange index
    */
   public async getStatus(exchangeIndex: BN): Promise<IDataExchangeStatus> {
-    const rawStatus = await this.passportLogic.getContract().methods.privateDataExchanges(`0x${exchangeIndex.toString('hex')}`).call();
+    const rawStatus = await this.contract.methods.privateDataExchanges(`0x${exchangeIndex.toString('hex')}`).call();
 
     const status: IDataExchangeStatus = {
       dataIpfsHash: rawStatus.dataIPFSHash,

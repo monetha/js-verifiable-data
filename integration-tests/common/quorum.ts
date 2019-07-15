@@ -1,8 +1,8 @@
 import quorumjs from 'quorum-js';
 import Web3 from 'web3';
-import { TransactionReceipt } from 'web3-core';
+import { TransactionReceipt, TransactionConfig } from 'web3-core';
 import { getNetworkConfig } from './network';
-import { IRawTX, toBN } from 'reputation-sdk';
+import { toBN } from 'reputation-sdk';
 
 export function getAccounts(): string[] {
   return [
@@ -52,9 +52,9 @@ export function getNodePublicKeys(): string[] {
   ];
 }
 
-export async function submitPrivateTransaction(web3: Web3, txData: IRawTX): Promise<TransactionReceipt> {
+export async function submitPrivateTransaction(web3: Web3, txData: TransactionConfig): Promise<TransactionReceipt> {
   const accounts = getAccounts();
-  const accountIndex = accounts.findIndex(a => a.toLowerCase() === txData.from.toLowerCase());
+  const accountIndex = accounts.findIndex(a => a.toLowerCase() === txData.from.toString().toLowerCase());
   if (accountIndex === -1) {
     throw new Error(`Not possible to execute tx because private key for address ${txData.from} is not known`);
   }
@@ -76,7 +76,7 @@ export async function submitPrivateTransaction(web3: Web3, txData: IRawTX): Prom
 
   const tx = await rawTransactionManager.sendRawTransaction({
     gasPrice: 0,
-    gasLimit: txData.gasLimit,
+    gasLimit: txData.gas,
     to: txData.to,
     value: toBN(txData.value).toNumber(),
     data: txData.data,

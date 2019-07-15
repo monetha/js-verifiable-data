@@ -47,19 +47,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var abiDecoder = __importStar(require("abi-decoder"));
 var bn_js_1 = __importDefault(require("bn.js"));
-var proto_1 = require("../proto");
-var ecies_1 = require("../crypto/ecies/ecies");
 var elliptic_1 = require("elliptic");
-var privateFactCommon_1 = require("./privateFactCommon");
-var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
-var ContractIO_1 = require("../transactionHelpers/ContractIO");
-var conversion_1 = require("../utils/conversion");
-var compare_1 = require("../crypto/utils/compare");
-var PrivateFactReader_1 = require("./PrivateFactReader");
 var keccak256_1 = __importDefault(require("keccak256"));
-var string_1 = require("../utils/string");
-var SdkError_1 = require("../errors/SdkError");
+var ecies_1 = require("../crypto/ecies/ecies");
+var compare_1 = require("../crypto/utils/compare");
 var ErrorCode_1 = require("../errors/ErrorCode");
+var SdkError_1 = require("../errors/SdkError");
+var proto_1 = require("../proto");
+var conversion_1 = require("../utils/conversion");
+var string_1 = require("../utils/string");
+var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
+var privateFactCommon_1 = require("./privateFactCommon");
+var PrivateFactReader_1 = require("./PrivateFactReader");
+var tx_1 = require("../utils/tx");
 var gasLimits = {
     accept: 90000,
     dispute: 60000,
@@ -72,7 +72,7 @@ var PrivateDataExchanger = /** @class */ (function () {
         this.ec = new elliptic_1.ec(privateFactCommon_1.ellipticCurveAlg);
         this.web3 = web3;
         this.passportAddress = passportAddress;
-        this.passportLogic = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
+        this.contract = new web3.eth.Contract(PassportLogic_json_1.default, passportAddress);
         this.getCurrentTime = currentTimeGetter;
         if (!currentTimeGetter) {
             this.getCurrentTime = function () { return new Date(); };
@@ -90,7 +90,7 @@ var PrivateDataExchanger = /** @class */ (function () {
      */
     PrivateDataExchanger.prototype.propose = function (factKey, factProviderAddress, exchangeStakeWei, requesterAddress, txExecutor) {
         return __awaiter(this, void 0, void 0, function () {
-            var ownerPublicKeyBytes, ownerPubKeyPair, ecies, exchangeKeyData, encryptedExchangeKey, contract, tx, rawTx, receipt, logs, exchangeIdxData;
+            var ownerPublicKeyBytes, ownerPubKeyPair, ecies, exchangeKeyData, encryptedExchangeKey, txData, txConfig, receipt, logs, exchangeIdxData;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, new proto_1.PassportOwnership(this.web3, this.passportAddress, this.options).getOwnerPublicKey()];
@@ -100,12 +100,11 @@ var PrivateDataExchanger = /** @class */ (function () {
                         ecies = ecies_1.ECIES.createGenerated(this.ec);
                         exchangeKeyData = privateFactCommon_1.deriveSecretKeyringMaterial(ecies, ownerPubKeyPair, this.passportAddress, factProviderAddress, factKey);
                         encryptedExchangeKey = ecies.getPublicKey().getPublic('array');
-                        contract = this.passportLogic.getContract();
-                        tx = contract.methods.proposePrivateDataExchange(factProviderAddress, this.web3.utils.fromAscii(factKey), "0x" + Buffer.from(encryptedExchangeKey).toString('hex'), exchangeKeyData.skmHash);
-                        return [4 /*yield*/, this.passportLogic.prepareRawTX(requesterAddress, this.passportAddress, exchangeStakeWei, tx, gasLimits.propose)];
+                        txData = this.contract.methods.proposePrivateDataExchange(factProviderAddress, this.web3.utils.fromAscii(factKey), "0x" + Buffer.from(encryptedExchangeKey).toString('hex'), exchangeKeyData.skmHash);
+                        return [4 /*yield*/, tx_1.prepareTxConfig(this.web3, requesterAddress, this.passportAddress, txData, exchangeStakeWei, gasLimits.propose)];
                     case 2:
-                        rawTx = _a.sent();
-                        return [4 /*yield*/, txExecutor(rawTx)];
+                        txConfig = _a.sent();
+                        return [4 /*yield*/, txExecutor(txConfig)];
                     case 3:
                         receipt = _a.sent();
                         // Parse exchange index from tx receipt
@@ -133,7 +132,7 @@ var PrivateDataExchanger = /** @class */ (function () {
      */
     PrivateDataExchanger.prototype.accept = function (exchangeIndex, passportOwnerPrivateKey, ipfsClient, txExecutor) {
         return __awaiter(this, void 0, void 0, function () {
-            var status, nearFuture, account, exchangePubKeyPair, passportOwnerPrivateKeyPair, ecies, exchangeKey, privateReader, dataSecretKey, encryptedDataSecretKey, contract, tx, rawTx;
+            var status, nearFuture, account, exchangePubKeyPair, passportOwnerPrivateKeyPair, ecies, exchangeKey, privateReader, dataSecretKey, encryptedDataSecretKey, txData, txConfig;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.getStatus(exchangeIndex)];
@@ -182,12 +181,11 @@ var PrivateDataExchanger = /** @class */ (function () {
                             // tslint:disable-next-line: no-bitwise
                             encryptedDataSecretKey[i] = dataSecretKey[i] ^ value;
                         });
-                        contract = this.passportLogic.getContract();
-                        tx = contract.methods.acceptPrivateDataExchange("0x" + exchangeIndex.toString('hex'), encryptedDataSecretKey);
-                        return [4 /*yield*/, this.passportLogic.prepareRawTX(status.passportOwnerAddress, this.passportAddress, status.requesterStaked, tx, gasLimits.accept)];
+                        txData = this.contract.methods.acceptPrivateDataExchange("0x" + exchangeIndex.toString('hex'), encryptedDataSecretKey);
+                        return [4 /*yield*/, tx_1.prepareTxConfig(this.web3, status.passportOwnerAddress, this.passportAddress, txData, status.requesterStaked, gasLimits.accept)];
                     case 3:
-                        rawTx = _a.sent();
-                        return [4 /*yield*/, txExecutor(rawTx)];
+                        txConfig = _a.sent();
+                        return [4 /*yield*/, txExecutor(txConfig)];
                     case 4:
                         _a.sent();
                         return [2 /*return*/];
@@ -205,7 +203,7 @@ var PrivateDataExchanger = /** @class */ (function () {
      */
     PrivateDataExchanger.prototype.timeout = function (exchangeIndex, txExecutor) {
         return __awaiter(this, void 0, void 0, function () {
-            var status, nowMinus1Min, contract, tx, rawTx;
+            var status, nowMinus1Min, txData, txConfig;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.getStatus(exchangeIndex)];
@@ -219,12 +217,11 @@ var PrivateDataExchanger = /** @class */ (function () {
                         if (status.stateExpirationTime > nowMinus1Min) {
                             throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.CanOnlyCloseAfterExpiration, 'Exchange can only be closed after expiration date');
                         }
-                        contract = this.passportLogic.getContract();
-                        tx = contract.methods.timeoutPrivateDataExchange("0x" + exchangeIndex.toString('hex'));
-                        return [4 /*yield*/, this.passportLogic.prepareRawTX(status.requesterAddress, this.passportAddress, 0, tx, gasLimits.timeout)];
+                        txData = this.contract.methods.timeoutPrivateDataExchange("0x" + exchangeIndex.toString('hex'));
+                        return [4 /*yield*/, tx_1.prepareTxConfig(this.web3, status.requesterAddress, this.passportAddress, txData, 0, gasLimits.timeout)];
                     case 2:
-                        rawTx = _a.sent();
-                        return [4 /*yield*/, txExecutor(rawTx)];
+                        txConfig = _a.sent();
+                        return [4 /*yield*/, txExecutor(txConfig)];
                     case 3:
                         _a.sent();
                         return [2 /*return*/];
@@ -243,7 +240,7 @@ var PrivateDataExchanger = /** @class */ (function () {
      */
     PrivateDataExchanger.prototype.dispute = function (exchangeIndex, exchangeKey, txExecutor) {
         return __awaiter(this, void 0, void 0, function () {
-            var status, nearFuture, exchangeKeyHash, contract, tx, rawTx, receipt, logs, event, params, success, cheater;
+            var status, nearFuture, exchangeKeyHash, txData, txConfig, receipt, logs, event, params, success, cheater;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.getStatus(exchangeIndex)];
@@ -261,12 +258,11 @@ var PrivateDataExchanger = /** @class */ (function () {
                         if (!compare_1.constantTimeCompare(exchangeKeyHash, status.exchangeKeyHash)) {
                             throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.InvalidExchangeKey, 'Invalid exchange key');
                         }
-                        contract = this.passportLogic.getContract();
-                        tx = contract.methods.disputePrivateDataExchange("0x" + exchangeIndex.toString('hex'), exchangeKey);
-                        return [4 /*yield*/, this.passportLogic.prepareRawTX(status.requesterAddress, this.passportAddress, 0, tx, gasLimits.dispute)];
+                        txData = this.contract.methods.disputePrivateDataExchange("0x" + exchangeIndex.toString('hex'), exchangeKey);
+                        return [4 /*yield*/, tx_1.prepareTxConfig(this.web3, status.requesterAddress, this.passportAddress, txData, 0, gasLimits.dispute)];
                     case 2:
-                        rawTx = _a.sent();
-                        return [4 /*yield*/, txExecutor(rawTx)];
+                        txConfig = _a.sent();
+                        return [4 /*yield*/, txExecutor(txConfig)];
                     case 3:
                         receipt = _a.sent();
                         // Parse cheater address and dispute result
@@ -301,7 +297,7 @@ var PrivateDataExchanger = /** @class */ (function () {
      */
     PrivateDataExchanger.prototype.finish = function (exchangeIndex, requesterOrPassOwnerAddress, txExecutor) {
         return __awaiter(this, void 0, void 0, function () {
-            var status, nowMinus1Min, contract, tx, rawTx;
+            var status, nowMinus1Min, txData, txConfig;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.getStatus(exchangeIndex)];
@@ -321,12 +317,11 @@ var PrivateDataExchanger = /** @class */ (function () {
                         else if (!string_1.ciEquals(requesterOrPassOwnerAddress, status.requesterAddress)) {
                             throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.OnlyExchangeParticipantsCanClose, 'Only exchange participants can close the exchange');
                         }
-                        contract = this.passportLogic.getContract();
-                        tx = contract.methods.finishPrivateDataExchange("0x" + exchangeIndex.toString('hex'));
-                        return [4 /*yield*/, this.passportLogic.prepareRawTX(requesterOrPassOwnerAddress, this.passportAddress, 0, tx, gasLimits.finish)];
+                        txData = this.contract.methods.finishPrivateDataExchange("0x" + exchangeIndex.toString('hex'));
+                        return [4 /*yield*/, tx_1.prepareTxConfig(this.web3, requesterOrPassOwnerAddress, this.passportAddress, txData, 0, gasLimits.finish)];
                     case 2:
-                        rawTx = _a.sent();
-                        return [4 /*yield*/, txExecutor(rawTx)];
+                        txConfig = _a.sent();
+                        return [4 /*yield*/, txExecutor(txConfig)];
                     case 3:
                         _a.sent();
                         return [2 /*return*/];
@@ -345,7 +340,7 @@ var PrivateDataExchanger = /** @class */ (function () {
             var rawStatus, status;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.passportLogic.getContract().methods.privateDataExchanges("0x" + exchangeIndex.toString('hex')).call()];
+                    case 0: return [4 /*yield*/, this.contract.methods.privateDataExchanges("0x" + exchangeIndex.toString('hex')).call()];
                     case 1:
                         rawStatus = _a.sent();
                         status = {

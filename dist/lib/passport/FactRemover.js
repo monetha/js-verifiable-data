@@ -38,24 +38,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ContractIO_1 = require("../transactionHelpers/ContractIO");
+var tx_1 = require("../utils/tx");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 /**
  * Class for fact deletion
  */
 var FactRemover = /** @class */ (function () {
     function FactRemover(web3, passportAddress) {
-        this.contractIO = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
+        this.contract = new web3.eth.Contract(PassportLogic_json_1.default, passportAddress);
+        this.web3 = web3;
     }
-    Object.defineProperty(FactRemover.prototype, "web3", {
-        get: function () { return this.contractIO.getWeb3(); },
-        enumerable: true,
-        configurable: true
-    });
     /**
      * Deletes string type fact from passport
-     * @param key fact key
-     * @param factProviderAddress
      */
     FactRemover.prototype.deleteString = function (key, factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
@@ -66,7 +60,6 @@ var FactRemover = /** @class */ (function () {
     };
     /**
      * Deletes byte type fact from passport
-     * @param key fact key
      */
     FactRemover.prototype.deleteBytes = function (key, factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
@@ -77,7 +70,6 @@ var FactRemover = /** @class */ (function () {
     };
     /**
      * Deletes address type fact from passport
-     * @param key fact key
      */
     FactRemover.prototype.deleteAddress = function (key, factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
@@ -88,7 +80,6 @@ var FactRemover = /** @class */ (function () {
     };
     /**
      * Deletes uint type fact from passport
-     * @param key fact key
      */
     FactRemover.prototype.deleteUint = function (key, factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
@@ -99,7 +90,6 @@ var FactRemover = /** @class */ (function () {
     };
     /**
      * Deletes int type fact from passport
-     * @param key fact key
      */
     FactRemover.prototype.deleteInt = function (key, factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
@@ -110,7 +100,6 @@ var FactRemover = /** @class */ (function () {
     };
     /**
      * Deletes bool type fact from passport
-     * @param key fact key
      */
     FactRemover.prototype.deleteBool = function (key, factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
@@ -121,7 +110,6 @@ var FactRemover = /** @class */ (function () {
     };
     /**
      * Deletes txdata type fact from passport
-     * @param key fact key
      */
     FactRemover.prototype.deleteTxdata = function (key, factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
@@ -132,7 +120,6 @@ var FactRemover = /** @class */ (function () {
     };
     /**
      * Deletes IPFS hash type fact from passport
-     * @param key fact key
      */
     FactRemover.prototype.deleteIPFSHash = function (key, factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
@@ -143,7 +130,6 @@ var FactRemover = /** @class */ (function () {
     };
     /**
      * Deletes privateDataHashes type fact from passport
-     * @param key fact key
      */
     FactRemover.prototype.deletePrivateDataHashes = function (key, factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
@@ -154,10 +140,12 @@ var FactRemover = /** @class */ (function () {
     };
     FactRemover.prototype.delete = function (method, key, factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
-            var preparedKey;
+            var preparedKey, func, txData;
             return __generator(this, function (_a) {
                 preparedKey = this.web3.utils.fromAscii(key);
-                return [2 /*return*/, this.contractIO.prepareCallTX(method, [preparedKey], factProviderAddress)];
+                func = this.contract.methods[method];
+                txData = func(preparedKey);
+                return [2 /*return*/, tx_1.prepareTxConfig(this.web3, factProviderAddress, this.contract.address, txData)];
             });
         });
     };

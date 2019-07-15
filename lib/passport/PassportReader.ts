@@ -8,7 +8,6 @@ import { sanitizeAddress } from '../utils/sanitizeAddress';
 import Web3 from 'web3';
 import passportLogicAbi from '../../config/PassportLogic.json';
 import passportFactoryAbi from '../../config/PassportFactory.json';
-import { ContractIO } from '../transactionHelpers/ContractIO';
 import { Passport } from '../types/web3-contracts/Passport';
 import passportAbi from '../../config/Passport.json';
 import { AbiItem } from 'web3-utils';
@@ -23,6 +22,9 @@ interface IFactEventSignatures {
 let factEventSignatures: IFactEventSignatures;
 let passCreatedEventSignature: string;
 
+/**
+ * Class to get passports list and historic events
+ */
 export class PassportReader {
   private web3: Web3;
   private ethNetworkUrl: string;
@@ -126,8 +128,8 @@ export class PassportReader {
    * Returns the address of passport logic registry
    */
   public async getPassportLogicRegistryAddress(passportAddress: string): Promise<string> {
-    const passportContract: ContractIO<Passport> = new ContractIO(this.web3, passportAbi as AbiItem[], passportAddress);
-    return passportContract.getContract().methods.getPassportLogicRegistry().call();
+    const passportContract = new this.web3.eth.Contract(passportAbi as AbiItem[], passportAddress) as Passport;
+    return passportContract.methods.getPassportLogicRegistry().call();
   }
 }
 

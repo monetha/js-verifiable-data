@@ -16,4 +16,8 @@ var ErrorCode;
     ErrorCode["InvalidDecryptedSecretDataKey"] = "InvalidDecryptedSecretDataKey";
     ErrorCode["InvalidPassportOwnerKey"] = "InvalidPassportOwnerKey";
     ErrorCode["CanOnlyCloseAfterExpiration"] = "CanOnlyCloseAfterExpiration";
+    ErrorCode["OwnershipNotClaimed"] = "OwnershipNotClaimed";
+    ErrorCode["FailedToGetOwnershipEvent"] = "FailedToGetOwnershipEvent";
+    ErrorCode["MethodSignatureInvalid"] = "MethodSignatureInvalid";
+    ErrorCode["InvalidIPFSObject"] = "InvalidIPFSObject";
 })(ErrorCode = exports.ErrorCode || (exports.ErrorCode = {}));

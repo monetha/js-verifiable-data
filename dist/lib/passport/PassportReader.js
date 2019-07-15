@@ -44,10 +44,12 @@ var fetchEvents_1 = require("../utils/fetchEvents");
 var sanitizeAddress_1 = require("../utils/sanitizeAddress");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 var PassportFactory_json_1 = __importDefault(require("../../config/PassportFactory.json"));
-var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var Passport_json_1 = __importDefault(require("../../config/Passport.json"));
 var factEventSignatures;
 var passCreatedEventSignature;
+/**
+ * Class to get passports list and historic events
+ */
 var PassportReader = /** @class */ (function () {
     function PassportReader(web3, ethNetworkUrl) {
         this.web3 = web3;
@@ -154,8 +156,8 @@ var PassportReader = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var passportContract;
             return __generator(this, function (_a) {
-                passportContract = new ContractIO_1.ContractIO(this.web3, Passport_json_1.default, passportAddress);
-                return [2 /*return*/, passportContract.getContract().methods.getPassportLogicRegistry().call()];
+                passportContract = new this.web3.eth.Contract(Passport_json_1.default, passportAddress);
+                return [2 /*return*/, passportContract.methods.getPassportLogicRegistry().call()];
             });
         });
     };
