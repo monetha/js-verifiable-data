@@ -97,7 +97,7 @@ describe('Passport creation and facts', () => {
 
   it('Should be able to get a list of all created passports', async () => {
     // Given
-    const reader = new PassportReader(web3, getNetworkUrl());
+    const reader = new PassportReader(web3);
 
     // When
     const passports = await reader.getPassportsList(passportFactoryAddress);
@@ -322,7 +322,7 @@ describe('Passport creation and facts', () => {
 
   it('Should be able read facts history.', async () => {
     // Given
-    const reader = new PassportReader(web3, getNetworkUrl());
+    const reader = new PassportReader(web3);
 
     // When
     const response = await reader.readPassportHistory(passportAddress);
@@ -372,7 +372,7 @@ async function writeAndValidateFact(writeFact: (writer: FactWriter) => any) {
 
 async function readAndValidateFact(readFact: (reader: FactReader) => any, expectedValue) {
   // Given
-  const reader = new FactReader(web3, getNetworkUrl(), passportAddress, options);
+  const reader = new FactReader(web3, passportAddress, options);
 
   // When
   const response = await readFact(reader);

@@ -17,7 +17,6 @@ import { TxExecutor } from './models/TxExecutor';
 import { ErrorCode } from './errors/ErrorCode';
 import { ISdkError } from './errors/SdkError';
 import * as quorum from './extensions/quorum';
-import { fetchEvents } from './utils/fetchEvents';
 import { Address } from './models/Address';
 import { toBN } from './utils/conversion';
 declare const ext: {
@@ -45,4 +44,4 @@ declare const _default: {
     toBN: typeof toBN;
 };
 export default _default;
-export { PassportGenerator, PassportOwnership, PassportReader, FactReader, FactWriter, FactRemover, PrivateFactReader, PrivateFactWriter, Permissions, FactHistoryReader, PrivateDataExchanger, EventType, DataType, IHistoryEvent, IIPFSClient, IIPFSAddResult, IFactValue, IPassportRef, IIPFSDag, IIPFSLink, IIPLD, TxExecutor, ErrorCode, ISdkError, fetchEvents, IEthOptions, Address, ExchangeState, ext, toBN, };
+export { PassportGenerator, PassportOwnership, PassportReader, FactReader, FactWriter, FactRemover, PrivateFactReader, PrivateFactWriter, Permissions, FactHistoryReader, PrivateDataExchanger, EventType, DataType, IHistoryEvent, IIPFSClient, IIPFSAddResult, IFactValue, IPassportRef, IIPFSDag, IIPFSLink, IIPLD, TxExecutor, ErrorCode, ISdkError, IEthOptions, Address, ExchangeState, ext, toBN, };

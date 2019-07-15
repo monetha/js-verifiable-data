@@ -17,4 +17,5 @@ export enum ErrorCode {
   FailedToGetOwnershipEvent = 'FailedToGetOwnershipEvent',
   MethodSignatureInvalid = 'MethodSignatureInvalid',
   InvalidIPFSObject = 'InvalidIPFSObject',
+  DataNotFoundInBlock = 'DataNotFoundInBlock',
 }

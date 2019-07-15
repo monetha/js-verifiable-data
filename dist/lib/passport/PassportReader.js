@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -38,26 +49,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ethereum_1 = require("../const/ethereum");
-var IHistoryEvent_1 = require("../models/IHistoryEvent");
-var fetchEvents_1 = require("../utils/fetchEvents");
-var sanitizeAddress_1 = require("../utils/sanitizeAddress");
-var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
-var PassportFactory_json_1 = __importDefault(require("../../config/PassportFactory.json"));
 var Passport_json_1 = __importDefault(require("../../config/Passport.json"));
+var PassportFactory_json_1 = __importDefault(require("../../config/PassportFactory.json"));
+var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
+var IHistoryEvent_1 = require("../models/IHistoryEvent");
+var sanitizeAddress_1 = require("../utils/sanitizeAddress");
 var factEventSignatures;
-var passCreatedEventSignature;
 /**
  * Class to get passports list and historic events
  */
 var PassportReader = /** @class */ (function () {
-    function PassportReader(web3, ethNetworkUrl) {
+    function PassportReader(web3) {
         this.web3 = web3;
-        this.ethNetworkUrl = ethNetworkUrl;
         if (!factEventSignatures) {
             var signatures = getEventSignatures(web3);
             factEventSignatures = signatures.factEvents;
-            passCreatedEventSignature = signatures.passCreatedEvent;
         }
     }
     /**
@@ -67,25 +73,22 @@ var PassportReader = /** @class */ (function () {
      * @param startBlock block nr to scan from
      * @param endBlock block nr to scan to
      */
-    PassportReader.prototype.getPassportsList = function (factoryAddress, startBlock, endBlock) {
-        if (startBlock === void 0) { startBlock = ethereum_1.MIN_BLOCK; }
-        if (endBlock === void 0) { endBlock = ethereum_1.MAX_BLOCK; }
+    PassportReader.prototype.getPassportsList = function (factoryAddress, fromBlock, toBlock) {
+        if (fromBlock === void 0) { fromBlock = 0; }
+        if (toBlock === void 0) { toBlock = 'latest'; }
         return __awaiter(this, void 0, void 0, function () {
-            var events, passportRefs;
+            var contract, events, passportRefs;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, fetchEvents_1.fetchEvents(this.ethNetworkUrl, startBlock, endBlock, factoryAddress)];
+                    case 0:
+                        contract = new this.web3.eth.Contract(PassportFactory_json_1.default, factoryAddress);
+                        return [4 /*yield*/, contract.getPastEvents('PassportCreated', {
+                                fromBlock: fromBlock,
+                                toBlock: toBlock,
+                            })];
                     case 1:
                         events = _a.sent();
-                        // Leave only pass created events
-                        events = events.filter(function (e) { return e.topics[0] === passCreatedEventSignature; });
-                        passportRefs = events.map(function (event) { return ({
-                            blockNumber: event.blockNumber,
-                            blockHash: event.blockHash,
-                            txHash: event.transactionHash,
-                            passportAddress: event.topics[1] ? sanitizeAddress_1.sanitizeAddress(event.topics[1].slice(26)) : '',
-                            ownerAddress: event.topics[2] ? sanitizeAddress_1.sanitizeAddress(event.topics[2].slice(26)) : '',
-                        }); });
+                        passportRefs = events.map(function (event) { return (__assign({}, event, { passportAddress: event.raw.topics[1] ? sanitizeAddress_1.sanitizeAddress(event.raw.topics[1].slice(26)) : '', ownerAddress: event.raw.topics[2] ? sanitizeAddress_1.sanitizeAddress(event.raw.topics[2].slice(26)) : '' })); });
                         return [2 /*return*/, passportRefs];
                 }
             });
@@ -99,16 +102,28 @@ var PassportReader = /** @class */ (function () {
      */
     PassportReader.prototype.readPassportHistory = function (passportAddress, filter) {
         return __awaiter(this, void 0, void 0, function () {
-            var startBlock, endBlock, filterFactProviderAddress, filterKey, events, historyEvents;
+            var fromBlock, toBlock, eventsFilter, contract, events, historyEvents;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        startBlock = filter && filter.startBlock || ethereum_1.MIN_BLOCK;
-                        endBlock = filter && filter.endBlock || ethereum_1.MAX_BLOCK;
-                        filterFactProviderAddress = filter && filter.factProviderAddress;
-                        filterKey = filter && filter.key;
-                        return [4 /*yield*/, fetchEvents_1.fetchEvents(this.ethNetworkUrl, startBlock, endBlock, passportAddress)];
+                        fromBlock = filter && filter.startBlock || 0;
+                        toBlock = filter && filter.endBlock || 'latest';
+                        if (filter && (filter.factProviderAddress || filter.key)) {
+                            eventsFilter = {};
+                            if (filter.factProviderAddress) {
+                                eventsFilter.factProvider = filter.factProviderAddress;
+                            }
+                            if (filter.key) {
+                                eventsFilter.key = this.web3.utils.fromAscii(filter.key);
+                            }
+                        }
+                        contract = new this.web3.eth.Contract(PassportLogic_json_1.default, passportAddress);
+                        return [4 /*yield*/, contract.getPastEvents('allEvents', {
+                                fromBlock: fromBlock,
+                                toBlock: toBlock,
+                                filter: eventsFilter,
+                            })];
                     case 1:
                         events = _a.sent();
                         historyEvents = [];
@@ -116,7 +131,7 @@ var PassportReader = /** @class */ (function () {
                             if (!event) {
                                 return;
                             }
-                            var blockNumber = event.blockNumber, transactionHash = event.transactionHash, topics = event.topics, blockHash = event.blockHash, transactionIndex = event.transactionIndex;
+                            var topics = event.raw.topics;
                             var eventSignatureHash = topics[0];
                             var eventInfo = factEventSignatures[eventSignatureHash];
                             // We track only known events
@@ -127,22 +142,8 @@ var PassportReader = /** @class */ (function () {
                             var factProviderAddress = topics[1] ? sanitizeAddress_1.sanitizeAddress(topics[1].slice(26)) : '';
                             // Second argument is fact key
                             var key = topics[2] ? _this.web3.utils.toAscii(topics[2]).replace(/\u0000/g, '') : '';
-                            if (filterFactProviderAddress !== undefined && filterFactProviderAddress !== null && filterFactProviderAddress !== factProviderAddress) {
-                                return;
-                            }
-                            if (filterKey !== undefined && filterKey !== null && filterKey !== key) {
-                                return;
-                            }
-                            historyEvents.push({
-                                blockHash: blockHash,
-                                blockNumber: blockNumber,
-                                transactionIndex: transactionIndex,
-                                transactionHash: transactionHash,
-                                factProviderAddress: factProviderAddress,
-                                key: key,
-                                dataType: eventInfo.dataType,
-                                eventType: eventInfo.eventType,
-                            });
+                            historyEvents.push(__assign({}, event, { factProviderAddress: factProviderAddress,
+                                key: key, dataType: eventInfo.dataType, eventType: eventInfo.eventType }));
                         });
                         return [2 /*return*/, historyEvents];
                 }
@@ -193,6 +194,5 @@ function getEventSignatures(web3) {
     });
     return {
         factEvents: factEvents,
-        passCreatedEvent: hashedSignatures.PassportCreated,
     };
 }

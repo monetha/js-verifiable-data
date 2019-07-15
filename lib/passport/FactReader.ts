@@ -1,4 +1,7 @@
+import { ErrorCode } from 'lib/errors/ErrorCode';
+import { createSdkError } from 'lib/errors/SdkError';
 import { IEthOptions } from 'lib/models/IEthOptions';
+import { toBN } from 'lib/utils/conversion';
 import { decodeTx, getSignedTx } from 'lib/utils/tx';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
@@ -6,7 +9,6 @@ import passportLogicAbi from '../../config/PassportLogic.json';
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
 import { PassportLogic } from '../types/web3-contracts/PassportLogic';
-import { fetchEvents } from '../utils/fetchEvents';
 import { PrivateFactReader } from './PrivateFactReader';
 
 // #region -------------- Interfaces -------------------------------------------------------------------
@@ -31,14 +33,12 @@ export interface IPrivateDataHashes {
  */
 export class FactReader {
   private contract: PassportLogic;
-  private ethNetworkUrl: string;
   private options: IEthOptions;
   private web3: Web3;
 
   public get passportAddress() { return this.contract.address; }
 
-  constructor(web3: Web3, ethNetworkUrl: string, passportAddress: Address, options?: IEthOptions) {
-    this.ethNetworkUrl = ethNetworkUrl;
+  constructor(web3: Web3, passportAddress: Address, options?: IEthOptions) {
     this.contract = new web3.eth.Contract(passportLogicAbi as AbiItem[], passportAddress);
     this.options = options || {};
     this.web3 = web3;
@@ -111,9 +111,24 @@ export class FactReader {
       return null;
     }
 
-    const blockNumHex = this.web3.utils.toHex(data);
-    const events = await fetchEvents(this.ethNetworkUrl, blockNumHex, blockNumHex, this.passportAddress);
-    const signedTx = await getSignedTx(events[0].transactionHash, this.web3, this.options);
+    const preparedKey = this.web3.utils.fromAscii(key);
+    const blockNum = toBN(this.web3.utils.toHex(data)).toNumber();
+
+    const events = await this.contract.getPastEvents('TxDataUpdated', {
+      fromBlock: blockNum,
+      toBlock: blockNum,
+      filter: {
+        factProvider: factProviderAddress,
+        key: preparedKey,
+      },
+    });
+
+    if (!events || events.length === 0) {
+      throw createSdkError(ErrorCode.DataNotFoundInBlock,
+        `Event "TxDataUpdated", carrying the data, was not found in block ${blockNum} referenced by fact in passport`);
+    }
+
+    const signedTx = await getSignedTx(events[events.length - 1].transactionHash, this.web3, this.options);
     const txInfo = await decodeTx(signedTx, this.web3, this.options);
     const txDataString = txInfo.methodInfo.params[1].value;
     const txData = this.web3.utils.hexToBytes(txDataString);

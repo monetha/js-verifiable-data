@@ -129,7 +129,7 @@ in Ropsten network:
 
 ```js
 import sdk from 'reputation-sdk';
-const reader = new sdk.PassportReader(web3, ethereumNetworkUrl);
+const reader = new sdk.PassportReader(web3);
 reader.getPassportsList('0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2');
 ```
 
@@ -314,7 +314,7 @@ Let's try to retrieve string from passport `<passportAddress>` that was stored b
 
 ```js
 import sdk from 'reputation-sdk';
-const reader = new sdk.FactReader(web3, ethereumNetworkAddress, passportAddress);
+const reader = new sdk.FactReader(web3, passportAddress);
 reader.getString(factProviderAddress, 'greetings');
 ```
 
@@ -513,7 +513,7 @@ in `Ropsten` block-chain :
 
 ```js
 import sdk from 'reputation-sdk';
-const reader = new sdk.PassportReader(web3, ethereumNetworkUrl);
+const reader = new sdk.PassportReader(web3);
 reader.readPassportHistory(passportAddress);
 ```
 

@@ -1,7 +1,5 @@
-export interface IPassportRef {
-    blockNumber: string;
-    blockHash: string;
-    txHash: string;
+import { EventData } from 'web3-eth-contract';
+export interface IPassportRef extends EventData {
     passportAddress: string;
     ownerAddress: string;
 }
