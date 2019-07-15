@@ -46,6 +46,12 @@ var PassportGenerator = /** @class */ (function () {
         this.web3 = web3;
     }
     /**
+     * Utility to extract passport address from passport creation transaction receipt
+     */
+    PassportGenerator.getPassportAddressFromReceipt = function (passportCreationReceipt) {
+        return "0x" + passportCreationReceipt.logs[0].topics[1].slice(26);
+    };
+    /**
      * Creates an empty passport and returns its address
      */
     PassportGenerator.prototype.createPassport = function (ownerAddress) {

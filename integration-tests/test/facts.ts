@@ -73,7 +73,7 @@ describe('Passport creation and facts', () => {
     const receipt = await txExecutor(txData);
 
     // Then
-    passportAddress = `0x${receipt.logs[0].topics[1].slice(26)}`;
+    passportAddress = PassportGenerator.getPassportAddressFromReceipt(receipt);
     expect(receipt.from.toLowerCase()).to.equal(passportOwner.toLowerCase());
     expect(receipt).to.have.property('to');
 
