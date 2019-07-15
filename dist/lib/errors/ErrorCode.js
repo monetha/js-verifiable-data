@@ -20,4 +20,5 @@ var ErrorCode;
     ErrorCode["FailedToGetOwnershipEvent"] = "FailedToGetOwnershipEvent";
     ErrorCode["MethodSignatureInvalid"] = "MethodSignatureInvalid";
     ErrorCode["InvalidIPFSObject"] = "InvalidIPFSObject";
+    ErrorCode["DataNotFoundInBlock"] = "DataNotFoundInBlock";
 })(ErrorCode = exports.ErrorCode || (exports.ErrorCode = {}));

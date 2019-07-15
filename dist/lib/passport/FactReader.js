@@ -38,17 +38,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var ErrorCode_1 = require("../errors/ErrorCode");
+var SdkError_1 = require("../errors/SdkError");
+var conversion_1 = require("../utils/conversion");
 var tx_1 = require("../utils/tx");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
-var fetchEvents_1 = require("../utils/fetchEvents");
 var PrivateFactReader_1 = require("./PrivateFactReader");
 // #endregion
 /**
  * Class to read latest facts from the passport
  */
 var FactReader = /** @class */ (function () {
-    function FactReader(web3, ethNetworkUrl, passportAddress, options) {
-        this.ethNetworkUrl = ethNetworkUrl;
+    function FactReader(web3, passportAddress, options) {
         this.contract = new web3.eth.Contract(PassportLogic_json_1.default, passportAddress);
         this.options = options || {};
         this.web3 = web3;
@@ -150,7 +151,7 @@ var FactReader = /** @class */ (function () {
      */
     FactReader.prototype.getTxdata = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
-            var data, blockNumHex, events, signedTx, txInfo, txDataString, txData;
+            var data, preparedKey, blockNum, events, signedTx, txInfo, txDataString, txData;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.get('getTxDataBlockNumber', factProviderAddress, key)];
@@ -159,11 +160,22 @@ var FactReader = /** @class */ (function () {
                         if (!data) {
                             return [2 /*return*/, null];
                         }
-                        blockNumHex = this.web3.utils.toHex(data);
-                        return [4 /*yield*/, fetchEvents_1.fetchEvents(this.ethNetworkUrl, blockNumHex, blockNumHex, this.passportAddress)];
+                        preparedKey = this.web3.utils.fromAscii(key);
+                        blockNum = conversion_1.toBN(this.web3.utils.toHex(data)).toNumber();
+                        return [4 /*yield*/, this.contract.getPastEvents('TxDataUpdated', {
+                                fromBlock: blockNum,
+                                toBlock: blockNum,
+                                filter: {
+                                    factProvider: factProviderAddress,
+                                    key: preparedKey,
+                                },
+                            })];
                     case 2:
                         events = _a.sent();
-                        return [4 /*yield*/, tx_1.getSignedTx(events[0].transactionHash, this.web3, this.options)];
+                        if (!events || events.length === 0) {
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.DataNotFoundInBlock, "Event \"TxDataUpdated\", carrying the data, was not found in block " + blockNum + " referenced by fact in passport");
+                        }
+                        return [4 /*yield*/, tx_1.getSignedTx(events[events.length - 1].transactionHash, this.web3, this.options)];
                     case 3:
                         signedTx = _a.sent();
                         return [4 /*yield*/, tx_1.decodeTx(signedTx, this.web3, this.options)];

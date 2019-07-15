@@ -17,11 +17,10 @@ export interface IPrivateDataHashes {
  */
 export declare class FactReader {
     private contract;
-    private ethNetworkUrl;
     private options;
     private web3;
     readonly passportAddress: string;
-    constructor(web3: Web3, ethNetworkUrl: string, passportAddress: Address, options?: IEthOptions);
+    constructor(web3: Web3, passportAddress: Address, options?: IEthOptions);
     /**
      * Read string type fact from passport
      */

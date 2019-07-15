@@ -795,16 +795,7 @@ const exchanger = new PrivateDataExchanger(web3, `0x4026a67a2C4746b94F168bd4d082
 const txExecutor = async (txConfig) => {
 
   // This is a simplified example of implementation
-  return new Promise(async (success, reject) => {
-    try {
-      await web3.eth.sendTransaction(txConfig)
-        .on('receipt', async (receipt) => {
-          success(receipt);
-        });
-    } catch (e) {
-      reject(e);
-    }
-  });
+  return web3.eth.sendTransaction(txConfig);
 };
 
 // ipfsClient can be any object that is able to communicate with IPFS as long as it implements

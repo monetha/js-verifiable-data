@@ -16,5 +16,6 @@ export declare enum ErrorCode {
     OwnershipNotClaimed = "OwnershipNotClaimed",
     FailedToGetOwnershipEvent = "FailedToGetOwnershipEvent",
     MethodSignatureInvalid = "MethodSignatureInvalid",
-    InvalidIPFSObject = "InvalidIPFSObject"
+    InvalidIPFSObject = "InvalidIPFSObject",
+    DataNotFoundInBlock = "DataNotFoundInBlock"
 }
