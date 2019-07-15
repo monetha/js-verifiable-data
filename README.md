@@ -58,7 +58,7 @@ The contract addresses deployed on Ropsten:
 
 | Contract      | Address                                      |
 |---------------|----------------------------------------------|
-| `PassportLogic` | [`0x74C22a5d68E4727029FD906aD73D5F39D9130905`](https://ropsten.etherscan.io/address/0x74C22a5d68E4727029FD906aD73D5F39D9130905) |
+| `PassportLogic` | [`0xaa8e71D8Fb521eaEdE9F11d8fd5182920Cb03229`](https://ropsten.etherscan.io/address/0xaa8e71D8Fb521eaEdE9F11d8fd5182920Cb03229) |
 | `PassportLogicRegistry`  | [`0x11C96d40244d37ad3Bb788c15F6376cEfA28CF7c`](https://ropsten.etherscan.io/address/0x11C96d40244d37ad3Bb788c15F6376cEfA28CF7c) |
 | `PassportFactory` | [`0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2`](https://ropsten.etherscan.io/address/0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2) |
 
@@ -66,7 +66,7 @@ The contract addresses deployed on Mainnet:
 
 | Contract      | Address                                      |
 |---------------|----------------------------------------------|
-| `PassportLogic` | [`0x12b0d242283ce61bEb463b16D485df64A4E3932f`](https://etherscan.io/address/0x12b0d242283ce61bEb463b16D485df64A4E3932f) |
+| `PassportLogic` | [`0xA9068B8E0D0a5B2c77dF601be3bB3d168c7fc3e2`](https://etherscan.io/address/0xA9068B8E0D0a5B2c77dF601be3bB3d168c7fc3e2) |
 | `PassportLogicRegistry`  | [`0x41c32A8387ff178659ED9B04190613623F545657`](https://etherscan.io/address/0x41c32A8387ff178659ED9B04190613623F545657) |
 | `PassportFactory` | [`0x53b21DC502b163Bcf3bD9a68d5db5e8E6110E1CC`](https://etherscan.io/address/0x53b21DC502b163Bcf3bD9a68d5db5e8E6110E1CC) |
 
