@@ -38,22 +38,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ContractIO_1 = require("../transactionHelpers/ContractIO");
+var tx_1 = require("../utils/tx");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 /**
  * Class to change and check permissions for fact providers to any specific passport
  */
 var Permissions = /** @class */ (function () {
     function Permissions(web3, passportAddress) {
-        this.contract = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
+        this.contract = new web3.eth.Contract(PassportLogic_json_1.default, passportAddress);
+        this.web3 = web3;
     }
     /**
      * Adds factProvider to whitelist
      */
     Permissions.prototype.addFactProviderToWhitelist = function (factProviderAddress, passportOwnerAddress) {
         return __awaiter(this, void 0, void 0, function () {
+            var txData;
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.contract.prepareCallTX('addFactProviderToWhitelist', [factProviderAddress], passportOwnerAddress)];
+                txData = this.contract.methods.addFactProviderToWhitelist(factProviderAddress);
+                return [2 /*return*/, tx_1.prepareTxConfig(this.web3, passportOwnerAddress, this.contract.address, txData)];
             });
         });
     };
@@ -62,8 +65,10 @@ var Permissions = /** @class */ (function () {
      */
     Permissions.prototype.removeFactProviderFromWhitelist = function (factProviderAddress, passportOwnerAddress) {
         return __awaiter(this, void 0, void 0, function () {
+            var txData;
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.contract.prepareCallTX('removeFactProviderFromWhitelist', [factProviderAddress], passportOwnerAddress)];
+                txData = this.contract.methods.removeFactProviderFromWhitelist(factProviderAddress);
+                return [2 /*return*/, tx_1.prepareTxConfig(this.web3, passportOwnerAddress, this.contract.address, txData)];
             });
         });
     };
@@ -73,27 +78,28 @@ var Permissions = /** @class */ (function () {
     Permissions.prototype.isFactProviderInWhitelist = function (factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.contract.readData('isFactProviderInWhitelist', [factProviderAddress])];
+                return [2 /*return*/, this.contract.methods.isFactProviderInWhitelist(factProviderAddress).call()];
             });
         });
     };
     /**
-     * Checks if whitelist only permission is set
+     * Checks if whitelist only permission is set, meaning that only whitelisted fact
+     * providers could write to this passport
      */
     Permissions.prototype.isWhitelistOnlyPermissionSet = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.contract.readData('isWhitelistOnlyPermissionSet', [])];
+                return [2 /*return*/, this.contract.methods.isWhitelistOnlyPermissionSet().call()];
             });
         });
     };
     /**
-     * Checks if factProvider is allowed
+     * Checks if fact provider is allowed to write facts to this passport
      */
     Permissions.prototype.isAllowedFactProvider = function (factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.contract.readData('isAllowedFactProvider', [factProviderAddress])];
+                return [2 /*return*/, this.contract.methods.isAllowedFactProvider(factProviderAddress).call()];
             });
         });
     };
@@ -102,8 +108,10 @@ var Permissions = /** @class */ (function () {
      */
     Permissions.prototype.setWhitelistOnlyPermission = function (onlyWhitelistedProviders, passportOwnerAddress) {
         return __awaiter(this, void 0, void 0, function () {
+            var txData;
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.contract.prepareCallTX('setWhitelistOnlyPermission', [onlyWhitelistedProviders], passportOwnerAddress)];
+                txData = this.contract.methods.setWhitelistOnlyPermission(onlyWhitelistedProviders);
+                return [2 /*return*/, tx_1.prepareTxConfig(this.web3, passportOwnerAddress, this.contract.address, txData)];
             });
         });
     };

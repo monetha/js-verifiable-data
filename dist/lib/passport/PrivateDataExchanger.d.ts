@@ -1,13 +1,13 @@
-import { Address } from '../models/Address';
 import BN from 'bn.js';
-import { TxExecutor } from '../models/TxExecutor';
-import Web3 from 'web3';
-import { IIPFSClient } from '../models/IIPFSClient';
 import { IEthOptions } from '../models/IEthOptions';
+import { IIPFSClient } from '../models/IIPFSClient';
+import Web3 from 'web3';
+import { Address } from '../models/Address';
+import { TxExecutor } from '../models/TxExecutor';
 export declare class PrivateDataExchanger {
     private passportAddress;
     private web3;
-    private passportLogic;
+    private contract;
     private ec;
     private getCurrentTime;
     private options;

@@ -8,7 +8,7 @@ export interface IFactValue<TValue> {
     value: TValue;
 }
 /**
- * Class to read historic facts from the passport
+ * Class to read historic fact changes from the passport
  */
 export declare class FactHistoryReader {
     private web3;

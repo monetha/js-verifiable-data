@@ -9,10 +9,10 @@ export interface IPassportHistoryFilter {
   /**
    * Block nr to scan from
    */
-  startBlock?: string;
+  startBlock?: number;
 
   /**
    * Block nr to scan to
    */
-  endBlock?: string;
+  endBlock?: number | 'latest';
 }

@@ -1,26 +1,26 @@
 import EthereumTx from 'ethereumjs-tx';
 import Web3 from 'web3';
-import { Transaction, TransactionReceipt } from 'web3-core';
+import { Transaction, TransactionReceipt, TransactionConfig } from 'web3-core';
 import { getAccounts, getPrivateKeys, getNetwork, NetworkType } from './network';
 import { submitPrivateTransaction } from './quorum';
-import { IRawTX, toBN, TxExecutor } from 'reputation-sdk';
+import { toBN, TxExecutor } from 'reputation-sdk';
 
 export const isPrivateTxMode: boolean = process.argv.includes('--private');
 
-export async function submitTransaction(web3: Web3, txData: IRawTX) {
+export async function submitTransaction(web3: Web3, txData: TransactionConfig) {
   return new Promise<Transaction>(async (success, reject) => {
     try {
       const tx = new EthereumTx({
         nonce: toBN(txData.nonce).toBuffer(),
         gasPrice: toBN(txData.gasPrice).toBuffer(),
-        gasLimit: toBN(txData.gasLimit).toBuffer(),
+        gasLimit: toBN(txData.gas).toBuffer(),
         to: txData.to,
         value: toBN(txData.value).toBuffer(),
         data: Buffer.from(txData.data.replace('0x', ''), 'hex'),
       });
 
       const accounts = await getAccounts(web3);
-      const accountIndex = accounts.findIndex(a => a.toLowerCase() === txData.from.toLowerCase());
+      const accountIndex = accounts.findIndex(a => a.toLowerCase() === txData.from.toString().toLowerCase());
       if (accountIndex === -1) {
         throw new Error(`Not possible to execute tx because private key for address ${txData.from} is not known`);
       }
@@ -75,7 +75,7 @@ const waitForTxToFinish = (web3: Web3, txHash: string): Promise<TransactionRecei
   });
 
 export const createTxExecutor = (web3: Web3): TxExecutor => {
-  return async (txData: IRawTX) => {
+  return async (txData: TransactionConfig) => {
     if (isPrivateTxMode && getNetwork() === NetworkType.Quorum) {
       return submitPrivateTransaction(web3, txData);
     }

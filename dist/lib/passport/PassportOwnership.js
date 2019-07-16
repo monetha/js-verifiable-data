@@ -38,15 +38,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var SdkError_1 = require("../errors/SdkError");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
-var ContractIO_1 = require("../transactionHelpers/ContractIO");
 var tx_1 = require("../utils/tx");
+var ErrorCode_1 = require("../errors/ErrorCode");
 /**
- * Class to change passport ownership
+ * Class to manage passport ownership
  */
 var PassportOwnership = /** @class */ (function () {
     function PassportOwnership(web3, passportAddress, options) {
-        this.contract = new ContractIO_1.ContractIO(web3, PassportLogic_json_1.default, passportAddress);
+        this.contract = new web3.eth.Contract(PassportLogic_json_1.default, passportAddress);
+        this.web3 = web3;
         this.options = options || {};
     }
     /**
@@ -54,8 +56,10 @@ var PassportOwnership = /** @class */ (function () {
      */
     PassportOwnership.prototype.claimOwnership = function (passportOwnerAddress) {
         return __awaiter(this, void 0, void 0, function () {
+            var txData;
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.contract.prepareCallTX('claimOwnership', [], passportOwnerAddress)];
+                txData = this.contract.methods.claimOwnership();
+                return [2 /*return*/, tx_1.prepareTxConfig(this.web3, passportOwnerAddress, this.contract.address, txData)];
             });
         });
     };
@@ -65,7 +69,7 @@ var PassportOwnership = /** @class */ (function () {
     PassportOwnership.prototype.getOwnerAddress = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.contract.getContract().methods.owner().call()];
+                return [2 /*return*/, this.contract.methods.owner().call()];
             });
         });
     };
@@ -75,7 +79,7 @@ var PassportOwnership = /** @class */ (function () {
     PassportOwnership.prototype.getPendingOwnerAddress = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.contract.getContract().methods.pendingOwner().call()];
+                return [2 /*return*/, this.contract.methods.pendingOwner().call()];
             });
         });
     };
@@ -85,23 +89,22 @@ var PassportOwnership = /** @class */ (function () {
      */
     PassportOwnership.prototype.getOwnerPublicKey = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var ownerAddress, transferredEvent, web3, tx;
+            var ownerAddress, transferredEvent, tx;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.getOwnerAddress()];
                     case 1:
                         ownerAddress = _a.sent();
                         if (!ownerAddress) {
-                            throw new Error('The ownership for this passport has not been claimed yet');
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.OwnershipNotClaimed, 'The ownership for this passport has not been claimed yet');
                         }
                         return [4 /*yield*/, this.getFirstOwnershipTransferredEvent(ownerAddress)];
                     case 2:
                         transferredEvent = _a.sent();
                         if (!transferredEvent) {
-                            throw new Error('Failed to get ownership transfer event');
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.FailedToGetOwnershipEvent, 'Failed to get ownership transfer event');
                         }
-                        web3 = this.contract.getWeb3();
-                        return [4 /*yield*/, tx_1.getSignedTx(transferredEvent.transactionHash, web3, this.options)];
+                        return [4 /*yield*/, tx_1.getSignedTx(transferredEvent.transactionHash, this.web3, this.options)];
                     case 3:
                         tx = _a.sent();
                         return [2 /*return*/, Array.from(tx_1.getSenderPublicKey(tx))];
@@ -114,7 +117,7 @@ var PassportOwnership = /** @class */ (function () {
             var events;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.contract.getContract().getPastEvents('OwnershipTransferred', {
+                    case 0: return [4 /*yield*/, this.contract.getPastEvents('OwnershipTransferred', {
                             // TODO: We need to somehow get passport contract creation block address to scan from to increase performance
                             fromBlock: 0,
                             filter: {

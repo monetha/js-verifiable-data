@@ -1,34 +1,34 @@
-import { ContractIO } from '../transactionHelpers/ContractIO';
-import { Address } from '../models/Address';
-import { IIPFSClient } from '../models/IIPFSClient';
+import { ErrorCode } from 'lib/errors/ErrorCode';
+import { createSdkError } from 'lib/errors/SdkError';
+import { IEthOptions } from 'lib/models/IEthOptions';
+import { prepareTxConfig } from 'lib/utils/tx';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import passportLogicAbi from '../../config/PassportLogic.json';
-import { IPrivateDataHashes } from './FactReader';
+import { Address } from '../models/Address';
+import { IIPFSClient } from '../models/IIPFSClient';
 import { PassportLogic } from '../types/web3-contracts/PassportLogic';
+import { IPrivateDataHashes } from './FactReader';
 import { PrivateFactWriter } from './PrivateFactWriter';
-import { IEthOptions } from 'lib/models/IEthOptions';
 
 /**
  * Class to write facts to passport
  */
 export class FactWriter {
-  private contractIO: ContractIO<PassportLogic>;
+  private contract: PassportLogic;
   private options: IEthOptions;
+  private web3: Web3;
 
-  public get web3() { return this.contractIO.getWeb3(); }
-  public get passportAddress() { return this.contractIO.getContractAddress(); }
+  public get passportAddress() { return this.contract.address; }
 
   constructor(web3: Web3, passportAddress: Address, options?: IEthOptions) {
-    this.contractIO = new ContractIO(web3, passportLogicAbi as AbiItem[], passportAddress);
+    this.contract = new web3.eth.Contract(passportLogicAbi as AbiItem[], passportAddress);
     this.options = options || {};
+    this.web3 = web3;
   }
 
   /**
    * Writes string type fact to passport
-   *
-   * @param key fact key
-   * @param value value to store
    */
   public async setString(key: string, value: string, factProviderAddress: Address) {
     return this.set('setString', key, value, factProviderAddress);
@@ -36,9 +36,6 @@ export class FactWriter {
 
   /**
    * Writes bytes type fact to passport
-   *
-   * @param key fact key
-   * @param value value to store
    */
   public async setBytes(key: string, value: number[], factProviderAddress: Address) {
     return this.set('setBytes', key, value, factProviderAddress);
@@ -46,9 +43,6 @@ export class FactWriter {
 
   /**
    * Writes address type fact to passport
-   *
-   * @param key fact key
-   * @param value value to store
    */
   public async setAddress(key: string, value: Address, factProviderAddress: Address) {
     return this.set('setAddress', key, value, factProviderAddress);
@@ -56,9 +50,6 @@ export class FactWriter {
 
   /**
    * Writes uint type fact to passport
-   *
-   * @param key fact key
-   * @param value value to store
    */
   public async setUint(key: string, value: number, factProviderAddress: Address) {
     return this.set('setUint', key, value, factProviderAddress);
@@ -66,9 +57,6 @@ export class FactWriter {
 
   /**
    * Writes int type fact to passport
-   *
-   * @param key fact key
-   * @param value value to store
    */
   public async setInt(key: string, value: number, factProviderAddress: Address) {
     return this.set('setInt', key, value, factProviderAddress);
@@ -76,9 +64,6 @@ export class FactWriter {
 
   /**
    * Writes boolean type fact to passport
-   *
-   * @param key fact key
-   * @param value value to store
    */
   public async setBool(key: string, value: boolean, factProviderAddress: Address) {
     return this.set('setBool', key, value, factProviderAddress);
@@ -86,9 +71,6 @@ export class FactWriter {
 
   /**
    * Writes TX data type fact to passport
-   *
-   * @param key fact key
-   * @param value value to store
    */
   public async setTxdata(key: string, value: number[], factProviderAddress: Address) {
     return this.set('setTxDataBlockNumber', key, value, factProviderAddress);
@@ -97,7 +79,6 @@ export class FactWriter {
   /**
    * Writes IPFS hash data type fact to passport
    *
-   * @param key fact key
    * @param value value to store on IPFS
    * @param ipfs IPFS client
    */
@@ -110,7 +91,8 @@ export class FactWriter {
     }
 
     if (!result || !result.Hash) {
-      throw new Error('Returned result from IPFS file adding is not as expected. Result object should contain property "hash"');
+      throw createSdkError(ErrorCode.InvalidIPFSObject,
+        'Returned result from IPFS file adding is not as expected. Result object should contain property "hash"');
     }
 
     return this.set('setIPFSHash', key, result.Hash, factProviderAddress);
@@ -119,37 +101,36 @@ export class FactWriter {
   /**
    * Writes private data value to IPFS by encrypting it and then storing IPFS hashes of encrypted data to passport fact.
    * Data can be decrypted using passport owner's wallet private key or a secret key which is returned as a result of this call.
-   * @param key fact key
+   *
    * @param value value to store privately
    * @param ipfs IPFS client
    */
   public async setPrivateData(key: string, value: number[], factProviderAddress: Address, ipfs: IIPFSClient) {
-    const privateWriter = new PrivateFactWriter(this, this.options);
+    const privateWriter = new PrivateFactWriter(this.web3, this, this.options);
 
     return privateWriter.setPrivateData(factProviderAddress, key, value, ipfs);
   }
 
   /**
    * Writes IPFS hash of encrypted private data and hash of data encryption key
-   * @param key fact key
-   * @param value value to store
    */
   public async setPrivateDataHashes(key: string, value: IPrivateDataHashes, factProviderAddress: Address) {
     const preparedKey = this.web3.utils.fromAscii(key);
 
-    const contract = this.contractIO.getContract();
-
-    const tx = contract.methods.setPrivateDataHashes(
+    const txData = this.contract.methods.setPrivateDataHashes(
       preparedKey,
       value.dataIpfsHash,
       value.dataKeyHash);
 
-    return this.contractIO.prepareRawTX(factProviderAddress, contract.address, 0, tx);
+    return prepareTxConfig(this.web3, factProviderAddress, this.contract.address, txData);
   }
 
-  private async set(method: string, key: string, value: any, factProviderAddress: Address) {
+  private async set(method: keyof PassportLogic['methods'], key: string, value: any, factProviderAddress: Address) {
     const preparedKey = this.web3.utils.fromAscii(key);
 
-    return this.contractIO.prepareCallTX(method, [preparedKey, value], factProviderAddress);
+    const func = this.contract.methods[method] as any;
+    const txData = func(preparedKey, value);
+
+    return prepareTxConfig(this.web3, factProviderAddress, this.contract.address, txData);
   }
 }

@@ -5,6 +5,8 @@ import { IIPFSClient } from '../models/IIPFSClient';
 import { IMethodInfo, getSignedTx, decodeTx } from '../utils/tx';
 import { IPrivateDataHashes } from './FactReader';
 import { PrivateFactReader } from './PrivateFactReader';
+import { createSdkError } from 'lib/errors/SdkError';
+import { ErrorCode } from 'lib/errors/ErrorCode';
 
 // #region -------------- Interfaces -------------------------------------------------------------------
 
@@ -18,7 +20,7 @@ export interface IFactValue<TValue> {
 // #endregion
 
 /**
- * Class to read historic facts from the passport
+ * Class to read historic fact changes from the passport
  */
 export class FactHistoryReader {
 
@@ -256,7 +258,8 @@ export class FactHistoryReader {
 
   private validateMethodSignature(methodInfo: IMethodInfo, expectedName: string) {
     if (methodInfo.name !== expectedName) {
-      throw new Error(`Input method signature for transaction must be "${expectedName}". Got "${methodInfo.name}"`);
+      throw createSdkError(ErrorCode.MethodSignatureInvalid,
+        `Input method signature for transaction must be "${expectedName}". Got "${methodInfo.name}"`);
     }
   }
 }

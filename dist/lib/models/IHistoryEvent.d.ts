@@ -1,4 +1,5 @@
 import { Address } from './Address';
+import { EventData } from 'web3-eth-contract';
 export declare enum EventType {
     Updated = "Updated",
     Deleted = "Deleted"
@@ -14,11 +15,7 @@ export declare enum DataType {
     IPFSHash = "IPFSHash",
     PrivateData = "PrivateData"
 }
-export interface IHistoryEvent {
-    blockHash: string;
-    blockNumber: string;
-    transactionHash: string;
-    transactionIndex: string;
+export interface IHistoryEvent extends EventData {
     eventType: EventType;
     dataType: DataType;
     /**

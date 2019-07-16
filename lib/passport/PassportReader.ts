@@ -1,17 +1,16 @@
-import { MAX_BLOCK, MIN_BLOCK } from '../const/ethereum';
+import { PassportFactory } from 'lib/types/web3-contracts/PassportFactory';
+import Web3 from 'web3';
+import { AbiItem } from 'web3-utils';
+import passportAbi from '../../config/Passport.json';
+import passportFactoryAbi from '../../config/PassportFactory.json';
+import passportLogicAbi from '../../config/PassportLogic.json';
 import { Address } from '../models/Address';
-import { IHistoryEvent, EventType, DataType } from '../models/IHistoryEvent';
+import { DataType, EventType, IHistoryEvent } from '../models/IHistoryEvent';
 import { IPassportHistoryFilter } from '../models/IPassportHistoryFilter';
 import { IPassportRef } from '../models/IPassportRef';
-import { fetchEvents } from '../utils/fetchEvents';
-import { sanitizeAddress } from '../utils/sanitizeAddress';
-import Web3 from 'web3';
-import passportLogicAbi from '../../config/PassportLogic.json';
-import passportFactoryAbi from '../../config/PassportFactory.json';
-import { ContractIO } from '../transactionHelpers/ContractIO';
 import { Passport } from '../types/web3-contracts/Passport';
-import passportAbi from '../../config/Passport.json';
-import { AbiItem } from 'web3-utils';
+import { sanitizeAddress } from '../utils/sanitizeAddress';
+import { PassportLogic } from 'lib/types/web3-contracts/PassportLogic.js';
 
 interface IFactEventSignatures {
   [signature: string]: {
@@ -21,20 +20,19 @@ interface IFactEventSignatures {
 }
 
 let factEventSignatures: IFactEventSignatures;
-let passCreatedEventSignature: string;
 
+/**
+ * Class to get passports list and historic events
+ */
 export class PassportReader {
   private web3: Web3;
-  private ethNetworkUrl: string;
 
-  constructor(web3: Web3, ethNetworkUrl: string) {
+  constructor(web3: Web3) {
     this.web3 = web3;
-    this.ethNetworkUrl = ethNetworkUrl;
 
     if (!factEventSignatures) {
       const signatures = getEventSignatures(web3);
       factEventSignatures = signatures.factEvents;
-      passCreatedEventSignature = signatures.passCreatedEvent;
     }
   }
 
@@ -45,18 +43,18 @@ export class PassportReader {
    * @param startBlock block nr to scan from
    * @param endBlock block nr to scan to
    */
-  public async getPassportsList(factoryAddress: Address, startBlock = MIN_BLOCK, endBlock = MAX_BLOCK): Promise<IPassportRef[]> {
-    let events = await fetchEvents(this.ethNetworkUrl, startBlock, endBlock, factoryAddress);
+  public async getPassportsList(factoryAddress: Address, fromBlock = 0, toBlock = 'latest'): Promise<IPassportRef[]> {
+    const contract = new this.web3.eth.Contract(passportFactoryAbi as AbiItem[], factoryAddress) as PassportFactory;
 
-    // Leave only pass created events
-    events = events.filter(e => e.topics[0] === passCreatedEventSignature);
+    const events = await contract.getPastEvents('PassportCreated', {
+      fromBlock,
+      toBlock,
+    });
 
     const passportRefs: IPassportRef[] = events.map(event => ({
-      blockNumber: event.blockNumber,
-      blockHash: event.blockHash,
-      txHash: event.transactionHash,
-      passportAddress: event.topics[1] ? sanitizeAddress(event.topics[1].slice(26)) : '',
-      ownerAddress: event.topics[2] ? sanitizeAddress(event.topics[2].slice(26)) : '',
+      ...event,
+      passportAddress: event.raw.topics[1] ? sanitizeAddress(event.raw.topics[1].slice(26)) : '',
+      ownerAddress: event.raw.topics[2] ? sanitizeAddress(event.raw.topics[2].slice(26)) : '',
     }));
 
     return passportRefs;
@@ -69,12 +67,31 @@ export class PassportReader {
    * @param filter passport history filter
    */
   public async readPassportHistory(passportAddress: Address, filter?: IPassportHistoryFilter): Promise<IHistoryEvent[]> {
-    const startBlock = filter && filter.startBlock || MIN_BLOCK;
-    const endBlock = filter && filter.endBlock || MAX_BLOCK;
-    const filterFactProviderAddress = filter && filter.factProviderAddress;
-    const filterKey = filter && filter.key;
 
-    const events = await fetchEvents(this.ethNetworkUrl, startBlock, endBlock, passportAddress);
+    // Filters
+    const fromBlock = filter && filter.startBlock || 0;
+    const toBlock = filter && filter.endBlock || 'latest';
+
+    let eventsFilter;
+    if (filter && (filter.factProviderAddress || filter.key)) {
+      eventsFilter = {};
+
+      if (filter.factProviderAddress) {
+        eventsFilter.factProvider = filter.factProviderAddress;
+      }
+
+      if (filter.key) {
+        eventsFilter.key = this.web3.utils.fromAscii(filter.key);
+      }
+    }
+
+    // Event retrieval
+    const contract = new this.web3.eth.Contract(passportLogicAbi as AbiItem[], passportAddress) as PassportLogic;
+    const events = await contract.getPastEvents('allEvents', {
+      fromBlock,
+      toBlock,
+      filter: eventsFilter,
+    });
 
     const historyEvents: IHistoryEvent[] = [];
 
@@ -83,7 +100,7 @@ export class PassportReader {
         return;
       }
 
-      const { blockNumber, transactionHash, topics, blockHash, transactionIndex } = event;
+      const { topics } = event.raw;
 
       const eventSignatureHash = topics[0];
       const eventInfo = factEventSignatures[eventSignatureHash];
@@ -99,19 +116,8 @@ export class PassportReader {
       // Second argument is fact key
       const key: string = topics[2] ? this.web3.utils.toAscii(topics[2]).replace(/\u0000/g, '') : '';
 
-      if (filterFactProviderAddress !== undefined && filterFactProviderAddress !== null && filterFactProviderAddress !== factProviderAddress) {
-        return;
-      }
-
-      if (filterKey !== undefined && filterKey !== null && filterKey !== key) {
-        return;
-      }
-
       historyEvents.push({
-        blockHash,
-        blockNumber,
-        transactionIndex,
-        transactionHash,
+        ...event,
         factProviderAddress,
         key,
         dataType: eventInfo.dataType,
@@ -126,14 +132,13 @@ export class PassportReader {
    * Returns the address of passport logic registry
    */
   public async getPassportLogicRegistryAddress(passportAddress: string): Promise<string> {
-    const passportContract: ContractIO<Passport> = new ContractIO(this.web3, passportAbi as AbiItem[], passportAddress);
-    return passportContract.getContract().methods.getPassportLogicRegistry().call();
+    const passportContract = new this.web3.eth.Contract(passportAbi as AbiItem[], passportAddress) as Passport;
+    return passportContract.methods.getPassportLogicRegistry().call();
   }
 }
 
 function getEventSignatures(web3: Web3): {
   factEvents: IFactEventSignatures;
-  passCreatedEvent: string;
 } {
 
   const hashedSignatures: any = {};
@@ -173,6 +178,5 @@ function getEventSignatures(web3: Web3): {
 
   return {
     factEvents,
-    passCreatedEvent: hashedSignatures.PassportCreated,
   };
 }

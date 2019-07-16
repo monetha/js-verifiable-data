@@ -2,6 +2,7 @@ import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
 import { FactWriter } from './FactWriter';
 import { IEthOptions } from '../models/IEthOptions';
+import Web3 from 'web3';
 /**
  * Class to write private facts
  */
@@ -9,7 +10,7 @@ export declare class PrivateFactWriter {
     private writer;
     private ownership;
     private ec;
-    constructor(factWriter: FactWriter, options?: IEthOptions);
+    constructor(web3: Web3, factWriter: FactWriter, options?: IEthOptions);
     /**
      * Encrypts private data, adds encrypted content to IPFS and then writes hashes of encrypted data to passport in Ethereum network.
      */
@@ -17,6 +18,6 @@ export declare class PrivateFactWriter {
         dataIpfsHash: any;
         dataKey: number[];
         dataKeyHash: number[];
-        tx: import("../proto").IRawTX;
+        tx: import("web3-core").TransactionConfig;
     }>;
 }

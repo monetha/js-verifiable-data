@@ -104,3 +104,46 @@ exports.getSenderPublicKey = function (tx) {
     // To be a valid EC public key - it must be prefixed with byte 4
     return Buffer.concat([Buffer.from([4]), ethTx.getSenderPublicKey()]);
 };
+/**
+ * Prepares transaction configuration for execution.
+ * This includes nonce, gas price and gas limit estimation
+ */
+exports.prepareTxConfig = function (web3, from, to, data, value, gasLimit) {
+    if (value === void 0) { value = 0; }
+    return __awaiter(_this, void 0, void 0, function () {
+        var nonce, gasPrice, actualGasLimit, _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, web3.eth.getTransactionCount(from)];
+                case 1:
+                    nonce = _b.sent();
+                    return [4 /*yield*/, web3.eth.getGasPrice()];
+                case 2:
+                    gasPrice = _b.sent();
+                    if (!(gasLimit > 0 || gasLimit === 0)) return [3 /*break*/, 3];
+                    _a = gasLimit;
+                    return [3 /*break*/, 5];
+                case 3: return [4 /*yield*/, web3.eth.estimateGas({
+                        data: data.encodeABI(),
+                        from: from,
+                        to: to,
+                        value: value,
+                    })];
+                case 4:
+                    _a = _b.sent();
+                    _b.label = 5;
+                case 5:
+                    actualGasLimit = _a;
+                    return [2 /*return*/, {
+                            from: from,
+                            to: to,
+                            nonce: nonce,
+                            gasPrice: gasPrice,
+                            gas: actualGasLimit,
+                            value: value,
+                            data: data.encodeABI(),
+                        }];
+            }
+        });
+    });
+};

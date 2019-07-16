@@ -8,6 +8,7 @@ import { deriveSecretKeyringMaterial, ellipticCurveAlg, ipfsFileNames, unmarshal
 import { FactWriter } from './FactWriter';
 import { PassportOwnership } from './PassportOwnership';
 import { IEthOptions } from 'lib/models/IEthOptions';
+import Web3 from 'web3';
 const EC = ec;
 
 /**
@@ -18,8 +19,8 @@ export class PrivateFactWriter {
   private ownership: PassportOwnership;
   private ec = new EC(ellipticCurveAlg);
 
-  constructor(factWriter: FactWriter, options?: IEthOptions) {
-    this.ownership = new PassportOwnership(factWriter.web3, factWriter.passportAddress, options);
+  constructor(web3: Web3, factWriter: FactWriter, options?: IEthOptions) {
+    this.ownership = new PassportOwnership(web3, factWriter.passportAddress, options);
     this.writer = factWriter;
   }
 

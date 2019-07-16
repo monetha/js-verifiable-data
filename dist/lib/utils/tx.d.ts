@@ -1,7 +1,9 @@
 /// <reference types="node" />
+import BN from 'bn.js';
 import Web3 from 'web3';
-import { Transaction } from 'web3-core';
-import { IEthOptions } from 'lib/models/IEthOptions.js';
+import { Transaction, TransactionConfig } from 'web3-core';
+import { IEthOptions } from '../models/IEthOptions';
+import { TransactionObject } from '../types/web3-contracts/types';
 export interface IMethodInfo {
     name: string;
     params: IMethodParam[];
@@ -41,3 +43,8 @@ export declare const getSenderPublicKey: (tx: {
     v: string;
     hash: string;
 }) => Buffer;
+/**
+ * Prepares transaction configuration for execution.
+ * This includes nonce, gas price and gas limit estimation
+ */
+export declare const prepareTxConfig: <TData>(web3: Web3, from: string, to: string, data: TransactionObject<TData>, value?: number | BN, gasLimit?: number) => Promise<TransactionConfig>;

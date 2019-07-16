@@ -80,7 +80,7 @@ const preparePassport = async () => {
   const generator = new PassportGenerator(web3, passportFactoryAddress);
   let txData = await generator.createPassport(passportOwner);
   let receipt = await txExecutor(txData);
-  passportAddress = `0x${receipt.logs[0].topics[1].slice(26)}`;
+  passportAddress = PassportGenerator.getPassportAddressFromReceipt(receipt);
 
   // Claim ownership
   const ownership = new PassportOwnership(web3, passportAddress);
