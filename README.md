@@ -1,7 +1,6 @@
 # TODO:NAME
 
-
-SDK for managing verifiable data using digital identities on distributed ledger.
+SDK for managing verifiable data of digital identities on distributed ledger.
 
 Corresponds to [Verifiable data layer](https://github.com/monetha/reputation-layer) of [Monetha Platform](https://github.com/monetha/decentralized-reputation-framework)
 
@@ -12,34 +11,35 @@ Corresponds to [Verifiable data layer](https://github.com/monetha/reputation-lay
 
 *NOTE*: Terms "Digital identity" and "Passport" has the same meaning and will be used interchangeably in this guide.
 
-- [#TODO:NAME](#TODO:NAME)
-  - [Building the source](#building-the-source)
-    - [Prerequisites](#prerequisites)
-    - [Build](#build)
-  - [Bootstrap](#bootstrap)
-  - [Usage](#usage)
-    - [Deploying digital identity](#deploying-digital-identity)
-    - [Digital identity ownership](#digital-identity-ownership)
-    - [Digital identities list](#digital-identities-list)
-    - [Writing facts](#writing-facts)
-    - [Reading facts](#reading-facts)
-    - [Reading facts from transactions](#reading-facts-from-transactions)
-    - [Deleting facts](#deleting-facts)
-    - [Reading facts history](#reading-facts-history)
-    - [Managing digital identity permissions](#managing-digital-identity-permissions)
-    - [Private facts](#private-data)
-      - [Writing private data](#writing-private-data)
-      - [Reading private data](#reading-private-data)
-    - [Private data exchange](#private-data-exchange)
-      - [Proposing private data exchange](#proposing-private-data-exchange)
-      - [Getting status of private data exchange](#getting-status-of-private-data-exchange)
-      - [Accepting private data exchange](#accepting-private-data-exchange)
-      - [Reading private data after private data exchange acceptance](#reading-private-data-after-private-data-exchange-acceptance)
-      - [Closing private data exchange proposition when timed out](#closing-private-data-exchange-proposition-when-timed-out)
-      - [Closing private data exchange after acceptance](#closing-private-data-exchange-after-acceptance)
-      - [Opening dispute after private data exchange acceptance](#opening-dispute-after-private-data-exchange-acceptance)
-  - [Permissioned blockchains support](#permissioned-blockchains-support)
-    - [Quorum](#quorum)
+- [TODO:NAME](#TODONAME)
+  - [Building the source](#Building-the-source)
+    - [Prerequisites](#Prerequisites)
+    - [Build](#Build)
+  - [Bootstrap](#Bootstrap)
+  - [Usage](#Usage)
+    - [Deploying digital identity](#Deploying-digital-identity)
+    - [Digital identity ownership](#Digital-identity-ownership)
+    - [Digital identities list](#Digital-identities-list)
+    - [Writing facts](#Writing-facts)
+    - [Reading facts](#Reading-facts)
+    - [Reading facts from transactions](#Reading-facts-from-transactions)
+    - [Deleting facts](#Deleting-facts)
+    - [Managing digital identity permissions](#Managing-digital-identity-permissions)
+    - [Reading facts history](#Reading-facts-history)
+    - [Private data](#Private-data)
+      - [Writing private data](#Writing-private-data)
+      - [Reading private data](#Reading-private-data)
+      - [Reading private data from transaction hash](#Reading-private-data-from-transaction-hash)
+  - [Private data exchange](#Private-data-exchange)
+    - [Proposing private data exchange](#Proposing-private-data-exchange)
+    - [Getting status of private data exchange](#Getting-status-of-private-data-exchange)
+    - [Accepting private data exchange](#Accepting-private-data-exchange)
+    - [Reading private data after private data exchange acceptance](#Reading-private-data-after-private-data-exchange-acceptance)
+    - [Closing private data exchange proposition when timed out](#Closing-private-data-exchange-proposition-when-timed-out)
+    - [Closing private data exchange after acceptance](#Closing-private-data-exchange-after-acceptance)
+    - [Opening dispute after private data exchange acceptance](#Opening-dispute-after-private-data-exchange-acceptance)
+  - [Permissioned blockchains support](#Permissioned-blockchains-support)
+    - [Quorum](#Quorum)
 
 ## Building the source
 
@@ -65,7 +65,7 @@ To bootstrap TODO:NAME, we need to deploy three contracts:
 1. `PassportLogicRegistry` - responsible for telling digital identities, which behaviour version to use
 1. `PassportFactory` - responsible for digital identity creation
 
-Monetha has already deployed this set of contracts on Ropsten test network and Mainnet network.
+Monetha has already deployed this set of contracts on Ropsten and Mainnet networks.
 
 The contract addresses deployed on Ropsten:
 
@@ -109,7 +109,7 @@ const generator = new PassportGenerator(web3, passportFactoryAddress);
 const txConfig = await generator.createPassport(passportOwnerAddress);
 ```
 
-You will get the transaction configuration object `txConfig` in output of the function, which have to be signed and submitted to network by SDK client itself. SDK intentionally does not execute transaction itself because client may want to execute it in a specific way. For example, Quorum blockchain allows submitting transactions as private and requires setting a non-standard property `privateFor` for this.
+You will get the transaction configuration object `txConfig` in output of the function, which have to be signed and submitted to network. SDK intentionally does not execute transaction itself because client may want to execute it in a specific way. For example, Quorum blockchain allows submitting transactions as private and requires setting a non-standard property `privateFor` for this.
 
 One of the ways to submit a transaction would be to use this web3 function with Metamask:
 
@@ -117,7 +117,7 @@ One of the ways to submit a transaction would be to use this web3 function with 
 const receipt = await web3.eth.sendTransaction(txConfig);
 ```
 
-Receipt will contain created digital itentity address, which can be easily extracted using a helper utility:
+Receipt will contain created digital identity address, which can be easily extracted using a helper utility:
 
 ```js
 const passportAddress = PassportGenerator.getPassportAddressFromReceipt(receipt);
@@ -142,7 +142,7 @@ const passportOwnerAddress = await ownership.getOwnerAddress();
 
 ### Digital identities list
 
-The digital identity factory allows you to get a list of all digital identities that have been created.
+The digital identity factory allows you to get a list of all digital identities that have been created using this particular identity factory.
 
 Let's try to get a list of all digital identities using the address of `PassportFactory` contract deployed by Monetha ([`0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2`](https://ropsten.etherscan.io/address/0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2))
 in Ropsten network:
@@ -169,7 +169,6 @@ You should get something like this Array of objects:
   ...
 ]
 ```
-
 
 The block number and transaction hash indicate the transaction in which the digital identity was created.
 
@@ -536,7 +535,7 @@ const isWhitelistEnabled = await permissions.isWhitelistOnlyPermissionSet();
 The SDK allows you to see the history of absolutely all changes of facts in the digital identity.
 
 Let's try to retrieve the entire change history for the digital identity [`0x1C3A76a9A27470657BcBE7BfB47820457E4DB682`](https://ropsten.etherscan.io/address/0x1C3A76a9A27470657BcBE7BfB47820457E4DB682)
-in `Ropsten` block-chain :
+in `Ropsten` network :
 
 ```js
 import { PassportReader } from 'TODO:NAME';
@@ -544,7 +543,8 @@ const reader = new PassportReader(web3);
 const history = await reader.readPassportHistory(passportAddress);
 ```
 
-`history` will contain a list of change objects:
+`history` will contain a list of audit trace:
+
 ```js
 [
   {
@@ -552,29 +552,33 @@ const history = await reader.readPassportHistory(passportAddress);
     dataType: 'IPFSHash', // Fact type - 'String', 'Bool', ...
     factProviderAddress: '0x5b2AE3b3A801469886Bb8f5349fc3744cAa6348d', // Data source address
 
-    // TX hash where change has occured. Can be used with `FactHistoryReader` to read fact value
+    // TX hash where change has occurred. Can be used with `FactHistoryReader` to read fact value
     transactionHash: '0xd43201d6b23a18b90a53bf7ef1fffad0b04af603c039b6617601a225a129c632',
-    blockNumber: ‭5233914‬, // Block nr where change has occured
+    blockNumber: ‭5233914‬, // Block nr where change has occurred
     key: 'monetha.jpg', // Fact key
   },
   ...
 ]
 ```
 
-Even if the value of a fact has been deleted or changed, we can read its value as it was before the deletion.
+Even if the value of a fact has been deleted or changed, we can read its value of previous versions prior the deletion.
 
 ### Private data
 
-Private data is stored in encrypted form in IPFS, only the IPFS hash and hash of data encryption key are saved in the
-blockchain.
+Private data is stored in encrypted form in IPFS, only the IPFS hash and hash of data encryption key are saved in the blockchain.
 
-Reading/writing private data is as simple as reading/writing public data. The only difference is that only the person who is the digital identity owner at the time of writing private data can read the private data. The private data source can read private data only if it has saved the data encryption key. The digital identity owner does not need to know the data encryption key, as he can decrypt all private data using his Ethereum private key.
+Reading/writing private data is as simple as reading/writing public data. The differences are:
+
+- Only digital identity owner can read the private data
+- The private data source can read private data only if it saved the data encryption key
+- The digital identity owner does not need to know the data encryption key, as he can decrypt all private data using his Ethereum private key
 
 #### Writing private data
 
 To store private data, use `FactWriter.setPrivateData` method.
 
 Let's try storing this data:
+
 - data source address: `0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E` (your address)
 - fact key: `secret_message`
 - fact value: `[1, 2, 3]` (value must be array of bytes)
@@ -604,6 +608,7 @@ ipfsClient.on('ready', async () => {
 ```
 
 result variable will contain such object (with different values):
+
 ```js
 {
   // IPFS hash of directory where the encrypted data with it's metadata is stored. This data will be stored in digital identity after transaction execution
@@ -637,6 +642,7 @@ At this stage data is stored to IPFS, but not yet in blockchain digital identity
 #### Reading private data
 
 After the data source has written the private data to the digital identity, the data can be read either by digital identity owner or by data source (only if he's saved the secret encryption key). To read private data, the following data should be provided:
+
 - digital identity address
 - data source address
 - fact key
@@ -697,7 +703,7 @@ This will return:
 }
 ```
 
-##### Reading private data from transaction hash
+#### Reading private data from transaction hash
 
 There is a possibility to read private data from blockchain transaction as well. Using same conditions as in previous example, we can retrieve private data from transaction using `FactHistoryReader` like this:
 
@@ -771,7 +777,7 @@ How it works:
    method, the data requester specifies which data source data he wants to read, encrypts exchange key with the digital identity
    owner's public key and transfers to the digital identity the funds that he is willing to pay for the private data.
 
-1. The digital identity owner receives an event from the Ethereum blockchain or directly from the data requester for the data
+2. The digital identity owner receives an event from the Ethereum blockchain or directly from the data requester for the data
    exchange proposition. If he is satisfied with the proposal, he executes the `PrivateDataExchanger.accept()` method. When executing this method,
    the digital identity owner encrypts the data encryption key with the exchange key of data requester and
    transfers the same amount of funds as the data requester to the digital identity as a guarantee of the validity of the data encryption key.
@@ -779,13 +785,13 @@ How it works:
    The digital identity owner has 24 hours to accept private data exchange. 24 hours after the exchange proposition, the data
    requester can close the proposition and return staked funds back by calling `PrivateDataExchanger.timeout()` method.
 
-1. The data requester receives an event from the Ethereum blockchain or directly from the digital identity owner about accepted
+3. The data requester receives an event from the Ethereum blockchain or directly from the digital identity owner about accepted
    private data exchange. It decrypts the data access key using exchange key and reads private data using `PrivateDataExchanger.getPrivateData()` method.
    After that `PrivateDataExchanger.finish()` method is called, which returns all staked funds to the digital identity owner.
 
    During the first 24 hours, the `PrivateDataExchanger.finish()` method can only be called by the data requester, after 24 hours - digital identity owner can call this method as well.
 
-1. If it is not possible to decrypt the data, the data requester calls the `PrivateDataExchanger.dispute()` method, revealing the exchange key.
+4. If it is not possible to decrypt the data, the data requester calls the `PrivateDataExchanger.dispute()` method, revealing the exchange key.
    The Ethereum contract code identifies the cheater and transfers all staked funds to the party who behaved honestly.
    The data requester has 24 hours to open a dispute, otherwise the exchange is considered valid and the digital identity owner
    can get all staked funds.
@@ -1043,7 +1049,11 @@ network of 7 nodes locally is by using [example](https://docs.goquorum.com/en/la
 
 When nodes are up and running, you must deploy  `PassportLogic`, `PassportLogicRegistry` and `PassportFactory` smart contracts. You will find latest versions of those contracts in our contracts Github [repository](https://github.com/monetha/reputation-contracts/tree/master/contracts).
 
-To use SDK with Quorum's public transactions - no special configuration is needed for SDK and it can be used as with Mainnet or Ropsten. However, to use Quorum's private transactions, it is needed to sign transactions and retrieve transaction data in a special way. Luckily, SDK provides extension points where this custom behaviour can be achieved. You can see an example of usage with Quorum in [`integration-tests/test/facts.ts`](integration-tests/test/facts.ts). If you run integration tests using using `npm run test:quorum-private`, then there are special options passed to `FactWriter`, `FactReader` and other constructors:
+To use SDK with Quorum's public transactions - no special configuration is needed for SDK and it can be used same was as with public Ethereum networks. However,  in order to use Quorum's private transactions, signing of transactions is done differently.
+
+Our SDK provides extension points where Quorum's custom behavior can be achieved. An example of SDK usage with Quotum can be seen in [`integration-tests/test/facts.ts`](integration-tests/test/facts.ts). 
+
+If you run integration tests using using `npm run test:quorum-private`, then there are special options passed to `FactWriter`, `FactReader` and other constructors:
 
 ```js
 import { ext } from 'TODO:NAME';
