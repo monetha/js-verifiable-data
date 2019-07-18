@@ -2,7 +2,7 @@ import { logVerbose } from 'common/logger';
 import { getAccounts, getNetwork, getNetworkUrl, getPrivateKeys, NetworkType } from 'common/network';
 import { getNodePublicKeys } from 'common/quorum';
 import { createTxExecutor, isPrivateTxMode } from 'common/tx';
-import { ext, FactHistoryReader, FactReader, FactRemover, FactWriter, IEthOptions, PassportGenerator, PassportOwnership, PassportReader, Permissions } from 'reputation-sdk';
+import { ext, FactHistoryReader, FactReader, FactRemover, FactWriter, IEthOptions, PassportGenerator, PassportOwnership, PassportReader, Permissions } from 'verifiable-data';
 import Web3 from 'web3';
 import { MockIPFSClient } from '../mocks/MockIPFSClient';
 

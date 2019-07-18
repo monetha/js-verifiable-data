@@ -1,4 +1,4 @@
-import { ErrorCode, ISdkError } from 'reputation-sdk';
+import { ErrorCode, ISdkError } from 'verifiable-data';
 
 export async function expectSdkError(func: () => Promise<any>, code: ErrorCode) {
   try {

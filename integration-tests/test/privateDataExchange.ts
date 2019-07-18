@@ -2,7 +2,7 @@ import BN from 'bn.js';
 import { expectSdkError } from 'common/error';
 import { advanceTimeAndBlock, revertToSnapshot, takeSnapshot } from 'common/ganache';
 import { createTxExecutor, isPrivateTxMode } from 'common/tx';
-import { FactWriter, PassportGenerator, PassportOwnership, PrivateDataExchanger, Address, IEthOptions, ext, ExchangeState, ErrorCode } from 'reputation-sdk';
+import { FactWriter, PassportGenerator, PassportOwnership, PrivateDataExchanger, Address, IEthOptions, ext, ExchangeState, ErrorCode } from 'verifiable-data';
 import { MockIPFSClient } from 'mocks/MockIPFSClient';
 import Web3 from 'web3';
 import { getNetworkUrl, getPrivateKeys, getAccounts, getNetwork, NetworkType } from 'common/network';

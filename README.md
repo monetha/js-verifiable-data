@@ -1,4 +1,4 @@
-# TODO:NAME
+# verifiable-data
 
 SDK for managing verifiable data of digital identities on distributed ledger.
 
@@ -11,7 +11,7 @@ Corresponds to [Verifiable data layer](https://github.com/monetha/reputation-lay
 
 *NOTE*: Terms "Digital identity" and "Passport" has the same meaning and will be used interchangeably in this guide.
 
-- [TODO:NAME](#TODONAME)
+- [Verifiable data](#Verifiable-data)
   - [Building the source](#Building-the-source)
     - [Prerequisites](#Prerequisites)
     - [Build](#Build)
@@ -60,7 +60,7 @@ or
 
 ## Bootstrap
 
-To bootstrap TODO:NAME, we need to deploy three contracts:
+To bootstrap verifiable-data, we need to deploy three contracts:
 1. `PassportLogic` - specifies upgradable behaviour of digital identities
 1. `PassportLogicRegistry` - responsible for telling digital identities, which behaviour version to use
 1. `PassportFactory` - responsible for digital identity creation
@@ -102,7 +102,7 @@ To create a digital identity contract you need to know the address of the `Passp
 using the `PassportFactory` contract deployed by Monetha ([`0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2`](https://ropsten.etherscan.io/address/0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2)):
 
 ```js
-import { PassportGenerator } from 'TODO:NAME';
+import { PassportGenerator } from 'verifiable-data';
 const generator = new PassportGenerator(web3, passportFactoryAddress);
 
 // txConfig must be signed by `passportOwnerAddress` when sending it to network
@@ -128,7 +128,7 @@ const passportAddress = PassportGenerator.getPassportAddressFromReceipt(receipt)
 After the digital identity is created, the owner must call the `claimOwnership` method to become a full owner:
 
 ```js
-import { PassportOwnership } from 'TODO:NAME';
+import { PassportOwnership } from 'verifiable-data';
 const ownership = new PassportOwnership(web3, passportAddress);
 
 const txConfig = await ownership.claimOwnership(passportOwnerAddress);
@@ -148,7 +148,7 @@ Let's try to get a list of all digital identities using the address of `Passport
 in Ropsten network:
 
 ```js
-import { PassportReader } from 'TODO:NAME';
+import { PassportReader } from 'verifiable-data';
 const reader = new PassportReader(web3);
 
 const passports = await reader.getPassportsList('0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2');
@@ -213,7 +213,7 @@ writes user rating facts to their digital identities when users make deals in [M
 Let's try to store string `hello` under the key `greetings` as `string` in digital identity:
 
 ```js
-import { FactWriter } from 'TODO:NAME';
+import { FactWriter } from 'verifiable-data';
 const writer = new FactWriter(web3, passportAddress);
 
 const txConfig = await writer.setString('greetings', 'hello', factProviderAddress);
@@ -281,7 +281,7 @@ To read the data you need to know:
 Let's try to retrieve string from digital identity `<passportAddress>` that was stored by the data source `<factProviderAddress>` under the key `greetings` as `string` data type:
 
 ```js
-import { FactReader } from 'TODO:NAME';
+import { FactReader } from 'verifiable-data';
 const reader = new FactReader(web3, passportAddress);
 
 const data = await reader.getString(factProviderAddress, 'greetings');
@@ -350,7 +350,7 @@ It is possible to read fact values from fact writing transactions. Use `FactHist
 Let's read a string fact from transaction hash `0x123456789...`:
 
 ```js
-import { FactHistoryReader } from 'TODO:NAME';
+import { FactHistoryReader } from 'verifiable-data';
 const historyReader = new FactHistoryReader(web3);
 
 const factInfo = await historyReader.getString('0x123456789...');
@@ -430,7 +430,7 @@ User can delete the data stored from the digital identity. Deleting a fact will 
 Let's try to delete fact under the key `greetings` as `string` from digital identity:
 
 ```js
-import { FactRemover } from 'TODO:NAME';
+import { FactRemover } from 'verifiable-data';
 const remover = new FactRemover(web3, passportAddress);
 
 const txConfig = await remover.deleteString('greetings', factProviderAddress);
@@ -495,7 +495,7 @@ By default any data source can write to a digital identity, but digital identity
 Consider an example of how owner `<passportOwnerAddress>` of a digital identity `<passportAddress>` enables whitelist-only permissions and adds data source `<factProviderAddress>` to the whitelist.
 
 ```js
-import { Permissions } from 'TODO:NAME';
+import { Permissions } from 'verifiable-data';
 const permissions = new Permissions(web3, passportAddress);
 
 let txConfig = await permissions.setWhitelistOnlyPermission(true, passportOwnerAddress);
@@ -538,7 +538,7 @@ Let's try to retrieve the entire change history for the digital identity [`0x1C3
 in `Ropsten` network :
 
 ```js
-import { PassportReader } from 'TODO:NAME';
+import { PassportReader } from 'verifiable-data';
 const reader = new PassportReader(web3);
 const history = await reader.readPassportHistory(passportAddress);
 ```
@@ -586,7 +586,7 @@ Let's try storing this data:
 To this digital identity: `0x4026a67a2C4746b94F168bd4d082708f78d7b29f`
 
 ```js
-import { FactWriter } from 'TODO:NAME';
+import { FactWriter } from 'verifiable-data';
 import IPFS from 'ipfs';
 
 // Prepare web3 object
@@ -595,7 +595,7 @@ import IPFS from 'ipfs';
 const writer = new FactWriter(web3, `0x4026a67a2C4746b94F168bd4d082708f78d7b29f`);
 
 // ipfsClient can be any object that is able to communicate with IPFS as long as it implements
-// interface IIPFSClient in 'TODO:NAME'
+// interface IIPFSClient in 'verifiable-data'
 const ipfsClient = new IPFS();
 
 ipfsClient.on('ready', async () => {
@@ -655,7 +655,7 @@ Let's try retrieving private data using:
 - fact key: `secret_message`
 
 ```js
-import { FactReader } from 'TODO:NAME';
+import { FactReader } from 'verifiable-data';
 import IPFS from 'ipfs';
 
 // Prepare web3 object
@@ -664,7 +664,7 @@ import IPFS from 'ipfs';
 const reader = new FactReader(web3, `0x4026a67a2C4746b94F168bd4d082708f78d7b29f`);
 
 // ipfsClient can be any object that is able to communicate with IPFS as long as it implements
-// interface IIPFSClient in 'TODO:NAME'
+// interface IIPFSClient in 'verifiable-data'
 const ipfsClient = new IPFS();
 
 ipfsClient.on('ready', async () => {
@@ -708,7 +708,7 @@ This will return:
 There is a possibility to read private data from blockchain transaction as well. Using same conditions as in previous example, we can retrieve private data from transaction using `FactHistoryReader` like this:
 
 ```js
-import { FactHistoryReader } from 'TODO:NAME';
+import { FactHistoryReader } from 'verifiable-data';
 ...
 
 const historyReader = new FactHistoryReader(web3, `0x4026a67a2C4746b94F168bd4d082708f78d7b29f`);
@@ -819,7 +819,7 @@ Let's try proposing exchange for private fact using following parameters:
 - requester address: `0xd2Bb3Aa3F2c0bdA6D8020f3228EabD4A89d8B951` (the one who will execute transaction)
 
 ```js
-import { PrivateDataExchanger } from 'TODO:NAME';
+import { PrivateDataExchanger } from 'verifiable-data';
 import BN from 'bn.js';
 import IPFS from 'ipfs';
 
@@ -837,7 +837,7 @@ const txExecutor = async (txConfig) => {
 };
 
 // ipfsClient can be any object that is able to communicate with IPFS as long as it implements
-// interface IIPFSClient in 'TODO:NAME'
+// interface IIPFSClient in 'verifiable-data'
 const ipfsClient = new IPFS();
 
 ipfsClient.on('ready', async () => {
@@ -1051,12 +1051,12 @@ When nodes are up and running, you must deploy  `PassportLogic`, `PassportLogicR
 
 To use SDK with Quorum's public transactions - no special configuration is needed for SDK and it can be used same was as with public Ethereum networks. However,  in order to use Quorum's private transactions, signing of transactions is done differently.
 
-Our SDK provides extension points where Quorum's custom behavior can be achieved. An example of SDK usage with Quotum can be seen in [`integration-tests/test/facts.ts`](integration-tests/test/facts.ts). 
+Our SDK provides extension points where Quorum's custom behavior can be achieved. An example of SDK usage with Quotum can be seen in [`integration-tests/test/facts.ts`](integration-tests/test/facts.ts).
 
 If you run integration tests using using `npm run test:quorum-private`, then there are special options passed to `FactWriter`, `FactReader` and other constructors:
 
 ```js
-import { ext } from 'TODO:NAME';
+import { ext } from 'verifiable-data';
 
 const options: IEthOptions = {
 

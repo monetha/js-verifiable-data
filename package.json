@@ -1,5 +1,5 @@
 {
-	"name": "reputation-sdk",
+	"name": "verifiable-data",
 	"version": "2.5.0",
 	"description": "SDK for managing verifiable data using digital identities on distributed ledger",
 	"main": "./dist/lib/proto.js",

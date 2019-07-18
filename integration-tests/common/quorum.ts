@@ -2,7 +2,7 @@ import quorumjs from 'quorum-js';
 import Web3 from 'web3';
 import { TransactionReceipt, TransactionConfig } from 'web3-core';
 import { getNetworkConfig } from './network';
-import { toBN } from 'reputation-sdk';
+import { toBN } from 'verifiable-data';
 
 export function getAccounts(): string[] {
   return [

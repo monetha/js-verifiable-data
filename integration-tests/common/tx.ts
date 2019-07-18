@@ -3,7 +3,7 @@ import Web3 from 'web3';
 import { Transaction, TransactionReceipt, TransactionConfig } from 'web3-core';
 import { getAccounts, getPrivateKeys, getNetwork, NetworkType } from './network';
 import { submitPrivateTransaction } from './quorum';
-import { toBN, TxExecutor } from 'reputation-sdk';
+import { toBN, TxExecutor } from 'verifiable-data';
 
 export const isPrivateTxMode: boolean = process.argv.includes('--private');
 
