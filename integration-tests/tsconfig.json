@@ -12,7 +12,7 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "reputation-sdk": [
+      "verifiable-data": [
         "../lib/proto.ts"
       ],
       "lib/*": [

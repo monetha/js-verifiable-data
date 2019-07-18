@@ -1,4 +1,4 @@
-import { IIPFSClient } from 'reputation-sdk';
+import { IIPFSClient } from 'verifiable-data';
 import FormData from 'form-data';
 import fetch from 'node-fetch';
 

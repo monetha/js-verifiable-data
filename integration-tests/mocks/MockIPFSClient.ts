@@ -1,6 +1,6 @@
 
 import { sha256 } from 'hash.js';
-import { IIPFSClient, IIPFSAddResult, IIPFSDag, IIPFSLink, IIPLD } from 'reputation-sdk';
+import { IIPFSClient, IIPFSAddResult, IIPFSDag, IIPFSLink, IIPLD } from 'verifiable-data';
 
 export class MockIPFSClient implements IIPFSClient {
   public dag: MockIPFSDag;

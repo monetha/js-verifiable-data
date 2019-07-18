@@ -1,7 +1,7 @@
 {
-	"name": "reputation-sdk",
-	"version": "2.5.0",
-	"description": "",
+	"name": "verifiable-data",
+	"version": "2.6.0",
+	"description": "SDK for managing verifiable data using digital identities on distributed ledger",
 	"main": "./dist/lib/proto.js",
 	"types": "./dist/lib/proto.d.ts",
 	"license": "GPL-3.0",
