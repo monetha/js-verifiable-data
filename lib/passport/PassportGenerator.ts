@@ -14,7 +14,21 @@ export class PassportGenerator {
    * Utility to extract passport address from passport creation transaction receipt
    */
   public static getPassportAddressFromReceipt(passportCreationReceipt: TransactionReceipt) {
-    return `0x${passportCreationReceipt.logs[0].topics[1].slice(26)}`;
+    if (!passportCreationReceipt) {
+      return null;
+    }
+
+    const { logs } = passportCreationReceipt;
+    if (!logs || logs.length === 0) {
+      return null;
+    }
+
+    const { topics } = logs[0];
+    if (!topics || topics.length < 2) {
+      return null;
+    }
+
+    return `0x${topics[1].slice(26)}`;
   }
 
   constructor(web3: Web3, passportFactoryAddress: Address) {

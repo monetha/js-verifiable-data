@@ -49,7 +49,18 @@ var PassportGenerator = /** @class */ (function () {
      * Utility to extract passport address from passport creation transaction receipt
      */
     PassportGenerator.getPassportAddressFromReceipt = function (passportCreationReceipt) {
-        return "0x" + passportCreationReceipt.logs[0].topics[1].slice(26);
+        if (!passportCreationReceipt) {
+            return null;
+        }
+        var logs = passportCreationReceipt.logs;
+        if (!logs || logs.length === 0) {
+            return null;
+        }
+        var topics = logs[0].topics;
+        if (!topics || topics.length < 2) {
+            return null;
+        }
+        return "0x" + topics[1].slice(26);
     };
     /**
      * Creates an empty passport and returns its address
