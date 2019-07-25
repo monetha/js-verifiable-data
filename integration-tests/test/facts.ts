@@ -1,6 +1,6 @@
 import { logVerbose } from 'common/logger';
 import { getAccounts, getNetwork, getNetworkUrl, getPrivateKeys, NetworkType } from 'common/network';
-import { getNodePublicKeys } from 'common/quorum';
+import { getNodePublicKeys, getNodeNetworkUrl } from 'common/quorum';
 import { createTxExecutor, isPrivateTxMode } from 'common/tx';
 import { ext, FactHistoryReader, FactReader, FactRemover, FactWriter, IEthOptions, PassportGenerator, PassportOwnership, PassportReader, Permissions } from 'verifiable-data';
 import Web3 from 'web3';
@@ -82,6 +82,21 @@ describe('Passport creation and facts', () => {
     logVerbose('----------------------------------------------------------');
   });
 
+  if (isPrivateTxMode && getNetwork() === NetworkType.Quorum) {
+    const web3Node3 = new Web3(new Web3.providers.HttpProvider(getNodeNetworkUrl(2)));
+
+    it('Created passport should not be visible from other nodes', async () => {
+
+      // Visible in node 1
+      let code = await web3.eth.getCode(passportAddress);
+      expect(code.length).to.be.greaterThan(3);
+
+      // Not visible in node 3
+      code = await web3Node3.eth.getCode(passportAddress);
+      expect(code.length).to.be.lessThan(4);
+    });
+  }
+
   it('Should be able to claim ownership', async () => {
     // Given
     const ownership = new PassportOwnership(web3, passportAddress);
@@ -106,6 +121,21 @@ describe('Passport creation and facts', () => {
     expect(passports[0]).to.have.property('passportAddress');
     expect(passports[0]).to.have.property('ownerAddress');
   });
+
+  if (isPrivateTxMode && getNetwork() === NetworkType.Quorum) {
+    const web3Node3 = new Web3(new Web3.providers.HttpProvider(getNodeNetworkUrl(2)));
+
+    it('Should not be able to get a list of all created passports from other node', async () => {
+      // Given
+      const reader = new PassportReader(web3Node3);
+
+      // When
+      const passports = await reader.getPassportsList(passportFactoryAddress);
+
+      // Then
+      expect(passports.length).to.equal(0);
+    });
+  }
 
   // #region -------------- Fact writing -------------------------------------------------------------------
 

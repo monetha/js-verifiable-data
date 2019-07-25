@@ -79,6 +79,7 @@ const preparePassport = async () => {
   // Create passport
   const generator = new PassportGenerator(web3, passportFactoryAddress);
   let txData = await generator.createPassport(passportOwner);
+
   let receipt = await txExecutor(txData);
   passportAddress = PassportGenerator.getPassportAddressFromReceipt(receipt);
 
@@ -423,7 +424,6 @@ describe('Private data exchange', () => {
   }
 
   // #endregion
-
 });
 
 // #region -------------- Helpers -------------------------------------------------------------------
