@@ -5,7 +5,7 @@ import { createTxExecutor, isPrivateTxMode } from 'common/tx';
 import { FactWriter, PassportGenerator, PassportOwnership, PrivateDataExchanger, Address, IEthOptions, ext, ExchangeState, ErrorCode } from 'verifiable-data';
 import { MockIPFSClient } from 'mocks/MockIPFSClient';
 import Web3 from 'web3';
-import { getNetworkUrl, getPrivateKeys, getAccounts, getNetwork, NetworkType, getNetworkUrlNode2 } from 'common/network';
+import { getNetworkUrl, getPrivateKeys, getAccounts, getNetwork, NetworkType } from 'common/network';
 import { logVerbose } from 'common/logger';
 import { getNodePublicKeys } from 'common/quorum';
 // import { IPFSClient } from 'common/IPFSClient';

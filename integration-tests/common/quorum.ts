@@ -52,6 +52,15 @@ export function getNodePublicKeys(): string[] {
   ];
 }
 
+/**
+ * Gets Quorum node's network url for specified node index.
+ * NOTE: It is assumed that node addresses have same IP address, but only different ports, incrementing by 1
+ */
+export function getNodeNetworkUrl(nodeIndex: number): string {
+  const networkConfig = getNetworkConfig();
+  return `http://${networkConfig.host}:${Number(networkConfig.port) + nodeIndex}`;
+}
+
 export async function submitPrivateTransaction(web3: Web3, txData: TransactionConfig): Promise<TransactionReceipt> {
   const accounts = getAccounts();
   const accountIndex = accounts.findIndex(a => a.toLowerCase() === txData.from.toString().toLowerCase());
