@@ -6,8 +6,8 @@ Corresponds to [Verifiable data layer](https://github.com/monetha/reputation-lay
 
 [![Build Status][1]][2]
 
-[1]: https://travis-ci.org/monetha/reputation-js-sdk.svg?branch=master
-[2]: https://travis-ci.org/monetha/reputation-js-sdk
+[1]: https://travis-ci.org/monetha/js-verifiable-data.svg?branch=master
+[2]: https://travis-ci.org/monetha/js-verifiable-data
 
 *NOTE*: Terms "Digital identity" and "Passport" has the same meaning and will be used interchangeably in this guide.
 
