@@ -414,3 +414,4 @@ var ExchangeState;
     ExchangeState[ExchangeState["Accepted"] = 2] = "Accepted";
 })(ExchangeState = exports.ExchangeState || (exports.ExchangeState = {}));
 // #endregion
+//# sourceMappingURL=PrivateDataExchanger.js.map

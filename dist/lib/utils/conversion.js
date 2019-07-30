@@ -93,3 +93,4 @@ function toDate(value) {
     return new Date(bnValue.toNumber());
 }
 exports.toDate = toDate;
+//# sourceMappingURL=conversion.js.map

@@ -1,6 +1,6 @@
 {
 	"name": "verifiable-data",
-	"version": "2.6.2",
+	"version": "2.6.3",
 	"description": "SDK for managing verifiable data using digital identities on distributed ledger",
 	"main": "./dist/lib/proto.js",
 	"types": "./dist/lib/proto.d.ts",

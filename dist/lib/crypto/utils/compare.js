@@ -16,3 +16,4 @@ function constantTimeCompare(a, b) {
     return mismatch === 0;
 }
 exports.constantTimeCompare = constantTimeCompare;
+//# sourceMappingURL=compare.js.map

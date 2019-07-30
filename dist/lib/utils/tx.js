@@ -147,3 +147,4 @@ exports.prepareTxConfig = function (web3, from, to, data, value, gasLimit) {
         });
     });
 };
+//# sourceMappingURL=tx.js.map

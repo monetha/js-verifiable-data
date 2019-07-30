@@ -73,12 +73,8 @@ export class PassportReader {
     const toBlock = filter && filter.endBlock || 'latest';
 
     let eventsFilter;
-    if (filter && (filter.factProviderAddress || filter.key)) {
+    if (filter && filter.key) {
       eventsFilter = {};
-
-      if (filter.factProviderAddress) {
-        eventsFilter.factProvider = filter.factProviderAddress;
-      }
 
       if (filter.key) {
         eventsFilter.key = this.web3.utils.fromAscii(filter.key);
@@ -112,6 +108,10 @@ export class PassportReader {
 
       // First argument is fact provider address
       const factProviderAddress: string = topics[1] ? sanitizeAddress(topics[1].slice(26)) : '';
+
+      if (filter.factProviderAddress && factProviderAddress !== filter.factProviderAddress) {
+        return;
+      }
 
       // Second argument is fact key
       const key: string = topics[2] ? this.web3.utils.toAscii(topics[2]).replace(/\u0000/g, '') : '';

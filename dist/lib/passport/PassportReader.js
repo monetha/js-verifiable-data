@@ -109,17 +109,17 @@ var PassportReader = /** @class */ (function () {
                     case 0:
                         fromBlock = filter && filter.startBlock || 0;
                         toBlock = filter && filter.endBlock || 'latest';
-                        if (filter && (filter.factProviderAddress || filter.key)) {
+                        if (filter && filter.key) {
                             eventsFilter = {};
-                            if (filter.factProviderAddress) {
-                                eventsFilter.factProvider = filter.factProviderAddress;
-                            }
                             if (filter.key) {
                                 eventsFilter.key = this.web3.utils.fromAscii(filter.key);
                             }
                         }
                         contract = new this.web3.eth.Contract(PassportLogic_json_1.default, passportAddress);
                         return [4 /*yield*/, contract.getPastEvents('allEvents', {
+                                // const events = await contract.getPastEvents('TxDataUpdated', {
+                                // const events = await contract.getPastEvents('StringUpdated', {
+                                // const events = await contract.getPastEvents('IntUpdated', {
                                 fromBlock: fromBlock,
                                 toBlock: toBlock,
                                 filter: eventsFilter,
@@ -131,6 +131,7 @@ var PassportReader = /** @class */ (function () {
                             if (!event) {
                                 return;
                             }
+                            // debugger;
                             var topics = event.raw.topics;
                             var eventSignatureHash = topics[0];
                             var eventInfo = factEventSignatures[eventSignatureHash];
@@ -140,6 +141,9 @@ var PassportReader = /** @class */ (function () {
                             }
                             // First argument is fact provider address
                             var factProviderAddress = topics[1] ? sanitizeAddress_1.sanitizeAddress(topics[1].slice(26)) : '';
+                            if (filter.factProviderAddress && factProviderAddress !== filter.factProviderAddress) {
+                                return;
+                            }
                             // Second argument is fact key
                             var key = topics[2] ? _this.web3.utils.toAscii(topics[2]).replace(/\u0000/g, '') : '';
                             historyEvents.push(__assign({}, event, { factProviderAddress: factProviderAddress,
@@ -196,3 +200,4 @@ function getEventSignatures(web3) {
         factEvents: factEvents,
     };
 }
+//# sourceMappingURL=PassportReader.js.map

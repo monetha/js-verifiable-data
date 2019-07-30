@@ -11,3 +11,4 @@ function getMessageTag(hashConstr, hmacKey, msg, sharedKey) {
     return tag;
 }
 exports.getMessageTag = getMessageTag;
+//# sourceMappingURL=hmac.js.map

@@ -98,3 +98,4 @@ function decodePrivateTx(tx, web3) {
     });
 }
 exports.decodePrivateTx = decodePrivateTx;
+//# sourceMappingURL=quorum.js.map

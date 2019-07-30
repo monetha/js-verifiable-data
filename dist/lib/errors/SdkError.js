@@ -12,3 +12,4 @@ function createSdkError(code, message, rawError) {
     return error;
 }
 exports.createSdkError = createSdkError;
+//# sourceMappingURL=SdkError.js.map

@@ -69,3 +69,4 @@ function convertAddResultToLink(result, name) {
     return link;
 }
 exports.convertAddResultToLink = convertAddResultToLink;
+//# sourceMappingURL=ipfs.js.map
