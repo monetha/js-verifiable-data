@@ -102,24 +102,17 @@ var PassportReader = /** @class */ (function () {
      */
     PassportReader.prototype.readPassportHistory = function (passportAddress, filter) {
         return __awaiter(this, void 0, void 0, function () {
-            var fromBlock, toBlock, eventsFilter, contract, events, historyEvents;
+            var fromBlock, toBlock, contract, events, historyEvents;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         fromBlock = filter && filter.startBlock || 0;
                         toBlock = filter && filter.endBlock || 'latest';
-                        if (filter && filter.key) {
-                            eventsFilter = {};
-                            if (filter.key) {
-                                eventsFilter.key = this.web3.utils.fromAscii(filter.key);
-                            }
-                        }
                         contract = new this.web3.eth.Contract(PassportLogic_json_1.default, passportAddress);
                         return [4 /*yield*/, contract.getPastEvents('allEvents', {
                                 fromBlock: fromBlock,
                                 toBlock: toBlock,
-                                filter: eventsFilter,
                             })];
                     case 1:
                         events = _a.sent();
@@ -142,6 +135,9 @@ var PassportReader = /** @class */ (function () {
                             }
                             // Second argument is fact key
                             var key = topics[2] ? _this.web3.utils.toAscii(topics[2]).replace(/\u0000/g, '') : '';
+                            if (filter && filter.key && key !== filter.key) {
+                                return;
+                            }
                             historyEvents.push(__assign({}, event, { factProviderAddress: factProviderAddress,
                                 key: key, dataType: eventInfo.dataType, eventType: eventInfo.eventType }));
                         });

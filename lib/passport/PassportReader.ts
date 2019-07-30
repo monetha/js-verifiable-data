@@ -72,21 +72,11 @@ export class PassportReader {
     const fromBlock = filter && filter.startBlock || 0;
     const toBlock = filter && filter.endBlock || 'latest';
 
-    let eventsFilter;
-    if (filter && filter.key) {
-      eventsFilter = {};
-
-      if (filter.key) {
-        eventsFilter.key = this.web3.utils.fromAscii(filter.key);
-      }
-    }
-
     // Event retrieval
     const contract = new this.web3.eth.Contract(passportLogicAbi as AbiItem[], passportAddress) as PassportLogic;
     const events = await contract.getPastEvents('allEvents', {
       fromBlock,
       toBlock,
-      filter: eventsFilter,
     });
 
     const historyEvents: IHistoryEvent[] = [];
@@ -115,6 +105,10 @@ export class PassportReader {
 
       // Second argument is fact key
       const key: string = topics[2] ? this.web3.utils.toAscii(topics[2]).replace(/\u0000/g, '') : '';
+
+      if (filter && filter.key && key !== filter.key) {
+        return;
+      }
 
       historyEvents.push({
         ...event,

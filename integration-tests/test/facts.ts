@@ -141,6 +141,8 @@ describe('Passport creation and facts', () => {
 
   it('Should be able to write String fact', async () => {
     txHashes.string_fact = await writeAndValidateFact(writer => writer.setString('string_fact', 'hello', factProviderAddress));
+    txHashes.second_fact = await writeAndValidateFact(writer => writer.setString('second_fact', 'world', factProviderAddress));
+    txHashes.second_fact_update = await writeAndValidateFact(writer => writer.setString('second_fact', 'bar', factProviderAddress));
   });
 
   it('Should be able to write Address fact', async () => {
@@ -355,13 +357,33 @@ describe('Passport creation and facts', () => {
     const reader = new PassportReader(web3);
 
     // When
-    const response = await reader.readPassportHistory(passportAddress);
+    let response = await reader.readPassportHistory(passportAddress);
+
+    const dataSource = factProviderAddress.toLowerCase();
 
     // Then
-    expect(response[1].factProviderAddress.toLowerCase()).to.equal(factProviderAddress.toLowerCase());
+    expect(response[1].factProviderAddress.toLowerCase()).to.equal(dataSource);
     expect(response[1]).to.have.property('blockNumber');
     expect(response[1]).to.have.property('transactionHash');
     expect(JSON.stringify(response)).to.contains('string_fact');
+
+    // When filtering by fact key and data source address
+    response = await reader.readPassportHistory(passportAddress, {
+      key: 'second_fact',
+      factProviderAddress: dataSource,
+    });
+
+    // Then
+    expect(response.length).to.equal(2);
+
+    expect(response[0].factProviderAddress.toLowerCase()).to.equal(dataSource);
+    expect(response[1].factProviderAddress.toLowerCase()).to.equal(dataSource);
+
+    expect(response[0].transactionHash).to.equal(txHashes.second_fact);
+    expect(response[1].transactionHash).to.equal(txHashes.second_fact_update);
+
+    expect(response[0].key).to.equal('second_fact');
+    expect(response[1].key).to.equal('second_fact');
   });
 
   // #endregion
