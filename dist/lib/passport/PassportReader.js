@@ -117,9 +117,6 @@ var PassportReader = /** @class */ (function () {
                         }
                         contract = new this.web3.eth.Contract(PassportLogic_json_1.default, passportAddress);
                         return [4 /*yield*/, contract.getPastEvents('allEvents', {
-                                // const events = await contract.getPastEvents('TxDataUpdated', {
-                                // const events = await contract.getPastEvents('StringUpdated', {
-                                // const events = await contract.getPastEvents('IntUpdated', {
                                 fromBlock: fromBlock,
                                 toBlock: toBlock,
                                 filter: eventsFilter,
@@ -131,7 +128,6 @@ var PassportReader = /** @class */ (function () {
                             if (!event) {
                                 return;
                             }
-                            // debugger;
                             var topics = event.raw.topics;
                             var eventSignatureHash = topics[0];
                             var eventInfo = factEventSignatures[eventSignatureHash];
