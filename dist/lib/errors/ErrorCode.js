@@ -22,4 +22,3 @@ var ErrorCode;
     ErrorCode["InvalidIPFSObject"] = "InvalidIPFSObject";
     ErrorCode["DataNotFoundInBlock"] = "DataNotFoundInBlock";
 })(ErrorCode = exports.ErrorCode || (exports.ErrorCode = {}));
-//# sourceMappingURL=ErrorCode.js.map

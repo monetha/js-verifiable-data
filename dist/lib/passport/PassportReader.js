@@ -200,4 +200,3 @@ function getEventSignatures(web3) {
         factEvents: factEvents,
     };
 }
-//# sourceMappingURL=PassportReader.js.map

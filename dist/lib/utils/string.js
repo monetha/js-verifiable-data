@@ -13,4 +13,3 @@ function ciEquals(a, b) {
     return a.toLowerCase() === b.toLowerCase();
 }
 exports.ciEquals = ciEquals;
-//# sourceMappingURL=string.js.map

@@ -135,4 +135,3 @@ var PassportOwnership = /** @class */ (function () {
     return PassportOwnership;
 }());
 exports.PassportOwnership = PassportOwnership;
-//# sourceMappingURL=PassportOwnership.js.map

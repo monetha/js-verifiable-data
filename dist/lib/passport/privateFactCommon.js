@@ -54,4 +54,3 @@ function unmarshalSecretKeyringMaterial(skm) {
     };
 }
 exports.unmarshalSecretKeyringMaterial = unmarshalSecretKeyringMaterial;
-//# sourceMappingURL=privateFactCommon.js.map

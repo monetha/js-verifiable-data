@@ -365,4 +365,3 @@ var FactHistoryReader = /** @class */ (function () {
     return FactHistoryReader;
 }());
 exports.FactHistoryReader = FactHistoryReader;
-//# sourceMappingURL=FactHistoryReader.js.map

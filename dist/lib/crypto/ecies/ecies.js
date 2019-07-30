@@ -68,4 +68,3 @@ var ECIES = /** @class */ (function () {
     return ECIES;
 }());
 exports.ECIES = ECIES;
-//# sourceMappingURL=ecies.js.map
