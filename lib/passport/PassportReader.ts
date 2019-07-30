@@ -109,7 +109,7 @@ export class PassportReader {
       // First argument is fact provider address
       const factProviderAddress: string = topics[1] ? sanitizeAddress(topics[1].slice(26)) : '';
 
-      if (filter.factProviderAddress && factProviderAddress !== filter.factProviderAddress) {
+      if (filter && filter.factProviderAddress && factProviderAddress !== filter.factProviderAddress) {
         return;
       }
 

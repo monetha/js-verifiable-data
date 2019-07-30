@@ -137,7 +137,7 @@ var PassportReader = /** @class */ (function () {
                             }
                             // First argument is fact provider address
                             var factProviderAddress = topics[1] ? sanitizeAddress_1.sanitizeAddress(topics[1].slice(26)) : '';
-                            if (filter.factProviderAddress && factProviderAddress !== filter.factProviderAddress) {
+                            if (filter && filter.factProviderAddress && factProviderAddress !== filter.factProviderAddress) {
                                 return;
                             }
                             // Second argument is fact key
