@@ -99,14 +99,14 @@ export class PassportReader {
       // First argument is fact provider address
       const factProviderAddress: string = topics[1] ? sanitizeAddress(topics[1].slice(26)) : '';
 
-      if (filter && filter.factProviderAddress && factProviderAddress !== filter.factProviderAddress) {
+      if (filter && filter.factProviderAddress && factProviderAddress.toLowerCase() !== filter.factProviderAddress.toLowerCase()) {
         return;
       }
 
       // Second argument is fact key
       const key: string = topics[2] ? this.web3.utils.toAscii(topics[2]).replace(/\u0000/g, '') : '';
 
-      if (filter && filter.key && key !== filter.key) {
+      if (filter && filter.key && key.toLowerCase() !== filter.key.toLowerCase()) {
         return;
       }
 

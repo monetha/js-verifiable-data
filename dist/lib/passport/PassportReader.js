@@ -130,12 +130,12 @@ var PassportReader = /** @class */ (function () {
                             }
                             // First argument is fact provider address
                             var factProviderAddress = topics[1] ? sanitizeAddress_1.sanitizeAddress(topics[1].slice(26)) : '';
-                            if (filter && filter.factProviderAddress && factProviderAddress !== filter.factProviderAddress) {
+                            if (filter && filter.factProviderAddress && factProviderAddress.toLowerCase() !== filter.factProviderAddress.toLowerCase()) {
                                 return;
                             }
                             // Second argument is fact key
                             var key = topics[2] ? _this.web3.utils.toAscii(topics[2]).replace(/\u0000/g, '') : '';
-                            if (filter && filter.key && key !== filter.key) {
+                            if (filter && filter.key && key.toLowerCase() !== filter.key.toLowerCase()) {
                                 return;
                             }
                             historyEvents.push(__assign({}, event, { factProviderAddress: factProviderAddress,
