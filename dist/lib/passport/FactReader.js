@@ -161,7 +161,7 @@ var FactReader = /** @class */ (function () {
                             return [2 /*return*/, null];
                         }
                         preparedKey = this.web3.utils.fromAscii(key);
-                        blockNum = conversion_1.toBN(this.web3.utils.toHex(data)).toNumber();
+                        blockNum = conversion_1.toBN(data).toNumber();
                         return [4 /*yield*/, this.contract.getPastEvents('TxDataUpdated', {
                                 fromBlock: blockNum,
                                 toBlock: blockNum,

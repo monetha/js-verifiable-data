@@ -36,6 +36,11 @@ function hexToBoolean(hexString) {
 exports.hexToBoolean = hexToBoolean;
 /**
  * Converts given value to BN
+ * Accepts:
+ * - number - interpreted as decimal
+ * - string - if with 0x prefix - hex, otherwise decimal
+ * - BN
+ * - bignumber.js object
  */
 function toBN(value) {
     if (value === null || value === undefined) {
@@ -45,7 +50,10 @@ function toBN(value) {
         return value;
     }
     if (typeof value === 'string') {
-        return new bn_js_1.default(value.replace('0x', ''), 'hex');
+        if (value.indexOf('0x') === 0) {
+            return new bn_js_1.default(value.replace('0x', ''), 'hex');
+        }
+        return new bn_js_1.default(value, 10);
     }
     if (typeof value === 'number') {
         return new bn_js_1.default(value);

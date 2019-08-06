@@ -112,7 +112,7 @@ export class FactReader {
     }
 
     const preparedKey = this.web3.utils.fromAscii(key);
-    const blockNum = toBN(this.web3.utils.toHex(data)).toNumber();
+    const blockNum = toBN(data).toNumber();
 
     const events = await this.contract.getPastEvents('TxDataUpdated', {
       fromBlock: blockNum,
