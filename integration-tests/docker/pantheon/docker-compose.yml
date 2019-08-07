@@ -1,0 +1,147 @@
+version: '3.6'
+services:
+  node_1:
+    image: pegasyseng/pantheon:${PANTHEON_VERSION}
+    entrypoint: [
+      "/opt/pantheon/bin/pantheon",
+    ]
+    command: [
+      "--data-path=${PANTHEON_NODE_DATA_DIR}",
+      "--genesis-file=${PANTHEON_SHARED_FILES_DIR}genesis.json",
+      "--rpc-http-enabled=true",
+      "--rpc-http-host=0.0.0.0",
+      "--rpc-http-cors-origins=all",
+      "--host-whitelist=*",
+      "--bootnodes",
+      "--min-gas-price=0",
+      "--miner-enabled",
+      "--miner-coinbase=${PANTHEON_COINBASE}"
+    ]
+    ports:
+      - 22001:8545
+    networks:
+      pantheon_net:
+        ipv4_address: '172.21.0.2'
+    volumes:
+      - ${PWD}/data/shared:${PANTHEON_SHARED_FILES_DIR}
+      - ${PWD}/data/node1:${PANTHEON_NODE_DATA_DIR}
+
+  node_2:
+    depends_on:
+      - node_1
+    image: pegasyseng/pantheon:${PANTHEON_VERSION}
+    entrypoint: [
+      "/opt/pantheon/bin/pantheon",
+    ]
+    command: [
+      "--data-path=${PANTHEON_NODE_DATA_DIR}",
+      "--genesis-file=${PANTHEON_SHARED_FILES_DIR}genesis.json",
+      "--rpc-http-enabled=true",
+      "--rpc-http-host=0.0.0.0",
+      "--rpc-http-cors-origins=all",
+      "--host-whitelist=*",
+      "--bootnodes=${PANTHEON_BOOTNODES}",
+      "--min-gas-price=0",
+      "--miner-enabled",
+      "--miner-coinbase=${PANTHEON_COINBASE}"
+    ]
+    ports:
+      - 22002:8545
+    networks:
+      pantheon_net:
+        ipv4_address: '172.21.0.3'
+    volumes:
+      - ${PWD}/data/shared:${PANTHEON_SHARED_FILES_DIR}
+      - ${PWD}/data/node2:${PANTHEON_NODE_DATA_DIR}
+
+  node_3:
+    depends_on:
+      - node_1
+    image: pegasyseng/pantheon:${PANTHEON_VERSION}
+    entrypoint: [
+      "/opt/pantheon/bin/pantheon",
+    ]
+    command: [
+      "--data-path=${PANTHEON_NODE_DATA_DIR}",
+      "--genesis-file=${PANTHEON_SHARED_FILES_DIR}genesis.json",
+      "--rpc-http-enabled=true",
+      "--rpc-http-host=0.0.0.0",
+      "--rpc-http-cors-origins=all",
+      "--host-whitelist=*",
+      "--bootnodes=${PANTHEON_BOOTNODES}",
+      "--min-gas-price=0",
+      "--miner-enabled",
+      "--miner-coinbase=${PANTHEON_COINBASE}"
+    ]
+    ports:
+      - 22003:8545
+    networks:
+      pantheon_net:
+        ipv4_address: '172.21.0.4'
+    volumes:
+      - ${PWD}/data/shared:${PANTHEON_SHARED_FILES_DIR}
+      - ${PWD}/data/node3:${PANTHEON_NODE_DATA_DIR}
+
+  node_4:
+    depends_on:
+      - node_1
+    image: pegasyseng/pantheon:${PANTHEON_VERSION}
+    entrypoint: [
+      "/opt/pantheon/bin/pantheon",
+    ]
+    command: [
+      "--data-path=${PANTHEON_NODE_DATA_DIR}",
+      "--genesis-file=${PANTHEON_SHARED_FILES_DIR}genesis.json",
+      "--rpc-http-enabled=true",
+      "--rpc-http-host=0.0.0.0",
+      "--rpc-http-cors-origins=all",
+      "--host-whitelist=*",
+      "--bootnodes=${PANTHEON_BOOTNODES}",
+      "--min-gas-price=0",
+      "--miner-enabled",
+      "--miner-coinbase=${PANTHEON_COINBASE}"
+    ]
+    ports:
+      - 22004:8545
+    networks:
+      pantheon_net:
+        ipv4_address: '172.21.0.5'
+    volumes:
+      - ${PWD}/data/shared:${PANTHEON_SHARED_FILES_DIR}
+      - ${PWD}/data/node4:${PANTHEON_NODE_DATA_DIR}
+
+  node_5:
+    depends_on:
+      - node_1
+    image: pegasyseng/pantheon:${PANTHEON_VERSION}
+    entrypoint: [
+      "/opt/pantheon/bin/pantheon",
+    ]
+    command: [
+      "--data-path=${PANTHEON_NODE_DATA_DIR}",
+      "--genesis-file=${PANTHEON_SHARED_FILES_DIR}genesis.json",
+      "--rpc-http-enabled=true",
+      "--rpc-http-host=0.0.0.0",
+      "--rpc-http-cors-origins=all",
+      "--host-whitelist=*",
+      "--bootnodes=${PANTHEON_BOOTNODES}",
+      "--min-gas-price=0",
+      "--miner-enabled",
+      "--miner-coinbase=${PANTHEON_COINBASE}"
+    ]
+    ports:
+      - 22005:8545
+    networks:
+      pantheon_net:
+        ipv4_address: '172.21.0.6'
+    volumes:
+      - ${PWD}/data/shared:${PANTHEON_SHARED_FILES_DIR}
+      - ${PWD}/data/node5:${PANTHEON_NODE_DATA_DIR}
+
+networks:
+  pantheon_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.21.0.0/16
