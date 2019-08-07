@@ -17,23 +17,27 @@ The Pantheon node JSON-RPC can be reached using the following URLs.
 
 | Node | Localhost | Docker network |
 |------|-----------|----------------|
-| Node 1 | http://localhost:22001 | http://172.21.0.2:8545 |
-| Node 2 | http://localhost:22002 | http://172.21.0.3:8545 |
-| Node 3 | http://localhost:22003 | http://172.21.0.4:8545 |
-| Node 4 | http://localhost:22004 | http://172.21.0.5:8545 |
-| Node 5 | http://localhost:22005 | http://172.21.0.6:8545 |
+| Node 1 | http://localhost:22001 | http://172.21.0.21:8545 |
+| Node 2 | http://localhost:22002 | http://172.21.0.22:8545 |
+| Node 3 | http://localhost:22003 | http://172.21.0.23:8545 |
+| Node 4 | http://localhost:22004 | http://172.21.0.24:8545 |
+| Node 5 | http://localhost:22005 | http://172.21.0.25:8545 |
 
 ## Start
 
 Navigate to this folder and use the following commands to start the Pantheon network:
 ```shell
-docker-compose up
+docker-compose up -d
 ```
 
 ## Stop and cleanup
 
-Use the following commands to stop the Pantheon network and remove the database files:
+Use the following command to stop the Pantheon network and remove the database files:
 ```shell
-docker-compose rm -fsv
 ./clean.sh
 ```
+**Please note** that this script is intended to be run on Linux and macOS machines. To cleanup on Windows, run the following:
+```shell
+docker-compose down
+```
+and then remove `database`, `uploads`, and `private` folder from `node#` data folders, and `routerdb` folder from `orion#` data folders.

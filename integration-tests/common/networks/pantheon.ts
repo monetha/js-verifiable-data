@@ -20,13 +20,11 @@ export function getPrivateKeys(): string[] {
 
 export function getNodePublicKeys(): string[] {
   return [
-    '0x4844f58b3400cc25d8ae0da68dedda1d3bc4726d837b1ff4c195684e913c43cfa0aee14619434955defca34a32889d2e5b34a288418f31979416c5b931634aff',
-    '0xb9274af3d200406051e8fe12174f6802e6ed62194d246d5abe2e669098bd98068cfb6a0d78f7c007577d99d460cf4e39c50657263ba0f2a3809a1a870697df15',
-    '0x99e1856c0a98c36c19441f279b592369c59772eb2378039ccbe8ede50d3b1f0fa0ec2b1e73878178f8536b531bf0b98dcdec335c1e3063130c48adef57ac5469',
-    '0x9e945c9f4c521ddea733c00a8b37531996a7541b261fc759fbaba1641c97706486e99ae42c0ef8d3848fabced127b49c47bc7dc8cddec019f174e9625c6cacdb',
-    '0x96258091c76457d325d8e0333b5b71c28d321f19d6d4f9fa502118802eb2a95f515a0d9889aa01b14f8ae1b7259a7c56e46579bfcb05cf8a82db031a3e20e20b',
-    '0x12f6f8a0ccbcc16f43618e5a52f307b74da7872a66c7106c0c9719f9c0034263c578cdea8def5f02b09725aff0f12bdc5007859ca4d64ce545000ed42373280e',
-    '0xcecd179036278e07d9f74b70234da3348088129945ae0abb03536e610d0d667483178d95ca2a3f835b9fd7e0f652016d4b288e1f25bb85a4ad780fe0d7f4ef02',
+    '7ILUn2MpEjjEqjgCApeeYTJz77H+H1IBxS54opBcJyA=',
+    'Gam/vgKLffGO2+dTyBk4vOVCZB/sNVwd+FbyN9wk0QM=',
+    'w6izWwzal61Q8pFAgV59xLv5yPzY3PCgYHXCdbkWOS0=',
+    '44Q3cqHfyMCuZa2TNMjbSk6yK2gOvDnGHVsqYiQPokc=',
+    'kSrLn2G9NaTm/jTa6J0MB9Wn/+OCQ3S3b3NwHKM7G2k=',
   ];
 }
 
@@ -42,5 +40,10 @@ export function getNetworkNodeUrls(): string[] {
 
 export function getNetworkPrivateNodeUrls(): string[] {
   return [
+    'http://172.17.0.1:33001',
+    'http://172.17.0.1:33002',
+    'http://172.17.0.1:33003',
+    'http://172.17.0.1:33004',
+    'http://172.17.0.1:33005',
   ];
 }

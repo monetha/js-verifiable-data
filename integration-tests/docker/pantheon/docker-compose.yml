@@ -1,6 +1,74 @@
 version: '3.6'
 services:
-  node_1:
+  orion1:
+    build:
+      context: build/orion
+    image: pegasyseng/orion:${ORION_VERSION}
+    command: [
+      "${ORION_NODE_DATA_DIR}orion.conf"
+    ]
+    ports:
+      - 33001:9001
+    networks:
+      pantheon_net:
+        ipv4_address: '172.21.0.11'
+    volumes:
+      - ${PWD}/data/orion1:${ORION_NODE_DATA_DIR}
+  orion2:
+    image: pegasyseng/orion:${ORION_VERSION}
+    command: [
+      "${ORION_NODE_DATA_DIR}orion.conf"
+    ]
+    ports:
+      - 33002:9001
+    networks:
+      pantheon_net:
+        ipv4_address: '172.21.0.12'
+    volumes:
+      - ${PWD}/data/orion2:${ORION_NODE_DATA_DIR}
+
+  orion3:
+    image: pegasyseng/orion:${ORION_VERSION}
+    command: [
+      "${ORION_NODE_DATA_DIR}orion.conf"
+    ]
+    ports:
+      - 33003:9001
+    networks:
+      pantheon_net:
+        ipv4_address: '172.21.0.13'
+    volumes:
+      - ${PWD}/data/orion3:${ORION_NODE_DATA_DIR}
+
+  orion4:
+    image: pegasyseng/orion:${ORION_VERSION}
+    command: [
+      "${ORION_NODE_DATA_DIR}orion.conf"
+    ]
+    ports:
+      - 33004:9001
+    networks:
+      pantheon_net:
+        ipv4_address: '172.21.0.14'
+    volumes:
+      - ${PWD}/data/orion4:${ORION_NODE_DATA_DIR}
+
+  orion5:
+    image: pegasyseng/orion:${ORION_VERSION}
+    command: [
+      "${ORION_NODE_DATA_DIR}orion.conf"
+    ]
+    ports:
+      - 33005:9001
+    networks:
+      pantheon_net:
+        ipv4_address: '172.21.0.15'
+    volumes:
+      - ${PWD}/data/orion5:${ORION_NODE_DATA_DIR}
+
+  node1:
+    depends_on:
+      - orion1
     image: pegasyseng/pantheon:${PANTHEON_VERSION}
     entrypoint: [
       "/opt/pantheon/bin/pantheon",
@@ -11,24 +79,28 @@ services:
       "--rpc-http-enabled=true",
       "--rpc-http-host=0.0.0.0",
       "--rpc-http-cors-origins=all",
+      "--rpc-http-api=${PANTHEON_RPC_HTTP_APIS}",
       "--host-whitelist=*",
       "--bootnodes",
       "--min-gas-price=0",
-      "--miner-enabled",
-      "--miner-coinbase=${PANTHEON_COINBASE}"
+      "--privacy-enabled=true",
+      "--privacy-url=http://172.21.0.11:9002",
+      "--privacy-public-key-file=${ORION_NODE_DATA_DIR}orion.pub"
     ]
     ports:
       - 22001:8545
     networks:
       pantheon_net:
-        ipv4_address: '172.21.0.2'
+        ipv4_address: '172.21.0.21'
     volumes:
       - ${PWD}/data/shared:${PANTHEON_SHARED_FILES_DIR}
       - ${PWD}/data/node1:${PANTHEON_NODE_DATA_DIR}
+      - ${PWD}/data/orion1:${ORION_NODE_DATA_DIR}
 
-  node_2:
+  node2:
     depends_on:
-      - node_1
+      - node1
+      - orion2
     image: pegasyseng/pantheon:${PANTHEON_VERSION}
     entrypoint: [
       "/opt/pantheon/bin/pantheon",
@@ -39,24 +111,28 @@ services:
       "--rpc-http-enabled=true",
       "--rpc-http-host=0.0.0.0",
       "--rpc-http-cors-origins=all",
+      "--rpc-http-api=${PANTHEON_RPC_HTTP_APIS}",
       "--host-whitelist=*",
       "--bootnodes=${PANTHEON_BOOTNODES}",
       "--min-gas-price=0",
-      "--miner-enabled",
-      "--miner-coinbase=${PANTHEON_COINBASE}"
+      "--privacy-enabled=true",
+      "--privacy-url=http://172.21.0.12:9002",
+      "--privacy-public-key-file=${ORION_NODE_DATA_DIR}orion.pub"
     ]
     ports:
       - 22002:8545
     networks:
       pantheon_net:
-        ipv4_address: '172.21.0.3'
+        ipv4_address: '172.21.0.22'
     volumes:
       - ${PWD}/data/shared:${PANTHEON_SHARED_FILES_DIR}
       - ${PWD}/data/node2:${PANTHEON_NODE_DATA_DIR}
+      - ${PWD}/data/orion2:${ORION_NODE_DATA_DIR}
 
-  node_3:
+  node3:
     depends_on:
-      - node_1
+      - node1
+      - orion3
     image: pegasyseng/pantheon:${PANTHEON_VERSION}
     entrypoint: [
       "/opt/pantheon/bin/pantheon",
@@ -67,24 +143,28 @@ services:
       "--rpc-http-enabled=true",
       "--rpc-http-host=0.0.0.0",
       "--rpc-http-cors-origins=all",
+      "--rpc-http-api=${PANTHEON_RPC_HTTP_APIS}",
       "--host-whitelist=*",
       "--bootnodes=${PANTHEON_BOOTNODES}",
       "--min-gas-price=0",
-      "--miner-enabled",
-      "--miner-coinbase=${PANTHEON_COINBASE}"
+      "--privacy-enabled=true",
+      "--privacy-url=http://172.21.0.13:9002",
+      "--privacy-public-key-file=${ORION_NODE_DATA_DIR}orion.pub"
     ]
     ports:
       - 22003:8545
     networks:
       pantheon_net:
-        ipv4_address: '172.21.0.4'
+        ipv4_address: '172.21.0.23'
     volumes:
       - ${PWD}/data/shared:${PANTHEON_SHARED_FILES_DIR}
       - ${PWD}/data/node3:${PANTHEON_NODE_DATA_DIR}
+      - ${PWD}/data/orion3:${ORION_NODE_DATA_DIR}
 
-  node_4:
+  node4:
     depends_on:
-      - node_1
+      - node1
+      - orion4
     image: pegasyseng/pantheon:${PANTHEON_VERSION}
     entrypoint: [
       "/opt/pantheon/bin/pantheon",
@@ -95,24 +175,28 @@ services:
       "--rpc-http-enabled=true",
       "--rpc-http-host=0.0.0.0",
       "--rpc-http-cors-origins=all",
+      "--rpc-http-api=${PANTHEON_RPC_HTTP_APIS}",
       "--host-whitelist=*",
       "--bootnodes=${PANTHEON_BOOTNODES}",
       "--min-gas-price=0",
-      "--miner-enabled",
-      "--miner-coinbase=${PANTHEON_COINBASE}"
+      "--privacy-enabled=true",
+      "--privacy-url=http://172.21.0.14:9002",
+      "--privacy-public-key-file=${ORION_NODE_DATA_DIR}orion.pub"
     ]
     ports:
       - 22004:8545
     networks:
       pantheon_net:
-        ipv4_address: '172.21.0.5'
+        ipv4_address: '172.21.0.24'
     volumes:
       - ${PWD}/data/shared:${PANTHEON_SHARED_FILES_DIR}
       - ${PWD}/data/node4:${PANTHEON_NODE_DATA_DIR}
+      - ${PWD}/data/orion4:${ORION_NODE_DATA_DIR}
 
-  node_5:
+  node5:
     depends_on:
-      - node_1
+      - node1
+      - orion5
     image: pegasyseng/pantheon:${PANTHEON_VERSION}
     entrypoint: [
       "/opt/pantheon/bin/pantheon",
@@ -123,20 +207,25 @@ services:
       "--rpc-http-enabled=true",
       "--rpc-http-host=0.0.0.0",
       "--rpc-http-cors-origins=all",
+      "--rpc-http-api=${PANTHEON_RPC_HTTP_APIS}",
       "--host-whitelist=*",
       "--bootnodes=${PANTHEON_BOOTNODES}",
       "--min-gas-price=0",
       "--miner-enabled",
-      "--miner-coinbase=${PANTHEON_COINBASE}"
+      "--miner-coinbase=${PANTHEON_COINBASE}",
+      "--privacy-enabled=true",
+      "--privacy-url=http://172.21.0.15:9002",
+      "--privacy-public-key-file=${ORION_NODE_DATA_DIR}orion.pub"
     ]
     ports:
       - 22005:8545
     networks:
       pantheon_net:
-        ipv4_address: '172.21.0.6'
+        ipv4_address: '172.21.0.25'
     volumes:
       - ${PWD}/data/shared:${PANTHEON_SHARED_FILES_DIR}
       - ${PWD}/data/node5:${PANTHEON_NODE_DATA_DIR}
+      - ${PWD}/data/orion5:${ORION_NODE_DATA_DIR}
 
 networks:
   pantheon_net:

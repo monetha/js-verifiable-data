@@ -1,3 +1,5 @@
 database/
+private/
 pantheon.ports
 uploads/
+routerdb/
