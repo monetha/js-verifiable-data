@@ -1,7 +1,6 @@
 import quorumjs from 'quorum-js';
 import Web3 from 'web3';
 import { TransactionReceipt, TransactionConfig } from 'web3-core';
-import { getNetworkConfig } from './network';
 import { toBN } from 'verifiable-data';
 
 export function getAccounts(): string[] {
@@ -52,13 +51,28 @@ export function getNodePublicKeys(): string[] {
   ];
 }
 
-/**
- * Gets Quorum node's network url for specified node index.
- * NOTE: It is assumed that node addresses have same IP address, but only different ports, incrementing by 1
- */
-export function getNodeNetworkUrl(nodeIndex: number): string {
-  const networkConfig = getNetworkConfig();
-  return `http://${networkConfig.host}:${Number(networkConfig.port) + nodeIndex}`;
+export function getNetworkNodeUrls(): string[] {
+  return [
+    'http://127.0.0.1:22000',
+    'http://127.0.0.1:22001',
+    'http://127.0.0.1:22002',
+    'http://127.0.0.1:22003',
+    'http://127.0.0.1:22004',
+    'http://127.0.0.1:22005',
+    'http://127.0.0.1:22006',
+  ];
+}
+
+export function getNetworkPrivateNodeUrls(): string[] {
+  return [
+    'http://127.0.0.1:9081',
+    'http://127.0.0.1:9082',
+    'http://127.0.0.1:9083',
+    'http://127.0.0.1:9084',
+    'http://127.0.0.1:9085',
+    'http://127.0.0.1:9086',
+    'http://127.0.0.1:9087',
+  ];
 }
 
 export async function submitPrivateTransaction(web3: Web3, txData: TransactionConfig): Promise<TransactionReceipt> {
@@ -73,10 +87,8 @@ export async function submitPrivateTransaction(web3: Web3, txData: TransactionCo
 
   const account = web3.eth.accounts.privateKeyToAccount(privateKey);
 
-  const networkConfig = getNetworkConfig();
-
   const enclaveOptions = {
-    privateUrl: `http://${networkConfig.host}:${networkConfig.enclavePort}`,
+    privateUrl: getNetworkPrivateNodeUrls()[0],
   };
 
   const rawTransactionManager = quorumjs.RawTransactionManager(web3, enclaveOptions);

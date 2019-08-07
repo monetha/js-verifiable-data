@@ -1,14 +1,12 @@
 import BN from 'bn.js';
 import { expectSdkError } from 'common/error';
-import { advanceTimeAndBlock, revertToSnapshot, takeSnapshot } from 'common/ganache';
+import { advanceTimeAndBlock, revertToSnapshot, takeSnapshot } from 'common/networks/ganache';
 import { createTxExecutor, isPrivateTxMode } from 'common/tx';
 import { FactWriter, PassportGenerator, PassportOwnership, PrivateDataExchanger, Address, IEthOptions, ext, ExchangeState, ErrorCode } from 'verifiable-data';
 import { MockIPFSClient } from 'mocks/MockIPFSClient';
 import Web3 from 'web3';
-import { getNetworkUrl, getPrivateKeys, getAccounts, getNetwork, NetworkType } from 'common/network';
+import { getNetworkNodeUrl, getPrivateKeys, getAccounts, getNetwork, NetworkType, getNodePublicKeys } from 'common/network';
 import { logVerbose } from 'common/logger';
-import { getNodePublicKeys } from 'common/quorum';
-// import { IPFSClient } from 'common/IPFSClient';
 
 let accounts: string[];
 let privateKeys: string[];
@@ -52,7 +50,7 @@ const privateFactValue = [1, 2, 3, 4, 5, 6];
 const PassportFactory = artifacts.require('PassportFactory');
 const PassportLogic = artifacts.require('PassportLogic');
 const PassportLogicRegistry = artifacts.require('PassportLogicRegistry');
-const web3 = new Web3(new Web3.providers.HttpProvider(getNetworkUrl()));
+const web3 = new Web3(new Web3.providers.HttpProvider(getNetworkNodeUrl()));
 
 const txExecutor = createTxExecutor(web3);
 
@@ -60,7 +58,7 @@ let exchangeData: any = {};
 
 const preparePassport = async () => {
   accounts = await getAccounts(web3);
-  privateKeys = await getPrivateKeys(web3);
+  privateKeys = getPrivateKeys();
 
   // Accounts
   monethaOwner = accounts[0];

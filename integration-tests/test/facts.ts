@@ -1,6 +1,5 @@
 import { logVerbose } from 'common/logger';
-import { getAccounts, getNetwork, getNetworkUrl, getPrivateKeys, NetworkType } from 'common/network';
-import { getNodePublicKeys, getNodeNetworkUrl } from 'common/quorum';
+import { getAccounts, getNetwork, getNetworkNodeUrl, getPrivateKeys, NetworkType, getNodePublicKeys } from 'common/network';
 import { createTxExecutor, isPrivateTxMode } from 'common/tx';
 import { ext, FactHistoryReader, FactReader, FactRemover, FactWriter, IEthOptions, PassportGenerator, PassportOwnership, PassportReader, Permissions } from 'verifiable-data';
 import Web3 from 'web3';
@@ -21,10 +20,11 @@ const mockIPFSClient = new MockIPFSClient();
 const PassportFactory = artifacts.require('PassportFactory');
 const PassportLogic = artifacts.require('PassportLogic');
 const PassportLogicRegistry = artifacts.require('PassportLogicRegistry');
-const web3 = new Web3(new Web3.providers.HttpProvider(getNetworkUrl()));
+const web3 = new Web3(new Web3.providers.HttpProvider(getNetworkNodeUrl()));
 const contractCreationParams: any = {};
 let options: IEthOptions = null;
 
+// TODO split to mode check and and network specific
 if (getNetwork() === NetworkType.Quorum && isPrivateTxMode) {
   contractCreationParams.privateFor = [getNodePublicKeys()[1]];
   options = {
@@ -38,7 +38,7 @@ const txExecutor = createTxExecutor(web3);
 
 before(async () => {
   accounts = await getAccounts(web3);
-  privateKeys = await getPrivateKeys(web3);
+  privateKeys = getPrivateKeys();
 
   monethaOwner = accounts[0];
   passportOwner = accounts[1];
@@ -83,7 +83,7 @@ describe('Passport creation and facts', () => {
   });
 
   if (isPrivateTxMode && getNetwork() === NetworkType.Quorum) {
-    const web3Node3 = new Web3(new Web3.providers.HttpProvider(getNodeNetworkUrl(2)));
+    const web3Node3 = new Web3(new Web3.providers.HttpProvider(getNetworkNodeUrl(2)));
 
     it('Created passport should not be visible from other nodes', async () => {
 
@@ -123,7 +123,7 @@ describe('Passport creation and facts', () => {
   });
 
   if (isPrivateTxMode && getNetwork() === NetworkType.Quorum) {
-    const web3Node3 = new Web3(new Web3.providers.HttpProvider(getNodeNetworkUrl(2)));
+    const web3Node3 = new Web3(new Web3.providers.HttpProvider(getNetworkNodeUrl(2)));
 
     it('Should not be able to get a list of all created passports from other node', async () => {
       // Given
