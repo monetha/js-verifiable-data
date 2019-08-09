@@ -52,11 +52,11 @@ Corresponds to [Verifiable data layer](https://github.com/monetha/reputation-lay
 
 The build process is set to be automatic you just need to install the package using:
 
-`npm install --save git+https://github.com/monetha/reputation-js-sdk.git`
+`npm install --save verifiable-data`
 
 or
 
-`yarn add git+https://github.com/monetha/reputation-js-sdk.git`
+`yarn add verifiable-data`
 
 ## Bootstrap
 
