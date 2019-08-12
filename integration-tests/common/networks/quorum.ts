@@ -2,6 +2,7 @@ import quorumjs from 'quorum-js';
 import Web3 from 'web3';
 import { TransactionReceipt, TransactionConfig } from 'web3-core';
 import { toBN } from 'verifiable-data';
+import { getNetworkConfig } from '../network'
 
 export function getAccounts(): string[] {
   return [
@@ -52,27 +53,23 @@ export function getNodePublicKeys(): string[] {
 }
 
 export function getNetworkNodeUrls(): string[] {
-  return [
-    'http://127.0.0.1:22000',
-    'http://127.0.0.1:22001',
-    'http://127.0.0.1:22002',
-    'http://127.0.0.1:22003',
-    'http://127.0.0.1:22004',
-    'http://127.0.0.1:22005',
-    'http://127.0.0.1:22006',
-  ];
+  const numberOfNodes = 7;
+  let array = [];
+  const networkConfig = getNetworkConfig();
+  for (let index = 0; index < numberOfNodes; index++) {
+    array.push(`http://${networkConfig.host}:${Number(networkConfig.port) + index}`)
+  }
+  return array;
 }
 
 export function getNetworkPrivateNodeUrls(): string[] {
-  return [
-    'http://127.0.0.1:9081',
-    'http://127.0.0.1:9082',
-    'http://127.0.0.1:9083',
-    'http://127.0.0.1:9084',
-    'http://127.0.0.1:9085',
-    'http://127.0.0.1:9086',
-    'http://127.0.0.1:9087',
-  ];
+  const numberOfNodes = 7;
+  let array = [];
+  const networkConfig = getNetworkConfig();
+  for (let index = 0; index < numberOfNodes; index++) {
+    array.push(`http://${networkConfig.host}:${Number(networkConfig.enclavePort) + index}`)
+  }
+  return array;
 }
 
 export async function submitPrivateTransaction(web3: Web3, txData: TransactionConfig): Promise<TransactionReceipt> {

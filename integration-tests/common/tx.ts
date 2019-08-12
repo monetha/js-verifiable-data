@@ -2,7 +2,7 @@ import EthereumTx from 'ethereumjs-tx';
 import Web3 from 'web3';
 import { Transaction, TransactionReceipt, TransactionConfig } from 'web3-core';
 import { getAccounts, getPrivateKeys, getNetwork, NetworkType, getNetworkConfig } from './network';
-import { submitPrivateTransaction } from './networks/quorum';
+import { submitPrivateTransaction as submitPrivateTransactionQuorum } from './networks/quorum';
 import { toBN, TxExecutor } from 'verifiable-data';
 
 export const isPrivateTxMode: boolean = process.argv.includes('--private');
@@ -81,8 +81,15 @@ export const createTxExecutor = (web3: Web3): TxExecutor => {
       txData.gas = networkConfig.gas
     }
 
-    if (isPrivateTxMode && getNetwork() === NetworkType.Quorum) {
-      return submitPrivateTransaction(web3, txData);
+    if (isPrivateTxMode) {
+      switch (getNetwork()) {
+        case NetworkType.Quorum:
+          return submitPrivateTransactionQuorum(web3, txData);
+
+        case NetworkType.Pantheon:
+        default:
+          throw new Error('Submitting private transaction for this network is not implemented yet');;
+      }
     }
 
     const tx = await submitTransaction(web3, txData);

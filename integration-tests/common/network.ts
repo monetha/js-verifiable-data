@@ -52,10 +52,10 @@ export function getNetworkNodeUrls(): string[] {
   switch (network) {
     case NetworkType.Quorum:
       return quorum.getNetworkNodeUrls();
-      break;
+
     case NetworkType.Pantheon:
       return pantheon.getNetworkNodeUrls();
-      break;
+
     default:
       const networkConfig = getNetworkConfig();
       return [`http://${networkConfig.host}:${networkConfig.port}`];
@@ -78,10 +78,10 @@ export function getNetworkPrivateNodeUrls(): string[] {
   switch (network) {
     case NetworkType.Quorum:
       return quorum.getNetworkPrivateNodeUrls();
-      break;
+
     case NetworkType.Pantheon:
       return pantheon.getNetworkPrivateNodeUrls();
-      break;
+
     default:
       return [];
   }
@@ -103,13 +103,20 @@ export async function getAccounts(web3: Web3): Promise<string[]> {
   switch (network) {
     case NetworkType.Quorum:
       return quorum.getAccounts();
-      break;
+
     case NetworkType.Pantheon:
       return pantheon.getAccounts();
-      break;
+
     default:
       return web3.eth.getAccounts();
   }
+}
+/**
+ * Gets specific account address
+ */
+export async function getAccount(web3: Web3, index: number = 0): Promise<string> {
+  const accounts = await getAccounts(web3);
+  return accounts[index];
 }
 
 /**
@@ -121,17 +128,24 @@ export function getPrivateKeys(): string[] {
   switch (network) {
     case NetworkType.Quorum:
       return quorum.getPrivateKeys();
-      break;
+
     case NetworkType.Pantheon:
       return pantheon.getPrivateKeys();
-      break;
+
     default:
       return ganache.getPrivateKeys();
   }
 }
 
 /**
- * Gets account private keys
+ * Gets specific account private key
+ */
+export function getPrivateKey(index: number = 0): string {
+  return getPrivateKeys()[index];
+}
+
+/**
+ * Gets node public keys
  */
 export function getNodePublicKeys(): string[] {
   const network = getNetwork();
@@ -139,11 +153,17 @@ export function getNodePublicKeys(): string[] {
   switch (network) {
     case NetworkType.Quorum:
       return quorum.getNodePublicKeys();
-      break;
+
     case NetworkType.Pantheon:
       return pantheon.getNodePublicKeys();
-      break;
+
     default:
       return [];
   }
+}
+/**
+ * Gets specific node public key
+ */
+export function getNodePublicKey(index: number = 0): string {
+  return getNodePublicKeys()[index];
 }

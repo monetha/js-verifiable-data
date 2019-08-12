@@ -1,3 +1,8 @@
+import Web3 from 'web3';
+import { TransactionReceipt, TransactionConfig, } from 'web3-core';
+import { getNetworkConfig } from '../network'
+
+
 export function getAccounts(): string[] {
   return [
     '0xfe3b557e8fb62b89f4916b721be55ceb828dbd73',
@@ -29,21 +34,42 @@ export function getNodePublicKeys(): string[] {
 }
 
 export function getNetworkNodeUrls(): string[] {
-  return [
-    'http://172.17.0.1:22001',
-    'http://172.17.0.1:22002',
-    'http://172.17.0.1:22003',
-    'http://172.17.0.1:22004',
-    'http://172.17.0.1:22005',
-  ]
+  let numberOfNodes = 5;
+  const networkConfig = getNetworkConfig();
+  let array = [];
+  for (let index = 0; index < numberOfNodes; index++) {
+    array.push(`http://${networkConfig.host}:${Number(networkConfig.port) + index}`)
+  }
+  return array;
 }
 
 export function getNetworkPrivateNodeUrls(): string[] {
-  return [
-    'http://172.17.0.1:33001',
-    'http://172.17.0.1:33002',
-    'http://172.17.0.1:33003',
-    'http://172.17.0.1:33004',
-    'http://172.17.0.1:33005',
-  ];
+  throw new Error(`You Should not access private transaction manager directly. Use submitPrivateTransaction method for submitting private transactions`);
+}
+
+export async function submitPrivateTransaction(web3: Web3, txData: TransactionConfig): Promise<TransactionReceipt> {
+  const accounts = getAccounts();
+  const accountIndex = accounts.findIndex(a => a.toLowerCase() === txData.from.toString().toLowerCase());
+  if (accountIndex === -1) {
+    throw new Error(`Not possible to execute tx because private key for address ${txData.from} is not known`);
+  }
+  const privateKey = await getPrivateKeys()[accountIndex];
+  const nodePubKeys = await getNodePublicKeys();
+
+  const EEAClient = require("web3-eea");
+  const web3eea = new EEAClient(web3, await web3.eth.net.getId());
+
+  const raw = {
+    gasPrice: txData.gasPrice,
+    gasLimit: txData.gas,
+    to: txData.to,
+    data: txData.data,
+    privateFrom: nodePubKeys[0],
+    privateFor: [nodePubKeys[1]],
+    privateKey: privateKey
+  };
+
+  const txHash = await web3eea.eea.sendRawTransaction(raw);
+  const receipt = await web3eea.eea.getTransactionReceipt(txHash, [nodePubKeys[0]])
+  return receipt;
 }
