@@ -8,17 +8,37 @@ node_js:
 services:
   - docker
 
-install:
-  - npm install
-  - (cd integration-tests && npm install)
+install: skip
 
-before_script:
-  - (cd integration-tests && npm run ganache)
+stages:
+  - Unit Tests
+  - Integration tests
 
-script:
-  - npm run lint
-  - npm run build
-  - npm run test
+_integration_test: &_integration_test
+  install:
+    - npm install
+    - (cd integration-tests && npm install) 
+  before_script: (cd integration-tests && npm run $NETWORK_NAME)
+  script: npm run test:$NETWORK_NAME
+
+jobs:
+  include:
+    - stage: Unit Tests
+      name: Unit Tests
+      install: npm install
+      script:
+        - npm run lint
+        - npm run build
+        - npm run test:unit
+      
+    - stage: Integration tests
+      name: Integration tests on ganache
+      env: NETWORK_NAME=ganache
+      <<: *_integration_test
+
+    - name: Integration tests on pantheon
+      env: NETWORK_NAME=pantheon
+      <<: *_integration_test
 
 notifications:
   email:

@@ -31,8 +31,8 @@ module.exports = {
       type: "quorum"
     },
     pantheon: {
-      provider: new PrivateKeyProvider(pantheonPrivateKeys, "http://172.17.0.1:22001", 0, pantheonPrivateKeys.length),
-      host: "172.17.0.1",
+      provider: new PrivateKeyProvider(pantheonPrivateKeys, "http://127.0.0.1:22001", 0, pantheonPrivateKeys.length),
+      host: "127.0.0.1",
       port: "22001",
       timeoutBlocks: 100,
       network_id: "*",

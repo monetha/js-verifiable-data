@@ -3,6 +3,8 @@ services:
   orion1:
     build:
       context: build/orion
+      args: 
+        - ORION_VERSION=${ORION_VERSION}
     image: pegasyseng/orion:${ORION_VERSION}
     command: [
       "${ORION_NODE_DATA_DIR}orion.conf"
