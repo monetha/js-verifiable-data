@@ -5,6 +5,12 @@
 	"main": "./dist/lib/proto.js",
 	"types": "./dist/lib/proto.d.ts",
 	"license": "GPL-3.0",
+	"files": [
+		"dist"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
 	"engines": {
 		"npm": ">=5",
 		"node": ">=8.9.0"
