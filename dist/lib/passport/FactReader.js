@@ -151,7 +151,7 @@ var FactReader = /** @class */ (function () {
      */
     FactReader.prototype.getTxdata = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
-            var data, preparedKey, blockNum, events, signedTx, txInfo, txDataString, txData;
+            var data, preparedKey, blockNum, events, txInfo, txDataString, txData;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.get('getTxDataBlockNumber', factProviderAddress, key)];
@@ -175,11 +175,8 @@ var FactReader = /** @class */ (function () {
                         if (!events || events.length === 0) {
                             throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.DataNotFoundInBlock, "Event \"TxDataUpdated\", carrying the data, was not found in block " + blockNum + " referenced by fact in passport");
                         }
-                        return [4 /*yield*/, tx_1.getSignedTx(events[events.length - 1].transactionHash, this.web3, this.options)];
+                        return [4 /*yield*/, tx_1.getDecodedTx(events[events.length - 1].transactionHash, this.web3, this.options)];
                     case 3:
-                        signedTx = _a.sent();
-                        return [4 /*yield*/, tx_1.decodeTx(signedTx, this.web3, this.options)];
-                    case 4:
                         txInfo = _a.sent();
                         txDataString = txInfo.methodInfo.params[1].value;
                         txData = this.web3.utils.hexToBytes(txDataString);

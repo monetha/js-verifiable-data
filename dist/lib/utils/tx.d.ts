@@ -1,9 +1,9 @@
 /// <reference types="node" />
 import BN from 'bn.js';
-import Web3 from 'web3';
-import { Transaction, TransactionConfig } from 'web3-core';
 import { IEthOptions } from '../models/IEthOptions';
 import { TransactionObject } from '../types/web3-contracts/types';
+import Web3 from 'web3';
+import { Transaction, TransactionConfig } from 'web3-core';
 export interface IMethodInfo {
     name: string;
     params: IMethodParam[];
@@ -18,15 +18,12 @@ export interface ITxData {
     methodInfo: IMethodInfo;
 }
 /**
- * Gets transaction by hash. Retrieved TX data will be the one which was signed with private key.
+ * Gets transaction by hash and recovers its sender public key
  */
-export declare const getSignedTx: (txHash: string, web3: Web3, options?: IEthOptions) => Promise<Transaction>;
-/**
- * Transforms given transaction (using options.txDecoder if specified) and decodes tx input method. *
- */
-export declare const decodeTx: (tx: Transaction, web3: Web3, options?: IEthOptions) => Promise<{
+export declare const getDecodedTx: (txHash: string, web3: Web3, options?: IEthOptions) => Promise<{
     tx: Transaction;
     methodInfo: any;
+    senderPublicKey: Buffer;
 }>;
 /**
  * Gets sender's elliptic curve public key (prefixed with byte 4)

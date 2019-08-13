@@ -1060,11 +1060,8 @@ import { ext } from 'verifiable-data';
 
 const options: IEthOptions = {
 
-  // Quorum modifies transactions after they were signed. However, SDK needs unmodified transactions in order to recover public key when writing private data.
-  // This extension takes care of returning transactions just after they were signed (not modified).
-  signedTxRetriever: ext.quorum.getSignedPrivateTx,
-
-  // Since Quorum's private transactions are encrypted - this extension takes care of decoding them in places where SDK requires decoded TX data.
-  txDecoder: ext.quorum.decodePrivateTx,
+  // Quorum modifies transactions after they were signed and then encodes them in Enclave.
+  // This extension takes care of returning transactions and decoding transactions, as well as recovering sender's public key.
+  txRetriever: ext.quorum.getPrivateTx,
 };
 ```

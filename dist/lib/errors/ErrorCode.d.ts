@@ -1,4 +1,5 @@
 export declare enum ErrorCode {
+    MissingSenderPublicKey = "MissingSenderPublicKey",
     MissingExchangeIdxInReceipt = "MissingExchangeIdxInReceipt",
     MissingSuccessfulInReceipt = "MissingSuccessfulInReceipt",
     MissingCheaterInReceipt = "MissingCheaterInReceipt",
@@ -17,5 +18,6 @@ export declare enum ErrorCode {
     FailedToGetOwnershipEvent = "FailedToGetOwnershipEvent",
     MethodSignatureInvalid = "MethodSignatureInvalid",
     InvalidIPFSObject = "InvalidIPFSObject",
-    DataNotFoundInBlock = "DataNotFoundInBlock"
+    DataNotFoundInBlock = "DataNotFoundInBlock",
+    TxNotFound = "TxNotFound"
 }

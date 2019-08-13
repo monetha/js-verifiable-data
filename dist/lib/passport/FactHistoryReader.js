@@ -65,14 +65,11 @@ var FactHistoryReader = /** @class */ (function () {
      */
     FactHistoryReader.prototype.getString = function (txHash) {
         return __awaiter(this, void 0, void 0, function () {
-            var signedTx, txInfo, methodInfo;
+            var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, tx_1.getSignedTx(txHash, this.web3, this.options)];
+                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(txHash, this.web3, this.options)];
                     case 1:
-                        signedTx = _a.sent();
-                        return [4 /*yield*/, tx_1.decodeTx(signedTx, this.web3, this.options)];
-                    case 2:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
                         this.validateMethodSignature(methodInfo, 'setString');
@@ -91,14 +88,11 @@ var FactHistoryReader = /** @class */ (function () {
      */
     FactHistoryReader.prototype.getBytes = function (txHash) {
         return __awaiter(this, void 0, void 0, function () {
-            var signedTx, txInfo, methodInfo, value, hexValue;
+            var txInfo, methodInfo, value, hexValue;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, tx_1.getSignedTx(txHash, this.web3, this.options)];
+                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(txHash, this.web3, this.options)];
                     case 1:
-                        signedTx = _a.sent();
-                        return [4 /*yield*/, tx_1.decodeTx(signedTx, this.web3, this.options)];
-                    case 2:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
                         this.validateMethodSignature(methodInfo, 'setBytes');
@@ -122,14 +116,11 @@ var FactHistoryReader = /** @class */ (function () {
      */
     FactHistoryReader.prototype.getAddress = function (txHash) {
         return __awaiter(this, void 0, void 0, function () {
-            var signedTx, txInfo, methodInfo;
+            var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, tx_1.getSignedTx(txHash, this.web3, this.options)];
+                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(txHash, this.web3, this.options)];
                     case 1:
-                        signedTx = _a.sent();
-                        return [4 /*yield*/, tx_1.decodeTx(signedTx, this.web3, this.options)];
-                    case 2:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
                         this.validateMethodSignature(methodInfo, 'setAddress');
@@ -148,14 +139,11 @@ var FactHistoryReader = /** @class */ (function () {
      */
     FactHistoryReader.prototype.getUint = function (txHash) {
         return __awaiter(this, void 0, void 0, function () {
-            var signedTx, txInfo, methodInfo;
+            var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, tx_1.getSignedTx(txHash, this.web3, this.options)];
+                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(txHash, this.web3, this.options)];
                     case 1:
-                        signedTx = _a.sent();
-                        return [4 /*yield*/, tx_1.decodeTx(signedTx, this.web3, this.options)];
-                    case 2:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
                         this.validateMethodSignature(methodInfo, 'setUint');
@@ -174,14 +162,11 @@ var FactHistoryReader = /** @class */ (function () {
      */
     FactHistoryReader.prototype.getInt = function (txHash) {
         return __awaiter(this, void 0, void 0, function () {
-            var signedTx, txInfo, methodInfo;
+            var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, tx_1.getSignedTx(txHash, this.web3, this.options)];
+                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(txHash, this.web3, this.options)];
                     case 1:
-                        signedTx = _a.sent();
-                        return [4 /*yield*/, tx_1.decodeTx(signedTx, this.web3, this.options)];
-                    case 2:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
                         this.validateMethodSignature(methodInfo, 'setInt');
@@ -200,14 +185,11 @@ var FactHistoryReader = /** @class */ (function () {
      */
     FactHistoryReader.prototype.getBool = function (txHash) {
         return __awaiter(this, void 0, void 0, function () {
-            var signedTx, txInfo, methodInfo;
+            var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, tx_1.getSignedTx(txHash, this.web3, this.options)];
+                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(txHash, this.web3, this.options)];
                     case 1:
-                        signedTx = _a.sent();
-                        return [4 /*yield*/, tx_1.decodeTx(signedTx, this.web3, this.options)];
-                    case 2:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
                         this.validateMethodSignature(methodInfo, 'setBool');
@@ -226,14 +208,11 @@ var FactHistoryReader = /** @class */ (function () {
      */
     FactHistoryReader.prototype.getTxdata = function (txHash) {
         return __awaiter(this, void 0, void 0, function () {
-            var signedTx, txInfo, methodInfo;
+            var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, tx_1.getSignedTx(txHash, this.web3, this.options)];
+                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(txHash, this.web3, this.options)];
                     case 1:
-                        signedTx = _a.sent();
-                        return [4 /*yield*/, tx_1.decodeTx(signedTx, this.web3, this.options)];
-                    case 2:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
                         this.validateMethodSignature(methodInfo, 'setTxDataBlockNumber');
@@ -255,14 +234,11 @@ var FactHistoryReader = /** @class */ (function () {
      */
     FactHistoryReader.prototype.getIPFSData = function (txHash, ipfs) {
         return __awaiter(this, void 0, void 0, function () {
-            var signedTx, txInfo, methodInfo, _a;
+            var txInfo, methodInfo, _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, tx_1.getSignedTx(txHash, this.web3, this.options)];
+                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(txHash, this.web3, this.options)];
                     case 1:
-                        signedTx = _b.sent();
-                        return [4 /*yield*/, tx_1.decodeTx(signedTx, this.web3, this.options)];
-                    case 2:
                         txInfo = _b.sent();
                         methodInfo = txInfo.methodInfo;
                         this.validateMethodSignature(methodInfo, 'setIPFSHash');
@@ -272,7 +248,7 @@ var FactHistoryReader = /** @class */ (function () {
                             key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value)
                         };
                         return [4 /*yield*/, ipfs.cat(methodInfo.params[1].value)];
-                    case 3: return [2 /*return*/, (_a.value = _b.sent(),
+                    case 2: return [2 /*return*/, (_a.value = _b.sent(),
                             _a)];
                 }
             });
@@ -333,14 +309,11 @@ var FactHistoryReader = /** @class */ (function () {
      */
     FactHistoryReader.prototype.getPrivateDataHashes = function (txHash) {
         return __awaiter(this, void 0, void 0, function () {
-            var signedTx, txInfo, methodInfo;
+            var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, tx_1.getSignedTx(txHash, this.web3, this.options)];
+                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(txHash, this.web3, this.options)];
                     case 1:
-                        signedTx = _a.sent();
-                        return [4 /*yield*/, tx_1.decodeTx(signedTx, this.web3, this.options)];
-                    case 2:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
                         this.validateMethodSignature(methodInfo, 'setPrivateDataHashes');

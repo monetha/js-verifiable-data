@@ -38,10 +38,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var ErrorCode_1 = require("../errors/ErrorCode");
 var SdkError_1 = require("../errors/SdkError");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 var tx_1 = require("../utils/tx");
-var ErrorCode_1 = require("../errors/ErrorCode");
 /**
  * Class to manage passport ownership
  */
@@ -104,10 +104,10 @@ var PassportOwnership = /** @class */ (function () {
                         if (!transferredEvent) {
                             throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.FailedToGetOwnershipEvent, 'Failed to get ownership transfer event');
                         }
-                        return [4 /*yield*/, tx_1.getSignedTx(transferredEvent.transactionHash, this.web3, this.options)];
+                        return [4 /*yield*/, tx_1.getDecodedTx(transferredEvent.transactionHash, this.web3, this.options)];
                     case 3:
                         tx = _a.sent();
-                        return [2 /*return*/, Array.from(tx_1.getSenderPublicKey(tx))];
+                        return [2 /*return*/, Array.from(tx.senderPublicKey)];
                 }
             });
         });

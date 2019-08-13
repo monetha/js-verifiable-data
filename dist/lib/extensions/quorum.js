@@ -47,54 +47,40 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var conversion_1 = require("../utils/conversion");
+var tx_1 = require("../utils/tx");
 /**
  * Gets transaction by hash and converts tx to a form, which was just after signing the tx with private key.
  * This includes modifying transaction's `v` field to its original value (because Quorum SDK modifies it for private transactions)
  * so that it would be possible to recover sender's public key from transaction data.
  */
-function getSignedPrivateTx(txHash, web3) {
+function getPrivateTx(txHash, web3) {
     return __awaiter(this, void 0, void 0, function () {
-        var tx, v, privateV1, privateV2;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var tx, v, privateV1, privateV2, senderPublicKey, decodedTx, _a, _b;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
                 case 0: return [4 /*yield*/, web3.eth.getTransaction(txHash)];
                 case 1:
-                    tx = _a.sent();
+                    tx = _c.sent();
                     v = conversion_1.toBN(tx.v);
                     privateV1 = conversion_1.toBN('0x25');
                     privateV2 = conversion_1.toBN('0x26');
                     if (v.eq(privateV1) || v.eq(privateV2)) {
                         tx.v = "0x" + v.sub(conversion_1.toBN('0xa')).toString(16);
                     }
-                    return [2 /*return*/, tx];
-            }
-        });
-    });
-}
-exports.getSignedPrivateTx = getSignedPrivateTx;
-/**
- * Decodes Quorum's private transaction.
- *
- * It uses private data hash from "input" field and replaces it
- * with decoded data that comes from calling `eth_getQuorumPayload` RPC method.
- * Provided web3 object must use provider which is connected to Quorum node which is a party to this private tx.
- */
-function decodePrivateTx(tx, web3) {
-    return __awaiter(this, void 0, void 0, function () {
-        var decodedTx, _a, _b;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
-                case 0:
+                    senderPublicKey = tx_1.getSenderPublicKey(tx);
                     _a = [{}, tx];
                     _b = {};
                     return [4 /*yield*/, web3.currentProvider.send('eth_getQuorumPayload', [tx.input])];
-                case 1:
+                case 2:
                     decodedTx = __assign.apply(void 0, _a.concat([(
                         // Input is only a hash. Decode it using `eth_getQuorumPayload`
                         _b.input = _c.sent(), _b)]));
-                    return [2 /*return*/, decodedTx];
+                    return [2 /*return*/, {
+                            senderPublicKey: senderPublicKey,
+                            tx: decodedTx,
+                        }];
             }
         });
     });
 }
-exports.decodePrivateTx = decodePrivateTx;
+exports.getPrivateTx = getPrivateTx;

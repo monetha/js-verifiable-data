@@ -2,12 +2,14 @@ import * as abiDecoder from 'abi-decoder';
 import BN from 'bn.js';
 import EthTx from 'ethereumjs-tx';
 import ethUtil from 'ethereumjs-util';
+import { createSdkError } from 'lib/errors/SdkError';
+import { Address } from 'lib/models/Address';
+import { IEthOptions } from 'lib/models/IEthOptions';
+import { ErrorCode } from 'lib/proto';
+import { TransactionObject } from 'lib/types/web3-contracts/types';
 import Web3 from 'web3';
 import { RLPEncodedTransaction, Transaction, TransactionConfig } from 'web3-core';
 import passportLogicAbi from '../../config/PassportLogic.json';
-import { IEthOptions } from 'lib/models/IEthOptions';
-import { Address } from 'lib/models/Address';
-import { TransactionObject } from 'lib/types/web3-contracts/types';
 
 export interface IMethodInfo {
   name: string;
@@ -26,31 +28,41 @@ export interface ITxData {
 }
 
 /**
- * Gets transaction by hash. Retrieved TX data will be the one which was signed with private key.
+ * Gets transaction by hash and recovers its sender public key
  */
-export const getSignedTx = async (txHash: string, web3: Web3, options?: IEthOptions) => {
-  if (options && options.signedTxRetriever) {
-    return options.signedTxRetriever(txHash, web3);
+export const getDecodedTx = async (txHash: string, web3: Web3, options?: IEthOptions) => {
+  let tx: Transaction;
+  let senderPublicKey: Buffer;
+
+  if (options && options.txRetriever) {
+    const retrievedTx = await options.txRetriever(txHash, web3);
+
+    if (retrievedTx) {
+      if (!retrievedTx.senderPublicKey) {
+        throw createSdkError(ErrorCode.MissingSenderPublicKey, 'Specified txRetriever did not return required senderPublicKey property');
+      }
+
+      senderPublicKey = retrievedTx.senderPublicKey;
+      tx = retrievedTx.tx;
+    }
+  } else {
+    tx = await web3.eth.getTransaction(txHash);
+
+    if (tx) {
+      senderPublicKey = getSenderPublicKey(tx as any);
+    }
   }
 
-  return web3.eth.getTransaction(txHash);
-};
+  if (!tx) {
+    throw createSdkError(ErrorCode.TxNotFound, 'Transaction was not found');
+  }
 
-/**
- * Transforms given transaction (using options.txDecoder if specified) and decodes tx input method. *
- */
-export const decodeTx = async(tx: Transaction, web3: Web3, options?: IEthOptions) => {
   abiDecoder.addABI(passportLogicAbi);
 
-  let decodedTx = tx;
-
-  if (options && options.txDecoder) {
-    decodedTx = await options.txDecoder(tx, web3);
-  }
-
   const result = {
-    tx: decodedTx,
-    methodInfo: abiDecoder.decodeMethod(decodedTx.input),
+    tx,
+    methodInfo: abiDecoder.decodeMethod(tx.input),
+    senderPublicKey,
   };
 
   return result;

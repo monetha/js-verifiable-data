@@ -50,37 +50,45 @@ var abiDecoder = __importStar(require("abi-decoder"));
 var bn_js_1 = __importDefault(require("bn.js"));
 var ethereumjs_tx_1 = __importDefault(require("ethereumjs-tx"));
 var ethereumjs_util_1 = __importDefault(require("ethereumjs-util"));
+var SdkError_1 = require("../errors/SdkError");
+var proto_1 = require("../proto");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 /**
- * Gets transaction by hash. Retrieved TX data will be the one which was signed with private key.
+ * Gets transaction by hash and recovers its sender public key
  */
-exports.getSignedTx = function (txHash, web3, options) { return __awaiter(_this, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        if (options && options.signedTxRetriever) {
-            return [2 /*return*/, options.signedTxRetriever(txHash, web3)];
-        }
-        return [2 /*return*/, web3.eth.getTransaction(txHash)];
-    });
-}); };
-/**
- * Transforms given transaction (using options.txDecoder if specified) and decodes tx input method. *
- */
-exports.decodeTx = function (tx, web3, options) { return __awaiter(_this, void 0, void 0, function () {
-    var decodedTx, result;
+exports.getDecodedTx = function (txHash, web3, options) { return __awaiter(_this, void 0, void 0, function () {
+    var tx, senderPublicKey, retrievedTx, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                abiDecoder.addABI(PassportLogic_json_1.default);
-                decodedTx = tx;
-                if (!(options && options.txDecoder)) return [3 /*break*/, 2];
-                return [4 /*yield*/, options.txDecoder(tx, web3)];
+                if (!(options && options.txRetriever)) return [3 /*break*/, 2];
+                return [4 /*yield*/, options.txRetriever(txHash, web3)];
             case 1:
-                decodedTx = _a.sent();
-                _a.label = 2;
-            case 2:
+                retrievedTx = _a.sent();
+                if (retrievedTx) {
+                    if (!retrievedTx.senderPublicKey) {
+                        throw SdkError_1.createSdkError(proto_1.ErrorCode.MissingSenderPublicKey, 'Specified txRetriever did not return required senderPublicKey property');
+                    }
+                    senderPublicKey = retrievedTx.senderPublicKey;
+                    tx = retrievedTx.tx;
+                }
+                return [3 /*break*/, 4];
+            case 2: return [4 /*yield*/, web3.eth.getTransaction(txHash)];
+            case 3:
+                tx = _a.sent();
+                if (tx) {
+                    senderPublicKey = exports.getSenderPublicKey(tx);
+                }
+                _a.label = 4;
+            case 4:
+                if (!tx) {
+                    throw SdkError_1.createSdkError(proto_1.ErrorCode.TxNotFound, 'Transaction was not found');
+                }
+                abiDecoder.addABI(PassportLogic_json_1.default);
                 result = {
-                    tx: decodedTx,
-                    methodInfo: abiDecoder.decodeMethod(decodedTx.input),
+                    tx: tx,
+                    methodInfo: abiDecoder.decodeMethod(tx.input),
+                    senderPublicKey: senderPublicKey,
                 };
                 return [2 /*return*/, result];
         }

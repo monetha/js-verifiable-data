@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var ErrorCode;
 (function (ErrorCode) {
+    ErrorCode["MissingSenderPublicKey"] = "MissingSenderPublicKey";
     ErrorCode["MissingExchangeIdxInReceipt"] = "MissingExchangeIdxInReceipt";
     ErrorCode["MissingSuccessfulInReceipt"] = "MissingSuccessfulInReceipt";
     ErrorCode["MissingCheaterInReceipt"] = "MissingCheaterInReceipt";
@@ -21,4 +22,5 @@ var ErrorCode;
     ErrorCode["MethodSignatureInvalid"] = "MethodSignatureInvalid";
     ErrorCode["InvalidIPFSObject"] = "InvalidIPFSObject";
     ErrorCode["DataNotFoundInBlock"] = "DataNotFoundInBlock";
+    ErrorCode["TxNotFound"] = "TxNotFound";
 })(ErrorCode = exports.ErrorCode || (exports.ErrorCode = {}));

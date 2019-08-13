@@ -1,3 +1,4 @@
+import { ErrorCode } from 'lib/errors/ErrorCode';
 import { createSdkError } from 'lib/errors/SdkError';
 import { IEthOptions } from 'lib/models/IEthOptions';
 import Web3 from 'web3';
@@ -5,8 +6,7 @@ import { AbiItem } from 'web3-utils';
 import passportLogicAbi from '../../config/PassportLogic.json';
 import { Address } from '../models/Address';
 import { PassportLogic } from '../types/web3-contracts/PassportLogic';
-import { getSenderPublicKey, getSignedTx, prepareTxConfig } from '../utils/tx';
-import { ErrorCode } from 'lib/errors/ErrorCode';
+import { getDecodedTx, prepareTxConfig } from '../utils/tx';
 
 /**
  * Class to manage passport ownership
@@ -60,9 +60,9 @@ export class PassportOwnership {
       throw createSdkError(ErrorCode.FailedToGetOwnershipEvent, 'Failed to get ownership transfer event');
     }
 
-    const tx = await getSignedTx(transferredEvent.transactionHash, this.web3, this.options);
+    const tx = await getDecodedTx(transferredEvent.transactionHash, this.web3, this.options);
 
-    return Array.from(getSenderPublicKey(tx as any));
+    return Array.from(tx.senderPublicKey);
   }
 
   private async getFirstOwnershipTransferredEvent(newOwnerAddress: string) {

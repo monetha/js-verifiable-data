@@ -42,8 +42,7 @@ before(async () => {
       case NetworkType.Quorum:
         contractCreationParams.privateFor = [getNodePublicKey(1)];
         options = {
-          signedTxRetriever: ext.quorum.getSignedPrivateTx,
-          txDecoder: ext.quorum.decodePrivateTx,
+          txRetriever: ext.quorum.getPrivateTx,
         };
         break;
       default:

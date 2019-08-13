@@ -2,7 +2,7 @@ import { ErrorCode } from 'lib/errors/ErrorCode';
 import { createSdkError } from 'lib/errors/SdkError';
 import { IEthOptions } from 'lib/models/IEthOptions';
 import { toBN } from 'lib/utils/conversion';
-import { decodeTx, getSignedTx } from 'lib/utils/tx';
+import { getDecodedTx } from 'lib/utils/tx';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import passportLogicAbi from '../../config/PassportLogic.json';
@@ -128,8 +128,7 @@ export class FactReader {
         `Event "TxDataUpdated", carrying the data, was not found in block ${blockNum} referenced by fact in passport`);
     }
 
-    const signedTx = await getSignedTx(events[events.length - 1].transactionHash, this.web3, this.options);
-    const txInfo = await decodeTx(signedTx, this.web3, this.options);
+    const txInfo = await getDecodedTx(events[events.length - 1].transactionHash, this.web3, this.options);
     const txDataString = txInfo.methodInfo.params[1].value;
     const txData = this.web3.utils.hexToBytes(txDataString);
 

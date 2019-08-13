@@ -1,4 +1,5 @@
 export enum ErrorCode {
+  MissingSenderPublicKey = 'MissingSenderPublicKey',
   MissingExchangeIdxInReceipt = 'MissingExchangeIdxInReceipt',
   MissingSuccessfulInReceipt = 'MissingSuccessfulInReceipt',
   MissingCheaterInReceipt = 'MissingCheaterInReceipt',
@@ -18,4 +19,5 @@ export enum ErrorCode {
   MethodSignatureInvalid = 'MethodSignatureInvalid',
   InvalidIPFSObject = 'InvalidIPFSObject',
   DataNotFoundInBlock = 'DataNotFoundInBlock',
+  TxNotFound = 'TxNotFound',
 }
