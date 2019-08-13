@@ -1,61 +1,68 @@
 import { logVerbose } from 'common/logger';
-import { getAccounts, getNetwork, getNetworkUrl, getPrivateKeys, NetworkType } from 'common/network';
-import { getNodePublicKeys, getNodeNetworkUrl } from 'common/quorum';
+import { getAccount, getNetwork, getNetworkNodeUrl, getPrivateKey, NetworkType, getNodePublicKey } from 'common/network';
 import { createTxExecutor, isPrivateTxMode } from 'common/tx';
 import { ext, FactHistoryReader, FactReader, FactRemover, FactWriter, IEthOptions, PassportGenerator, PassportOwnership, PassportReader, Permissions } from 'verifiable-data';
 import Web3 from 'web3';
 import { MockIPFSClient } from '../mocks/MockIPFSClient';
 
-let accounts;
-let privateKeys;
+let passportLogic;
+let passportLogicRegistry;
+let passportFactory;
+let passportLogicAddress;
+let passportLogicRegistryAddress;
+let passportFactoryAddress;
 let monethaOwner;
 let passportOwner;
 let passportOwnerPrivateKey;
-let passportFactoryAddress;
 let passportAddress;
 let factProviderAddress;
 let factProviderPrivateKey;
 let privateDataFactSecretKey;
 const mockIPFSClient = new MockIPFSClient();
 
-const PassportFactory = artifacts.require('PassportFactory');
 const PassportLogic = artifacts.require('PassportLogic');
 const PassportLogicRegistry = artifacts.require('PassportLogicRegistry');
-const web3 = new Web3(new Web3.providers.HttpProvider(getNetworkUrl()));
+const PassportFactory = artifacts.require('PassportFactory');
+const web3 = new Web3(new Web3.providers.HttpProvider(getNetworkNodeUrl()));
 const contractCreationParams: any = {};
 let options: IEthOptions = null;
-
-if (getNetwork() === NetworkType.Quorum && isPrivateTxMode) {
-  contractCreationParams.privateFor = [getNodePublicKeys()[1]];
-  options = {
-    signedTxRetriever: ext.quorum.getSignedPrivateTx,
-    txDecoder: ext.quorum.decodePrivateTx,
-  };
-}
 
 const txHashes: any = {};
 const txExecutor = createTxExecutor(web3);
 
 before(async () => {
-  accounts = await getAccounts(web3);
-  privateKeys = await getPrivateKeys(web3);
+  monethaOwner = await getAccount(web3, 0);
+  passportOwner = await getAccount(web3, 1);
+  passportOwnerPrivateKey = getPrivateKey(1);
+  factProviderAddress = await getAccount(web3, 2);
+  factProviderPrivateKey = getPrivateKey(2);
 
-  monethaOwner = accounts[0];
-  passportOwner = accounts[1];
-  passportOwnerPrivateKey = privateKeys[1];
-  factProviderAddress = accounts[2];
-  factProviderPrivateKey = privateKeys[2];
+  if (isPrivateTxMode) {
+    switch (getNetwork()) {
+      case NetworkType.Quorum:
+        contractCreationParams.privateFor = [getNodePublicKey(1)];
+        options = {
+          signedTxRetriever: ext.quorum.getSignedPrivateTx,
+          txDecoder: ext.quorum.decodePrivateTx,
+        };
+        break;
+      default:
+        break;
+    }
+  }
 
-  const passportLogic = await PassportLogic.new({ from: monethaOwner, ...contractCreationParams });
-  const passportLogicRegistry = await PassportLogicRegistry.new('0.1', passportLogic.address, { from: monethaOwner, ...contractCreationParams });
-
-  const passportFactory = await PassportFactory.new(passportLogicRegistry.address, { from: monethaOwner, ...contractCreationParams });
+  // deploy contracts
+  passportLogic = await PassportLogic.new({ from: monethaOwner, ...contractCreationParams });
+  passportLogicAddress = passportLogic.address;
+  passportLogicRegistry = await PassportLogicRegistry.new('0.1', passportLogic.address, { from: monethaOwner, ...contractCreationParams });
+  passportLogicRegistryAddress = passportLogicRegistry.address;
+  passportFactory = await PassportFactory.new(passportLogicRegistry.address, { from: monethaOwner, ...contractCreationParams });
   passportFactoryAddress = passportFactory.address;
 
   logVerbose('----------------------------------------------------------');
-  logVerbose('PASSPORT LOGIC:'.padEnd(30), passportLogic.address);
-  logVerbose('PASSPORT REGISTRY:'.padEnd(30), passportLogicRegistry.address);
-  logVerbose('PASSPORT FACTORY:'.padEnd(30), passportFactory.address);
+  logVerbose('PASSPORT LOGIC:'.padEnd(30), passportLogicAddress);
+  logVerbose('PASSPORT REGISTRY:'.padEnd(30), passportLogicRegistryAddress);
+  logVerbose('PASSPORT FACTORY:'.padEnd(30), passportFactoryAddress);
   logVerbose('PASSPORT OWNER:'.padEnd(30), passportOwner);
   logVerbose('PASSPORT OWNER PRIVATE KEY:'.padEnd(30), passportOwnerPrivateKey);
   logVerbose('FACT PROVIDER:'.padEnd(30), factProviderAddress);
@@ -82,8 +89,8 @@ describe('Passport creation and facts', () => {
     logVerbose('----------------------------------------------------------');
   });
 
-  if (isPrivateTxMode && getNetwork() === NetworkType.Quorum) {
-    const web3Node3 = new Web3(new Web3.providers.HttpProvider(getNodeNetworkUrl(2)));
+  if (isPrivateTxMode) {
+    const web3Node3 = new Web3(new Web3.providers.HttpProvider(getNetworkNodeUrl(2)));
 
     it('Created passport should not be visible from other nodes', async () => {
 
@@ -122,8 +129,8 @@ describe('Passport creation and facts', () => {
     expect(passports[0]).to.have.property('ownerAddress');
   });
 
-  if (isPrivateTxMode && getNetwork() === NetworkType.Quorum) {
-    const web3Node3 = new Web3(new Web3.providers.HttpProvider(getNodeNetworkUrl(2)));
+  if (isPrivateTxMode) {
+    const web3Node3 = new Web3(new Web3.providers.HttpProvider(getNetworkNodeUrl(2)));
 
     it('Should not be able to get a list of all created passports from other node', async () => {
       // Given

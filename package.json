@@ -12,6 +12,8 @@
 	"scripts": {
 		"test": "npm run test:unit && npm run test:integration",
 		"test:integration": "cd integration-tests && npm run test",
+		"test:ganache": "cd integration-tests && npm run test",
+		"test:pantheon": "cd integration-tests && npm run test:pantheon",
 		"test:unit": "./node_modules/.bin/mocha --require ts-node/register lib/**/*.test.ts",
 		"build": "npm run build:clean && npm run build:ts",
 		"build:clean": "node ./scripts/clean-dist.js",

@@ -6,6 +6,16 @@
   "configurations": [
     {
       "type": "node",
+      "request": "attach",
+      "name": "Attach to Remote",
+      "address": "127.0.0.1",
+      "port": 9229,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "/source",
+      "protocol": "inspector"
+    },
+    {
+      "type": "node",
       "request": "launch",
       "name": "Truffle (GANACHE) Current File",
       "program": "${workspaceFolder}/integration-tests/node_modules/.bin/truffle",

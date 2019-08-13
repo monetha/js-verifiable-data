@@ -1,10 +1,12 @@
 import Web3 from 'web3';
-import * as quorum from './quorum';
-import * as ganache from './ganache';
+import * as quorum from './networks/quorum';
+import * as pantheon from './networks/pantheon';
+import * as ganache from './networks/ganache';
 
 export enum NetworkType {
   Ganache = 'development',
   Quorum = 'quorum',
+  Pantheon = 'pantheon',
 }
 
 const truffleConfig = require('../truffle-config');
@@ -42,11 +44,54 @@ export function getNetworkConfig() {
 }
 
 /**
- * Gets ethereum network url
+ * Gets all ethereum network urls
  */
-export function getNetworkUrl(): string {
-  const networkConfig = getNetworkConfig();
-  return `http://${networkConfig.host}:${networkConfig.port}`;
+export function getNetworkNodeUrls(): string[] {
+  const network = getNetwork();
+
+  switch (network) {
+    case NetworkType.Quorum:
+      return quorum.getNetworkNodeUrls();
+
+    case NetworkType.Pantheon:
+      return pantheon.getNetworkNodeUrls();
+
+    default:
+      const networkConfig = getNetworkConfig();
+      return [`http://${networkConfig.host}:${networkConfig.port}`];
+  }
+}
+
+/**
+ * Gets specific ethereum network url
+ */
+export function getNetworkNodeUrl(index: number = 0): string {
+  return getNetworkNodeUrls()[index];
+}
+
+/**
+ * Gets all ethereum network private node urls
+ */
+export function getNetworkPrivateNodeUrls(): string[] {
+  const network = getNetwork();
+
+  switch (network) {
+    case NetworkType.Quorum:
+      return quorum.getNetworkPrivateNodeUrls();
+
+    case NetworkType.Pantheon:
+      return pantheon.getNetworkPrivateNodeUrls();
+
+    default:
+      return [];
+  }
+}
+
+/**
+ * Gets specific ethereum network url
+ */
+export function getNetworkPrivateNodeUrl(index: number = 0): string {
+  return getNetworkPrivateNodeUrls()[index];
 }
 
 /**
@@ -55,22 +100,70 @@ export function getNetworkUrl(): string {
 export async function getAccounts(web3: Web3): Promise<string[]> {
   const network = getNetwork();
 
-  if (network === NetworkType.Quorum) {
-    return quorum.getAccounts();
-  }
+  switch (network) {
+    case NetworkType.Quorum:
+      return quorum.getAccounts();
 
-  return web3.eth.getAccounts();
+    case NetworkType.Pantheon:
+      return pantheon.getAccounts();
+
+    default:
+      return web3.eth.getAccounts();
+  }
+}
+/**
+ * Gets specific account address
+ */
+export async function getAccount(web3: Web3, index: number = 0): Promise<string> {
+  const accounts = await getAccounts(web3);
+  return accounts[index];
 }
 
 /**
  * Gets account private keys
  */
-export async function getPrivateKeys(web3: Web3): Promise<string[]> {
+export function getPrivateKeys(): string[] {
   const network = getNetwork();
 
-  if (network === NetworkType.Quorum) {
-    return quorum.getPrivateKeys();
-  }
+  switch (network) {
+    case NetworkType.Quorum:
+      return quorum.getPrivateKeys();
 
-  return ganache.getPrivateKeys();
+    case NetworkType.Pantheon:
+      return pantheon.getPrivateKeys();
+
+    default:
+      return ganache.getPrivateKeys();
+  }
+}
+
+/**
+ * Gets specific account private key
+ */
+export function getPrivateKey(index: number = 0): string {
+  return getPrivateKeys()[index];
+}
+
+/**
+ * Gets node public keys
+ */
+export function getNodePublicKeys(): string[] {
+  const network = getNetwork();
+
+  switch (network) {
+    case NetworkType.Quorum:
+      return quorum.getNodePublicKeys();
+
+    case NetworkType.Pantheon:
+      return pantheon.getNodePublicKeys();
+
+    default:
+      return [];
+  }
+}
+/**
+ * Gets specific node public key
+ */
+export function getNodePublicKey(index: number = 0): string {
+  return getNodePublicKeys()[index];
 }

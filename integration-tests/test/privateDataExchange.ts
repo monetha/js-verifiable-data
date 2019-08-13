@@ -1,17 +1,12 @@
 import BN from 'bn.js';
 import { expectSdkError } from 'common/error';
-import { advanceTimeAndBlock, revertToSnapshot, takeSnapshot } from 'common/ganache';
+import { advanceTimeAndBlock, revertToSnapshot, takeSnapshot } from 'common/networks/ganache';
 import { createTxExecutor, isPrivateTxMode } from 'common/tx';
 import { FactWriter, PassportGenerator, PassportOwnership, PrivateDataExchanger, Address, IEthOptions, ext, ExchangeState, ErrorCode } from 'verifiable-data';
 import { MockIPFSClient } from 'mocks/MockIPFSClient';
 import Web3 from 'web3';
-import { getNetworkUrl, getPrivateKeys, getAccounts, getNetwork, NetworkType } from 'common/network';
+import { getNetworkNodeUrl, getPrivateKey, getAccount, getNetwork, NetworkType, getNodePublicKey } from 'common/network';
 import { logVerbose } from 'common/logger';
-import { getNodePublicKeys } from 'common/quorum';
-// import { IPFSClient } from 'common/IPFSClient';
-
-let accounts: string[];
-let privateKeys: string[];
 
 let monethaOwner: Address;
 let passportOwner: Address;
@@ -25,7 +20,6 @@ let passportAddress: Address;
 let factProviderAddress: Address;
 let exchanger: PrivateDataExchanger;
 const ipfsClient = new MockIPFSClient();
-// const ipfsClient = new IPFSClient();
 let options: IEthOptions = null;
 
 const privateFactKey = 'privatedata_fact';
@@ -34,16 +28,21 @@ let stakeWei = new BN('100000', 10);
 const contractCreationParams: any = {};
 
 if (getNetwork() === NetworkType.Quorum) {
-
   // On quorum we use accounts which does not have money, so stake 0. However, on ganache - each account has eth
   stakeWei = new BN('0', 10);
+}
 
-  if (isPrivateTxMode) {
-    contractCreationParams.privateFor = [getNodePublicKeys()[1]];
-    options = {
-      signedTxRetriever: ext.quorum.getSignedPrivateTx,
-      txDecoder: ext.quorum.decodePrivateTx,
-    };
+if (isPrivateTxMode) {
+  switch (getNetwork()) {
+    case NetworkType.Quorum:
+      contractCreationParams.privateFor = [getNodePublicKey(1)];
+      options = {
+        signedTxRetriever: ext.quorum.getSignedPrivateTx,
+        txDecoder: ext.quorum.decodePrivateTx,
+      };
+      break;
+    default:
+      break;
   }
 }
 
@@ -52,24 +51,22 @@ const privateFactValue = [1, 2, 3, 4, 5, 6];
 const PassportFactory = artifacts.require('PassportFactory');
 const PassportLogic = artifacts.require('PassportLogic');
 const PassportLogicRegistry = artifacts.require('PassportLogicRegistry');
-const web3 = new Web3(new Web3.providers.HttpProvider(getNetworkUrl()));
+const web3 = new Web3(new Web3.providers.HttpProvider(getNetworkNodeUrl()));
 
 const txExecutor = createTxExecutor(web3);
 
 let exchangeData: any = {};
 
 const preparePassport = async () => {
-  accounts = await getAccounts(web3);
-  privateKeys = await getPrivateKeys(web3);
 
   // Accounts
-  monethaOwner = accounts[0];
-  passportOwner = accounts[1];
-  passportOwnerPrivateKey = privateKeys[1];
-  factProviderAddress = accounts[2];
-  requesterAddress = accounts[3];
-  requesterPrivateKey = privateKeys[3];
-  otherPersonAddress = accounts[4];
+  monethaOwner = await getAccount(web3, 0);
+  passportOwner = await getAccount(web3, 1);
+  passportOwnerPrivateKey = getPrivateKey(1);
+  factProviderAddress = await getAccount(web3, 2);
+  requesterAddress = await getAccount(web3, 3);
+  requesterPrivateKey = getPrivateKey(3);
+  otherPersonAddress = await getAccount(web3, 4);
 
   const passportLogic = await PassportLogic.new({ from: monethaOwner, ...contractCreationParams });
   const passportLogicRegistry = await PassportLogicRegistry.new('0.1', passportLogic.address, { from: monethaOwner, ...contractCreationParams });

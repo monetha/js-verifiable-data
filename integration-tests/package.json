@@ -9,9 +9,12 @@
     "test": "./node_modules/.bin/truffle test",
     "test:quorum": "./node_modules/.bin/truffle test --network quorum",
     "test:quorum-private": "./node_modules/.bin/truffle test --network quorum --private",
+    "test:pantheon": "node ./node_modules/.bin/truffle test --network pantheon",
     "ganache": "npm run ganache:stop && docker run -d --rm -p 8545:8545 --name ganache trufflesuite/ganache-cli:latest -m \"economy sight open cancel father goddess monkey mosquito mule village diet purpose\"",
     "ganache:stop": "docker rm ganache --force || true",
-    "ganache:terminal": "./node_modules/.bin/ganache-cli -m \"economy sight open cancel father goddess monkey mosquito mule village diet purpose\""
+    "ganache:terminal": "./node_modules/.bin/ganache-cli -m \"economy sight open cancel father goddess monkey mosquito mule village diet purpose\"",
+    "pantheon": "npm run pantheon:stop && (cd ./docker/pantheon && docker-compose up -d && sleep 60s && docker-compose ps)",
+    "pantheon:stop": "(cd ./docker/pantheon && docker-compose down && ./clean.sh || true)"
   },
   "author": "",
   "license": "ISC",
@@ -27,7 +30,10 @@
     "solc": "^0.4.24",
     "truffle": "^5.0.21",
     "truffle-flattener": "^1.3.0",
-    "web3": "^1.0.0-beta.55"
+    "truffle-hdwallet-provider": "^1.0.0-web3one.5",
+    "web3": "^1.0.0-beta.55",
+    "web3-eea": "^0.7.2",
+    "axios": "^0.19.0"
   },
   "devDependencies": {
     "truffle-typings": "^1.0.6",
