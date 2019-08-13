@@ -6,7 +6,8 @@
 	"types": "./dist/lib/proto.d.ts",
 	"license": "GPL-3.0",
 	"files": [
-		"dist"
+		"dist",
+		"config"
 	],
 	"publishConfig": {
 		"access": "public"
