@@ -1,6 +1,6 @@
 import { PassportGenerator } from './passport/PassportGenerator';
 import { PassportOwnership } from './passport/PassportOwnership';
-import { FactReader } from './passport/FactReader';
+import { FactReader, IPrivateDataHashes } from './passport/FactReader';
 import { FactWriter } from './passport/FactWriter';
 import { FactRemover } from './passport/FactRemover';
 import { Permissions } from './passport/Permissions';
@@ -12,7 +12,7 @@ import { EventType, DataType, IHistoryEvent } from './models/IHistoryEvent';
 import { IIPFSClient, IIPFSAddResult, IIPFSDag, IIPFSLink, IIPLD } from './models/IIPFSClient';
 import { IPassportRef } from './models/IPassportRef';
 import { IEthOptions } from './models/IEthOptions';
-import { PrivateDataExchanger, ExchangeState } from './passport/PrivateDataExchanger';
+import { PrivateDataExchanger, ExchangeState, IProposeDataExchangeResult, IDisputeDataExchangeResult, IDataExchangeStatus, CurrentTimeGetter } from './passport/PrivateDataExchanger';
 import { TxExecutor } from './models/TxExecutor';
 import { ErrorCode } from './errors/ErrorCode';
 import { ISdkError } from './errors/SdkError';
@@ -66,6 +66,11 @@ export {
   IIPFSDag,
   IIPFSLink,
   IIPLD,
+  IProposeDataExchangeResult,
+  IDisputeDataExchangeResult,
+  IDataExchangeStatus,
+  IPrivateDataHashes,
+  CurrentTimeGetter,
   TxExecutor,
   ErrorCode,
   ISdkError,
