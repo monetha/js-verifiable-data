@@ -11,11 +11,11 @@ export async function submitTransaction(web3: Web3, txData: TransactionConfig) {
   return new Promise<Transaction>(async (success, reject) => {
     try {
       const tx = new EthereumTx({
-        nonce: toBN(txData.nonce).toBuffer(),
-        gasPrice: toBN(txData.gasPrice).toBuffer(),
-        gasLimit: toBN(txData.gas).toBuffer(),
+        nonce: toBN(txData.nonce).toArrayLike(Buffer),
+        gasPrice: toBN(txData.gasPrice).toArrayLike(Buffer),
+        gasLimit: toBN(txData.gas).toArrayLike(Buffer),
         to: txData.to,
-        value: toBN(txData.value).toBuffer(),
+        value: toBN(txData.value).toArrayLike(Buffer),
         data: Buffer.from(txData.data.replace('0x', ''), 'hex'),
       });
 

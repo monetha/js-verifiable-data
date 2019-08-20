@@ -75,10 +75,10 @@ export const getSenderPublicKey = (tx: RLPEncodedTransaction['tx']) => {
 
   const ethTx = new EthTx({
     nonce: tx.nonce,
-    gasPrice: ethUtil.bufferToHex(new BN(tx.gasPrice).toBuffer()),
+    gasPrice: ethUtil.bufferToHex(new BN(tx.gasPrice).toArrayLike(Buffer)),
     gasLimit: tx.gas,
     to: tx.to,
-    value: ethUtil.bufferToHex(new BN(tx.value).toBuffer()),
+    value: ethUtil.bufferToHex(new BN(tx.value).toArrayLike(Buffer)),
     data: tx.input,
     r: (tx as any).r,
     s: (tx as any).s,

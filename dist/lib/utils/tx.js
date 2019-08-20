@@ -100,10 +100,10 @@ exports.getDecodedTx = function (txHash, web3, options) { return __awaiter(_this
 exports.getSenderPublicKey = function (tx) {
     var ethTx = new ethereumjs_tx_1.default({
         nonce: tx.nonce,
-        gasPrice: ethereumjs_util_1.default.bufferToHex(new bn_js_1.default(tx.gasPrice).toBuffer()),
+        gasPrice: ethereumjs_util_1.default.bufferToHex(new bn_js_1.default(tx.gasPrice).toArrayLike(Buffer)),
         gasLimit: tx.gas,
         to: tx.to,
-        value: ethereumjs_util_1.default.bufferToHex(new bn_js_1.default(tx.value).toBuffer()),
+        value: ethereumjs_util_1.default.bufferToHex(new bn_js_1.default(tx.value).toArrayLike(Buffer)),
         data: tx.input,
         r: tx.r,
         s: tx.s,

@@ -1,6 +1,6 @@
 {
 	"name": "verifiable-data",
-	"version": "2.6.5",
+	"version": "2.6.6",
 	"description": "SDK for managing verifiable data using digital identities on distributed ledger",
 	"main": "./dist/lib/proto.js",
 	"types": "./dist/lib/proto.d.ts",
@@ -49,12 +49,12 @@
 		"tslint-config-airbnb": "^5.11.1",
 		"tslint-lines-between-class-members": "^1.3.1",
 		"typechain": "^0.3.14",
-		"typescript": "^3.5.1"
+		"typescript": "^3.5.3"
 	},
 	"dependencies": {
 		"abi-decoder": "^1.2.0",
 		"aes-js": "^3.1.2",
-		"bn.js": "^4.11.8",
+		"bn.js": "^5.0.0",
 		"elliptic": "^6.4.1",
 		"ethereumjs-tx": "^1.3.3",
 		"ethereumjs-wallet": "^0.6.0",
