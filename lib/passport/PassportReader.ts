@@ -155,17 +155,17 @@ function getEventSignatures(web3: Web3): {
   const factEvents: IFactEventSignatures = {};
 
   // Create dictionary of event signatures to event data
-  Object.keys(DataType).forEach((dataType: DataType) => {
-    Object.keys(EventType).forEach((eventType: EventType) => {
-      const hashedSignature = hashedSignatures[`${dataType}${eventType}`];
+  Object.keys(DataType).forEach((dataType: string) => {
+    Object.keys(EventType).forEach((eventType: string) => {
+      const hashedSignature = hashedSignatures[`${DataType[dataType]}${EventType[eventType]}`];
 
       if (!hashedSignature) {
         return;
       }
 
       factEvents[hashedSignature] = {
-        dataType,
-        eventType,
+        dataType: DataType[dataType],
+        eventType: EventType[eventType],
       };
     });
   });

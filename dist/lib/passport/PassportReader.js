@@ -178,13 +178,13 @@ function getEventSignatures(web3) {
     // Create dictionary of event signatures to event data
     Object.keys(IHistoryEvent_1.DataType).forEach(function (dataType) {
         Object.keys(IHistoryEvent_1.EventType).forEach(function (eventType) {
-            var hashedSignature = hashedSignatures["" + dataType + eventType];
+            var hashedSignature = hashedSignatures["" + IHistoryEvent_1.DataType[dataType] + IHistoryEvent_1.EventType[eventType]];
             if (!hashedSignature) {
                 return;
             }
             factEvents[hashedSignature] = {
-                dataType: dataType,
-                eventType: eventType,
+                dataType: IHistoryEvent_1.DataType[dataType],
+                eventType: IHistoryEvent_1.EventType[eventType],
             };
         });
     });

@@ -15,7 +15,7 @@ export enum DataType {
   String = 'String',
   TxData = 'TxData',
   IPFSHash = 'IPFSHash',
-  PrivateData = 'PrivateData',
+  PrivateData = 'PrivateDataHashes',
 }
 
 export interface IHistoryEvent extends EventData {

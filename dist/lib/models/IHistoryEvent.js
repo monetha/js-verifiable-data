@@ -15,5 +15,5 @@ var DataType;
     DataType["String"] = "String";
     DataType["TxData"] = "TxData";
     DataType["IPFSHash"] = "IPFSHash";
-    DataType["PrivateData"] = "PrivateData";
+    DataType["PrivateData"] = "PrivateDataHashes";
 })(DataType = exports.DataType || (exports.DataType = {}));
