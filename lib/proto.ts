@@ -12,7 +12,14 @@ import { EventType, DataType, IHistoryEvent } from './models/IHistoryEvent';
 import { IIPFSClient, IIPFSAddResult, IIPFSDag, IIPFSLink, IIPLD } from './models/IIPFSClient';
 import { IPassportRef } from './models/IPassportRef';
 import { IEthOptions } from './models/IEthOptions';
-import { PrivateDataExchanger, ExchangeState, IProposeDataExchangeResult, IDisputeDataExchangeResult, IDataExchangeStatus, CurrentTimeGetter } from './passport/PrivateDataExchanger';
+import {
+  PrivateDataExchanger,
+  ExchangeState,
+  IProposeDataExchangeResult,
+  IDisputeDataExchangeResult,
+  IDataExchangeStatus,
+  CurrentTimeGetter,
+} from './passport/PrivateDataExchanger';
 import { TxExecutor } from './models/TxExecutor';
 import { ErrorCode } from './errors/ErrorCode';
 import { ISdkError } from './errors/SdkError';
