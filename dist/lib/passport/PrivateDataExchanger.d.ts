@@ -4,6 +4,7 @@ import { IIPFSClient } from '../models/IIPFSClient';
 import Web3 from 'web3';
 import { Address } from '../models/Address';
 import { TxExecutor } from '../models/TxExecutor';
+import { RandomArrayGenerator } from '../models/RandomArrayGenerator';
 export declare class PrivateDataExchanger {
     private passportAddress;
     private web3;
@@ -20,7 +21,7 @@ export declare class PrivateDataExchanger {
      * @param requesterAddress - data requester address (the one who will submit the transaction)
      * @param txExecutor - transaction executor function
      */
-    propose(factKey: string, factProviderAddress: Address, exchangeStakeWei: BN, requesterAddress: Address, txExecutor: TxExecutor): Promise<IProposeDataExchangeResult>;
+    propose(factKey: string, factProviderAddress: Address, exchangeStakeWei: BN, requesterAddress: Address, txExecutor: TxExecutor, rand?: RandomArrayGenerator): Promise<IProposeDataExchangeResult>;
     /**
      * Accepts private data exchange proposition (should be called only by the passport owner)
      * @param exchangeIndex - data exchange index

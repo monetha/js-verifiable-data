@@ -20,6 +20,7 @@ import { TxExecutor } from '../models/TxExecutor';
 import { deriveSecretKeyringMaterial, ellipticCurveAlg } from './privateFactCommon';
 import { PrivateFactReader } from './PrivateFactReader';
 import { prepareTxConfig } from 'lib/utils/tx';
+import { RandomArrayGenerator } from 'lib/models/RandomArrayGenerator';
 
 const gasLimits = {
   accept: 90000,
@@ -66,6 +67,7 @@ export class PrivateDataExchanger {
     exchangeStakeWei: BN,
     requesterAddress: Address,
     txExecutor: TxExecutor,
+    rand?: RandomArrayGenerator,
   ): Promise<IProposeDataExchangeResult> {
 
     // Get owner public key
@@ -73,7 +75,7 @@ export class PrivateDataExchanger {
     const ownerPubKeyPair = this.ec.keyFromPublic(Buffer.from(ownerPublicKeyBytes));
 
     // Create exchange key to be shared with passport owner
-    const ecies = ECIES.createGenerated(this.ec);
+    const ecies = await ECIES.createGenerated(this.ec, rand);
 
     const exchangeKeyData = deriveSecretKeyringMaterial(ecies, ownerPubKeyPair, this.passportAddress, factProviderAddress, factKey);
     const encryptedExchangeKey = ecies.getPublicKey().getPublic('array');

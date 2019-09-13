@@ -159,12 +159,12 @@ var FactWriter = /** @class */ (function () {
      * @param value value to store privately
      * @param ipfs IPFS client
      */
-    FactWriter.prototype.setPrivateData = function (key, value, factProviderAddress, ipfs) {
+    FactWriter.prototype.setPrivateData = function (key, value, factProviderAddress, ipfs, rand) {
         return __awaiter(this, void 0, void 0, function () {
             var privateWriter;
             return __generator(this, function (_a) {
                 privateWriter = new PrivateFactWriter_1.PrivateFactWriter(this.web3, this, this.options);
-                return [2 /*return*/, privateWriter.setPrivateData(factProviderAddress, key, value, ipfs)];
+                return [2 /*return*/, privateWriter.setPrivateData(factProviderAddress, key, value, ipfs, rand)];
             });
         });
     };

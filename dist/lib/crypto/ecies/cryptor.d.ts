@@ -1,5 +1,6 @@
 import { curve } from 'elliptic';
 import { ISecretKeyringMaterial } from './ecies';
+import { RandomArrayGenerator } from '../../models/RandomArrayGenerator';
 interface IEncryptedAuthenticatedMessage {
     encryptedMsg: number[];
     hmac: number[];
@@ -18,6 +19,6 @@ export declare class Cryptor {
      * s2 contains shared information that is not part of the resulting ciphertext, it's fed into the MAC. If the
      * shared information parameters aren't being used, they should not be provided.
      */
-    encryptAuth(skm: ISecretKeyringMaterial, msg: number[], s2?: number[]): IEncryptedAuthenticatedMessage;
+    encryptAuth(skm: ISecretKeyringMaterial, msg: number[], s2?: number[], rand?: RandomArrayGenerator): Promise<IEncryptedAuthenticatedMessage>;
 }
 export {};

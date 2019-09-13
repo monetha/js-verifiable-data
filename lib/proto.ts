@@ -26,6 +26,7 @@ import { ISdkError } from './errors/SdkError';
 import * as quorum from './extensions/quorum';
 import { Address } from './models/Address';
 import { toBN } from './utils/conversion';
+import { RandomArrayGenerator } from './models/RandomArrayGenerator';
 
 const ext = {
   quorum,
@@ -86,4 +87,5 @@ export {
   ExchangeState,
   ext,
   toBN,
+  RandomArrayGenerator,
 };

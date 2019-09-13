@@ -9,6 +9,7 @@ import { FactWriter } from './FactWriter';
 import { PassportOwnership } from './PassportOwnership';
 import { IEthOptions } from 'lib/models/IEthOptions';
 import Web3 from 'web3';
+import { RandomArrayGenerator } from 'lib/models/RandomArrayGenerator';
 const EC = ec;
 
 /**
@@ -32,12 +33,13 @@ export class PrivateFactWriter {
     key: string,
     data: number[],
     ipfsClient: IIPFSClient,
+    rand?: RandomArrayGenerator,
   ) {
     // Get passport owner public key
     const pubKeyBytes = await this.ownership.getOwnerPublicKey();
 
     // Create ECIES with generated keys
-    const ecies = ECIES.createGenerated(this.ec);
+    const ecies = await ECIES.createGenerated(this.ec, rand);
     const ephemeralPublicKey = ecies.getPublicKey().getPublic('array');
 
     const pubKeyPair = this.ec.keyFromPublic(Buffer.from(pubKeyBytes));
@@ -48,7 +50,7 @@ export class PrivateFactWriter {
 
     // Encrypt data
     const cryptor = new Cryptor(this.ec.curve);
-    const encryptedMsg = cryptor.encryptAuth(skm, data);
+    const encryptedMsg = await cryptor.encryptAuth(skm, data, null, rand);
 
     // Store files to IPFS
     const ephemeralPublicKeyAddResult = await ipfsClient.add(Buffer.from(ephemeralPublicKey)) as IIPFSAddResult;

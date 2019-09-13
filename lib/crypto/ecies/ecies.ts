@@ -2,6 +2,7 @@ import { ec } from 'elliptic';
 import BN from 'bn.js';
 import { sha256 } from 'hash.js';
 import { concatKDF } from './kdf';
+import { RandomArrayGenerator } from 'lib/models/RandomArrayGenerator';
 
 export const keyLength = 16;
 
@@ -11,7 +12,7 @@ export interface ISecretKeyringMaterial {
 }
 
 /**
- * implements Elliptic Curve Integrated Encryption Scheme
+ * Implements Elliptic Curve Integrated Encryption Scheme
  */
 export class ECIES {
   private privateKeyPair: ec.KeyPair;
@@ -20,13 +21,21 @@ export class ECIES {
     this.privateKeyPair = privateKeyPair;
   }
 
-  public static createGenerated(ellipticCurve: ec) {
-    const keyPair = ellipticCurve.genKeyPair();
+  public static async createGenerated(ellipticCurve: ec, rand?: RandomArrayGenerator) {
+    let options: ec.GenKeyPairOptions;
+
+    if (rand) {
+      options = {
+        entropy: await rand(ellipticCurve.hash.hmacStrength),
+      };
+    }
+
+    const keyPair = ellipticCurve.genKeyPair(options);
     return new ECIES(keyPair);
   }
 
   /**
-   * derives secret keyring material by computing shared secret from private and public keys and
+   * Derives secret keyring material by computing shared secret from private and public keys and
    * passing it as a parameter to the KDF.
    * @param publicKey
    * @param s1 - seed for key derivation function

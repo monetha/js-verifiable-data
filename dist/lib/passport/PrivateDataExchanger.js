@@ -88,7 +88,7 @@ var PrivateDataExchanger = /** @class */ (function () {
      * @param requesterAddress - data requester address (the one who will submit the transaction)
      * @param txExecutor - transaction executor function
      */
-    PrivateDataExchanger.prototype.propose = function (factKey, factProviderAddress, exchangeStakeWei, requesterAddress, txExecutor) {
+    PrivateDataExchanger.prototype.propose = function (factKey, factProviderAddress, exchangeStakeWei, requesterAddress, txExecutor, rand) {
         return __awaiter(this, void 0, void 0, function () {
             var ownerPublicKeyBytes, ownerPubKeyPair, ecies, exchangeKeyData, encryptedExchangeKey, txData, txConfig, receipt, logs, exchangeIdxData;
             return __generator(this, function (_a) {
@@ -97,15 +97,17 @@ var PrivateDataExchanger = /** @class */ (function () {
                     case 1:
                         ownerPublicKeyBytes = _a.sent();
                         ownerPubKeyPair = this.ec.keyFromPublic(Buffer.from(ownerPublicKeyBytes));
-                        ecies = ecies_1.ECIES.createGenerated(this.ec);
+                        return [4 /*yield*/, ecies_1.ECIES.createGenerated(this.ec, rand)];
+                    case 2:
+                        ecies = _a.sent();
                         exchangeKeyData = privateFactCommon_1.deriveSecretKeyringMaterial(ecies, ownerPubKeyPair, this.passportAddress, factProviderAddress, factKey);
                         encryptedExchangeKey = ecies.getPublicKey().getPublic('array');
                         txData = this.contract.methods.proposePrivateDataExchange(factProviderAddress, this.web3.utils.fromAscii(factKey), "0x" + Buffer.from(encryptedExchangeKey).toString('hex'), exchangeKeyData.skmHash);
                         return [4 /*yield*/, tx_1.prepareTxConfig(this.web3, requesterAddress, this.passportAddress, txData, exchangeStakeWei, gasLimits.propose)];
-                    case 2:
+                    case 3:
                         txConfig = _a.sent();
                         return [4 /*yield*/, txExecutor(txConfig)];
-                    case 3:
+                    case 4:
                         receipt = _a.sent();
                         // Parse exchange index from tx receipt
                         abiDecoder.addABI(PassportLogic_json_1.default);

@@ -4,6 +4,7 @@ import { ISecretKeyringMaterial } from './ecies';
 import { getMessageTag } from '../utils/hmac';
 import { constantTimeCompare } from '../utils/compare';
 import { aesDecrypt, aesEncrypt } from '../utils/aes';
+import { RandomArrayGenerator } from 'lib/models/RandomArrayGenerator';
 
 interface ICryptorParams {
   hasherConstr: () => BlockHash<any>;
@@ -62,8 +63,10 @@ export class Cryptor {
    * s2 contains shared information that is not part of the resulting ciphertext, it's fed into the MAC. If the
    * shared information parameters aren't being used, they should not be provided.
    */
-  public encryptAuth(skm: ISecretKeyringMaterial, msg: number[], s2?: number[]): IEncryptedAuthenticatedMessage {
-    const encryptedMsg = aesEncrypt(skm.encryptionKey, msg);
+  public async encryptAuth(
+    skm: ISecretKeyringMaterial, msg: number[], s2?: number[], rand?: RandomArrayGenerator,
+  ): Promise<IEncryptedAuthenticatedMessage> {
+    const encryptedMsg = await aesEncrypt(skm.encryptionKey, msg, rand);
 
     const tag = getMessageTag(this.params.hasherConstr, skm.macKey, encryptedMsg, s2);
 

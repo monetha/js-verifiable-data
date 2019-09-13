@@ -10,6 +10,7 @@ import { IIPFSClient } from '../models/IIPFSClient';
 import { PassportLogic } from '../types/web3-contracts/PassportLogic';
 import { IPrivateDataHashes } from './FactReader';
 import { PrivateFactWriter } from './PrivateFactWriter';
+import { RandomArrayGenerator } from 'lib/models/RandomArrayGenerator';
 
 /**
  * Class to write facts to passport
@@ -105,10 +106,10 @@ export class FactWriter {
    * @param value value to store privately
    * @param ipfs IPFS client
    */
-  public async setPrivateData(key: string, value: number[], factProviderAddress: Address, ipfs: IIPFSClient) {
+  public async setPrivateData(key: string, value: number[], factProviderAddress: Address, ipfs: IIPFSClient, rand?: RandomArrayGenerator) {
     const privateWriter = new PrivateFactWriter(this.web3, this, this.options);
 
-    return privateWriter.setPrivateData(factProviderAddress, key, value, ipfs);
+    return privateWriter.setPrivateData(factProviderAddress, key, value, ipfs, rand);
   }
 
   /**

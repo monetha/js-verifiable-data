@@ -54,7 +54,7 @@ var PrivateFactWriter = /** @class */ (function () {
     /**
      * Encrypts private data, adds encrypted content to IPFS and then writes hashes of encrypted data to passport in Ethereum network.
      */
-    PrivateFactWriter.prototype.setPrivateData = function (factProviderAddress, key, data, ipfsClient) {
+    PrivateFactWriter.prototype.setPrivateData = function (factProviderAddress, key, data, ipfsClient, rand) {
         return __awaiter(this, void 0, void 0, function () {
             var pubKeyBytes, ecies, ephemeralPublicKey, pubKeyPair, skmData, skm, cryptor, encryptedMsg, ephemeralPublicKeyAddResult, encryptedMsgAddResult, messageHMACAddResult, result, dirHash, tx;
             return __generator(this, function (_a) {
@@ -62,35 +62,39 @@ var PrivateFactWriter = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.ownership.getOwnerPublicKey()];
                     case 1:
                         pubKeyBytes = _a.sent();
-                        ecies = ecies_1.ECIES.createGenerated(this.ec);
+                        return [4 /*yield*/, ecies_1.ECIES.createGenerated(this.ec, rand)];
+                    case 2:
+                        ecies = _a.sent();
                         ephemeralPublicKey = ecies.getPublicKey().getPublic('array');
                         pubKeyPair = this.ec.keyFromPublic(Buffer.from(pubKeyBytes));
                         skmData = privateFactCommon_1.deriveSecretKeyringMaterial(ecies, pubKeyPair, this.writer.passportAddress, factProviderAddress, key);
                         skm = privateFactCommon_1.unmarshalSecretKeyringMaterial(skmData.skm);
                         cryptor = new cryptor_1.Cryptor(this.ec.curve);
-                        encryptedMsg = cryptor.encryptAuth(skm, data);
+                        return [4 /*yield*/, cryptor.encryptAuth(skm, data, null, rand)];
+                    case 3:
+                        encryptedMsg = _a.sent();
                         return [4 /*yield*/, ipfsClient.add(Buffer.from(ephemeralPublicKey))];
-                    case 2:
+                    case 4:
                         ephemeralPublicKeyAddResult = _a.sent();
                         return [4 /*yield*/, ipfsClient.add(Buffer.from(encryptedMsg.encryptedMsg))];
-                    case 3:
+                    case 5:
                         encryptedMsgAddResult = _a.sent();
                         return [4 /*yield*/, ipfsClient.add(Buffer.from(encryptedMsg.hmac))];
-                    case 4:
+                    case 6:
                         messageHMACAddResult = _a.sent();
                         return [4 /*yield*/, ipfs_1.dagPutLinks([
                                 ipfs_1.convertAddResultToLink(ephemeralPublicKeyAddResult, privateFactCommon_1.ipfsFileNames.publicKey),
                                 ipfs_1.convertAddResultToLink(encryptedMsgAddResult, privateFactCommon_1.ipfsFileNames.encryptedMessage),
                                 ipfs_1.convertAddResultToLink(messageHMACAddResult, privateFactCommon_1.ipfsFileNames.messageHMAC),
                             ], ipfsClient)];
-                    case 5:
+                    case 7:
                         result = _a.sent();
                         dirHash = result.Cid['/'];
                         return [4 /*yield*/, this.writer.setPrivateDataHashes(key, {
                                 dataIpfsHash: dirHash,
                                 dataKeyHash: "0x" + Buffer.from(skmData.skmHash).toString('hex'),
                             }, factProviderAddress)];
-                    case 6:
+                    case 8:
                         tx = _a.sent();
                         return [2 /*return*/, {
                                 dataIpfsHash: dirHash,

@@ -3,6 +3,7 @@ import Web3 from 'web3';
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
 import { IPrivateDataHashes } from './FactReader';
+import { RandomArrayGenerator } from '../models/RandomArrayGenerator';
 /**
  * Class to write facts to passport
  */
@@ -54,7 +55,7 @@ export declare class FactWriter {
      * @param value value to store privately
      * @param ipfs IPFS client
      */
-    setPrivateData(key: string, value: number[], factProviderAddress: Address, ipfs: IIPFSClient): Promise<{
+    setPrivateData(key: string, value: number[], factProviderAddress: Address, ipfs: IIPFSClient, rand?: RandomArrayGenerator): Promise<{
         dataIpfsHash: any;
         dataKey: number[];
         dataKeyHash: number[];

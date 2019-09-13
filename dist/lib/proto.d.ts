@@ -19,6 +19,7 @@ import { ISdkError } from './errors/SdkError';
 import * as quorum from './extensions/quorum';
 import { Address } from './models/Address';
 import { toBN } from './utils/conversion';
+import { RandomArrayGenerator } from './models/RandomArrayGenerator';
 declare const ext: {
     quorum: typeof quorum;
 };
@@ -44,4 +45,4 @@ declare const _default: {
     toBN: typeof toBN;
 };
 export default _default;
-export { PassportGenerator, PassportOwnership, PassportReader, FactReader, FactWriter, FactRemover, PrivateFactReader, PrivateFactWriter, Permissions, FactHistoryReader, PrivateDataExchanger, EventType, DataType, IHistoryEvent, IIPFSClient, IIPFSAddResult, IFactValue, IPassportRef, IIPFSDag, IIPFSLink, IIPLD, IProposeDataExchangeResult, IDisputeDataExchangeResult, IDataExchangeStatus, IPrivateDataHashes, CurrentTimeGetter, TxExecutor, ErrorCode, ISdkError, IEthOptions, Address, ExchangeState, ext, toBN, };
+export { PassportGenerator, PassportOwnership, PassportReader, FactReader, FactWriter, FactRemover, PrivateFactReader, PrivateFactWriter, Permissions, FactHistoryReader, PrivateDataExchanger, EventType, DataType, IHistoryEvent, IIPFSClient, IIPFSAddResult, IFactValue, IPassportRef, IIPFSDag, IIPFSLink, IIPLD, IProposeDataExchangeResult, IDisputeDataExchangeResult, IDataExchangeStatus, IPrivateDataHashes, CurrentTimeGetter, TxExecutor, ErrorCode, ISdkError, IEthOptions, Address, ExchangeState, ext, toBN, RandomArrayGenerator, };

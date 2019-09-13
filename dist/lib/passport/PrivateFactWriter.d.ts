@@ -3,6 +3,7 @@ import { IIPFSClient } from '../models/IIPFSClient';
 import { FactWriter } from './FactWriter';
 import { IEthOptions } from '../models/IEthOptions';
 import Web3 from 'web3';
+import { RandomArrayGenerator } from '../models/RandomArrayGenerator';
 /**
  * Class to write private facts
  */
@@ -14,7 +15,7 @@ export declare class PrivateFactWriter {
     /**
      * Encrypts private data, adds encrypted content to IPFS and then writes hashes of encrypted data to passport in Ethereum network.
      */
-    setPrivateData(factProviderAddress: Address, key: string, data: number[], ipfsClient: IIPFSClient): Promise<{
+    setPrivateData(factProviderAddress: Address, key: string, data: number[], ipfsClient: IIPFSClient, rand?: RandomArrayGenerator): Promise<{
         dataIpfsHash: any;
         dataKey: number[];
         dataKeyHash: number[];

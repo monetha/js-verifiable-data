@@ -1,5 +1,6 @@
 import aes from 'aes-js';
 import secureRandom from 'secure-random';
+import { RandomArrayGenerator } from 'lib/models/RandomArrayGenerator';
 
 const aesBlockSize = 16;
 
@@ -24,8 +25,8 @@ export function aesDecrypt(key: number[], ivPrefixedEncryptedMsg: number[]): num
  * @param msg - message to encode
  * @returns encrypted message, prefixed with IV at the first block
  */
-export function aesEncrypt(key: number[], msg: number[]): number[] {
-  const iv = generateIV();
+export async function aesEncrypt(key: number[], msg: number[], rand?: RandomArrayGenerator): Promise<number[]> {
+  const iv = await generateIV(rand);
 
   const ctr = new aes.ModeOfOperation.ctr(key, new aes.Counter(iv));
   const encryptedMsg = Array.from<number>(ctr.encrypt(msg));
@@ -35,6 +36,10 @@ export function aesEncrypt(key: number[], msg: number[]): number[] {
   return ivPrefixedEncryptedMsg;
 }
 
-function generateIV(): number[] {
+async function generateIV(rand?: RandomArrayGenerator): Promise<number[]> {
+  if (rand) {
+    return rand(aesBlockSize);
+  }
+
   return secureRandom.randomArray(aesBlockSize);
 }

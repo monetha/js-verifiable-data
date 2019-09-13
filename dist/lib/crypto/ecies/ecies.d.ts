@@ -1,20 +1,21 @@
 /// <reference types="node" />
 import { ec } from 'elliptic';
 import BN from 'bn.js';
+import { RandomArrayGenerator } from '../../models/RandomArrayGenerator';
 export declare const keyLength = 16;
 export interface ISecretKeyringMaterial {
     encryptionKey: number[];
     macKey: number[];
 }
 /**
- * implements Elliptic Curve Integrated Encryption Scheme
+ * Implements Elliptic Curve Integrated Encryption Scheme
  */
 export declare class ECIES {
     private privateKeyPair;
     constructor(privateKeyPair: ec.KeyPair);
-    static createGenerated(ellipticCurve: ec): ECIES;
+    static createGenerated(ellipticCurve: ec, rand?: RandomArrayGenerator): Promise<ECIES>;
     /**
-     * derives secret keyring material by computing shared secret from private and public keys and
+     * Derives secret keyring material by computing shared secret from private and public keys and
      * passing it as a parameter to the KDF.
      * @param publicKey
      * @param s1 - seed for key derivation function
