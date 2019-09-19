@@ -1,6 +1,6 @@
 import Web3 from 'web3';
-import { Address } from '../models/Address';
 import { TransactionReceipt } from 'web3-core';
+import { Address } from '../models/Address';
 export declare class PassportGenerator {
     private contract;
     private web3;

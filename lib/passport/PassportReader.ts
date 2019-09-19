@@ -1,16 +1,12 @@
-import { PassportFactory } from 'lib/types/web3-contracts/PassportFactory';
 import Web3 from 'web3';
-import { AbiItem } from 'web3-utils';
-import passportAbi from '../../config/Passport.json';
 import passportFactoryAbi from '../../config/PassportFactory.json';
 import passportLogicAbi from '../../config/PassportLogic.json';
 import { Address } from '../models/Address';
 import { DataType, EventType, IHistoryEvent } from '../models/IHistoryEvent';
 import { IPassportHistoryFilter } from '../models/IPassportHistoryFilter';
 import { IPassportRef } from '../models/IPassportRef';
-import { Passport } from '../types/web3-contracts/Passport';
 import { sanitizeAddress } from '../utils/sanitizeAddress';
-import { PassportLogic } from 'lib/types/web3-contracts/PassportLogic.js';
+import { initPassportContract, initPassportFactoryContract, initPassportLogicContract } from './rawContracts';
 
 interface IFactEventSignatures {
   [signature: string]: {
@@ -44,7 +40,7 @@ export class PassportReader {
    * @param endBlock block nr to scan to
    */
   public async getPassportsList(factoryAddress: Address, fromBlock = 0, toBlock = 'latest'): Promise<IPassportRef[]> {
-    const contract = new this.web3.eth.Contract(passportFactoryAbi as AbiItem[], factoryAddress) as PassportFactory;
+    const contract = initPassportFactoryContract(this.web3, factoryAddress);
 
     const events = await contract.getPastEvents('PassportCreated', {
       fromBlock,
@@ -73,7 +69,7 @@ export class PassportReader {
     const toBlock = filter && filter.endBlock || 'latest';
 
     // Event retrieval
-    const contract = new this.web3.eth.Contract(passportLogicAbi as AbiItem[], passportAddress) as PassportLogic;
+    const contract = initPassportLogicContract(this.web3, passportAddress);
     const events = await contract.getPastEvents('allEvents', {
       fromBlock,
       toBlock,
@@ -126,7 +122,7 @@ export class PassportReader {
    * Returns the address of passport logic registry
    */
   public async getPassportLogicRegistryAddress(passportAddress: string): Promise<string> {
-    const passportContract = new this.web3.eth.Contract(passportAbi as AbiItem[], passportAddress) as Passport;
+    const passportContract = initPassportContract(this.web3, passportAddress);
     return passportContract.methods.getPassportLogicRegistry().call();
   }
 }

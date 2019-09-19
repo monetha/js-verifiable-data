@@ -8,19 +8,19 @@ import { ErrorCode } from 'lib/errors/ErrorCode';
 import { createSdkError } from 'lib/errors/SdkError';
 import { IEthOptions } from 'lib/models/IEthOptions';
 import { IIPFSClient } from 'lib/models/IIPFSClient';
+import { RandomArrayGenerator } from 'lib/models/RandomArrayGenerator';
 import { PassportOwnership } from 'lib/proto';
 import { PassportLogic } from 'lib/types/web3-contracts/PassportLogic';
 import { hexToArray, hexToBoolean, hexToUnpaddedAscii, toBN, toDate } from 'lib/utils/conversion';
 import { ciEquals } from 'lib/utils/string';
+import { prepareTxConfig } from 'lib/utils/tx';
 import Web3 from 'web3';
-import { AbiItem } from 'web3-utils';
 import passportLogicAbi from '../../config/PassportLogic.json';
 import { Address } from '../models/Address';
 import { TxExecutor } from '../models/TxExecutor';
 import { deriveSecretKeyringMaterial, ellipticCurveAlg } from './privateFactCommon';
 import { PrivateFactReader } from './PrivateFactReader';
-import { prepareTxConfig } from 'lib/utils/tx';
-import { RandomArrayGenerator } from 'lib/models/RandomArrayGenerator';
+import { initPassportLogicContract } from './rawContracts';
 
 const gasLimits = {
   accept: 90000,
@@ -41,7 +41,7 @@ export class PrivateDataExchanger {
   public constructor(web3: Web3, passportAddress: Address, currentTimeGetter?: CurrentTimeGetter, options?: IEthOptions) {
     this.web3 = web3;
     this.passportAddress = passportAddress;
-    this.contract = new web3.eth.Contract(passportLogicAbi as AbiItem[], passportAddress);
+    this.contract = initPassportLogicContract(web3, passportAddress);
 
     this.getCurrentTime = currentTimeGetter;
     if (!currentTimeGetter) {

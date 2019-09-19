@@ -4,12 +4,11 @@ import { IEthOptions } from 'lib/models/IEthOptions';
 import { toBN } from 'lib/utils/conversion';
 import { getDecodedTx } from 'lib/utils/tx';
 import Web3 from 'web3';
-import { AbiItem } from 'web3-utils';
-import passportLogicAbi from '../../config/PassportLogic.json';
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
 import { PassportLogic } from '../types/web3-contracts/PassportLogic';
 import { PrivateFactReader } from './PrivateFactReader';
+import { initPassportLogicContract } from './rawContracts';
 
 // #region -------------- Interfaces -------------------------------------------------------------------
 
@@ -39,7 +38,7 @@ export class FactReader {
   public get passportAddress() { return this.contract.address; }
 
   constructor(web3: Web3, passportAddress: Address, options?: IEthOptions) {
-    this.contract = new web3.eth.Contract(passportLogicAbi as AbiItem[], passportAddress);
+    this.contract = initPassportLogicContract(web3, passportAddress);
     this.options = options || {};
     this.web3 = web3;
   }

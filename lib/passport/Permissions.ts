@@ -1,9 +1,8 @@
 import { PassportLogic } from 'lib/types/web3-contracts/PassportLogic';
 import { prepareTxConfig } from 'lib/utils/tx';
 import Web3 from 'web3';
-import { AbiItem } from 'web3-utils';
-import passportLogicAbi from '../../config/PassportLogic.json';
 import { Address } from '../models/Address';
+import { initPassportLogicContract } from './rawContracts';
 
 /**
  * Class to change and check permissions for fact providers to any specific passport
@@ -13,7 +12,7 @@ export class Permissions {
   private web3: Web3;
 
   constructor(web3: Web3, passportAddress: Address) {
-    this.contract = new web3.eth.Contract(passportLogicAbi as AbiItem[], passportAddress);
+    this.contract = initPassportLogicContract(web3, passportAddress);
     this.web3 = web3;
   }
 

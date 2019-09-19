@@ -1,9 +1,9 @@
 import { IEthOptions } from '../models/IEthOptions';
+import { RandomArrayGenerator } from '../models/RandomArrayGenerator';
 import Web3 from 'web3';
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
 import { IPrivateDataHashes } from './FactReader';
-import { RandomArrayGenerator } from '../models/RandomArrayGenerator';
 /**
  * Class to write facts to passport
  */

@@ -1,16 +1,15 @@
 import { ErrorCode } from 'lib/errors/ErrorCode';
 import { createSdkError } from 'lib/errors/SdkError';
 import { IEthOptions } from 'lib/models/IEthOptions';
+import { RandomArrayGenerator } from 'lib/models/RandomArrayGenerator';
 import { prepareTxConfig } from 'lib/utils/tx';
 import Web3 from 'web3';
-import { AbiItem } from 'web3-utils';
-import passportLogicAbi from '../../config/PassportLogic.json';
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
 import { PassportLogic } from '../types/web3-contracts/PassportLogic';
 import { IPrivateDataHashes } from './FactReader';
 import { PrivateFactWriter } from './PrivateFactWriter';
-import { RandomArrayGenerator } from 'lib/models/RandomArrayGenerator';
+import { initPassportLogicContract } from './rawContracts';
 
 /**
  * Class to write facts to passport
@@ -23,7 +22,7 @@ export class FactWriter {
   public get passportAddress() { return this.contract.address; }
 
   constructor(web3: Web3, passportAddress: Address, options?: IEthOptions) {
-    this.contract = new web3.eth.Contract(passportLogicAbi as AbiItem[], passportAddress);
+    this.contract = initPassportLogicContract(web3, passportAddress);
     this.options = options || {};
     this.web3 = web3;
   }

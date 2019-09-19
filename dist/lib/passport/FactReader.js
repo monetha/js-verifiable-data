@@ -34,23 +34,20 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var ErrorCode_1 = require("../errors/ErrorCode");
 var SdkError_1 = require("../errors/SdkError");
 var conversion_1 = require("../utils/conversion");
 var tx_1 = require("../utils/tx");
-var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 var PrivateFactReader_1 = require("./PrivateFactReader");
+var rawContracts_1 = require("./rawContracts");
 // #endregion
 /**
  * Class to read latest facts from the passport
  */
 var FactReader = /** @class */ (function () {
     function FactReader(web3, passportAddress, options) {
-        this.contract = new web3.eth.Contract(PassportLogic_json_1.default, passportAddress);
+        this.contract = rawContracts_1.initPassportLogicContract(web3, passportAddress);
         this.options = options || {};
         this.web3 = web3;
     }

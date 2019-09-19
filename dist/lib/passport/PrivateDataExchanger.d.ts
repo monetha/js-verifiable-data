@@ -1,10 +1,10 @@
 import BN from 'bn.js';
 import { IEthOptions } from '../models/IEthOptions';
 import { IIPFSClient } from '../models/IIPFSClient';
+import { RandomArrayGenerator } from '../models/RandomArrayGenerator';
 import Web3 from 'web3';
 import { Address } from '../models/Address';
 import { TxExecutor } from '../models/TxExecutor';
-import { RandomArrayGenerator } from '../models/RandomArrayGenerator';
 export declare class PrivateDataExchanger {
     private passportAddress;
     private web3;

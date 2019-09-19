@@ -49,11 +49,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Passport_json_1 = __importDefault(require("../../config/Passport.json"));
 var PassportFactory_json_1 = __importDefault(require("../../config/PassportFactory.json"));
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 var IHistoryEvent_1 = require("../models/IHistoryEvent");
 var sanitizeAddress_1 = require("../utils/sanitizeAddress");
+var rawContracts_1 = require("./rawContracts");
 var factEventSignatures;
 /**
  * Class to get passports list and historic events
@@ -81,7 +81,7 @@ var PassportReader = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        contract = new this.web3.eth.Contract(PassportFactory_json_1.default, factoryAddress);
+                        contract = rawContracts_1.initPassportFactoryContract(this.web3, factoryAddress);
                         return [4 /*yield*/, contract.getPastEvents('PassportCreated', {
                                 fromBlock: fromBlock,
                                 toBlock: toBlock,
@@ -109,7 +109,7 @@ var PassportReader = /** @class */ (function () {
                     case 0:
                         fromBlock = filter && filter.startBlock || 0;
                         toBlock = filter && filter.endBlock || 'latest';
-                        contract = new this.web3.eth.Contract(PassportLogic_json_1.default, passportAddress);
+                        contract = rawContracts_1.initPassportLogicContract(this.web3, passportAddress);
                         return [4 /*yield*/, contract.getPastEvents('allEvents', {
                                 fromBlock: fromBlock,
                                 toBlock: toBlock,
@@ -153,7 +153,7 @@ var PassportReader = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var passportContract;
             return __generator(this, function (_a) {
-                passportContract = new this.web3.eth.Contract(Passport_json_1.default, passportAddress);
+                passportContract = rawContracts_1.initPassportContract(this.web3, passportAddress);
                 return [2 /*return*/, passportContract.methods.getPassportLogicRegistry().call()];
             });
         });

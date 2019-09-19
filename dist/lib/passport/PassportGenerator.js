@@ -34,15 +34,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var tx_1 = require("../utils/tx");
-var PassportFactory_json_1 = __importDefault(require("../../config/PassportFactory.json"));
+var rawContracts_1 = require("./rawContracts");
 var PassportGenerator = /** @class */ (function () {
     function PassportGenerator(web3, passportFactoryAddress) {
-        this.contract = new web3.eth.Contract(PassportFactory_json_1.default, passportFactoryAddress);
+        this.contract = rawContracts_1.initPassportFactoryContract(web3, passportFactoryAddress);
         this.web3 = web3;
     }
     /**

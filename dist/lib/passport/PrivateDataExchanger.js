@@ -56,10 +56,11 @@ var SdkError_1 = require("../errors/SdkError");
 var proto_1 = require("../proto");
 var conversion_1 = require("../utils/conversion");
 var string_1 = require("../utils/string");
+var tx_1 = require("../utils/tx");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 var privateFactCommon_1 = require("./privateFactCommon");
 var PrivateFactReader_1 = require("./PrivateFactReader");
-var tx_1 = require("../utils/tx");
+var rawContracts_1 = require("./rawContracts");
 var gasLimits = {
     accept: 90000,
     dispute: 60000,
@@ -72,7 +73,7 @@ var PrivateDataExchanger = /** @class */ (function () {
         this.ec = new elliptic_1.ec(privateFactCommon_1.ellipticCurveAlg);
         this.web3 = web3;
         this.passportAddress = passportAddress;
-        this.contract = new web3.eth.Contract(PassportLogic_json_1.default, passportAddress);
+        this.contract = rawContracts_1.initPassportLogicContract(web3, passportAddress);
         this.getCurrentTime = currentTimeGetter;
         if (!currentTimeGetter) {
             this.getCurrentTime = function () { return new Date(); };

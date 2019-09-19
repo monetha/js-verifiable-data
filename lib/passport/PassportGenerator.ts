@@ -1,10 +1,9 @@
 import { prepareTxConfig } from 'lib/utils/tx';
 import Web3 from 'web3';
-import { AbiItem } from 'web3-utils';
-import passportFactoryAbi from '../../config/PassportFactory.json';
+import { TransactionReceipt } from 'web3-core';
 import { Address } from '../models/Address';
 import { PassportFactory } from '../types/web3-contracts/PassportFactory';
-import { TransactionReceipt } from 'web3-core';
+import { initPassportFactoryContract } from './rawContracts';
 
 export class PassportGenerator {
   private contract: PassportFactory;
@@ -32,7 +31,7 @@ export class PassportGenerator {
   }
 
   constructor(web3: Web3, passportFactoryAddress: Address) {
-    this.contract = new web3.eth.Contract(passportFactoryAbi as AbiItem[], passportFactoryAddress);
+    this.contract = initPassportFactoryContract(web3, passportFactoryAddress);
     this.web3 = web3;
   }
 

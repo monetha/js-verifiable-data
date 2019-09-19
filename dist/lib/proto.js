@@ -38,6 +38,11 @@ exports.ErrorCode = ErrorCode_1.ErrorCode;
 var quorum = __importStar(require("./extensions/quorum"));
 var conversion_1 = require("./utils/conversion");
 exports.toBN = conversion_1.toBN;
+var rawContracts_1 = require("./passport/rawContracts");
+exports.initPassportFactoryContract = rawContracts_1.initPassportFactoryContract;
+exports.initPassportLogicContract = rawContracts_1.initPassportLogicContract;
+exports.initPassportContract = rawContracts_1.initPassportContract;
+exports.initPassportLogicRegistryContract = rawContracts_1.initPassportLogicRegistryContract;
 var ext = {
     quorum: quorum,
 };
