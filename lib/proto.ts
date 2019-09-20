@@ -19,6 +19,7 @@ import {
   IDisputeDataExchangeResult,
   IDataExchangeStatus,
   CurrentTimeGetter,
+  getExchangeIndexFromReceipt,
 } from './passport/PrivateDataExchanger';
 import { TxExecutor } from './models/TxExecutor';
 import { ErrorCode } from './errors/ErrorCode';
@@ -98,4 +99,5 @@ export {
   initPassportLogicContract,
   initPassportContract,
   initPassportLogicRegistryContract,
+  getExchangeIndexFromReceipt,
 };

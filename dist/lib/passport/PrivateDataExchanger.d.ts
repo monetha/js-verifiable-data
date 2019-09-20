@@ -5,6 +5,7 @@ import { RandomArrayGenerator } from '../models/RandomArrayGenerator';
 import Web3 from 'web3';
 import { Address } from '../models/Address';
 import { TxExecutor } from '../models/TxExecutor';
+import { TransactionReceipt } from 'web3-core';
 export declare class PrivateDataExchanger {
     private passportAddress;
     private web3;
@@ -96,3 +97,8 @@ export interface IDataExchangeStatus {
     state: ExchangeState;
     stateExpirationTime: Date;
 }
+/**
+ * Extracts data exchange index from proposal receipt.
+ * Returns null in case exchangeIdx was not found in receipt logs
+ */
+export declare function getExchangeIndexFromReceipt(receipt: TransactionReceipt): string;

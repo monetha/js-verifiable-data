@@ -33,6 +33,7 @@ exports.DataType = IHistoryEvent_1.DataType;
 var PrivateDataExchanger_1 = require("./passport/PrivateDataExchanger");
 exports.PrivateDataExchanger = PrivateDataExchanger_1.PrivateDataExchanger;
 exports.ExchangeState = PrivateDataExchanger_1.ExchangeState;
+exports.getExchangeIndexFromReceipt = PrivateDataExchanger_1.getExchangeIndexFromReceipt;
 var ErrorCode_1 = require("./errors/ErrorCode");
 exports.ErrorCode = ErrorCode_1.ErrorCode;
 var quorum = __importStar(require("./extensions/quorum"));

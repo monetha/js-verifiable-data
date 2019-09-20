@@ -21,6 +21,7 @@ import { TxExecutor } from '../models/TxExecutor';
 import { deriveSecretKeyringMaterial, ellipticCurveAlg } from './privateFactCommon';
 import { PrivateFactReader } from './PrivateFactReader';
 import { initPassportLogicContract } from './rawContracts';
+import { TransactionReceipt } from 'web3-core';
 
 const gasLimits = {
   accept: 90000,
@@ -93,15 +94,13 @@ export class PrivateDataExchanger {
     const receipt = await txExecutor(txConfig);
 
     // Parse exchange index from tx receipt
-    abiDecoder.addABI(passportLogicAbi);
-    const logs = abiDecoder.decodeLogs(receipt.logs);
-    const exchangeIdxData = logs[0].events.find(e => e.name === 'exchangeIdx');
-    if (!exchangeIdxData) {
+    const exchangeIdx = getExchangeIndexFromReceipt(receipt);
+    if (exchangeIdx === null) {
       throw createSdkError(ErrorCode.MissingExchangeIdxInReceipt, 'Transaction receipt does not contain "exchangeIdx" in event logs');
     }
 
     return {
-      exchangeIndex: new BN(exchangeIdxData.value, 10),
+      exchangeIndex: new BN(exchangeIdx, 10),
       exchangeKey: exchangeKeyData.skm,
       exchangeKeyHash: exchangeKeyData.skmHash,
     };
@@ -475,6 +474,26 @@ export interface IDataExchangeStatus {
   dataKeyHash: number[];
   state: ExchangeState;
   stateExpirationTime: Date;
+}
+
+// #endregion
+
+// #region -------------- Utils -------------------------------------------------------------------
+
+/**
+ * Extracts data exchange index from proposal receipt.
+ * Returns null in case exchangeIdx was not found in receipt logs
+ */
+export function getExchangeIndexFromReceipt(receipt: TransactionReceipt): string {
+  abiDecoder.addABI(passportLogicAbi);
+
+  const logs = abiDecoder.decodeLogs(receipt.logs);
+  const exchangeIdxData = logs[0].events.find(e => e.name === 'exchangeIdx');
+  if (!exchangeIdxData) {
+    return null;
+  }
+
+  return exchangeIdxData.value;
 }
 
 // #endregion

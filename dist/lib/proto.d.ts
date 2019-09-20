@@ -12,7 +12,7 @@ import { EventType, DataType, IHistoryEvent } from './models/IHistoryEvent';
 import { IIPFSClient, IIPFSAddResult, IIPFSDag, IIPFSLink, IIPLD } from './models/IIPFSClient';
 import { IPassportRef } from './models/IPassportRef';
 import { IEthOptions } from './models/IEthOptions';
-import { PrivateDataExchanger, ExchangeState, IProposeDataExchangeResult, IDisputeDataExchangeResult, IDataExchangeStatus, CurrentTimeGetter } from './passport/PrivateDataExchanger';
+import { PrivateDataExchanger, ExchangeState, IProposeDataExchangeResult, IDisputeDataExchangeResult, IDataExchangeStatus, CurrentTimeGetter, getExchangeIndexFromReceipt } from './passport/PrivateDataExchanger';
 import { TxExecutor } from './models/TxExecutor';
 import { ErrorCode } from './errors/ErrorCode';
 import { ISdkError } from './errors/SdkError';
@@ -46,4 +46,4 @@ declare const _default: {
     toBN: typeof toBN;
 };
 export default _default;
-export { PassportGenerator, PassportOwnership, PassportReader, FactReader, FactWriter, FactRemover, PrivateFactReader, PrivateFactWriter, Permissions, FactHistoryReader, PrivateDataExchanger, EventType, DataType, IHistoryEvent, IIPFSClient, IIPFSAddResult, IFactValue, IPassportRef, IIPFSDag, IIPFSLink, IIPLD, IProposeDataExchangeResult, IDisputeDataExchangeResult, IDataExchangeStatus, IPrivateDataHashes, CurrentTimeGetter, TxExecutor, ErrorCode, ISdkError, IEthOptions, Address, ExchangeState, ext, toBN, RandomArrayGenerator, initPassportFactoryContract, initPassportLogicContract, initPassportContract, initPassportLogicRegistryContract, };
+export { PassportGenerator, PassportOwnership, PassportReader, FactReader, FactWriter, FactRemover, PrivateFactReader, PrivateFactWriter, Permissions, FactHistoryReader, PrivateDataExchanger, EventType, DataType, IHistoryEvent, IIPFSClient, IIPFSAddResult, IFactValue, IPassportRef, IIPFSDag, IIPFSLink, IIPLD, IProposeDataExchangeResult, IDisputeDataExchangeResult, IDataExchangeStatus, IPrivateDataHashes, CurrentTimeGetter, TxExecutor, ErrorCode, ISdkError, IEthOptions, Address, ExchangeState, ext, toBN, RandomArrayGenerator, initPassportFactoryContract, initPassportLogicContract, initPassportContract, initPassportLogicRegistryContract, getExchangeIndexFromReceipt, };

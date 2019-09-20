@@ -91,7 +91,7 @@ var PrivateDataExchanger = /** @class */ (function () {
      */
     PrivateDataExchanger.prototype.propose = function (factKey, factProviderAddress, exchangeStakeWei, requesterAddress, txExecutor, rand) {
         return __awaiter(this, void 0, void 0, function () {
-            var ownerPublicKeyBytes, ownerPubKeyPair, ecies, exchangeKeyData, encryptedExchangeKey, txData, txConfig, receipt, logs, exchangeIdxData;
+            var ownerPublicKeyBytes, ownerPubKeyPair, ecies, exchangeKeyData, encryptedExchangeKey, txData, txConfig, receipt, exchangeIdx;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, new proto_1.PassportOwnership(this.web3, this.passportAddress, this.options).getOwnerPublicKey()];
@@ -110,15 +110,12 @@ var PrivateDataExchanger = /** @class */ (function () {
                         return [4 /*yield*/, txExecutor(txConfig)];
                     case 4:
                         receipt = _a.sent();
-                        // Parse exchange index from tx receipt
-                        abiDecoder.addABI(PassportLogic_json_1.default);
-                        logs = abiDecoder.decodeLogs(receipt.logs);
-                        exchangeIdxData = logs[0].events.find(function (e) { return e.name === 'exchangeIdx'; });
-                        if (!exchangeIdxData) {
+                        exchangeIdx = getExchangeIndexFromReceipt(receipt);
+                        if (exchangeIdx === null) {
                             throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.MissingExchangeIdxInReceipt, 'Transaction receipt does not contain "exchangeIdx" in event logs');
                         }
                         return [2 /*return*/, {
-                                exchangeIndex: new bn_js_1.default(exchangeIdxData.value, 10),
+                                exchangeIndex: new bn_js_1.default(exchangeIdx, 10),
                                 exchangeKey: exchangeKeyData.skm,
                                 exchangeKeyHash: exchangeKeyData.skmHash,
                             }];
@@ -416,4 +413,20 @@ var ExchangeState;
     ExchangeState[ExchangeState["Proposed"] = 1] = "Proposed";
     ExchangeState[ExchangeState["Accepted"] = 2] = "Accepted";
 })(ExchangeState = exports.ExchangeState || (exports.ExchangeState = {}));
+// #endregion
+// #region -------------- Utils -------------------------------------------------------------------
+/**
+ * Extracts data exchange index from proposal receipt.
+ * Returns null in case exchangeIdx was not found in receipt logs
+ */
+function getExchangeIndexFromReceipt(receipt) {
+    abiDecoder.addABI(PassportLogic_json_1.default);
+    var logs = abiDecoder.decodeLogs(receipt.logs);
+    var exchangeIdxData = logs[0].events.find(function (e) { return e.name === 'exchangeIdx'; });
+    if (!exchangeIdxData) {
+        return null;
+    }
+    return exchangeIdxData.value;
+}
+exports.getExchangeIndexFromReceipt = getExchangeIndexFromReceipt;
 // #endregion
