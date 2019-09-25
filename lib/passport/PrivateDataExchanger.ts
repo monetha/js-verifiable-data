@@ -367,6 +367,10 @@ export class PrivateDataExchanger {
   public async getStatus(exchangeIndex: BN): Promise<IDataExchangeStatus> {
     const rawStatus = await this.contract.methods.privateDataExchanges(`0x${exchangeIndex.toString('hex')}`).call();
 
+    if (!rawStatus) {
+      throw createSdkError(ErrorCode.ExchangeNotFound, `Data exchnage with index ${exchangeIndex.toString(10)} was not found`);
+    }
+
     const status: IDataExchangeStatus = {
       dataIpfsHash: rawStatus.dataIPFSHash,
       encryptedExchangeKey: hexToArray(rawStatus.encryptedExchangeKey as any),

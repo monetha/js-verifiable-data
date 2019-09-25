@@ -10,6 +10,7 @@ var ErrorCode;
     ErrorCode["StatusMustBeAccepted"] = "StatusMustBeAccepted";
     ErrorCode["StatusMustBeAcceptedOrClosed"] = "StatusMustBeAcceptedOrClosed";
     ErrorCode["ExchangeExpiredOrExpireSoon"] = "ExchangeExpiredOrExpireSoon";
+    ErrorCode["ExchangeNotFound"] = "ExchangeNotFound";
     ErrorCode["PassOwnerCanCloseOnlyAfterExpiration"] = "PassOwnerCanCloseOnlyAfterExpiration";
     ErrorCode["OnlyExchangeParticipantsCanClose"] = "OnlyExchangeParticipantsCanClose";
     ErrorCode["InvalidExchangeKeyHash"] = "CannotDecryptExchangeKey";

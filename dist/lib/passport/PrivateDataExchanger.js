@@ -343,6 +343,9 @@ var PrivateDataExchanger = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.contract.methods.privateDataExchanges("0x" + exchangeIndex.toString('hex')).call()];
                     case 1:
                         rawStatus = _a.sent();
+                        if (!rawStatus) {
+                            throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.ExchangeNotFound, "Data exchnage with index " + exchangeIndex.toString(10) + " was not found");
+                        }
                         status = {
                             dataIpfsHash: rawStatus.dataIPFSHash,
                             encryptedExchangeKey: conversion_1.hexToArray(rawStatus.encryptedExchangeKey),

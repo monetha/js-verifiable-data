@@ -7,6 +7,7 @@ export enum ErrorCode {
   StatusMustBeAccepted = 'StatusMustBeAccepted',
   StatusMustBeAcceptedOrClosed = 'StatusMustBeAcceptedOrClosed',
   ExchangeExpiredOrExpireSoon = 'ExchangeExpiredOrExpireSoon',
+  ExchangeNotFound = 'ExchangeNotFound',
   PassOwnerCanCloseOnlyAfterExpiration = 'PassOwnerCanCloseOnlyAfterExpiration',
   OnlyExchangeParticipantsCanClose = 'OnlyExchangeParticipantsCanClose',
   InvalidExchangeKeyHash = 'CannotDecryptExchangeKey',
