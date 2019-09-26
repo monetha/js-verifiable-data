@@ -22,13 +22,18 @@ export const ipfsFileNames = {
 
 export const ellipticCurveAlg = 'secp256k1';
 
+export interface ISKM {
+  skm: number[];
+  skmHash: number[];
+}
+
 export function deriveSecretKeyringMaterial(
   ecies: ECIES,
   publicKey: ec.KeyPair,
   passAddress: string,
   factProviderAddress: string,
   factKey: string,
-) {
+): ISKM {
   const seed = createSKMSeed(passAddress, factProviderAddress, factKey);
 
   const skm = ecies.deriveSecretKeyringMaterial(publicKey, seed);

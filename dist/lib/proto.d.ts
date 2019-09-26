@@ -21,6 +21,7 @@ import { Address } from './models/Address';
 import { toBN } from './utils/conversion';
 import { RandomArrayGenerator } from './models/RandomArrayGenerator';
 import { initPassportFactoryContract, initPassportLogicContract, initPassportContract, initPassportLogicRegistryContract } from './passport/rawContracts';
+import { ISKM } from './passport/privateFactCommon';
 declare const ext: {
     quorum: typeof quorum;
 };
@@ -46,4 +47,4 @@ declare const _default: {
     toBN: typeof toBN;
 };
 export default _default;
-export { PassportGenerator, PassportOwnership, PassportReader, FactReader, FactWriter, FactRemover, PrivateFactReader, PrivateFactWriter, Permissions, FactHistoryReader, PrivateDataExchanger, EventType, DataType, IHistoryEvent, IIPFSClient, IIPFSAddResult, IFactValue, IPassportRef, IIPFSDag, IIPFSLink, IIPLD, IProposeDataExchangeResult, IDisputeDataExchangeResult, IDataExchangeStatus, IPrivateDataHashes, CurrentTimeGetter, TxExecutor, ErrorCode, ISdkError, IEthOptions, Address, ExchangeState, ext, toBN, RandomArrayGenerator, initPassportFactoryContract, initPassportLogicContract, initPassportContract, initPassportLogicRegistryContract, getExchangeIndexFromReceipt, };
+export { PassportGenerator, PassportOwnership, PassportReader, FactReader, FactWriter, FactRemover, PrivateFactReader, PrivateFactWriter, Permissions, FactHistoryReader, PrivateDataExchanger, EventType, DataType, IHistoryEvent, IIPFSClient, IIPFSAddResult, IFactValue, IPassportRef, IIPFSDag, IIPFSLink, IIPLD, IProposeDataExchangeResult, IDisputeDataExchangeResult, IDataExchangeStatus, IPrivateDataHashes, CurrentTimeGetter, TxExecutor, ErrorCode, ISdkError, IEthOptions, Address, ExchangeState, ext, toBN, RandomArrayGenerator, initPassportFactoryContract, initPassportLogicContract, initPassportContract, initPassportLogicRegistryContract, getExchangeIndexFromReceipt, ISKM, };

@@ -18,7 +18,7 @@ import Web3 from 'web3';
 import passportLogicAbi from '../../config/PassportLogic.json';
 import { Address } from '../models/Address';
 import { TxExecutor } from '../models/TxExecutor';
-import { deriveSecretKeyringMaterial, ellipticCurveAlg } from './privateFactCommon';
+import { deriveSecretKeyringMaterial, ellipticCurveAlg, ISKM } from './privateFactCommon';
 import { PrivateFactReader } from './PrivateFactReader';
 import { initPassportLogicContract } from './rawContracts';
 import { TransactionReceipt } from 'web3-core';
@@ -61,6 +61,8 @@ export class PrivateDataExchanger {
    * @param exchangeStakeWei - amount in WEI to stake
    * @param requesterAddress - data requester address (the one who will submit the transaction)
    * @param txExecutor - transaction executor function
+   * @param rand - custom cryptographically secure number array generator
+   * @param onExchangeKey - a callback, which is invoked as soon as exchange key is generated and available
    */
   public async propose(
     factKey: string,
@@ -69,6 +71,7 @@ export class PrivateDataExchanger {
     requesterAddress: Address,
     txExecutor: TxExecutor,
     rand?: RandomArrayGenerator,
+    onExchangeKey?: (exchangeKey: ISKM) => void,
   ): Promise<IProposeDataExchangeResult> {
 
     // Get owner public key
@@ -80,6 +83,11 @@ export class PrivateDataExchanger {
 
     const exchangeKeyData = deriveSecretKeyringMaterial(ecies, ownerPubKeyPair, this.passportAddress, factProviderAddress, factKey);
     const encryptedExchangeKey = ecies.getPublicKey().getPublic('array');
+
+    // Pass exchange key to callback
+    if (onExchangeKey) {
+      onExchangeKey(exchangeKeyData);
+    }
 
     // Propose private data exchange
     const txData = this.contract.methods.proposePrivateDataExchange(
@@ -490,6 +498,10 @@ export interface IDataExchangeStatus {
  */
 export function getExchangeIndexFromReceipt(receipt: TransactionReceipt): string {
   abiDecoder.addABI(passportLogicAbi);
+
+  if (!receipt || !receipt.logs) {
+    return null;
+  }
 
   const logs = abiDecoder.decodeLogs(receipt.logs);
   const exchangeIdxData = logs[0].events.find(e => e.name === 'exchangeIdx');

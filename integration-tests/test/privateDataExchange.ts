@@ -2,7 +2,7 @@ import BN from 'bn.js';
 import { expectSdkError } from 'common/error';
 import { advanceTimeAndBlock, revertToSnapshot, takeSnapshot } from 'common/networks/ganache';
 import { createTxExecutor, isPrivateTxMode } from 'common/tx';
-import { FactWriter, PassportGenerator, PassportOwnership, PrivateDataExchanger, Address, IEthOptions, ext, ExchangeState, ErrorCode } from 'verifiable-data';
+import { FactWriter, PassportGenerator, PassportOwnership, PrivateDataExchanger, Address, IEthOptions, ext, ExchangeState, ErrorCode, ISKM } from 'verifiable-data';
 import { MockIPFSClient } from 'mocks/MockIPFSClient';
 import Web3 from 'web3';
 import { getNetworkNodeUrl, getPrivateKey, getAccount, getNetwork, NetworkType, getNodePublicKey } from 'common/network';
@@ -115,12 +115,20 @@ describe('Private data exchange', () => {
     });
 
     it('Should propose retrieval', async () => {
+      let exchangeKeyFromCallback: ISKM;
+
+      const onExchangeKey = (key: ISKM) => {
+        exchangeKeyFromCallback = key;
+      };
+
       const result = await exchanger.propose(
         privateFactKey,
         factProviderAddress,
         stakeWei,
         requesterAddress,
         txExecutor,
+        null,
+        onExchangeKey,
       );
 
       exchangeData = {
@@ -131,6 +139,9 @@ describe('Private data exchange', () => {
       expect(result.exchangeIndex).to.be.not.null.and.not.undefined;
       expect(result.exchangeKey).to.have.length(32);
       expect(result.exchangeKeyHash).to.have.length(32);
+      expect(exchangeKeyFromCallback).to.be.not.empty;
+      expect(result.exchangeKey).to.eq(exchangeKeyFromCallback.skm);
+      expect(result.exchangeKeyHash).to.eq(exchangeKeyFromCallback.skmHash);
     });
 
     it('Status should be proposed', async () => {

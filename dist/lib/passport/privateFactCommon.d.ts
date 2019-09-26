@@ -15,10 +15,11 @@ export declare const ipfsFileNames: {
     messageHMAC: string;
 };
 export declare const ellipticCurveAlg = "secp256k1";
-export declare function deriveSecretKeyringMaterial(ecies: ECIES, publicKey: ec.KeyPair, passAddress: string, factProviderAddress: string, factKey: string): {
+export interface ISKM {
     skm: number[];
     skmHash: number[];
-};
+}
+export declare function deriveSecretKeyringMaterial(ecies: ECIES, publicKey: ec.KeyPair, passAddress: string, factProviderAddress: string, factKey: string): ISKM;
 /**
  * Unmarshals secret keyring material to encryption and MAC keys
  */

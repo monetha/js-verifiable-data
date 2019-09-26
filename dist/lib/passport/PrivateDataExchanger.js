@@ -88,8 +88,10 @@ var PrivateDataExchanger = /** @class */ (function () {
      * @param exchangeStakeWei - amount in WEI to stake
      * @param requesterAddress - data requester address (the one who will submit the transaction)
      * @param txExecutor - transaction executor function
+     * @param rand - custom cryptographically secure number array generator
+     * @param onExchangeKey - a callback, which is invoked as soon as exchange key is generated and available
      */
-    PrivateDataExchanger.prototype.propose = function (factKey, factProviderAddress, exchangeStakeWei, requesterAddress, txExecutor, rand) {
+    PrivateDataExchanger.prototype.propose = function (factKey, factProviderAddress, exchangeStakeWei, requesterAddress, txExecutor, rand, onExchangeKey) {
         return __awaiter(this, void 0, void 0, function () {
             var ownerPublicKeyBytes, ownerPubKeyPair, ecies, exchangeKeyData, encryptedExchangeKey, txData, txConfig, receipt, exchangeIdx;
             return __generator(this, function (_a) {
@@ -103,6 +105,10 @@ var PrivateDataExchanger = /** @class */ (function () {
                         ecies = _a.sent();
                         exchangeKeyData = privateFactCommon_1.deriveSecretKeyringMaterial(ecies, ownerPubKeyPair, this.passportAddress, factProviderAddress, factKey);
                         encryptedExchangeKey = ecies.getPublicKey().getPublic('array');
+                        // Pass exchange key to callback
+                        if (onExchangeKey) {
+                            onExchangeKey(exchangeKeyData);
+                        }
                         txData = this.contract.methods.proposePrivateDataExchange(factProviderAddress, this.web3.utils.fromAscii(factKey), "0x" + Buffer.from(encryptedExchangeKey).toString('hex'), exchangeKeyData.skmHash);
                         return [4 /*yield*/, tx_1.prepareTxConfig(this.web3, requesterAddress, this.passportAddress, txData, exchangeStakeWei, gasLimits.propose)];
                     case 3:
@@ -424,6 +430,9 @@ var ExchangeState;
  */
 function getExchangeIndexFromReceipt(receipt) {
     abiDecoder.addABI(PassportLogic_json_1.default);
+    if (!receipt || !receipt.logs) {
+        return null;
+    }
     var logs = abiDecoder.decodeLogs(receipt.logs);
     var exchangeIdxData = logs[0].events.find(function (e) { return e.name === 'exchangeIdx'; });
     if (!exchangeIdxData) {

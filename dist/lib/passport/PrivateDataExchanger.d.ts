@@ -5,6 +5,7 @@ import { RandomArrayGenerator } from '../models/RandomArrayGenerator';
 import Web3 from 'web3';
 import { Address } from '../models/Address';
 import { TxExecutor } from '../models/TxExecutor';
+import { ISKM } from './privateFactCommon';
 import { TransactionReceipt } from 'web3-core';
 export declare class PrivateDataExchanger {
     private passportAddress;
@@ -21,8 +22,10 @@ export declare class PrivateDataExchanger {
      * @param exchangeStakeWei - amount in WEI to stake
      * @param requesterAddress - data requester address (the one who will submit the transaction)
      * @param txExecutor - transaction executor function
+     * @param rand - custom cryptographically secure number array generator
+     * @param onExchangeKey - a callback, which is invoked as soon as exchange key is generated and available
      */
-    propose(factKey: string, factProviderAddress: Address, exchangeStakeWei: BN, requesterAddress: Address, txExecutor: TxExecutor, rand?: RandomArrayGenerator): Promise<IProposeDataExchangeResult>;
+    propose(factKey: string, factProviderAddress: Address, exchangeStakeWei: BN, requesterAddress: Address, txExecutor: TxExecutor, rand?: RandomArrayGenerator, onExchangeKey?: (exchangeKey: ISKM) => void): Promise<IProposeDataExchangeResult>;
     /**
      * Accepts private data exchange proposition (should be called only by the passport owner)
      * @param exchangeIndex - data exchange index

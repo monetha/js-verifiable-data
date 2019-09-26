@@ -34,6 +34,7 @@ import {
   initPassportContract,
   initPassportLogicRegistryContract,
 } from './passport/rawContracts';
+import { ISKM } from './passport/privateFactCommon';
 
 const ext = {
   quorum,
@@ -100,4 +101,5 @@ export {
   initPassportContract,
   initPassportLogicRegistryContract,
   getExchangeIndexFromReceipt,
+  ISKM,
 };
