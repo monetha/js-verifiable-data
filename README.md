@@ -38,6 +38,10 @@ Corresponds to [Verifiable data layer](https://github.com/monetha/reputation-lay
     - [Closing private data exchange proposition when timed out](#Closing-private-data-exchange-proposition-when-timed-out)
     - [Closing private data exchange after acceptance](#Closing-private-data-exchange-after-acceptance)
     - [Opening dispute after private data exchange acceptance](#Opening-dispute-after-private-data-exchange-acceptance)
+  - [Data source registry](#Data-source-registry)
+    - [Setting data source information](#Setting-data-source-information)
+    - [Deleting data source information](#Deleting-data-source-information)
+    - [Reading data source information](#Reading-data-source-information)
   - [Permissioned blockchains support](#Permissioned-blockchains-support)
     - [Quorum](#Quorum)
 
@@ -1035,6 +1039,87 @@ const disputeResult = await exchanger.dispute(new BN(1), [72, 16, 88, ...], txEx
 As we can see data requester has been decided as as cheater and all staked funds were transferred to digital identity owner.
 
 Using this SDK it is not possible to cheat as a digital identity owner. However, this possibility still remains in case fraudulent digital identity owner would call digital identity contract methods directly by providing incorrectly encrypted data.
+
+## Data source registry
+
+A written fact to the passport always has the address of data source which has provided the fact. However, sometimes it is desirable to know more information about data source, like its name, website, etc. This is where `FactProviderRegistry` contract comes into the play - it keeps that information about data sources.
+
+Information about data sources can be written only by data source registry owner, but can be read by anyone.
+
+To manage your own list of data sources' info - deploy [`FactProviderRegistry`](https://github.com/monetha/reputation-contracts/blob/master/contracts/FactProviderRegistry.sol) contract.
+
+Monetha has already deployed this contract to Ropsten and Mainnet networks:
+| Network      | Address                                      |
+|---------------|----------------------------------------------|
+| Ropsten | [`0xf9dbC37BBdC68E0Ba03185F1877059C595DcF083`](https://ropsten.etherscan.io/address/0xf9dbC37BBdC68E0Ba03185F1877059C595DcF083) |
+| Mainnet  | [`0xD4666f08A40dFD0945Cac5aB83fF04625a60664C`](https://etherscan.io/address/0xD4666f08A40dFD0945Cac5aB83fF04625a60664C) |
+
+SDK provides a `FactProviderManager` class, which allows easy creation, update, delection and reading of data source info from registry. For all operations you will have to know `registryAddress`, which is an address of data source registry contract.
+
+### Setting data source information
+
+Write data source information to registry using `FactProviderManager.setInfo` as in example:
+
+```js
+import { FactProviderManager } from 'verifiable-data';
+const manager = new FactProviderManager(web3, registryAddress);
+
+// txConfig must be signed by `registryOwnerAddress` when sending it to network
+const txConfig = await manager.setInfo(factProviderAddress, {
+  name: 'Data source display name',
+
+  // passport is an optional property which specifies data source's own digital identity
+  // if it has any
+  passport: '0x1234567890123456789012345678901234567890',
+  website: 'https://www.data-source-website.io',
+}, registryOwnerAddress);
+
+// ... submit txConfig in your code
+```
+
+The same method can be used for initial information writing as well as updating. Info can only be written by registry owner.
+
+### Deleting data source information
+
+Delete data source information from registry using `FactProviderManager.deleteInfo` as in example:
+
+```js
+import { FactProviderManager } from 'verifiable-data';
+const manager = new FactProviderManager(web3, registryAddress);
+
+// txConfig must be signed by `registryOwnerAddress` when sending it to network
+const txConfig = await manager.deleteInfo(factProviderAddress, registryOwnerAddress);
+
+// ... submit txConfig in your code
+```
+
+NOTE: this is not real deletion, since it is impossible to delete anything from blockchain. This method just makes sure that if anyone tries to read info about this data source using `getInfo` - it will return `null`. However, historical info could still be reached through transaction history. Info can only be deleted by registry owner.
+
+### Reading data source information
+
+Read data source information from registry using `FactProviderManager.getInfo` as in example:
+
+```js
+import { FactProviderManager } from 'verifiable-data';
+const manager = new FactProviderManager(web3, registryAddress);
+
+const info = await manager.getInfo(factProviderAddress);
+
+```
+
+where `info` will be like
+
+```js
+{
+  name: 'Data source display name',
+
+  // property which specifies data source's own digital identity, if it has any
+  passport: '0x123456...',
+  website: 'https://www.data-source-website.io',
+},
+```
+
+Info can be read by anyone.
 
 ## Permissioned blockchains support
 

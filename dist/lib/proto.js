@@ -44,6 +44,9 @@ exports.initPassportFactoryContract = rawContracts_1.initPassportFactoryContract
 exports.initPassportLogicContract = rawContracts_1.initPassportLogicContract;
 exports.initPassportContract = rawContracts_1.initPassportContract;
 exports.initPassportLogicRegistryContract = rawContracts_1.initPassportLogicRegistryContract;
+exports.initFactProviderRegistryContract = rawContracts_1.initFactProviderRegistryContract;
+var FactProviderManager_1 = require("./passport/FactProviderManager");
+exports.FactProviderManager = FactProviderManager_1.FactProviderManager;
 var ext = {
     quorum: quorum,
 };

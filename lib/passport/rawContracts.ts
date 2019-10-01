@@ -3,12 +3,14 @@ import passportAbi from '../../config/Passport.json';
 import passportFactoryAbi from '../../config/PassportFactory.json';
 import passportLogicAbi from '../../config/PassportLogic.json';
 import passportLogicRegistryAbi from '../../config/PassportLogicRegistry.json';
+import factProviderRegistryAbi from '../../config/FactProviderRegistry.json';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import { PassportFactory } from 'lib/types/web3-contracts/PassportFactory';
 import { PassportLogic } from 'lib/types/web3-contracts/PassportLogic';
 import { Passport } from 'lib/types/web3-contracts/Passport';
 import { PassportLogicRegistry } from 'lib/types/web3-contracts/PassportLogicRegistry';
+import { FactProviderRegistry } from 'lib/types/web3-contracts/FactProviderRegistry';
 
 /**
  * Creates PassportFactory contract instance
@@ -36,4 +38,11 @@ export function initPassportContract(web3: Web3, passportAddress: Address) {
  */
 export function initPassportLogicRegistryContract(web3: Web3, registryAddress: Address) {
   return new web3.eth.Contract(passportLogicRegistryAbi as AbiItem[], registryAddress) as PassportLogicRegistry;
+}
+
+/**
+ * Creates FactProviderRegistry contract instance
+ */
+export function initFactProviderRegistryContract(web3: Web3, registryAddress: Address) {
+  return new web3.eth.Contract(factProviderRegistryAbi as AbiItem[], registryAddress) as FactProviderRegistry;
 }
