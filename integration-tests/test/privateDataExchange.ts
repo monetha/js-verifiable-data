@@ -59,7 +59,7 @@ let exchangeData: any = {};
 const preparePassport = async () => {
 
   // Accounts
-  monethaOwner = await getAccount(web3, 0);
+  monethaOwner = await getAccount(web3, 5);
   passportOwner = await getAccount(web3, 1);
   passportOwnerPrivateKey = getPrivateKey(1);
   factProviderAddress = await getAccount(web3, 2);

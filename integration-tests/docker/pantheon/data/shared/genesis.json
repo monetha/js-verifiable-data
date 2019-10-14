@@ -46,6 +46,11 @@
         "privateKey": "FFEC0D7629E0B403F826679497191C6CBD19F8D6E699F368C4C9FFEB174BACB7",
         "comment": "private key and this comment are ignored.  In a real chain, the private key should NOT be stored",
         "balance": "90000000000000000000000"
+      },
+      "0xe4d94A0A519E8700822Af7c757728FF9D3fb5895": {
+        "privateKey": "4F74BE89C59AF7698A185E611F07AAB68DC9F6768DFE1F429D22862497A3B828",
+        "comment": "private key and this comment are ignored.  In a real chain, the private key should NOT be stored",
+        "balance": "90000000000000000000000"
       }
     },
     "number": "0x0",
