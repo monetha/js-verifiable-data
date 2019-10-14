@@ -11,6 +11,15 @@ const pantheonPrivateKeys = [
   "4F74BE89C59AF7698A185E611F07AAB68DC9F6768DFE1F429D22862497A3B828",
 ];
 
+const quorumPrivateKeys = [
+    "e6181caaffff94a09d7e332fc8da9884d99902c7874eb74354bdcadf411929f1",
+    "4762e04d10832808a0aebdaa79c12de54afbe006bfffd228b3abcc494fe986f9",
+    "61dced5af778942996880120b303fc11ee28cc8e5036d2fdff619b5675ded3f0",
+    "794392ba288a24092030badaadfee71e3fa55ccef1d70c708baf55c07ed538a8",
+    "30bee17b2b8b1e774115f785e92474027d45d900a12a9d5d99af637c2d1a61bd",
+    "4F74BE89C59AF7698A185E611F07AAB68DC9F6768DFE1F429D22862497A3B828",
+];
+
 module.exports = {
   mocha: {
     enableTimeouts: false
@@ -24,7 +33,7 @@ module.exports = {
     },
     quorum: {
       // Gas price in Quorum is always zero, even accounts with no ETH can be used
-      provider: new PrivateKeyProvider(pantheonPrivateKeys, "http://127.0.0.1:22001", 0, pantheonPrivateKeys.length),
+      provider: new PrivateKeyProvider(quorumPrivateKeys, "http://127.0.0.1:22000", 0, quorumPrivateKeys.length),
       host: "127.0.0.1",
       port: 22000,
       enclavePort: 9081,

@@ -7,14 +7,14 @@ import { getNetworkConfig } from '../network'
 export function getAccounts(): string[] {
   return [
     // First entry matches first node account
-    '0xed9d02e382b34818e88b88a309c7fe71e65f419d',
+    '0xed9d02e382b34818e88B88a309c7fe71E65f419d',
 
     // Other entries are random addresses
-    '0xe4e0117ee7dafcc08890ae4b687b82fbb36dad26',
-    '0x4bc7938c260517e2a88716b50614cf2ef53887b3',
-    '0x5a9ddb4faeff240fd4152cd743d8bed059499e6b',
-    '0x29bd6bdd1148d4dd4ff5040a487a9650d45fb393',
-    '0xaf25cfe1bdea10f091efc5e041f5d3d6e12e6ac2',
+    '0xcA843569e3427144cEad5e4d5999a3D0cCF92B8e',
+    '0x0fBDc686b912d7722dc86510934589E0AAf3b55A',
+    '0x9186eb3d20Cbd1F5f992a950d808C4495153ABd5',
+    '0x0638E1574728b6D862dd5d3A3E0942c3be47D996',
+    '0xe4d94A0A519E8700822Af7c757728FF9D3fb5895',
     '0x17282874ecfeeda9c89c19ab8fcec934127a58a6',
     '0xfab9de7e3de2f1dc41aa076c8acc6928f46c2bcb',
     '0xc08ae943e3bb31f4c650804973a1d8543b65a334',
@@ -25,14 +25,14 @@ export function getAccounts(): string[] {
 export function getPrivateKeys(): string[] {
   return [
     // First entry matches first node account
-    '0xE6181CAAFFFF94A09D7E332FC8DA9884D99902C7874EB74354BDCADF411929F1',
+    '0xe6181caaffff94a09d7e332fc8da9884d99902c7874eb74354bdcadf411929f1',
 
     // Other entries are random addresses
-    '0x4592c4fb70300d888419148844233ae5eae4c73b3d18cfd6952e1e081b06f57c',
-    '0xe083b950a6acd10f01af569b5e6cb18ff9ba657a0f6499ddce229cf7c5a78854',
-    '0x6d46ff676b00066d02661d937cc659b5bb531be4a8abe5b570d762b2dc954325',
-    '0xb60c3d80098c4ee4980067864c0398808e007dbccf00f4521035d0bbc7d62fe6',
-    '0x3e0763e8431abf7ca61a1e3330c3be3eb6cdb2b45dc1e34e8fc505e053ef3178',
+    '0x4762e04d10832808a0aebdaa79c12de54afbe006bfffd228b3abcc494fe986f9',
+    '0x61dced5af778942996880120b303fc11ee28cc8e5036d2fdff619b5675ded3f0',
+    '0x794392ba288a24092030badaadfee71e3fa55ccef1d70c708baf55c07ed538a8',
+    '0x30bee17b2b8b1e774115f785e92474027d45d900a12a9d5d99af637c2d1a61bd',
+    '0x4F74BE89C59AF7698A185E611F07AAB68DC9F6768DFE1F429D22862497A3B828',
     '0xc0f7c843fbe2e938f3d3650d4543dc961ac2b11e804047674fc221a61f1693c2',
     '0xda8de30239f609fe2d21d1ce75335604fb79715a9e89ae1baeef05fd75cee154',
     '0x385e61c258ee042debd606bfab24e27aadae3a4acdb07828994d27fe343249c8',
