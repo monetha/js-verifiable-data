@@ -23,6 +23,8 @@ module.exports = {
       network_id: "*"
     },
     quorum: {
+      // Gas price in Quorum is always zero, even accounts with no ETH can be used
+      provider: new PrivateKeyProvider(pantheonPrivateKeys, "http://127.0.0.1:22001", 0, pantheonPrivateKeys.length),
       host: "127.0.0.1",
       port: 22000,
       enclavePort: 9081,
