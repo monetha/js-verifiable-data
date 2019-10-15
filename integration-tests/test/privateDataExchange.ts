@@ -27,21 +27,15 @@ const privateFactKey = 'privatedata_fact';
 let stakeWei = new BN('100000', 10);
 const contractCreationParams: any = {};
 
-if (getNetwork() === NetworkType.Quorum) {
+const isQuorum = getNetwork() === NetworkType.Quorum;
+if (isQuorum) {
   // On quorum we use accounts which does not have money, so stake 0. However, on ganache - each account has eth
   stakeWei = new BN('0', 10);
-}
-
-if (isPrivateTxMode) {
-  switch (getNetwork()) {
-    case NetworkType.Quorum:
-      contractCreationParams.privateFor = [getNodePublicKey(1)];
-      options = {
-        txRetriever: ext.quorum.getPrivateTx,
-      };
-      break;
-    default:
-      break;
+  if (isPrivateTxMode) {
+    contractCreationParams.privateFor = [getNodePublicKey(1)];
+    options = {
+      txRetriever: ext.quorum.getPrivateTx,
+    };
   }
 }
 
@@ -59,7 +53,7 @@ let exchangeData: any = {};
 const preparePassport = async () => {
 
   // Accounts
-  monethaOwner = await getAccount(web3, 5);
+  monethaOwner = await getAccount(web3, isQuorum ? 0 : 5);
   passportOwner = await getAccount(web3, 1);
   passportOwnerPrivateKey = getPrivateKey(1);
   factProviderAddress = await getAccount(web3, 2);
