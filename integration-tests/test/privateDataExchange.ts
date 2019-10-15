@@ -27,15 +27,23 @@ const privateFactKey = 'privatedata_fact';
 let stakeWei = new BN('100000', 10);
 const contractCreationParams: any = {};
 
-const isQuorum = getNetwork() === NetworkType.Quorum;
-if (isQuorum) {
+let isQuorum = false;
+if (getNetwork() === NetworkType.Quorum) {
+  isQuorum = true;
   // On quorum we use accounts which does not have money, so stake 0. However, on ganache - each account has eth
   stakeWei = new BN('0', 10);
-  if (isPrivateTxMode) {
-    contractCreationParams.privateFor = [getNodePublicKey(1)];
-    options = {
-      txRetriever: ext.quorum.getPrivateTx,
-    };
+}
+
+if (isPrivateTxMode) {
+  switch (getNetwork()) {
+    case NetworkType.Quorum:
+      contractCreationParams.privateFor = [getNodePublicKey(1)];
+      options = {
+        txRetriever: ext.quorum.getPrivateTx,
+      };
+      break;
+    default:
+      break;
   }
 }
 
