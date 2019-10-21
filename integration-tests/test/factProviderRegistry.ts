@@ -1,11 +1,9 @@
 import { logVerbose } from 'common/logger';
 import { getAccount, getNetwork, getNetworkNodeUrl, getNodePublicKey, getPrivateKey, NetworkType } from 'common/network';
 import { isPrivateTxMode, createTxExecutor } from 'common/tx';
-import { FactProviderRegistry } from 'lib/types/web3-contracts/FactProviderRegistry';
 import { Address, FactProviderManager, IFactProviderInfo } from 'verifiable-data';
 import Web3 from 'web3';
-
-const FactProviderRegistryArtifact = artifacts.require('FactProviderRegistry');
+import { Contract, deployContract } from './deployContracts';
 
 const web3 = new Web3(new Web3.providers.HttpProvider(getNetworkNodeUrl()));
 const contractCreationParams: any = {};
@@ -13,7 +11,6 @@ const txExecutor = createTxExecutor(web3);
 
 let registryOwner: string;
 let registryOwnerPrivateKey: string;
-let registry: FactProviderRegistry;
 let registryAddress: string;
 let factProvider1: Address;
 let factProvider2: Address;
@@ -49,7 +46,7 @@ before(async () => {
   }
 
   // Deploy contracts
-  registry = await FactProviderRegistryArtifact.new({ from: registryOwner, ...contractCreationParams });
+  const registry = await deployContract(Contract.FactProviderRegistryArtifact, contractCreationParams);
   registryAddress = registry.address;
 
   logVerbose('----------------------------------------------------------');

@@ -1,9 +1,28 @@
 import { logVerbose } from 'common/logger';
-import { getAccount, getNetwork, getNetworkNodeUrl, getPrivateKey, NetworkType, getNodePublicKey } from 'common/network';
+import {
+  getAccount,
+  getNetwork,
+  getNetworkNodeUrl,
+  getNodePublicKey,
+  getPrivateKey,
+  NetworkType,
+} from 'common/network';
 import { createTxExecutor, isPrivateTxMode } from 'common/tx';
-import { ext, FactHistoryReader, FactReader, FactRemover, FactWriter, IEthOptions, PassportGenerator, PassportOwnership, PassportReader, Permissions } from 'verifiable-data';
+import {
+  ext,
+  FactHistoryReader,
+  FactReader,
+  FactRemover,
+  FactWriter,
+  IEthOptions,
+  PassportGenerator,
+  PassportOwnership,
+  PassportReader,
+  Permissions,
+} from 'verifiable-data';
 import Web3 from 'web3';
 import { MockIPFSClient } from '../mocks/MockIPFSClient';
+import { Contract, deployContract } from './deployContracts';
 
 let passportLogic;
 let passportLogicRegistry;
@@ -11,7 +30,6 @@ let passportFactory;
 let passportLogicAddress;
 let passportLogicRegistryAddress;
 let passportFactoryAddress;
-let monethaOwner;
 let passportOwner;
 let passportOwnerPrivateKey;
 let passportAddress;
@@ -31,7 +49,6 @@ const txHashes: any = {};
 const txExecutor = createTxExecutor(web3);
 
 before(async () => {
-  monethaOwner = await getAccount(web3, 0);
   passportOwner = await getAccount(web3, 1);
   passportOwnerPrivateKey = getPrivateKey(1);
   factProviderAddress = await getAccount(web3, 2);
@@ -51,11 +68,11 @@ before(async () => {
   }
 
   // deploy contracts
-  passportLogic = await PassportLogic.new({ from: monethaOwner, ...contractCreationParams });
+  passportLogic = await deployContract(Contract.PassportLogic, contractCreationParams);
   passportLogicAddress = passportLogic.address;
-  passportLogicRegistry = await PassportLogicRegistry.new('0.1', passportLogic.address, { from: monethaOwner, ...contractCreationParams });
+  passportLogicRegistry = await deployContract(Contract.PassportLogicRegistry, contractCreationParams);
   passportLogicRegistryAddress = passportLogicRegistry.address;
-  passportFactory = await PassportFactory.new(passportLogicRegistry.address, { from: monethaOwner, ...contractCreationParams });
+  passportFactory = await deployContract(Contract.PassportFactory, contractCreationParams);
   passportFactoryAddress = passportFactory.address;
 
   logVerbose('----------------------------------------------------------');

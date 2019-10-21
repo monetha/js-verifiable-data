@@ -2,13 +2,31 @@ import BN from 'bn.js';
 import { expectSdkError } from 'common/error';
 import { advanceTimeAndBlock, revertToSnapshot, takeSnapshot } from 'common/networks/ganache';
 import { createTxExecutor, isPrivateTxMode } from 'common/tx';
-import { FactWriter, PassportGenerator, PassportOwnership, PrivateDataExchanger, Address, IEthOptions, ext, ExchangeState, ErrorCode, ISKM } from 'verifiable-data';
+import {
+  Address,
+  ErrorCode,
+  ExchangeState,
+  ext,
+  FactWriter,
+  IEthOptions,
+  ISKM,
+  PassportGenerator,
+  PassportOwnership,
+  PrivateDataExchanger,
+} from 'verifiable-data';
 import { MockIPFSClient } from 'mocks/MockIPFSClient';
 import Web3 from 'web3';
-import { getNetworkNodeUrl, getPrivateKey, getAccount, getNetwork, NetworkType, getNodePublicKey } from 'common/network';
+import {
+  getAccount,
+  getNetwork,
+  getNetworkNodeUrl,
+  getNodePublicKey,
+  getPrivateKey,
+  NetworkType,
+} from 'common/network';
 import { logVerbose } from 'common/logger';
+import { Contract, deployContract } from './deployContracts';
 
-let monethaOwner: Address;
 let passportOwner: Address;
 let passportOwnerPrivateKey: string;
 let passportFactoryAddress;
@@ -59,7 +77,6 @@ let exchangeData: any = {};
 const preparePassport = async () => {
 
   // Accounts
-  monethaOwner = await getAccount(web3, 0);
   passportOwner = await getAccount(web3, 1);
   passportOwnerPrivateKey = getPrivateKey(1);
   factProviderAddress = await getAccount(web3, 2);
@@ -67,9 +84,9 @@ const preparePassport = async () => {
   requesterPrivateKey = getPrivateKey(3);
   otherPersonAddress = await getAccount(web3, 4);
 
-  const passportLogic = await PassportLogic.new({ from: monethaOwner, ...contractCreationParams });
-  const passportLogicRegistry = await PassportLogicRegistry.new('0.1', passportLogic.address, { from: monethaOwner, ...contractCreationParams });
-  const passportFactory = await PassportFactory.new(passportLogicRegistry.address, { from: monethaOwner, ...contractCreationParams });
+  const passportLogic = await deployContract(Contract.PassportLogic, contractCreationParams);
+  const passportLogicRegistry = await deployContract(Contract.PassportLogicRegistry, contractCreationParams);
+  const passportFactory = await deployContract(Contract.PassportFactory, contractCreationParams);
   passportFactoryAddress = passportFactory.address;
 
   // Create passport
