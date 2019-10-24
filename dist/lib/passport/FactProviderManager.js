@@ -34,8 +34,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var tx_1 = require("../utils/tx");
+var web3_1 = __importDefault(require("web3"));
 var rawContracts_1 = require("./rawContracts");
 // #endregion
 // #region -------------- Constants -------------------------------------------------------------------
@@ -46,9 +50,9 @@ var emptyAddress = '0x0000000000000000000000000000000000000000';
  * Allows managing info about fact providers.
  */
 var FactProviderManager = /** @class */ (function () {
-    function FactProviderManager(web3, factProviderRegistryAddress) {
-        this.contract = rawContracts_1.initFactProviderRegistryContract(web3, factProviderRegistryAddress);
-        this.web3 = web3;
+    function FactProviderManager(anyWeb3, factProviderRegistryAddress) {
+        this.web3 = new web3_1.default(anyWeb3.eth.currentProvider);
+        this.contract = rawContracts_1.initFactProviderRegistryContract(anyWeb3, factProviderRegistryAddress);
     }
     /**
      * Sets information about fact provider

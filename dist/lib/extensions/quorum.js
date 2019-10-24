@@ -45,20 +45,26 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var conversion_1 = require("../utils/conversion");
 var tx_1 = require("../utils/tx");
+var web3_1 = __importDefault(require("web3"));
 /**
  * Gets transaction by hash and converts tx to a form, which was just after signing the tx with private key.
  * This includes modifying transaction's `v` field to its original value (because Quorum SDK modifies it for private transactions)
  * so that it would be possible to recover sender's public key from transaction data.
  */
-function getPrivateTx(txHash, web3) {
+function getPrivateTx(txHash, anyWeb3) {
     return __awaiter(this, void 0, void 0, function () {
-        var tx, v, privateV1, privateV2, senderPublicKey, decodedTx, _a, _b;
+        var web3, tx, v, privateV1, privateV2, senderPublicKey, decodedTx, _a, _b;
         return __generator(this, function (_c) {
             switch (_c.label) {
-                case 0: return [4 /*yield*/, web3.eth.getTransaction(txHash)];
+                case 0:
+                    web3 = new web3_1.default(anyWeb3.eth.currentProvider);
+                    return [4 /*yield*/, web3.eth.getTransaction(txHash)];
                 case 1:
                     tx = _c.sent();
                     v = conversion_1.toBN(tx.v);

@@ -4,6 +4,7 @@ import { TransactionReceipt } from 'web3-core';
 import { Address } from '../models/Address';
 import { PassportFactory } from '../types/web3-contracts/PassportFactory';
 import { initPassportFactoryContract } from './rawContracts';
+import { IWeb3 } from 'lib/models/IWeb3';
 
 export class PassportGenerator {
   private contract: PassportFactory;
@@ -30,9 +31,9 @@ export class PassportGenerator {
     return `0x${topics[1].slice(26)}`;
   }
 
-  constructor(web3: Web3, passportFactoryAddress: Address) {
-    this.contract = initPassportFactoryContract(web3, passportFactoryAddress);
-    this.web3 = web3;
+  constructor(anyWeb3: IWeb3, passportFactoryAddress: Address) {
+    this.web3 = new Web3(anyWeb3.eth.currentProvider);
+    this.contract = initPassportFactoryContract(anyWeb3, passportFactoryAddress);
   }
 
   /**

@@ -49,6 +49,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var web3_1 = __importDefault(require("web3"));
 var PassportFactory_json_1 = __importDefault(require("../../config/PassportFactory.json"));
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 var IHistoryEvent_1 = require("../models/IHistoryEvent");
@@ -59,10 +60,10 @@ var factEventSignatures;
  * Class to get passports list and historic events
  */
 var PassportReader = /** @class */ (function () {
-    function PassportReader(web3) {
-        this.web3 = web3;
+    function PassportReader(anyWeb3) {
+        this.web3 = new web3_1.default(anyWeb3.eth.currentProvider);
         if (!factEventSignatures) {
-            var signatures = getEventSignatures(web3);
+            var signatures = getEventSignatures(this.web3);
             factEventSignatures = signatures.factEvents;
         }
     }

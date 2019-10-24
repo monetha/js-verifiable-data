@@ -23,6 +23,7 @@ import { RandomArrayGenerator } from './models/RandomArrayGenerator';
 import { initPassportFactoryContract, initPassportLogicContract, initPassportContract, initPassportLogicRegistryContract, initFactProviderRegistryContract } from './passport/rawContracts';
 import { ISKM } from './passport/privateFactCommon';
 import { FactProviderManager, IFactProviderInfo } from './passport/FactProviderManager';
+import { IWeb3 } from './models/IWeb3';
 declare const ext: {
     quorum: typeof quorum;
 };
@@ -48,4 +49,4 @@ declare const _default: {
     toBN: typeof toBN;
 };
 export default _default;
-export { PassportGenerator, PassportOwnership, PassportReader, FactReader, FactWriter, FactRemover, PrivateFactReader, PrivateFactWriter, Permissions, FactHistoryReader, PrivateDataExchanger, EventType, DataType, IHistoryEvent, IIPFSClient, IIPFSAddResult, IFactValue, IPassportRef, IIPFSDag, IIPFSLink, IIPLD, IProposeDataExchangeResult, IDisputeDataExchangeResult, IDataExchangeStatus, IPrivateDataHashes, CurrentTimeGetter, TxExecutor, ErrorCode, ISdkError, IEthOptions, Address, ExchangeState, ext, toBN, RandomArrayGenerator, initPassportFactoryContract, initPassportLogicContract, initPassportContract, initPassportLogicRegistryContract, initFactProviderRegistryContract, getExchangeIndexFromReceipt, ISKM, FactProviderManager, IFactProviderInfo, };
+export { PassportGenerator, PassportOwnership, PassportReader, FactReader, FactWriter, FactRemover, PrivateFactReader, PrivateFactWriter, Permissions, FactHistoryReader, PrivateDataExchanger, EventType, DataType, IHistoryEvent, IIPFSClient, IIPFSAddResult, IFactValue, IPassportRef, IIPFSDag, IIPFSLink, IIPLD, IProposeDataExchangeResult, IDisputeDataExchangeResult, IDataExchangeStatus, IPrivateDataHashes, CurrentTimeGetter, TxExecutor, ErrorCode, ISdkError, IEthOptions, Address, ExchangeState, ext, toBN, RandomArrayGenerator, initPassportFactoryContract, initPassportLogicContract, initPassportContract, initPassportLogicRegistryContract, initFactProviderRegistryContract, getExchangeIndexFromReceipt, ISKM, FactProviderManager, IFactProviderInfo, IWeb3, };

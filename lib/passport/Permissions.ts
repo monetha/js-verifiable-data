@@ -3,6 +3,7 @@ import { prepareTxConfig } from 'lib/utils/tx';
 import Web3 from 'web3';
 import { Address } from '../models/Address';
 import { initPassportLogicContract } from './rawContracts';
+import { IWeb3 } from 'lib/models/IWeb3';
 
 /**
  * Class to change and check permissions for fact providers to any specific passport
@@ -11,9 +12,9 @@ export class Permissions {
   private contract: PassportLogic;
   private web3: Web3;
 
-  constructor(web3: Web3, passportAddress: Address) {
-    this.contract = initPassportLogicContract(web3, passportAddress);
-    this.web3 = web3;
+  constructor(anyWeb3: IWeb3, passportAddress: Address) {
+    this.web3 = new Web3(anyWeb3.eth.currentProvider);
+    this.contract = initPassportLogicContract(anyWeb3, passportAddress);
   }
 
   /**

@@ -1,6 +1,6 @@
 import { IEthOptions } from '../models/IEthOptions';
-import Web3 from 'web3';
 import { Address } from '../models/Address';
+import { IWeb3 } from '../models/IWeb3';
 /**
  * Class to manage passport ownership
  */
@@ -8,7 +8,7 @@ export declare class PassportOwnership {
     private contract;
     private web3;
     private options;
-    constructor(web3: Web3, passportAddress: Address, options?: IEthOptions);
+    constructor(anyWeb3: IWeb3, passportAddress: Address, options?: IEthOptions);
     /**
      * After the passport is created, the owner must call this method to become a full passport owner
      */

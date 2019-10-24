@@ -34,20 +34,24 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var ErrorCode_1 = require("../errors/ErrorCode");
 var SdkError_1 = require("../errors/SdkError");
 var tx_1 = require("../utils/tx");
+var web3_1 = __importDefault(require("web3"));
 var PrivateFactWriter_1 = require("./PrivateFactWriter");
 var rawContracts_1 = require("./rawContracts");
 /**
  * Class to write facts to passport
  */
 var FactWriter = /** @class */ (function () {
-    function FactWriter(web3, passportAddress, options) {
-        this.contract = rawContracts_1.initPassportLogicContract(web3, passportAddress);
+    function FactWriter(anyWeb3, passportAddress, options) {
+        this.web3 = new web3_1.default(anyWeb3.eth.currentProvider);
+        this.contract = rawContracts_1.initPassportLogicContract(anyWeb3, passportAddress);
         this.options = options || {};
-        this.web3 = web3;
     }
     Object.defineProperty(FactWriter.prototype, "passportAddress", {
         get: function () { return this.contract.address; },

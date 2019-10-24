@@ -1,6 +1,7 @@
 import { IEthOptions } from '../models/IEthOptions';
 import { IIPFSClient } from '../models/IIPFSClient';
 import { IPrivateDataHashes } from './FactReader';
+import { IWeb3 } from '../models/IWeb3';
 export interface IFactValue<TValue> {
     factProviderAddress: string;
     passportAddress: string;
@@ -13,7 +14,7 @@ export interface IFactValue<TValue> {
 export declare class FactHistoryReader {
     private web3;
     private options;
-    constructor(web3: any, options?: IEthOptions);
+    constructor(anyWeb3: IWeb3, options?: IEthOptions);
     /**
      * Read string type fact from transaction
      */

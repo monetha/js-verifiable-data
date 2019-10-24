@@ -7,6 +7,7 @@ import { IPassportHistoryFilter } from '../models/IPassportHistoryFilter';
 import { IPassportRef } from '../models/IPassportRef';
 import { sanitizeAddress } from '../utils/sanitizeAddress';
 import { initPassportContract, initPassportFactoryContract, initPassportLogicContract } from './rawContracts';
+import { IWeb3 } from 'lib/models/IWeb3';
 
 interface IFactEventSignatures {
   [signature: string]: {
@@ -23,11 +24,11 @@ let factEventSignatures: IFactEventSignatures;
 export class PassportReader {
   private web3: Web3;
 
-  constructor(web3: Web3) {
-    this.web3 = web3;
+  constructor(anyWeb3: IWeb3) {
+    this.web3 = new Web3(anyWeb3.eth.currentProvider);
 
     if (!factEventSignatures) {
-      const signatures = getEventSignatures(web3);
+      const signatures = getEventSignatures(this.web3);
       factEventSignatures = signatures.factEvents;
     }
   }

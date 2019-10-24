@@ -39,16 +39,16 @@ var elliptic_1 = require("elliptic");
 var cryptor_1 = require("../crypto/ecies/cryptor");
 var ecies_1 = require("../crypto/ecies/ecies");
 var ipfs_1 = require("../utils/ipfs");
-var privateFactCommon_1 = require("./privateFactCommon");
 var PassportOwnership_1 = require("./PassportOwnership");
+var privateFactCommon_1 = require("./privateFactCommon");
 var EC = elliptic_1.ec;
 /**
  * Class to write private facts
  */
 var PrivateFactWriter = /** @class */ (function () {
-    function PrivateFactWriter(web3, factWriter, options) {
+    function PrivateFactWriter(anyWeb3, factWriter, options) {
         this.ec = new EC(privateFactCommon_1.ellipticCurveAlg);
-        this.ownership = new PassportOwnership_1.PassportOwnership(web3, factWriter.passportAddress, options);
+        this.ownership = new PassportOwnership_1.PassportOwnership(anyWeb3, factWriter.passportAddress, options);
         this.writer = factWriter;
     }
     /**

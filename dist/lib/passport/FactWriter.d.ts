@@ -1,9 +1,9 @@
 import { IEthOptions } from '../models/IEthOptions';
 import { RandomArrayGenerator } from '../models/RandomArrayGenerator';
-import Web3 from 'web3';
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
 import { IPrivateDataHashes } from './FactReader';
+import { IWeb3 } from '../models/IWeb3';
 /**
  * Class to write facts to passport
  */
@@ -12,7 +12,7 @@ export declare class FactWriter {
     private options;
     private web3;
     readonly passportAddress: string;
-    constructor(web3: Web3, passportAddress: Address, options?: IEthOptions);
+    constructor(anyWeb3: IWeb3, passportAddress: Address, options?: IEthOptions);
     /**
      * Writes string type fact to passport
      */

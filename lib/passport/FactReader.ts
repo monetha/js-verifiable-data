@@ -9,6 +9,7 @@ import { IIPFSClient } from '../models/IIPFSClient';
 import { PassportLogic } from '../types/web3-contracts/PassportLogic';
 import { PrivateFactReader } from './PrivateFactReader';
 import { initPassportLogicContract } from './rawContracts';
+import { IWeb3 } from 'lib/models/IWeb3';
 
 // #region -------------- Interfaces -------------------------------------------------------------------
 
@@ -37,10 +38,10 @@ export class FactReader {
 
   public get passportAddress() { return this.contract.address; }
 
-  constructor(web3: Web3, passportAddress: Address, options?: IEthOptions) {
-    this.contract = initPassportLogicContract(web3, passportAddress);
+  constructor(anyWeb3: IWeb3, passportAddress: Address, options?: IEthOptions) {
+    this.web3 = new Web3(anyWeb3.eth.currentProvider);
+    this.contract = initPassportLogicContract(anyWeb3, passportAddress);
     this.options = options || {};
-    this.web3 = web3;
   }
 
   /**

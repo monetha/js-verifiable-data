@@ -7,6 +7,7 @@ import { IPrivateDataHashes } from './FactReader';
 import { PrivateFactReader } from './PrivateFactReader';
 import { createSdkError } from 'lib/errors/SdkError';
 import { ErrorCode } from 'lib/errors/ErrorCode';
+import { IWeb3 } from 'lib/models/IWeb3';
 
 // #region -------------- Interfaces -------------------------------------------------------------------
 
@@ -27,8 +28,8 @@ export class FactHistoryReader {
   private web3: Web3;
   private options: IEthOptions;
 
-  constructor(web3, options?: IEthOptions) {
-    this.web3 = web3;
+  constructor(anyWeb3: IWeb3, options?: IEthOptions) {
+    this.web3 = new Web3(anyWeb3.eth.currentProvider);
     this.options = options || {};
   }
 

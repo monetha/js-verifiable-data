@@ -1,5 +1,5 @@
 import { Address } from '../models/Address';
-import Web3 from 'web3';
+import { IWeb3 } from '../models/IWeb3';
 export interface IFactProviderInfo {
     /**
      * Fact provider's display name
@@ -21,7 +21,7 @@ export interface IFactProviderInfo {
 export declare class FactProviderManager {
     private contract;
     private web3;
-    constructor(web3: Web3, factProviderRegistryAddress: Address);
+    constructor(anyWeb3: IWeb3, factProviderRegistryAddress: Address);
     /**
      * Sets information about fact provider
      *

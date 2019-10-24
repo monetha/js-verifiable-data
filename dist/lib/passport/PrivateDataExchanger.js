@@ -57,6 +57,7 @@ var proto_1 = require("../proto");
 var conversion_1 = require("../utils/conversion");
 var string_1 = require("../utils/string");
 var tx_1 = require("../utils/tx");
+var web3_1 = __importDefault(require("web3"));
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 var privateFactCommon_1 = require("./privateFactCommon");
 var PrivateFactReader_1 = require("./PrivateFactReader");
@@ -69,11 +70,11 @@ var gasLimits = {
     timeout: 60000,
 };
 var PrivateDataExchanger = /** @class */ (function () {
-    function PrivateDataExchanger(web3, passportAddress, currentTimeGetter, options) {
+    function PrivateDataExchanger(anyWeb3, passportAddress, currentTimeGetter, options) {
         this.ec = new elliptic_1.ec(privateFactCommon_1.ellipticCurveAlg);
-        this.web3 = web3;
+        this.web3 = new web3_1.default(anyWeb3.eth.currentProvider);
         this.passportAddress = passportAddress;
-        this.contract = rawContracts_1.initPassportLogicContract(web3, passportAddress);
+        this.contract = rawContracts_1.initPassportLogicContract(anyWeb3, passportAddress);
         this.getCurrentTime = currentTimeGetter;
         if (!currentTimeGetter) {
             this.getCurrentTime = function () { return new Date(); };

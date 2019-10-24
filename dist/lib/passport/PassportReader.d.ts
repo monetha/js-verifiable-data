@@ -1,14 +1,14 @@
-import Web3 from 'web3';
 import { Address } from '../models/Address';
 import { IHistoryEvent } from '../models/IHistoryEvent';
 import { IPassportHistoryFilter } from '../models/IPassportHistoryFilter';
 import { IPassportRef } from '../models/IPassportRef';
+import { IWeb3 } from '../models/IWeb3';
 /**
  * Class to get passports list and historic events
  */
 export declare class PassportReader {
     private web3;
-    constructor(web3: Web3);
+    constructor(anyWeb3: IWeb3);
     /**
      * Fetches all passport addresses created by a particular passport factory address
      *

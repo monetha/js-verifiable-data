@@ -2,11 +2,11 @@ import BN from 'bn.js';
 import { IEthOptions } from '../models/IEthOptions';
 import { IIPFSClient } from '../models/IIPFSClient';
 import { RandomArrayGenerator } from '../models/RandomArrayGenerator';
-import Web3 from 'web3';
 import { Address } from '../models/Address';
 import { TxExecutor } from '../models/TxExecutor';
 import { ISKM } from './privateFactCommon';
 import { TransactionReceipt } from 'web3-core';
+import { IWeb3 } from '../models/IWeb3';
 export declare class PrivateDataExchanger {
     private passportAddress;
     private web3;
@@ -14,7 +14,7 @@ export declare class PrivateDataExchanger {
     private ec;
     private getCurrentTime;
     private options;
-    constructor(web3: Web3, passportAddress: Address, currentTimeGetter?: CurrentTimeGetter, options?: IEthOptions);
+    constructor(anyWeb3: IWeb3, passportAddress: Address, currentTimeGetter?: CurrentTimeGetter, options?: IEthOptions);
     /**
      * Creates private data exchange proposition
      * @param factKey - fact key name to request data for

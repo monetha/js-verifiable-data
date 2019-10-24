@@ -1,15 +1,15 @@
 import { ec } from 'elliptic';
+import { IEthOptions } from 'lib/models/IEthOptions';
+import { IWeb3 } from 'lib/models/IWeb3';
+import { RandomArrayGenerator } from 'lib/models/RandomArrayGenerator';
 import { Cryptor } from '../crypto/ecies/cryptor';
 import { ECIES } from '../crypto/ecies/ecies';
 import { Address } from '../models/Address';
 import { IIPFSAddResult, IIPFSClient } from '../models/IIPFSClient';
 import { convertAddResultToLink, dagPutLinks } from '../utils/ipfs';
-import { deriveSecretKeyringMaterial, ellipticCurveAlg, ipfsFileNames, unmarshalSecretKeyringMaterial } from './privateFactCommon';
 import { FactWriter } from './FactWriter';
 import { PassportOwnership } from './PassportOwnership';
-import { IEthOptions } from 'lib/models/IEthOptions';
-import Web3 from 'web3';
-import { RandomArrayGenerator } from 'lib/models/RandomArrayGenerator';
+import { deriveSecretKeyringMaterial, ellipticCurveAlg, ipfsFileNames, unmarshalSecretKeyringMaterial } from './privateFactCommon';
 const EC = ec;
 
 /**
@@ -20,8 +20,8 @@ export class PrivateFactWriter {
   private ownership: PassportOwnership;
   private ec = new EC(ellipticCurveAlg);
 
-  constructor(web3: Web3, factWriter: FactWriter, options?: IEthOptions) {
-    this.ownership = new PassportOwnership(web3, factWriter.passportAddress, options);
+  constructor(anyWeb3: IWeb3, factWriter: FactWriter, options?: IEthOptions) {
+    this.ownership = new PassportOwnership(anyWeb3, factWriter.passportAddress, options);
     this.writer = factWriter;
   }
 

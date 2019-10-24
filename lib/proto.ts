@@ -37,6 +37,7 @@ import {
 } from './passport/rawContracts';
 import { ISKM } from './passport/privateFactCommon';
 import { FactProviderManager, IFactProviderInfo } from './passport/FactProviderManager';
+import { IWeb3 } from './models/IWeb3';
 
 const ext = {
   quorum,
@@ -107,4 +108,5 @@ export {
   ISKM,
   FactProviderManager,
   IFactProviderInfo,
+  IWeb3,
 };

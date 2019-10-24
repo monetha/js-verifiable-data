@@ -3,6 +3,7 @@ import { FactProviderRegistry } from 'lib/types/web3-contracts/FactProviderRegis
 import { prepareTxConfig } from 'lib/utils/tx';
 import Web3 from 'web3';
 import { initFactProviderRegistryContract } from './rawContracts';
+import { IWeb3 } from 'lib/models/IWeb3';
 
 // #region -------------- Interface -------------------------------------------------------------------
 
@@ -40,9 +41,9 @@ export class FactProviderManager {
   private contract: FactProviderRegistry;
   private web3: Web3;
 
-  constructor(web3: Web3, factProviderRegistryAddress: Address) {
-    this.contract = initFactProviderRegistryContract(web3, factProviderRegistryAddress);
-    this.web3 = web3;
+  constructor(anyWeb3: IWeb3, factProviderRegistryAddress: Address) {
+    this.web3 = new Web3(anyWeb3.eth.currentProvider);
+    this.contract = initFactProviderRegistryContract(anyWeb3, factProviderRegistryAddress);
   }
 
   /**

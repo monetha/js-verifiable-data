@@ -22,6 +22,7 @@ import { deriveSecretKeyringMaterial, ellipticCurveAlg, ISKM } from './privateFa
 import { PrivateFactReader } from './PrivateFactReader';
 import { initPassportLogicContract } from './rawContracts';
 import { TransactionReceipt } from 'web3-core';
+import { IWeb3 } from 'lib/models/IWeb3';
 
 const gasLimits = {
   accept: 90000,
@@ -39,10 +40,10 @@ export class PrivateDataExchanger {
   private getCurrentTime: CurrentTimeGetter;
   private options: IEthOptions;
 
-  public constructor(web3: Web3, passportAddress: Address, currentTimeGetter?: CurrentTimeGetter, options?: IEthOptions) {
-    this.web3 = web3;
+  public constructor(anyWeb3: IWeb3, passportAddress: Address, currentTimeGetter?: CurrentTimeGetter, options?: IEthOptions) {
+    this.web3 = new Web3(anyWeb3.eth.currentProvider);
     this.passportAddress = passportAddress;
-    this.contract = initPassportLogicContract(web3, passportAddress);
+    this.contract = initPassportLogicContract(anyWeb3, passportAddress);
 
     this.getCurrentTime = currentTimeGetter;
     if (!currentTimeGetter) {

@@ -1,12 +1,12 @@
-import Web3 from 'web3';
 import { Address } from '../models/Address';
+import { IWeb3 } from '../models/IWeb3';
 /**
  * Class to change and check permissions for fact providers to any specific passport
  */
 export declare class Permissions {
     private contract;
     private web3;
-    constructor(web3: Web3, passportAddress: Address);
+    constructor(anyWeb3: IWeb3, passportAddress: Address);
     /**
      * Adds factProvider to whitelist
      */

@@ -48,6 +48,9 @@ let options: IEthOptions = null;
 const txHashes: any = {};
 const txExecutor = createTxExecutor(web3);
 
+// padded hex of "FAKE_KEY_HASH"
+const dataKeyHash = '0x46414b455f4b45595f4841534800000000000000000000000000000000000000';
+
 before(async () => {
   passportOwner = await getAccount(web3, 1);
   passportOwnerPrivateKey = getPrivateKey(1);
@@ -200,7 +203,7 @@ describe('Passport creation and facts', () => {
   it('Should be able to write PrivateDataHashes fact', async () => {
     txHashes.privatedatahashes_fact = await writeAndValidateFact(writer => writer.setPrivateDataHashes('privatedatahashes_fact', {
       dataIpfsHash: 'FAKE_IPFS_HASH',
-      dataKeyHash: web3.utils.fromAscii('FAKE_KEY_HASH'),
+      dataKeyHash,
     }, factProviderAddress));
   });
 
@@ -255,7 +258,7 @@ describe('Passport creation and facts', () => {
   it('Should be able to read PrivateDataHashes fact', async () => {
     await readAndValidateFact(reader => reader.getPrivateDataHashes(factProviderAddress, 'privatedatahashes_fact'), {
       dataIpfsHash: 'FAKE_IPFS_HASH',
-      dataKeyHash: web3.utils.fromAscii('FAKE_KEY_HASH'),
+      dataKeyHash,
     });
   });
 
@@ -308,7 +311,7 @@ describe('Passport creation and facts', () => {
   it('Should be able to read PrivateDataHashes from TX', async () => {
     await readAndValidateTxFact(reader => reader.getPrivateDataHashes(txHashes.privatedatahashes_fact), {
       dataIpfsHash: 'FAKE_IPFS_HASH',
-      dataKeyHash: web3.utils.fromAscii('FAKE_KEY_HASH'),
+      dataKeyHash,
     });
   });
 

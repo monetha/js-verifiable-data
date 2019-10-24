@@ -78,7 +78,7 @@ export const createTxExecutor = (web3: Web3): TxExecutor => {
   return async (txData: TransactionConfig) => {
     const networkConfig = getNetworkConfig();
     if (typeof networkConfig.gas !== 'undefined') {
-      txData.gas = networkConfig.gas
+      txData.gas = networkConfig.gas;
     }
 
     if (isPrivateTxMode) {

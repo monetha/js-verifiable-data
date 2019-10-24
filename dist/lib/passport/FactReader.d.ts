@@ -1,7 +1,7 @@
 import { IEthOptions } from '../models/IEthOptions';
-import Web3 from 'web3';
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
+import { IWeb3 } from '../models/IWeb3';
 export interface IPrivateDataHashes {
     /**
      * IPFS hash where encrypted data with its metadata is stored
@@ -20,7 +20,7 @@ export declare class FactReader {
     private options;
     private web3;
     readonly passportAddress: string;
-    constructor(web3: Web3, passportAddress: Address, options?: IEthOptions);
+    constructor(anyWeb3: IWeb3, passportAddress: Address, options?: IEthOptions);
     /**
      * Read string type fact from passport
      */

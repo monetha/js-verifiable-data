@@ -1,12 +1,12 @@
-import Web3 from 'web3';
 import { Address } from '../models/Address';
+import { IWeb3 } from '../models/IWeb3';
 /**
  * Class for fact deletion
  */
 export declare class FactRemover {
     private contract;
     private web3;
-    constructor(web3: Web3, passportAddress: Address);
+    constructor(anyWeb3: IWeb3, passportAddress: Address);
     /**
      * Deletes string type fact from passport
      */

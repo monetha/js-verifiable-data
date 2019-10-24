@@ -34,16 +34,20 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var tx_1 = require("../utils/tx");
+var web3_1 = __importDefault(require("web3"));
 var rawContracts_1 = require("./rawContracts");
 /**
  * Class for fact deletion
  */
 var FactRemover = /** @class */ (function () {
-    function FactRemover(web3, passportAddress) {
-        this.contract = rawContracts_1.initPassportLogicContract(web3, passportAddress);
-        this.web3 = web3;
+    function FactRemover(anyWeb3, passportAddress) {
+        this.web3 = new web3_1.default(anyWeb3.eth.currentProvider);
+        this.contract = rawContracts_1.initPassportLogicContract(anyWeb3, passportAddress);
     }
     /**
      * Deletes string type fact from passport
