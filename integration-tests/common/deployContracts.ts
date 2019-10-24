@@ -1,4 +1,4 @@
-import { getAccount } from '../common/network';
+import { getAccount } from './network';
 
 const PassportLogic = artifacts.require('PassportLogic');
 const PassportLogicRegistry = artifacts.require('PassportLogicRegistry');

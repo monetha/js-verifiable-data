@@ -3,7 +3,7 @@ import { getAccount, getNetwork, getNetworkNodeUrl, getNodePublicKey, getPrivate
 import { isPrivateTxMode, createTxExecutor } from 'common/tx';
 import { Address, FactProviderManager, IFactProviderInfo } from 'verifiable-data';
 import Web3 from 'web3';
-import { Contract, deployContract } from './deployContracts';
+import { deployContract, Contract } from 'common/deployContracts';
 
 const web3 = new Web3(new Web3.providers.HttpProvider(getNetworkNodeUrl()));
 const contractCreationParams: any = {};

@@ -25,7 +25,7 @@ import {
   NetworkType,
 } from 'common/network';
 import { logVerbose } from 'common/logger';
-import { Contract, deployContract } from './deployContracts';
+import { Contract, deployContract } from '../common/deployContracts';
 
 let passportOwner: Address;
 let passportOwnerPrivateKey: string;

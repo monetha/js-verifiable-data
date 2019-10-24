@@ -22,7 +22,7 @@ import {
 } from 'verifiable-data';
 import Web3 from 'web3';
 import { MockIPFSClient } from '../mocks/MockIPFSClient';
-import { Contract, deployContract } from './deployContracts';
+import { deployContract, Contract } from 'common/deployContracts';
 
 let passportLogic;
 let passportLogicRegistry;
