@@ -9,12 +9,12 @@
     "test": "./node_modules/.bin/truffle test",
     "test:quorum": "./node_modules/.bin/truffle test --network quorum",
     "test:quorum-private": "./node_modules/.bin/truffle test --network quorum --private",
-    "test:pantheon": "./node_modules/.bin/truffle test --network pantheon",
+    "test:besu": "./node_modules/.bin/truffle test --network besu",
     "ganache": "npm run ganache:stop && docker run -d --rm -p 8545:8545 --name ganache trufflesuite/ganache-cli:latest -m \"economy sight open cancel father goddess monkey mosquito mule village diet purpose\"",
     "ganache:stop": "docker rm ganache --force || true",
     "ganache:terminal": "./node_modules/.bin/ganache-cli -m \"economy sight open cancel father goddess monkey mosquito mule village diet purpose\"",
-    "pantheon": "npm run pantheon:stop && (cd ./docker/pantheon && docker-compose up -d && sleep 60s && docker-compose ps)",
-    "pantheon:stop": "(cd ./docker/pantheon && docker-compose down && ./clean.sh || true)"
+    "besu": "npm run besu:stop && (cd ./docker/besu && docker-compose up -d && sleep 60s && docker-compose ps)",
+    "besu:stop": "(cd ./docker/besu && docker-compose down && ./clean.sh || true)"
   },
   "author": "",
   "license": "ISC",

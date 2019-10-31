@@ -18,7 +18,7 @@ stages:
 _integration_test: &_integration_test
   install:
     - npm install
-    - (cd integration-tests && npm install) 
+    - (cd integration-tests && npm install)
   before_script: (cd integration-tests && npm run $NETWORK_NAME)
   script: npm run test:$NETWORK_NAME
 
@@ -31,14 +31,14 @@ jobs:
         - npm run lint
         - npm run build
         - npm run test:unit
-      
+
     - stage: Integration tests
       name: Integration tests on ganache
       env: NETWORK_NAME=ganache
       <<: *_integration_test
 
-    - name: Integration tests on pantheon
-      env: NETWORK_NAME=pantheon
+    - name: Integration tests on BESU
+      env: NETWORK_NAME=besu
       <<: *_integration_test
 
     - stage: Deploy
@@ -46,7 +46,7 @@ jobs:
       deploy:
         provider: npm
         email: $NPMEMAIL
-        api_key: 
+        api_key:
           secure: "g+q9JHsddgam1BfBSYSAukps2Xg6PJlNsYlYNlJvHall4cLaAau96J+PQkKVLfvszP6RF/M7R01E6q2ffFYM7h+NQvCfEqNVHVHPXe7vYhFbE6nbDtfv2knheEV+tX4BNuHYniWVBPUoYlC7XMGDrr+cI8ApW0FYm/FOQfAetzwI3aww77RAOci1uaR5IFM9Cu3ZLjF9afe6K4qM80EMR0lH3kz6aUL/N9zhA4NjXJJuvz7sdCHo4tMUGDYkNYgwWYT15U1V5CnJGLU51srjyUfg7Q3srFVaOmEjqZ12+gkBO97trMZ3Kub92MHiCqBoMQP9LY0nDM5HLs6mVrpjwU06z+QzLouvdiqQO8wNlLB8eRxTFpHELUzzxhANJekYHQBTVrfqAgnRmlcBug6YmR/Cr7viRjzC81IuyrH9+U1/PIo6mLDfyLUyHVBjJVlFGl5ccrcgl+++JqnEA62cJze9Y5wnv+qa5qzJg4FhCOH0x904/tRhfKUPwBoNLGqpIxOTNd5rjMCkVVFi5a5XgYd/DZ16RIjN81Kr/peK5WKtjf9C2fxmQQKdosJEdN3OvmY8SkFX0ZiuOcsVLy1/GjqeQXOjz1smAoq/Z0yrdMcT28xRuETubKQuKzS3Xdi6n9gUnlXf8URcajEKyiTpWwcJAHAimTvNWwZEmBq5wIs="
         tag: latest
         on:

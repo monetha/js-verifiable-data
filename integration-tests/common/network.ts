@@ -1,12 +1,12 @@
 import Web3 from 'web3';
 import * as quorum from './networks/quorum';
-import * as pantheon from './networks/pantheon';
+import * as besu from './networks/besu';
 import * as ganache from './networks/ganache';
 
 export enum NetworkType {
   Ganache = 'development',
   Quorum = 'quorum',
-  Pantheon = 'pantheon',
+  Besu = 'besu',
 }
 
 const truffleConfig = require('../truffle-config');
@@ -53,8 +53,8 @@ export function getNetworkNodeUrls(): string[] {
     case NetworkType.Quorum:
       return quorum.getNetworkNodeUrls();
 
-    case NetworkType.Pantheon:
-      return pantheon.getNetworkNodeUrls();
+    case NetworkType.Besu:
+      return besu.getNetworkNodeUrls();
 
     default:
       const networkConfig = getNetworkConfig();
@@ -79,8 +79,8 @@ export function getNetworkPrivateNodeUrls(): string[] {
     case NetworkType.Quorum:
       return quorum.getNetworkPrivateNodeUrls();
 
-    case NetworkType.Pantheon:
-      return pantheon.getNetworkPrivateNodeUrls();
+    case NetworkType.Besu:
+      return besu.getNetworkPrivateNodeUrls();
 
     default:
       return [];
@@ -104,8 +104,8 @@ export async function getAccounts(web3: Web3): Promise<string[]> {
     case NetworkType.Quorum:
       return quorum.getAccounts();
 
-    case NetworkType.Pantheon:
-      return pantheon.getAccounts();
+    case NetworkType.Besu:
+      return besu.getAccounts();
 
     default:
       return web3.eth.getAccounts();
@@ -129,8 +129,8 @@ export function getPrivateKeys(): string[] {
     case NetworkType.Quorum:
       return quorum.getPrivateKeys();
 
-    case NetworkType.Pantheon:
-      return pantheon.getPrivateKeys();
+    case NetworkType.Besu:
+      return besu.getPrivateKeys();
 
     default:
       return ganache.getPrivateKeys();
@@ -154,8 +154,8 @@ export function getNodePublicKeys(): string[] {
     case NetworkType.Quorum:
       return quorum.getNodePublicKeys();
 
-    case NetworkType.Pantheon:
-      return pantheon.getNodePublicKeys();
+    case NetworkType.Besu:
+      return besu.getNodePublicKeys();
 
     default:
       return [];

@@ -2,7 +2,7 @@ require('ts-node/register');
 require('tsconfig-paths/register');
 
 const PrivateKeyProvider = require("truffle-hdwallet-provider");
-const pantheonPrivateKeys = [
+const besuPrivateKeys = [
   "8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63",
   "c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3",
   "ae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f",
@@ -30,8 +30,8 @@ module.exports = {
       gasPrice: 0,
       type: "quorum"
     },
-    pantheon: {
-      provider: new PrivateKeyProvider(pantheonPrivateKeys, "http://127.0.0.1:22001", 0, pantheonPrivateKeys.length),
+    besu: {
+      provider: new PrivateKeyProvider(besuPrivateKeys, "http://127.0.0.1:22001", 0, besuPrivateKeys.length),
       host: "127.0.0.1",
       port: "22001",
       timeoutBlocks: 100,

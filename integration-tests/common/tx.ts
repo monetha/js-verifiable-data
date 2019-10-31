@@ -86,9 +86,9 @@ export const createTxExecutor = (web3: Web3): TxExecutor => {
         case NetworkType.Quorum:
           return submitPrivateTransactionQuorum(web3, txData);
 
-        case NetworkType.Pantheon:
+        case NetworkType.Besu:
         default:
-          throw new Error('Submitting private transaction for this network is not implemented yet');;
+          throw new Error('Submitting private transaction for this network is not implemented yet');
       }
     }
 

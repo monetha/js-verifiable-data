@@ -1,4 +1,4 @@
-# Pantheon on Docker
+# BESU on Docker
 
 ## Accounts
 
@@ -13,7 +13,7 @@
 ## JSON-RPC
 
 `docker-compose` creates a separate bridge network for the containers.
-The Pantheon node JSON-RPC can be reached using the following URLs.
+The BESU node JSON-RPC can be reached using the following URLs.
 
 | Node | Localhost | Docker network |
 |------|-----------|----------------|
@@ -25,14 +25,14 @@ The Pantheon node JSON-RPC can be reached using the following URLs.
 
 ## Start
 
-Navigate to this folder and use the following commands to start the Pantheon network:
+Navigate to this folder and use the following commands to start the BESU network:
 ```shell
 docker-compose up -d
 ```
 
 ## Stop and cleanup
 
-Use the following command to stop the Pantheon network and remove the database files:
+Use the following command to stop the BESU network and remove the database files:
 ```shell
 ./clean.sh
 ```
