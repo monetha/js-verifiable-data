@@ -1,15 +1,15 @@
+import { Contract, formatBytes32String } from '@harmony-js/contract';
 import { ErrorCode } from 'lib/errors/ErrorCode';
 import { createSdkError } from 'lib/errors/SdkError';
-import { IEthOptions } from 'lib/models/IEthOptions';
 import { toBN } from 'lib/utils/conversion';
-import { getDecodedTx } from 'lib/utils/tx';
-import Web3 from 'web3';
+import { getDecodedTx, callMethod } from 'lib/utils/tx';
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
-import { PassportLogic } from '../types/web3-contracts/PassportLogic';
 import { PrivateFactReader } from './PrivateFactReader';
 import { initPassportLogicContract } from './rawContracts';
-import { IWeb3 } from 'lib/models/IWeb3';
+import { Harmony } from '@harmony-js/core';
+import { getPastEvents } from 'lib/utils/logs';
+import * as crypto from '@harmony-js/crypto';
 
 // #region -------------- Interfaces -------------------------------------------------------------------
 
@@ -32,16 +32,14 @@ export interface IPrivateDataHashes {
  * Class to read latest facts from the passport
  */
 export class FactReader {
-  private contract: PassportLogic;
-  private options: IEthOptions;
-  private web3: Web3;
+  private contract: Contract;
+  private harmony: Harmony;
 
   public get passportAddress() { return this.contract.address; }
 
-  constructor(anyWeb3: IWeb3, passportAddress: Address, options?: IEthOptions) {
-    this.web3 = new Web3(anyWeb3.eth.currentProvider);
-    this.contract = initPassportLogicContract(anyWeb3, passportAddress);
-    this.options = options || {};
+  constructor(harmony: Harmony, passportAddress: Address) {
+    this.harmony = harmony;
+    this.contract = initPassportLogicContract(harmony, passportAddress);
   }
 
   /**
@@ -60,7 +58,7 @@ export class FactReader {
       return value;
     }
 
-    return this.web3.utils.hexToBytes(value);
+    return Array.from(crypto.arrayify(value));
   }
 
   /**
@@ -79,7 +77,7 @@ export class FactReader {
       return value;
     }
 
-    return value.toNumber();
+    return toBN(value).toNumber();
   }
 
   /**
@@ -91,7 +89,7 @@ export class FactReader {
       return value;
     }
 
-    return value.toNumber();
+    return toBN(value).toNumber();
   }
 
   /**
@@ -111,10 +109,12 @@ export class FactReader {
       return null;
     }
 
-    const preparedKey = this.web3.utils.fromAscii(key);
+    const preparedKey = formatBytes32String(key);
+
+    // TODO: check if number format for block is OK
     const blockNum = toBN(data).toNumber();
 
-    const events = await this.contract.getPastEvents('TxDataUpdated', {
+    const events = await getPastEvents(this.harmony, this.contract, 'TxDataUpdated', {
       fromBlock: blockNum,
       toBlock: blockNum,
       filter: {
@@ -128,9 +128,9 @@ export class FactReader {
         `Event "TxDataUpdated", carrying the data, was not found in block ${blockNum} referenced by fact in passport`);
     }
 
-    const txInfo = await getDecodedTx(events[events.length - 1].transactionHash, this.web3, this.options);
+    const txInfo = await getDecodedTx(this.harmony, events[events.length - 1].transactionHash);
     const txDataString = txInfo.methodInfo.params[1].value;
-    const txData = this.web3.utils.hexToBytes(txDataString);
+    const txData = Array.from(crypto.arrayify(txDataString));
 
     return txData;
   }
@@ -198,10 +198,10 @@ export class FactReader {
    * Read private data hashes fact from the passport.
    */
   public async getPrivateDataHashes(factProviderAddress: Address, key: string): Promise<IPrivateDataHashes> {
-    const preparedKey = this.web3.utils.fromAscii(key);
+    const preparedKey = formatBytes32String(key);
 
-    const tx = this.contract.methods.getPrivateDataHashes(factProviderAddress, preparedKey);
-    const result = await tx.call();
+    const method = this.contract.methods.getPrivateDataHashes(factProviderAddress, preparedKey);
+    const result = await callMethod(method);
 
     if (!result.success) {
       return null;
@@ -213,11 +213,11 @@ export class FactReader {
     };
   }
 
-  private async get(method: keyof PassportLogic['methods'], factProviderAddress: Address, key: string) {
-    const preparedKey = this.web3.utils.fromAscii(key);
+  private async get(method: string, factProviderAddress: Address, key: string) {
+    const preparedKey = formatBytes32String(key);
 
     const func = this.contract.methods[method] as any;
-    const result: [boolean, any] = await func(factProviderAddress, preparedKey).call();
+    const result: [boolean, any] = await callMethod(func(factProviderAddress, preparedKey));
 
     // Return null in case if value was not initialized
     if (!result || !result[0]) {

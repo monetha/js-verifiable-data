@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -46,44 +57,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
+var crypto = __importStar(require("@harmony-js/crypto"));
 var abiDecoder = __importStar(require("abi-decoder"));
 var bn_js_1 = __importDefault(require("bn.js"));
-var ethereumjs_tx_1 = __importDefault(require("ethereumjs-tx"));
-var ethereumjs_util_1 = __importDefault(require("ethereumjs-util"));
+var elliptic_1 = __importDefault(require("elliptic"));
 var SdkError_1 = require("../errors/SdkError");
 var proto_1 = require("../proto");
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
+var secp256k1 = elliptic_1.default.ec('secp256k1');
 /**
  * Gets transaction by hash and recovers its sender public key
  */
-exports.getDecodedTx = function (txHash, web3, options) { return __awaiter(_this, void 0, void 0, function () {
-    var tx, senderPublicKey, retrievedTx, result;
+exports.getDecodedTx = function (harmony, txHash) { return __awaiter(_this, void 0, void 0, function () {
+    var tx, senderPublicKey, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0:
-                if (!(options && options.txRetriever)) return [3 /*break*/, 2];
-                return [4 /*yield*/, options.txRetriever(txHash, web3)];
+            case 0: return [4 /*yield*/, harmony.blockchain.getTransactionByHash({ txnHash: txHash })];
             case 1:
-                retrievedTx = _a.sent();
-                if (retrievedTx) {
-                    if (!retrievedTx.senderPublicKey) {
-                        throw SdkError_1.createSdkError(proto_1.ErrorCode.MissingSenderPublicKey, 'Specified txRetriever did not return required senderPublicKey property');
-                    }
-                    senderPublicKey = retrievedTx.senderPublicKey;
-                    tx = retrievedTx.tx;
-                }
-                return [3 /*break*/, 4];
-            case 2: return [4 /*yield*/, web3.eth.getTransaction(txHash)];
-            case 3:
-                tx = _a.sent();
-                if (tx) {
-                    senderPublicKey = exports.getSenderPublicKey(tx);
-                }
-                _a.label = 4;
-            case 4:
+                tx = (_a.sent()).result;
                 if (!tx) {
                     throw SdkError_1.createSdkError(proto_1.ErrorCode.TxNotFound, 'Transaction was not found');
                 }
+                senderPublicKey = exports.getSenderPublicKey(harmony, tx);
                 abiDecoder.addABI(PassportLogic_json_1.default);
                 result = {
                     tx: tx,
@@ -97,61 +92,82 @@ exports.getDecodedTx = function (txHash, web3, options) { return __awaiter(_this
 /**
  * Gets sender's elliptic curve public key (prefixed with byte 4)
  */
-exports.getSenderPublicKey = function (tx) {
-    var ethTx = new ethereumjs_tx_1.default({
-        nonce: tx.nonce,
-        gasPrice: ethereumjs_util_1.default.bufferToHex(new bn_js_1.default(tx.gasPrice).toArrayLike(Buffer)),
-        gasLimit: tx.gas,
-        to: tx.to,
-        value: ethereumjs_util_1.default.bufferToHex(new bn_js_1.default(tx.value).toArrayLike(Buffer)),
-        data: tx.input,
+exports.getSenderPublicKey = function (harmony, tx) {
+    var signature = {
         r: tx.r,
-        s: tx.s,
         v: tx.v,
+        s: tx.s,
+    };
+    var hmyTx = harmony.transactions.newTx({
+        from: tx.from,
+        nonce: tx.nonce,
+        gasPrice: tx.gasPrice,
+        gasLimit: tx.gas,
+        shardID: tx.shardID,
+        to: tx.to,
+        value: tx.value,
+        data: tx.input,
+        signature: signature,
     });
-    // To be a valid EC public key - it must be prefixed with byte 4
-    return Buffer.concat([Buffer.from([4]), ethTx.getSenderPublicKey()]);
+    var txSignature = hmyTx.txParams.signature;
+    var chainId = hmyTx.txParams.chainId;
+    var _a = hmyTx.getRLPUnsigned(), _ = _a[0], unsignedArr = _a[1];
+    // Strip r, s, v
+    var rawTxNoSig = unsignedArr.slice(0, 8);
+    var recoveryParam = txSignature.v - 27;
+    if (chainId !== 0) {
+        rawTxNoSig.push(crypto.hexlify(chainId));
+        rawTxNoSig.push('0x');
+        rawTxNoSig.push('0x');
+        recoveryParam -= chainId * 2 + 8;
+    }
+    var digest = crypto.keccak256(crypto.encode(rawTxNoSig));
+    var splittedSig = crypto.splitSignature({
+        r: signature.r,
+        s: signature.s,
+        recoveryParam: recoveryParam,
+    });
+    var rs = { r: crypto.arrayify(splittedSig.r), s: crypto.arrayify(splittedSig.s) };
+    var recovered = secp256k1.recoverPubKey(crypto.arrayify(digest), rs, splittedSig.recoveryParam);
+    var key = recovered.encode('hex', false);
+    var ecKey = secp256k1.keyFromPublic(key, 'hex');
+    var publicKey = ecKey.getPublic(false, 'hex');
+    return Buffer.from(publicKey, 'hex');
 };
 /**
  * Prepares transaction configuration for execution.
  * This includes nonce, gas price and gas limit estimation
  */
-exports.prepareTxConfig = function (web3, from, to, data, value, gasLimit) {
-    if (value === void 0) { value = 0; }
-    return __awaiter(_this, void 0, void 0, function () {
-        var nonce, gasPrice, actualGasLimit, _a;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0: return [4 /*yield*/, web3.eth.getTransactionCount(from)];
-                case 1:
-                    nonce = _b.sent();
-                    return [4 /*yield*/, web3.eth.getGasPrice()];
-                case 2:
-                    gasPrice = _b.sent();
-                    if (!(gasLimit > 0 || gasLimit === 0)) return [3 /*break*/, 3];
-                    _a = gasLimit;
-                    return [3 /*break*/, 5];
-                case 3: return [4 /*yield*/, web3.eth.estimateGas({
-                        data: data.encodeABI(),
-                        from: from,
-                        to: to,
-                        value: value,
-                    })];
-                case 4:
-                    _a = _b.sent();
-                    _b.label = 5;
-                case 5:
-                    actualGasLimit = _a;
-                    return [2 /*return*/, {
-                            from: from,
-                            to: to,
-                            nonce: nonce,
-                            gasPrice: gasPrice,
-                            gas: actualGasLimit,
-                            value: value,
-                            data: data.encodeABI(),
-                        }];
-            }
-        });
+exports.configureSendMethod = function (harmony, method, from, params) { return __awaiter(_this, void 0, void 0, function () {
+    var txConfig;
+    return __generator(this, function (_a) {
+        txConfig = __assign({}, (params || {}));
+        txConfig.from = from;
+        // TODO: Handle nonce internally (maybe it is already handled by contract object?)
+        // if (!txConfig.nonce) {
+        //   txConfig.nonce = (await harmony.blockchain.getTransactionCount({ address: from })).result;
+        // }
+        if (!txConfig.gasPrice) {
+            txConfig.gasPrice = new bn_js_1.default('100000000000'); // (await harmony.blockchain.gasPrice()).result; <-- Always returns 0x1 so just hardcode it
+        }
+        if (!txConfig.gasLimit) {
+            txConfig.gasLimit = new bn_js_1.default('5100000'); // (await method.estimateGas()).result;  <-- NOT IMPLEMENTED IN HARMONY
+        }
+        return [2 /*return*/, {
+                method: method,
+                txConfig: txConfig,
+            }];
     });
-};
+}); };
+/**
+ * Prepares transaction configuration for execution.
+ * This includes nonce, gas price and gas limit estimation
+ */
+exports.callMethod = function (method) { return __awaiter(_this, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        return [2 /*return*/, method.call({
+                gasPrice: new bn_js_1.default('100000000000'),
+                gasLimit: new bn_js_1.default('5100000'),
+            })];
+    });
+}); };

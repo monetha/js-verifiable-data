@@ -1,5 +1,5 @@
 import { PassportLogic } from 'lib/types/web3-contracts/PassportLogic';
-import { prepareTxConfig } from 'lib/utils/tx';
+import { prepareMethod } from 'lib/utils/tx';
 import Web3 from 'web3';
 import { Address } from '../models/Address';
 import { initPassportLogicContract } from './rawContracts';
@@ -86,6 +86,6 @@ export class FactRemover {
     const func = this.contract.methods[method] as any;
     const txData = func(preparedKey);
 
-    return prepareTxConfig(this.web3, factProviderAddress, this.contract.address, txData);
+    return prepareMethod(this.web3, factProviderAddress, this.contract.address, txData);
   }
 }

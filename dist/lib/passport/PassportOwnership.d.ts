@@ -1,18 +1,16 @@
-import { IEthOptions } from '../models/IEthOptions';
+import { Harmony } from '@harmony-js/core';
 import { Address } from '../models/Address';
-import { IWeb3 } from '../models/IWeb3';
 /**
  * Class to manage passport ownership
  */
 export declare class PassportOwnership {
     private contract;
-    private web3;
-    private options;
-    constructor(anyWeb3: IWeb3, passportAddress: Address, options?: IEthOptions);
+    private harmony;
+    constructor(harmony: Harmony, passportAddress: Address);
     /**
      * After the passport is created, the owner must call this method to become a full passport owner
      */
-    claimOwnership(passportOwnerAddress: Address): Promise<import("web3-core").TransactionConfig>;
+    claimOwnership(passportOwnerAddress: Address): Promise<import("../models/Method").IConfiguredContractMethod>;
     /**
      * Returns passport owner address
      */

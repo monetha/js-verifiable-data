@@ -1,6 +1,6 @@
-import { EventData } from 'web3-eth-contract';
+import { IEvent } from './IEvent';
 
-export interface IPassportRef extends EventData {
+export interface IPassportRef extends IEvent {
   passportAddress: string;
   ownerAddress: string;
 }

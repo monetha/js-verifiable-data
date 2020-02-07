@@ -20,7 +20,7 @@
     "Promise"
   ],
   "include": [
-    "./lib/**/*",
+    "./lib/proto.ts",
     "./config/*"
   ]
 }

@@ -17,6 +17,7 @@ export function hexToArray(hexString: string): number[] {
  * @param hexString
  */
 export function hexToUnpaddedAscii(hexString: string): string {
+  // TODO - remove web3-utils dependency
   return toAscii(hexString).replace(/\u0000/g, '');
 }
 

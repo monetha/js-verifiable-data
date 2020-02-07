@@ -4,8 +4,10 @@ import { isPrivateTxMode, createTxExecutor } from 'common/tx';
 import { Address, FactProviderManager, IFactProviderInfo } from 'verifiable-data';
 import Web3 from 'web3';
 import { deployContract, Contract } from 'common/deployContracts';
+import { createWeb3 } from '@harmony-js/core';
 
-const web3 = new Web3(new Web3.providers.HttpProvider(getNetworkNodeUrl()));
+let web3 = new Web3(new Web3.providers.HttpProvider(getNetworkNodeUrl()));
+web3 = createWeb3()
 const contractCreationParams: any = {};
 const txExecutor = createTxExecutor(web3);
 

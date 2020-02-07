@@ -1,6 +1,4 @@
 import { ec } from 'elliptic';
-import { IEthOptions } from 'lib/models/IEthOptions';
-import { IWeb3 } from 'lib/models/IWeb3';
 import { RandomArrayGenerator } from 'lib/models/RandomArrayGenerator';
 import { Cryptor } from '../crypto/ecies/cryptor';
 import { ECIES } from '../crypto/ecies/ecies';
@@ -10,6 +8,7 @@ import { convertAddResultToLink, dagPutLinks } from '../utils/ipfs';
 import { FactWriter } from './FactWriter';
 import { PassportOwnership } from './PassportOwnership';
 import { deriveSecretKeyringMaterial, ellipticCurveAlg, ipfsFileNames, unmarshalSecretKeyringMaterial } from './privateFactCommon';
+import { Harmony } from '@harmony-js/core';
 const EC = ec;
 
 /**
@@ -20,8 +19,8 @@ export class PrivateFactWriter {
   private ownership: PassportOwnership;
   private ec = new EC(ellipticCurveAlg);
 
-  constructor(anyWeb3: IWeb3, factWriter: FactWriter, options?: IEthOptions) {
-    this.ownership = new PassportOwnership(anyWeb3, factWriter.passportAddress, options);
+  constructor(harmony: Harmony, factWriter: FactWriter) {
+    this.ownership = new PassportOwnership(harmony, factWriter.passportAddress);
     this.writer = factWriter;
   }
 

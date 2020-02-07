@@ -20,5 +20,8 @@ export declare enum ErrorCode {
     MethodSignatureInvalid = "MethodSignatureInvalid",
     InvalidIPFSObject = "InvalidIPFSObject",
     DataNotFoundInBlock = "DataNotFoundInBlock",
-    TxNotFound = "TxNotFound"
+    TxNotFound = "TxNotFound",
+    TxReverted = "TxReverted",
+    InvalidEventName = "InvalidEventName",
+    RPCFailure = "RPCFailure"
 }

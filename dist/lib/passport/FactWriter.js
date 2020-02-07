@@ -34,24 +34,20 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
+var contract_1 = require("@harmony-js/contract");
 var ErrorCode_1 = require("../errors/ErrorCode");
 var SdkError_1 = require("../errors/SdkError");
 var tx_1 = require("../utils/tx");
-var web3_1 = __importDefault(require("web3"));
 var PrivateFactWriter_1 = require("./PrivateFactWriter");
 var rawContracts_1 = require("./rawContracts");
 /**
  * Class to write facts to passport
  */
 var FactWriter = /** @class */ (function () {
-    function FactWriter(anyWeb3, passportAddress, options) {
-        this.web3 = new web3_1.default(anyWeb3.eth.currentProvider);
-        this.contract = rawContracts_1.initPassportLogicContract(anyWeb3, passportAddress);
-        this.options = options || {};
+    function FactWriter(harmony, passportAddress) {
+        this.harmony = harmony;
+        this.contract = rawContracts_1.initPassportLogicContract(harmony, passportAddress);
     }
     Object.defineProperty(FactWriter.prototype, "passportAddress", {
         get: function () { return this.contract.address; },
@@ -164,7 +160,7 @@ var FactWriter = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var privateWriter;
             return __generator(this, function (_a) {
-                privateWriter = new PrivateFactWriter_1.PrivateFactWriter(this.web3, this, this.options);
+                privateWriter = new PrivateFactWriter_1.PrivateFactWriter(this.harmony, this);
                 return [2 /*return*/, privateWriter.setPrivateData(factProviderAddress, key, value, ipfs, rand)];
             });
         });
@@ -174,22 +170,22 @@ var FactWriter = /** @class */ (function () {
      */
     FactWriter.prototype.setPrivateDataHashes = function (key, value, factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
-            var preparedKey, txData;
+            var preparedKey, method;
             return __generator(this, function (_a) {
-                preparedKey = this.web3.utils.fromAscii(key);
-                txData = this.contract.methods.setPrivateDataHashes(preparedKey, value.dataIpfsHash, value.dataKeyHash);
-                return [2 /*return*/, tx_1.prepareTxConfig(this.web3, factProviderAddress, this.contract.address, txData)];
+                preparedKey = contract_1.formatBytes32String(key);
+                method = this.contract.methods.setPrivateDataHashes(preparedKey, value.dataIpfsHash, value.dataKeyHash);
+                return [2 /*return*/, tx_1.configureSendMethod(this.harmony, method, factProviderAddress)];
             });
         });
     };
-    FactWriter.prototype.set = function (method, key, value, factProviderAddress) {
+    FactWriter.prototype.set = function (methodName, key, value, factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
-            var preparedKey, func, txData;
+            var preparedKey, func, method;
             return __generator(this, function (_a) {
-                preparedKey = this.web3.utils.fromAscii(key);
-                func = this.contract.methods[method];
-                txData = func(preparedKey, value);
-                return [2 /*return*/, tx_1.prepareTxConfig(this.web3, factProviderAddress, this.contract.address, txData)];
+                preparedKey = contract_1.formatBytes32String(key);
+                func = this.contract.methods[methodName];
+                method = func(preparedKey, value);
+                return [2 /*return*/, tx_1.configureSendMethod(this.harmony, method, factProviderAddress)];
             });
         });
     };

@@ -34,26 +34,31 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var contract_1 = require("@harmony-js/contract");
 var ErrorCode_1 = require("../errors/ErrorCode");
 var SdkError_1 = require("../errors/SdkError");
 var conversion_1 = require("../utils/conversion");
 var tx_1 = require("../utils/tx");
-var web3_1 = __importDefault(require("web3"));
 var PrivateFactReader_1 = require("./PrivateFactReader");
 var rawContracts_1 = require("./rawContracts");
+var logs_1 = require("../utils/logs");
+var crypto = __importStar(require("@harmony-js/crypto"));
 // #endregion
 /**
  * Class to read latest facts from the passport
  */
 var FactReader = /** @class */ (function () {
-    function FactReader(anyWeb3, passportAddress, options) {
-        this.web3 = new web3_1.default(anyWeb3.eth.currentProvider);
-        this.contract = rawContracts_1.initPassportLogicContract(anyWeb3, passportAddress);
-        this.options = options || {};
+    function FactReader(harmony, passportAddress) {
+        this.harmony = harmony;
+        this.contract = rawContracts_1.initPassportLogicContract(harmony, passportAddress);
     }
     Object.defineProperty(FactReader.prototype, "passportAddress", {
         get: function () { return this.contract.address; },
@@ -84,7 +89,7 @@ var FactReader = /** @class */ (function () {
                         if (!value) {
                             return [2 /*return*/, value];
                         }
-                        return [2 /*return*/, this.web3.utils.hexToBytes(value)];
+                        return [2 /*return*/, Array.from(crypto.arrayify(value))];
                 }
             });
         });
@@ -113,7 +118,7 @@ var FactReader = /** @class */ (function () {
                         if (!value) {
                             return [2 /*return*/, value];
                         }
-                        return [2 /*return*/, value.toNumber()];
+                        return [2 /*return*/, conversion_1.toBN(value).toNumber()];
                 }
             });
         });
@@ -132,7 +137,7 @@ var FactReader = /** @class */ (function () {
                         if (!value) {
                             return [2 /*return*/, value];
                         }
-                        return [2 /*return*/, value.toNumber()];
+                        return [2 /*return*/, conversion_1.toBN(value).toNumber()];
                 }
             });
         });
@@ -161,9 +166,9 @@ var FactReader = /** @class */ (function () {
                         if (!data) {
                             return [2 /*return*/, null];
                         }
-                        preparedKey = this.web3.utils.fromAscii(key);
+                        preparedKey = contract_1.formatBytes32String(key);
                         blockNum = conversion_1.toBN(data).toNumber();
-                        return [4 /*yield*/, this.contract.getPastEvents('TxDataUpdated', {
+                        return [4 /*yield*/, logs_1.getPastEvents(this.harmony, this.contract, 'TxDataUpdated', {
                                 fromBlock: blockNum,
                                 toBlock: blockNum,
                                 filter: {
@@ -176,11 +181,11 @@ var FactReader = /** @class */ (function () {
                         if (!events || events.length === 0) {
                             throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.DataNotFoundInBlock, "Event \"TxDataUpdated\", carrying the data, was not found in block " + blockNum + " referenced by fact in passport");
                         }
-                        return [4 /*yield*/, tx_1.getDecodedTx(events[events.length - 1].transactionHash, this.web3, this.options)];
+                        return [4 /*yield*/, tx_1.getDecodedTx(this.harmony, events[events.length - 1].transactionHash)];
                     case 3:
                         txInfo = _a.sent();
                         txDataString = txInfo.methodInfo.params[1].value;
-                        txData = this.web3.utils.hexToBytes(txDataString);
+                        txData = Array.from(crypto.arrayify(txDataString));
                         return [2 /*return*/, txData];
                 }
             });
@@ -268,13 +273,13 @@ var FactReader = /** @class */ (function () {
      */
     FactReader.prototype.getPrivateDataHashes = function (factProviderAddress, key) {
         return __awaiter(this, void 0, void 0, function () {
-            var preparedKey, tx, result;
+            var preparedKey, method, result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        preparedKey = this.web3.utils.fromAscii(key);
-                        tx = this.contract.methods.getPrivateDataHashes(factProviderAddress, preparedKey);
-                        return [4 /*yield*/, tx.call()];
+                        preparedKey = contract_1.formatBytes32String(key);
+                        method = this.contract.methods.getPrivateDataHashes(factProviderAddress, preparedKey);
+                        return [4 /*yield*/, tx_1.callMethod(method)];
                     case 1:
                         result = _a.sent();
                         if (!result.success) {
@@ -294,9 +299,9 @@ var FactReader = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        preparedKey = this.web3.utils.fromAscii(key);
+                        preparedKey = contract_1.formatBytes32String(key);
                         func = this.contract.methods[method];
-                        return [4 /*yield*/, func(factProviderAddress, preparedKey).call()];
+                        return [4 /*yield*/, tx_1.callMethod(func(factProviderAddress, preparedKey))];
                     case 1:
                         result = _a.sent();
                         // Return null in case if value was not initialized

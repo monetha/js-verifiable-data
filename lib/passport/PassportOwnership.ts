@@ -1,48 +1,45 @@
+import { Contract } from '@harmony-js/contract';
+import { Harmony } from '@harmony-js/core';
 import { ErrorCode } from 'lib/errors/ErrorCode';
 import { createSdkError } from 'lib/errors/SdkError';
-import { IEthOptions } from 'lib/models/IEthOptions';
-import Web3 from 'web3';
+import { getPastEvents } from 'lib/utils/logs';
 import { Address } from '../models/Address';
-import { PassportLogic } from '../types/web3-contracts/PassportLogic';
-import { getDecodedTx, prepareTxConfig } from '../utils/tx';
+import { configureSendMethod, getDecodedTx, callMethod } from '../utils/tx';
 import { initPassportLogicContract } from './rawContracts';
-import { IWeb3 } from 'lib/models/IWeb3';
 
 /**
  * Class to manage passport ownership
  */
 export class PassportOwnership {
-  private contract: PassportLogic;
-  private web3: Web3;
-  private options: IEthOptions;
+  private contract: Contract;
+  private harmony: Harmony;
 
-  constructor(anyWeb3: IWeb3, passportAddress: Address, options?: IEthOptions) {
-    this.web3 = new Web3(anyWeb3.eth.currentProvider);
-    this.contract = initPassportLogicContract(anyWeb3, passportAddress);
-    this.options = options || {};
+  constructor(harmony: Harmony, passportAddress: Address) {
+    this.harmony = harmony;
+    this.contract = initPassportLogicContract(harmony, passportAddress);
   }
 
   /**
    * After the passport is created, the owner must call this method to become a full passport owner
    */
   public async claimOwnership(passportOwnerAddress: Address) {
-    const txData = this.contract.methods.claimOwnership();
+    const method = this.contract.methods.claimOwnership();
 
-    return prepareTxConfig(this.web3, passportOwnerAddress, this.contract.address, txData);
+    return configureSendMethod(this.harmony, method, passportOwnerAddress);
   }
 
   /**
    * Returns passport owner address
    */
   public async getOwnerAddress(): Promise<string> {
-    return this.contract.methods.owner().call();
+    return callMethod(this.contract.methods.owner());
   }
 
   /**
    * Returns passport pending owner address
    */
   public async getPendingOwnerAddress(): Promise<string> {
-    return this.contract.methods.pendingOwner().call();
+    return callMethod(this.contract.methods.pendingOwner());
   }
 
   /**
@@ -60,16 +57,13 @@ export class PassportOwnership {
       throw createSdkError(ErrorCode.FailedToGetOwnershipEvent, 'Failed to get ownership transfer event');
     }
 
-    const tx = await getDecodedTx(transferredEvent.transactionHash, this.web3, this.options);
+    const tx = await getDecodedTx(this.harmony, transferredEvent.transactionHash);
 
     return Array.from(tx.senderPublicKey);
   }
 
   private async getFirstOwnershipTransferredEvent(newOwnerAddress: string) {
-    const events = await this.contract.getPastEvents('OwnershipTransferred', {
-
-      // TODO: We need to somehow get passport contract creation block address to scan from to increase performance
-      fromBlock: 0,
+    const events = await getPastEvents(this.harmony, this.contract, 'OwnershipTransferred', {
       filter: {
         previousOwner: null,
         newOwner: newOwnerAddress,

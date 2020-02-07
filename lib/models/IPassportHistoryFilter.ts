@@ -9,7 +9,7 @@ export interface IPassportHistoryFilter {
   /**
    * Block nr to scan from
    */
-  startBlock?: number;
+  startBlock?: number | 'earliest';
 
   /**
    * Block nr to scan to

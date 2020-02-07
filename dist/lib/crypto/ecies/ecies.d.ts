@@ -36,5 +36,5 @@ export declare class ECIES {
      * Returns the maximum length of the shared key the public key can produce.
      */
     private maxSharedKeyLength;
-    getPublicKey(): ec.KeyPair;
+    getPublicKey(): any;
 }

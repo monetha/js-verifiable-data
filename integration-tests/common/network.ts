@@ -1,12 +1,8 @@
-import Web3 from 'web3';
-import * as quorum from './networks/quorum';
-import * as besu from './networks/besu';
-import * as ganache from './networks/ganache';
+import * as harmonyTestnet from './networks/harmony';
+import { Harmony } from '@harmony-js/core';
 
 export enum NetworkType {
-  Ganache = 'development',
-  Quorum = 'quorum',
-  Besu = 'besu',
+  HarmonyTestnet = 'harmony_testnet',
 }
 
 const truffleConfig = require('../truffle-config');
@@ -30,7 +26,7 @@ export function getNetwork(): NetworkType {
   }
 
   if (!cachedNetwork) {
-    cachedNetwork = NetworkType.Ganache;
+    cachedNetwork = NetworkType.HarmonyTestnet;
   }
 
   return cachedNetwork;
@@ -50,15 +46,9 @@ export function getNetworkNodeUrls(): string[] {
   const network = getNetwork();
 
   switch (network) {
-    case NetworkType.Quorum:
-      return quorum.getNetworkNodeUrls();
-
-    case NetworkType.Besu:
-      return besu.getNetworkNodeUrls();
-
+    case NetworkType.HarmonyTestnet:
     default:
-      const networkConfig = getNetworkConfig();
-      return [`http://${networkConfig.host}:${networkConfig.port}`];
+      return harmonyTestnet.getNetworkNodeUrls();
   }
 }
 
@@ -70,52 +60,16 @@ export function getNetworkNodeUrl(index: number = 0): string {
 }
 
 /**
- * Gets all ethereum network private node urls
- */
-export function getNetworkPrivateNodeUrls(): string[] {
-  const network = getNetwork();
-
-  switch (network) {
-    case NetworkType.Quorum:
-      return quorum.getNetworkPrivateNodeUrls();
-
-    case NetworkType.Besu:
-      return besu.getNetworkPrivateNodeUrls();
-
-    default:
-      return [];
-  }
-}
-
-/**
- * Gets specific ethereum network url
- */
-export function getNetworkPrivateNodeUrl(index: number = 0): string {
-  return getNetworkPrivateNodeUrls()[index];
-}
-
-/**
  * Gets account addresses
  */
-export async function getAccounts(web3: Web3): Promise<string[]> {
-  const network = getNetwork();
-
-  switch (network) {
-    case NetworkType.Quorum:
-      return quorum.getAccounts();
-
-    case NetworkType.Besu:
-      return besu.getAccounts();
-
-    default:
-      return web3.eth.getAccounts();
-  }
+export async function getAccounts(harmony: Harmony): Promise<string[]> {
+  return harmony.wallet.accounts;
 }
 /**
  * Gets specific account address
  */
-export async function getAccount(web3: Web3, index: number = 0): Promise<string> {
-  const accounts = await getAccounts(web3);
+export async function getAccount(harmony: Harmony, index: number = 0): Promise<string> {
+  const accounts = await getAccounts(harmony);
   return accounts[index];
 }
 
@@ -126,14 +80,9 @@ export function getPrivateKeys(): string[] {
   const network = getNetwork();
 
   switch (network) {
-    case NetworkType.Quorum:
-      return quorum.getPrivateKeys();
-
-    case NetworkType.Besu:
-      return besu.getPrivateKeys();
-
+    case NetworkType.HarmonyTestnet:
     default:
-      return ganache.getPrivateKeys();
+      return harmonyTestnet.getPrivateKeys();
   }
 }
 
@@ -145,25 +94,10 @@ export function getPrivateKey(index: number = 0): string {
 }
 
 /**
- * Gets node public keys
+ * Adds accounts to harmony wallet using private keys
  */
-export function getNodePublicKeys(): string[] {
-  const network = getNetwork();
+export function addAccountsFromPrivateKeys(harmony: Harmony) {
+  const keys = getPrivateKeys();
 
-  switch (network) {
-    case NetworkType.Quorum:
-      return quorum.getNodePublicKeys();
-
-    case NetworkType.Besu:
-      return besu.getNodePublicKeys();
-
-    default:
-      return [];
-  }
-}
-/**
- * Gets specific node public key
- */
-export function getNodePublicKey(index: number = 0): string {
-  return getNodePublicKeys()[index];
+  keys.forEach(k => harmony.wallet.addByPrivateKey(k));
 }

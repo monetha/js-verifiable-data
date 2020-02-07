@@ -1,99 +1,33 @@
-import EthereumTx from 'ethereumjs-tx';
-import Web3 from 'web3';
-import { Transaction, TransactionReceipt, TransactionConfig } from 'web3-core';
-import { getAccounts, getPrivateKeys, getNetwork, NetworkType, getNetworkConfig } from './network';
-import { submitPrivateTransaction as submitPrivateTransactionQuorum } from './networks/quorum';
-import { toBN, TxExecutor } from 'verifiable-data';
+import { Harmony } from '@harmony-js/core';
+import { TransasctionReceipt } from '@harmony-js/transaction';
+import { ContractMethod, IConfiguredContractMethod, ITxConfig } from 'lib/models/Method';
+import { createSdkError } from 'lib/errors/SdkError';
+import { ErrorCode } from 'verifiable-data';
 
-export const isPrivateTxMode: boolean = process.argv.includes('--private');
-
-export async function submitTransaction(web3: Web3, txData: TransactionConfig) {
-  return new Promise<Transaction>(async (success, reject) => {
+export async function submitTransaction(harmony: Harmony, method: ContractMethod, txConfig: ITxConfig): Promise<TransasctionReceipt> {
+  return new Promise(async (resolve, reject) => {
     try {
-      const tx = new EthereumTx({
-        nonce: toBN(txData.nonce).toArrayLike(Buffer),
-        gasPrice: toBN(txData.gasPrice).toArrayLike(Buffer),
-        gasLimit: toBN(txData.gas).toArrayLike(Buffer),
-        to: txData.to,
-        value: toBN(txData.value).toArrayLike(Buffer),
-        data: Buffer.from(txData.data.replace('0x', ''), 'hex'),
-      });
+      await method
+        .send(txConfig)
+        .on('receipt', receipt => {
+          if (receipt.status === '0x0') {
+            reject(createSdkError(ErrorCode.TxReverted, `Transaction ${receipt.transactionHash} failed and has been reverted`));
+            return;
+          }
 
-      const accounts = await getAccounts(web3);
-      const accountIndex = accounts.findIndex(a => a.toLowerCase() === txData.from.toString().toLowerCase());
-      if (accountIndex === -1) {
-        throw new Error(`Not possible to execute tx because private key for address ${txData.from} is not known`);
-      }
-
-      const privateKeys = getPrivateKeys();
-      const privateKey = privateKeys[accountIndex];
-
-      tx.sign(Buffer.from(privateKey.replace('0x', ''), 'hex'));
-      const rawTx = `0x${tx.serialize().toString('hex')}`;
-
-      await web3.eth.sendSignedTransaction(rawTx)
-        .on('transactionHash', async (hash) => {
-          const transaction = await web3.eth.getTransaction(hash);
-          success(transaction);
+          resolve(receipt);
+        })
+        .on('error', error => {
+          reject(error);
         });
-    } catch (e) {
-      reject(e);
+    } catch (err) {
+      reject(err);
     }
   });
 }
 
-/**
- * waitForTxToFinish waits for transaction to finish for the given txHash,
- * returns a promise which is resolved when transaction finishes.
- * @param {string} txHash a string with transaction hash as value
- */
-const waitForTxToFinish = (web3: Web3, txHash: string): Promise<TransactionReceipt> =>
-  new Promise((resolve, reject) => {
-
-    const waiter = async () => {
-      try {
-        const result = await web3.eth.getTransactionReceipt(txHash);
-
-        if (result) {
-          if (!result.status) {
-            console.error(result);
-            throw new Error('Transaction has failed');
-          }
-
-          resolve(result);
-          return;
-        }
-      } catch (err) {
-        reject(err);
-        return;
-      }
-
-      setTimeout(waiter, 100);
-    };
-
-    waiter();
-  });
-
-export const createTxExecutor = (web3: Web3): TxExecutor => {
-  return async (txData: TransactionConfig) => {
-    const networkConfig = getNetworkConfig();
-    if (typeof networkConfig.gas !== 'undefined') {
-      txData.gas = networkConfig.gas;
-    }
-
-    if (isPrivateTxMode) {
-      switch (getNetwork()) {
-        case NetworkType.Quorum:
-          return submitPrivateTransactionQuorum(web3, txData);
-
-        case NetworkType.Besu:
-        default:
-          throw new Error('Submitting private transaction for this network is not implemented yet');
-      }
-    }
-
-    const tx = await submitTransaction(web3, txData);
-
-    return waitForTxToFinish(web3, tx.hash);
+export const createTxExecutor = (harmony: Harmony) => {
+  return async (cfgMethod: IConfiguredContractMethod): Promise<TransasctionReceipt> => {
+    return submitTransaction(harmony, cfgMethod.method, cfgMethod.txConfig);
   };
 };

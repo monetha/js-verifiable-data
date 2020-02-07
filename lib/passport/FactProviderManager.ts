@@ -1,6 +1,6 @@
 import { Address } from 'lib/models/Address';
 import { FactProviderRegistry } from 'lib/types/web3-contracts/FactProviderRegistry';
-import { prepareTxConfig } from 'lib/utils/tx';
+import { prepareMethod } from 'lib/utils/tx';
 import Web3 from 'web3';
 import { initFactProviderRegistryContract } from './rawContracts';
 import { IWeb3 } from 'lib/models/IWeb3';
@@ -61,7 +61,7 @@ export class FactProviderManager {
       info.website || '',
     );
 
-    return prepareTxConfig(this.web3, registryOwner, this.contract.address, txObj);
+    return prepareMethod(this.web3, registryOwner, this.contract.address, txObj);
   }
 
   /**
@@ -73,7 +73,7 @@ export class FactProviderManager {
   public deleteInfo(factProviderAddress: Address, registryOwner: Address) {
     const txObj = this.contract.methods.deleteFactProviderInfo(factProviderAddress);
 
-    return prepareTxConfig(this.web3, registryOwner, this.contract.address, txObj);
+    return prepareMethod(this.web3, registryOwner, this.contract.address, txObj);
   }
 
   /**

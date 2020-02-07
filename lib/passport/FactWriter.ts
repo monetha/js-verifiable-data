@@ -1,31 +1,27 @@
+import { Contract, formatBytes32String } from '@harmony-js/contract';
+import { Harmony } from '@harmony-js/core';
 import { ErrorCode } from 'lib/errors/ErrorCode';
 import { createSdkError } from 'lib/errors/SdkError';
-import { IEthOptions } from 'lib/models/IEthOptions';
 import { RandomArrayGenerator } from 'lib/models/RandomArrayGenerator';
-import { prepareTxConfig } from 'lib/utils/tx';
-import Web3 from 'web3';
+import { configureSendMethod } from 'lib/utils/tx';
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
-import { PassportLogic } from '../types/web3-contracts/PassportLogic';
 import { IPrivateDataHashes } from './FactReader';
 import { PrivateFactWriter } from './PrivateFactWriter';
 import { initPassportLogicContract } from './rawContracts';
-import { IWeb3 } from 'lib/models/IWeb3';
 
 /**
  * Class to write facts to passport
  */
 export class FactWriter {
-  private contract: PassportLogic;
-  private options: IEthOptions;
-  private web3: Web3;
+  private contract: Contract;
+  private harmony: Harmony;
 
   public get passportAddress() { return this.contract.address; }
 
-  constructor(anyWeb3: IWeb3, passportAddress: Address, options?: IEthOptions) {
-    this.web3 = new Web3(anyWeb3.eth.currentProvider);
-    this.contract = initPassportLogicContract(anyWeb3, passportAddress);
-    this.options = options || {};
+  constructor(harmony: Harmony, passportAddress: Address) {
+    this.harmony = harmony;
+    this.contract = initPassportLogicContract(harmony, passportAddress);
   }
 
   /**
@@ -107,7 +103,7 @@ export class FactWriter {
    * @param ipfs IPFS client
    */
   public async setPrivateData(key: string, value: number[], factProviderAddress: Address, ipfs: IIPFSClient, rand?: RandomArrayGenerator) {
-    const privateWriter = new PrivateFactWriter(this.web3, this, this.options);
+    const privateWriter = new PrivateFactWriter(this.harmony, this);
 
     return privateWriter.setPrivateData(factProviderAddress, key, value, ipfs, rand);
   }
@@ -116,22 +112,22 @@ export class FactWriter {
    * Writes IPFS hash of encrypted private data and hash of data encryption key
    */
   public async setPrivateDataHashes(key: string, value: IPrivateDataHashes, factProviderAddress: Address) {
-    const preparedKey = this.web3.utils.fromAscii(key);
+    const preparedKey = formatBytes32String(key);
 
-    const txData = this.contract.methods.setPrivateDataHashes(
+    const method = this.contract.methods.setPrivateDataHashes(
       preparedKey,
       value.dataIpfsHash,
       value.dataKeyHash);
 
-    return prepareTxConfig(this.web3, factProviderAddress, this.contract.address, txData);
+    return configureSendMethod(this.harmony, method, factProviderAddress);
   }
 
-  private async set(method: keyof PassportLogic['methods'], key: string, value: any, factProviderAddress: Address) {
-    const preparedKey = this.web3.utils.fromAscii(key);
+  private async set(methodName: string, key: string, value: any, factProviderAddress: Address) {
+    const preparedKey = formatBytes32String(key);
 
-    const func = this.contract.methods[method] as any;
-    const txData = func(preparedKey, value);
+    const func = this.contract.methods[methodName] as any;
+    const method = func(preparedKey, value);
 
-    return prepareTxConfig(this.web3, factProviderAddress, this.contract.address, txData);
+    return configureSendMethod(this.harmony, method, factProviderAddress);
   }
 }

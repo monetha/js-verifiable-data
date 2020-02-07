@@ -24,4 +24,7 @@ var ErrorCode;
     ErrorCode["InvalidIPFSObject"] = "InvalidIPFSObject";
     ErrorCode["DataNotFoundInBlock"] = "DataNotFoundInBlock";
     ErrorCode["TxNotFound"] = "TxNotFound";
+    ErrorCode["TxReverted"] = "TxReverted";
+    ErrorCode["InvalidEventName"] = "InvalidEventName";
+    ErrorCode["RPCFailure"] = "RPCFailure";
 })(ErrorCode = exports.ErrorCode || (exports.ErrorCode = {}));

@@ -1,4 +1,3 @@
-import Web3 from 'web3';
 import passportFactoryAbi from '../../config/PassportFactory.json';
 import passportLogicAbi from '../../config/PassportLogic.json';
 import { Address } from '../models/Address';
@@ -7,7 +6,10 @@ import { IPassportHistoryFilter } from '../models/IPassportHistoryFilter';
 import { IPassportRef } from '../models/IPassportRef';
 import { sanitizeAddress } from '../utils/sanitizeAddress';
 import { initPassportContract, initPassportFactoryContract, initPassportLogicContract } from './rawContracts';
-import { IWeb3 } from 'lib/models/IWeb3';
+import * as crypto from '@harmony-js/crypto';
+import { Harmony } from '@harmony-js/core';
+import { getPastEvents } from 'lib/utils/logs';
+import { Contract, parseBytes32String } from '@harmony-js/contract';
 
 interface IFactEventSignatures {
   [signature: string]: {
@@ -22,15 +24,10 @@ let factEventSignatures: IFactEventSignatures;
  * Class to get passports list and historic events
  */
 export class PassportReader {
-  private web3: Web3;
+  private harmony: Harmony;
 
-  constructor(anyWeb3: IWeb3) {
-    this.web3 = new Web3(anyWeb3.eth.currentProvider);
-
-    if (!factEventSignatures) {
-      const signatures = getEventSignatures(this.web3);
-      factEventSignatures = signatures.factEvents;
-    }
+  constructor(harmony: Harmony) {
+    this.harmony = harmony;
   }
 
   /**
@@ -40,18 +37,18 @@ export class PassportReader {
    * @param startBlock block nr to scan from
    * @param endBlock block nr to scan to
    */
-  public async getPassportsList(factoryAddress: Address, fromBlock = 0, toBlock = 'latest'): Promise<IPassportRef[]> {
-    const contract = initPassportFactoryContract(this.web3, factoryAddress);
+  public async getPassportsList(factoryAddress: Address, fromBlock = 'earliest', toBlock = 'latest'): Promise<IPassportRef[]> {
+    const contract = initPassportFactoryContract(this.harmony, factoryAddress);
 
-    const events = await contract.getPastEvents('PassportCreated', {
+    const events = await getPastEvents(this.harmony, contract, 'PassportCreated', {
       fromBlock,
       toBlock,
     });
 
     const passportRefs: IPassportRef[] = events.map(event => ({
       ...event,
-      passportAddress: event.raw.topics[1] ? sanitizeAddress(event.raw.topics[1].slice(26)) : '',
-      ownerAddress: event.raw.topics[2] ? sanitizeAddress(event.raw.topics[2].slice(26)) : '',
+      passportAddress: event.returnValues.passport,
+      ownerAddress: event.returnValues.owner,
     }));
 
     return passportRefs;
@@ -66,15 +63,20 @@ export class PassportReader {
   public async readPassportHistory(passportAddress: Address, filter?: IPassportHistoryFilter): Promise<IHistoryEvent[]> {
 
     // Filters
-    const fromBlock = filter && filter.startBlock || 0;
+    const fromBlock = filter && filter.startBlock || 'earliest';
     const toBlock = filter && filter.endBlock || 'latest';
 
     // Event retrieval
-    const contract = initPassportLogicContract(this.web3, passportAddress);
-    const events = await contract.getPastEvents('allEvents', {
+    const contract = initPassportLogicContract(this.harmony, passportAddress);
+    const events = await getPastEvents(this.harmony, contract, 'allEvents', {
       fromBlock,
       toBlock,
     });
+
+    if (!factEventSignatures) {
+      const signatures = getEventSignatures(contract.abiCoder);
+      factEventSignatures = signatures.factEvents;
+    }
 
     const historyEvents: IHistoryEvent[] = [];
 
@@ -101,7 +103,7 @@ export class PassportReader {
       }
 
       // Second argument is fact key
-      const key: string = topics[2] ? this.web3.utils.toAscii(topics[2]).replace(/\u0000/g, '') : '';
+      const key: string = topics[2] ? parseBytes32String(topics[2]) : '';
 
       if (filter && filter.key && key.toLowerCase() !== filter.key.toLowerCase()) {
         return;
@@ -123,12 +125,12 @@ export class PassportReader {
    * Returns the address of passport logic registry
    */
   public async getPassportLogicRegistryAddress(passportAddress: string): Promise<string> {
-    const passportContract = initPassportContract(this.web3, passportAddress);
+    const passportContract = initPassportContract(this.harmony, passportAddress);
     return passportContract.methods.getPassportLogicRegistry().call();
   }
 }
 
-function getEventSignatures(web3: Web3): {
+function getEventSignatures(abiCoder): {
   factEvents: IFactEventSignatures;
 } {
 
@@ -143,9 +145,8 @@ function getEventSignatures(web3: Web3): {
         return;
       }
 
-      const rawSignature = `${item.name}(${(item.inputs as any).map(i => i.type).join(',')})`;
-
-      hashedSignatures[item.name] = web3.utils.sha3(rawSignature);
+      // const rawSignature = `${item.name}(${(item.inputs as any).map(i => i.type).join(',')})`;
+      hashedSignatures[item.name] = abiCoder.encodeEventSignature(item); //crypto.keccak256(rawSignature);
     });
   });
 

@@ -1,20 +1,13 @@
-import { IEthOptions } from '../models/IEthOptions';
+import { Harmony } from '@harmony-js/core';
+import { IFactValue } from '../proto';
 import { IIPFSClient } from '../models/IIPFSClient';
 import { IPrivateDataHashes } from './FactReader';
-import { IWeb3 } from '../models/IWeb3';
-export interface IFactValue<TValue> {
-    factProviderAddress: string;
-    passportAddress: string;
-    key: string;
-    value: TValue;
-}
 /**
  * Class to read historic fact changes from the passport
  */
 export declare class FactHistoryReader {
-    private web3;
-    private options;
-    constructor(anyWeb3: IWeb3, options?: IEthOptions);
+    private harmony;
+    constructor(harmony: Harmony);
     /**
      * Read string type fact from transaction
      */

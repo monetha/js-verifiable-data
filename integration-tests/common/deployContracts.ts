@@ -1,4 +1,5 @@
 import { getAccount } from './network';
+import { Harmony } from '@harmony-js/core';
 
 const PassportLogic = artifacts.require('PassportLogic');
 const PassportLogicRegistry = artifacts.require('PassportLogicRegistry');
@@ -14,8 +15,8 @@ export enum Contract {
 
 const deployedContracts = new Map<Contract, any>();
 
-export const deployContract = async (contract: Contract, contractCreationParams?: any) => {
-  const monethaOwner = await getAccount(web3, 0);
+export const deployContract = async (harmony: Harmony, contract: Contract, contractCreationParams?: any) => {
+  const monethaOwner = await getAccount(harmony, 0);
   const registryOwner = monethaOwner;
 
   const deployedContract = deployedContracts.get(contract);

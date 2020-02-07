@@ -21,4 +21,7 @@ export enum ErrorCode {
   InvalidIPFSObject = 'InvalidIPFSObject',
   DataNotFoundInBlock = 'DataNotFoundInBlock',
   TxNotFound = 'TxNotFound',
+  TxReverted = 'TxReverted',
+  InvalidEventName = 'InvalidEventName',
+  RPCFailure = 'RPCFailure',
 }

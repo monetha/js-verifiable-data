@@ -45,24 +45,26 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var conversion_1 = require("../utils/conversion");
-var web3_1 = __importDefault(require("web3"));
+var contract_1 = require("@harmony-js/contract");
+var ErrorCode_1 = require("../errors/ErrorCode");
+var SdkError_1 = require("../errors/SdkError");
 var tx_1 = require("../utils/tx");
 var PrivateFactReader_1 = require("./PrivateFactReader");
-var SdkError_1 = require("../errors/SdkError");
-var ErrorCode_1 = require("../errors/ErrorCode");
-// #endregion
+var crypto = __importStar(require("@harmony-js/crypto"));
 /**
  * Class to read historic fact changes from the passport
  */
 var FactHistoryReader = /** @class */ (function () {
-    function FactHistoryReader(anyWeb3, options) {
-        this.web3 = new web3_1.default(anyWeb3.eth.currentProvider);
-        this.options = options || {};
+    function FactHistoryReader(harmony) {
+        this.harmony = harmony;
     }
     /**
      * Read string type fact from transaction
@@ -72,7 +74,7 @@ var FactHistoryReader = /** @class */ (function () {
             var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(txHash, this.web3, this.options)];
+                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(this.harmony, txHash)];
                     case 1:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
@@ -80,7 +82,7 @@ var FactHistoryReader = /** @class */ (function () {
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 passportAddress: txInfo.tx.to,
-                                key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value),
+                                key: contract_1.parseBytes32String(methodInfo.params[0].value),
                                 value: methodInfo.params[1].value,
                             }];
                 }
@@ -95,7 +97,7 @@ var FactHistoryReader = /** @class */ (function () {
             var txInfo, methodInfo, value, hexValue;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(txHash, this.web3, this.options)];
+                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(this.harmony, txHash)];
                     case 1:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
@@ -103,12 +105,12 @@ var FactHistoryReader = /** @class */ (function () {
                         value = [];
                         hexValue = methodInfo.params[1].value;
                         if (hexValue) {
-                            value = this.web3.utils.hexToBytes(hexValue);
+                            value = Array.from(crypto.arrayify(hexValue));
                         }
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 passportAddress: txInfo.tx.to,
-                                key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value),
+                                key: contract_1.parseBytes32String(methodInfo.params[0].value),
                                 value: value,
                             }];
                 }
@@ -123,7 +125,7 @@ var FactHistoryReader = /** @class */ (function () {
             var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(txHash, this.web3, this.options)];
+                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(this.harmony, txHash)];
                     case 1:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
@@ -131,7 +133,7 @@ var FactHistoryReader = /** @class */ (function () {
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 passportAddress: txInfo.tx.to,
-                                key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value),
+                                key: contract_1.parseBytes32String(methodInfo.params[0].value),
                                 value: methodInfo.params[1].value,
                             }];
                 }
@@ -146,7 +148,7 @@ var FactHistoryReader = /** @class */ (function () {
             var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(txHash, this.web3, this.options)];
+                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(this.harmony, txHash)];
                     case 1:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
@@ -154,7 +156,7 @@ var FactHistoryReader = /** @class */ (function () {
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 passportAddress: txInfo.tx.to,
-                                key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value),
+                                key: contract_1.parseBytes32String(methodInfo.params[0].value),
                                 value: parseInt(methodInfo.params[1].value, 10),
                             }];
                 }
@@ -169,7 +171,7 @@ var FactHistoryReader = /** @class */ (function () {
             var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(txHash, this.web3, this.options)];
+                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(this.harmony, txHash)];
                     case 1:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
@@ -177,7 +179,7 @@ var FactHistoryReader = /** @class */ (function () {
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 passportAddress: txInfo.tx.to,
-                                key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value),
+                                key: contract_1.parseBytes32String(methodInfo.params[0].value),
                                 value: parseInt(methodInfo.params[1].value, 10),
                             }];
                 }
@@ -192,7 +194,7 @@ var FactHistoryReader = /** @class */ (function () {
             var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(txHash, this.web3, this.options)];
+                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(this.harmony, txHash)];
                     case 1:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
@@ -200,7 +202,7 @@ var FactHistoryReader = /** @class */ (function () {
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 passportAddress: txInfo.tx.to,
-                                key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value),
+                                key: contract_1.parseBytes32String(methodInfo.params[0].value),
                                 value: methodInfo.params[1].value,
                             }];
                 }
@@ -215,7 +217,7 @@ var FactHistoryReader = /** @class */ (function () {
             var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(txHash, this.web3, this.options)];
+                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(this.harmony, txHash)];
                     case 1:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
@@ -223,8 +225,8 @@ var FactHistoryReader = /** @class */ (function () {
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 passportAddress: txInfo.tx.to,
-                                key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value),
-                                value: this.web3.utils.hexToBytes(methodInfo.params[1].value),
+                                key: contract_1.parseBytes32String(methodInfo.params[0].value),
+                                value: Array.from(crypto.arrayify(methodInfo.params[1].value)),
                             }];
                 }
             });
@@ -241,7 +243,7 @@ var FactHistoryReader = /** @class */ (function () {
             var txInfo, methodInfo, _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(txHash, this.web3, this.options)];
+                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(this.harmony, txHash)];
                     case 1:
                         txInfo = _b.sent();
                         methodInfo = txInfo.methodInfo;
@@ -249,7 +251,7 @@ var FactHistoryReader = /** @class */ (function () {
                         _a = {
                             factProviderAddress: txInfo.tx.from,
                             passportAddress: txInfo.tx.to,
-                            key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value)
+                            key: contract_1.parseBytes32String(methodInfo.params[0].value)
                         };
                         return [4 /*yield*/, ipfs.cat(methodInfo.params[1].value)];
                     case 2: return [2 /*return*/, (_a.value = _b.sent(),
@@ -316,7 +318,7 @@ var FactHistoryReader = /** @class */ (function () {
             var txInfo, methodInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(txHash, this.web3, this.options)];
+                    case 0: return [4 /*yield*/, tx_1.getDecodedTx(this.harmony, txHash)];
                     case 1:
                         txInfo = _a.sent();
                         methodInfo = txInfo.methodInfo;
@@ -324,7 +326,7 @@ var FactHistoryReader = /** @class */ (function () {
                         return [2 /*return*/, {
                                 factProviderAddress: txInfo.tx.from,
                                 passportAddress: txInfo.tx.to,
-                                key: conversion_1.hexToUnpaddedAscii(methodInfo.params[0].value),
+                                key: contract_1.parseBytes32String(methodInfo.params[0].value),
                                 value: {
                                     dataIpfsHash: methodInfo.params[1].value,
                                     dataKeyHash: methodInfo.params[2].value,

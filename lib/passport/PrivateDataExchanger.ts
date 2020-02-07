@@ -13,7 +13,7 @@ import { PassportOwnership } from 'lib/proto';
 import { PassportLogic } from 'lib/types/web3-contracts/PassportLogic';
 import { hexToArray, hexToBoolean, hexToUnpaddedAscii, toBN, toDate } from 'lib/utils/conversion';
 import { ciEquals } from 'lib/utils/string';
-import { prepareTxConfig } from 'lib/utils/tx';
+import { prepareMethod } from 'lib/utils/tx';
 import Web3 from 'web3';
 import passportLogicAbi from '../../config/PassportLogic.json';
 import { Address } from '../models/Address';
@@ -99,7 +99,7 @@ export class PrivateDataExchanger {
     );
 
     // Execute transaction
-    const txConfig = await prepareTxConfig(this.web3, requesterAddress, this.passportAddress, txData, exchangeStakeWei, gasLimits.propose);
+    const txConfig = await prepareMethod(this.web3, requesterAddress, this.passportAddress, txData, exchangeStakeWei, gasLimits.propose);
     const receipt = await txExecutor(txConfig);
 
     // Parse exchange index from tx receipt
@@ -198,7 +198,7 @@ export class PrivateDataExchanger {
     const txData = this.contract.methods.acceptPrivateDataExchange(`0x${exchangeIndex.toString('hex')}`, encryptedDataSecretKey);
 
     // Execute transaction (owner stakes same amount as requester)
-    const txConfig = await prepareTxConfig(
+    const txConfig = await prepareMethod(
       this.web3,
       status.passportOwnerAddress,
       this.passportAddress,
@@ -237,7 +237,7 @@ export class PrivateDataExchanger {
     // Timeout private data exchange
     const txData = this.contract.methods.timeoutPrivateDataExchange(`0x${exchangeIndex.toString('hex')}`);
 
-    const txConfig = await prepareTxConfig(
+    const txConfig = await prepareMethod(
       this.web3,
       status.requesterAddress,
       this.passportAddress,
@@ -283,7 +283,7 @@ export class PrivateDataExchanger {
     // Dispute private data exchange
     const txData = this.contract.methods.disputePrivateDataExchange(`0x${exchangeIndex.toString('hex')}`, exchangeKey);
 
-    const txConfig = await prepareTxConfig(
+    const txConfig = await prepareMethod(
       this.web3,
       status.requesterAddress,
       this.passportAddress,
@@ -353,7 +353,7 @@ export class PrivateDataExchanger {
     // Finish private data exchange
     const txData = this.contract.methods.finishPrivateDataExchange(`0x${exchangeIndex.toString('hex')}`);
 
-    const txConfig = await prepareTxConfig(
+    const txConfig = await prepareMethod(
       this.web3,
       requesterOrPassOwnerAddress,
       this.passportAddress,

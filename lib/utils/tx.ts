@@ -1,15 +1,15 @@
+import { ContractMethod } from '@harmony-js/contract/dist/methods/method';
+import { Harmony } from '@harmony-js/core';
+import * as crypto from '@harmony-js/crypto';
 import * as abiDecoder from 'abi-decoder';
 import BN from 'bn.js';
-import EthTx from 'ethereumjs-tx';
-import ethUtil from 'ethereumjs-util';
+import elliptic from 'elliptic';
 import { createSdkError } from 'lib/errors/SdkError';
-import { Address } from 'lib/models/Address';
-import { IEthOptions } from 'lib/models/IEthOptions';
+import { IConfiguredContractMethod, ITxConfig } from 'lib/models/Method';
 import { ErrorCode } from 'lib/proto';
-import { TransactionObject } from 'lib/types/web3-contracts/types';
-import Web3 from 'web3';
-import { RLPEncodedTransaction, Transaction, TransactionConfig } from 'web3-core';
 import passportLogicAbi from '../../config/PassportLogic.json';
+
+const secp256k1 = elliptic.ec('secp256k1');
 
 export interface IMethodInfo {
   name: string;
@@ -22,40 +22,17 @@ export interface IMethodParam {
   value: string;
 }
 
-export interface ITxData {
-  tx: Transaction;
-  methodInfo: IMethodInfo;
-}
-
 /**
  * Gets transaction by hash and recovers its sender public key
  */
-export const getDecodedTx = async (txHash: string, web3: Web3, options?: IEthOptions) => {
-  let tx: Transaction;
-  let senderPublicKey: Buffer;
+export const getDecodedTx = async (harmony: Harmony, txHash: string) => {
 
-  if (options && options.txRetriever) {
-    const retrievedTx = await options.txRetriever(txHash, web3);
-
-    if (retrievedTx) {
-      if (!retrievedTx.senderPublicKey) {
-        throw createSdkError(ErrorCode.MissingSenderPublicKey, 'Specified txRetriever did not return required senderPublicKey property');
-      }
-
-      senderPublicKey = retrievedTx.senderPublicKey;
-      tx = retrievedTx.tx;
-    }
-  } else {
-    tx = await web3.eth.getTransaction(txHash);
-
-    if (tx) {
-      senderPublicKey = getSenderPublicKey(tx as any);
-    }
-  }
-
+  const tx = (await harmony.blockchain.getTransactionByHash({ txnHash: txHash })).result;
   if (!tx) {
     throw createSdkError(ErrorCode.TxNotFound, 'Transaction was not found');
   }
+
+  const senderPublicKey = getSenderPublicKey(harmony, tx);
 
   abiDecoder.addABI(passportLogicAbi);
 
@@ -71,54 +48,100 @@ export const getDecodedTx = async (txHash: string, web3: Web3, options?: IEthOpt
 /**
  * Gets sender's elliptic curve public key (prefixed with byte 4)
  */
-export const getSenderPublicKey = (tx: RLPEncodedTransaction['tx']) => {
+export const getSenderPublicKey = (harmony: Harmony, tx) => {
 
-  const ethTx = new EthTx({
+  const signature = {
+    r: tx.r,
+    v: tx.v,
+    s: tx.s,
+  };
+
+  const hmyTx = harmony.transactions.newTx({
+    from: tx.from,
     nonce: tx.nonce,
-    gasPrice: ethUtil.bufferToHex(new BN(tx.gasPrice).toArrayLike(Buffer)),
+    gasPrice: tx.gasPrice,
     gasLimit: tx.gas,
+    shardID: tx.shardID,
     to: tx.to,
-    value: ethUtil.bufferToHex(new BN(tx.value).toArrayLike(Buffer)),
+    value: tx.value,
     data: tx.input,
-    r: (tx as any).r,
-    s: (tx as any).s,
-    v: (tx as any).v,
+    signature,
   });
 
-  // To be a valid EC public key - it must be prefixed with byte 4
-  return Buffer.concat([Buffer.from([4]), ethTx.getSenderPublicKey()]);
+  const txSignature = hmyTx.txParams.signature;
+  const chainId = hmyTx.txParams.chainId;
+
+  const [_, unsignedArr] = hmyTx.getRLPUnsigned();
+
+  // Strip r, s, v
+  const rawTxNoSig = unsignedArr.slice(0, 8);
+
+  let recoveryParam = txSignature.v - 27;
+
+  if (chainId !== 0) {
+    rawTxNoSig.push(crypto.hexlify(chainId));
+    rawTxNoSig.push('0x');
+    rawTxNoSig.push('0x');
+    recoveryParam -= chainId * 2 + 8;
+  }
+
+  const digest = crypto.keccak256(crypto.encode(rawTxNoSig));
+
+  const splittedSig = crypto.splitSignature({
+    r: signature.r,
+    s: signature.s,
+    recoveryParam,
+  });
+  const rs = { r: crypto.arrayify(splittedSig.r), s: crypto.arrayify(splittedSig.s) };
+  const recovered = secp256k1.recoverPubKey(crypto.arrayify(digest), rs, splittedSig.recoveryParam);
+
+  const key = recovered.encode('hex', false);
+  const ecKey = secp256k1.keyFromPublic(key, 'hex');
+  const publicKey = ecKey.getPublic(false, 'hex');
+
+  return Buffer.from(publicKey, 'hex');
 };
 
 /**
  * Prepares transaction configuration for execution.
  * This includes nonce, gas price and gas limit estimation
  */
-export const prepareTxConfig = async <TData>(
-  web3: Web3,
-  from: Address,
-  to: Address,
-  data: TransactionObject<TData>,
-  value: number | BN = 0,
-  gasLimit?: number,
-): Promise<TransactionConfig> => {
-  const nonce = await web3.eth.getTransactionCount(from);
-  const gasPrice = await web3.eth.getGasPrice();
-  const actualGasLimit = (gasLimit > 0 || gasLimit === 0) ?
-    gasLimit :
-    await web3.eth.estimateGas({
-      data: data.encodeABI(),
-      from,
-      to,
-      value,
-    });
+export const configureSendMethod = async (
+  harmony: Harmony,
+  method: ContractMethod,
+  from: string,
+  params?: ITxConfig,
+): Promise<IConfiguredContractMethod> => {
+  const txConfig: ITxConfig = { ...(params || {}) };
+
+  txConfig.from = from;
+
+  // TODO: Handle nonce internally (maybe it is already handled by contract object?)
+  // if (!txConfig.nonce) {
+  //   txConfig.nonce = (await harmony.blockchain.getTransactionCount({ address: from })).result;
+  // }
+
+  if (!txConfig.gasPrice) {
+    txConfig.gasPrice = new BN('100000000000'); // (await harmony.blockchain.gasPrice()).result; <-- Always returns 0x1 so just hardcode it
+  }
+
+  if (!txConfig.gasLimit) {
+    txConfig.gasLimit = new BN('5100000'); // (await method.estimateGas()).result;  <-- NOT IMPLEMENTED IN HARMONY
+  }
 
   return {
-    from,
-    to,
-    nonce,
-    gasPrice,
-    gas: actualGasLimit,
-    value,
-    data: data.encodeABI(),
+    method,
+    txConfig,
   };
+};
+
+/**
+ * Prepares transaction configuration for execution.
+ * This includes nonce, gas price and gas limit estimation
+ */
+export const callMethod = async (method: ContractMethod) => {
+  return method.call({
+    gasPrice: new BN('100000000000'),
+    gasLimit: new BN('5100000'),
+  });
 };

@@ -1,45 +1,30 @@
 require('ts-node/register');
 require('tsconfig-paths/register');
 
-const PrivateKeyProvider = require("truffle-hdwallet-provider");
-const besuPrivateKeys = [
-  "8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63",
-  "c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3",
-  "ae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f",
-  "9AF779C4AE2206F6BA7BBC03D0E9CBFA9D41363586F0171036BF974BB2C7C042",
-  "FFEC0D7629E0B403F826679497191C6CBD19F8D6E699F368C4C9FFEB174BACB7"
-];
+const { TruffleProvider } = require('@harmony-js/core');
+
+const harmonyTestnetPrivateKey = '01F903CE0C960FF3A9E68E80FF5FFC344358D80CE1C221C3F9711AF07F83A3BD';
+const harmonyTestnetMnemonic = 'urge clog right example dish drill card maximum mix bachelor section select';
 
 module.exports = {
   mocha: {
     enableTimeouts: false
   },
   networks: {
-    development: {
-      host: "127.0.0.1",
-      port: 8545,
-      timeoutBlocks: 100,
-      network_id: "*"
-    },
-    quorum: {
-      host: "127.0.0.1",
-      port: 22000,
-      enclavePort: 9081,
-      timeoutBlocks: 100,
-      network_id: "*",
-      gasPrice: 0,
-      type: "quorum"
-    },
-    besu: {
-      provider: new PrivateKeyProvider(besuPrivateKeys, "http://127.0.0.1:22001", 0, besuPrivateKeys.length),
-      host: "127.0.0.1",
-      port: "22001",
-      timeoutBlocks: 100,
-      network_id: "*",
-      gas: "0x1ffffffffffffe",
-      gasPrice: 0,
-      type: "pantheon"
-    },
+    harmony_testnet: {
+      network_id: '2', // Any network (default: none)
+      provider: () => {
+        const truffleProvider = new TruffleProvider(
+          'https://api.s0.b.hmny.io',
+          { memonic: harmonyTestnetMnemonic },
+          { shardID: 0, chainId: 2 },
+          { gasLimit: '6721900', gasPrice: '1000000000' },
+        );
+        const newAcc = truffleProvider.addByPrivateKey(harmonyTestnetPrivateKey);
+        truffleProvider.setSigner(newAcc);
+        return truffleProvider;
+      },
+    }
   },
   compilers: {
     solc: {

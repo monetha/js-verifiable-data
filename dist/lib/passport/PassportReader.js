@@ -49,23 +49,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var web3_1 = __importDefault(require("web3"));
 var PassportFactory_json_1 = __importDefault(require("../../config/PassportFactory.json"));
 var PassportLogic_json_1 = __importDefault(require("../../config/PassportLogic.json"));
 var IHistoryEvent_1 = require("../models/IHistoryEvent");
 var sanitizeAddress_1 = require("../utils/sanitizeAddress");
 var rawContracts_1 = require("./rawContracts");
+var logs_1 = require("../utils/logs");
+var contract_1 = require("@harmony-js/contract");
 var factEventSignatures;
 /**
  * Class to get passports list and historic events
  */
 var PassportReader = /** @class */ (function () {
-    function PassportReader(anyWeb3) {
-        this.web3 = new web3_1.default(anyWeb3.eth.currentProvider);
-        if (!factEventSignatures) {
-            var signatures = getEventSignatures(this.web3);
-            factEventSignatures = signatures.factEvents;
-        }
+    function PassportReader(harmony) {
+        this.harmony = harmony;
     }
     /**
      * Fetches all passport addresses created by a particular passport factory address
@@ -75,21 +72,21 @@ var PassportReader = /** @class */ (function () {
      * @param endBlock block nr to scan to
      */
     PassportReader.prototype.getPassportsList = function (factoryAddress, fromBlock, toBlock) {
-        if (fromBlock === void 0) { fromBlock = 0; }
+        if (fromBlock === void 0) { fromBlock = 'earliest'; }
         if (toBlock === void 0) { toBlock = 'latest'; }
         return __awaiter(this, void 0, void 0, function () {
             var contract, events, passportRefs;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        contract = rawContracts_1.initPassportFactoryContract(this.web3, factoryAddress);
-                        return [4 /*yield*/, contract.getPastEvents('PassportCreated', {
+                        contract = rawContracts_1.initPassportFactoryContract(this.harmony, factoryAddress);
+                        return [4 /*yield*/, logs_1.getPastEvents(this.harmony, contract, 'PassportCreated', {
                                 fromBlock: fromBlock,
                                 toBlock: toBlock,
                             })];
                     case 1:
                         events = _a.sent();
-                        passportRefs = events.map(function (event) { return (__assign({}, event, { passportAddress: event.raw.topics[1] ? sanitizeAddress_1.sanitizeAddress(event.raw.topics[1].slice(26)) : '', ownerAddress: event.raw.topics[2] ? sanitizeAddress_1.sanitizeAddress(event.raw.topics[2].slice(26)) : '' })); });
+                        passportRefs = events.map(function (event) { return (__assign({}, event, { passportAddress: event.returnValues.passport, ownerAddress: event.returnValues.owner })); });
                         return [2 /*return*/, passportRefs];
                 }
             });
@@ -103,20 +100,23 @@ var PassportReader = /** @class */ (function () {
      */
     PassportReader.prototype.readPassportHistory = function (passportAddress, filter) {
         return __awaiter(this, void 0, void 0, function () {
-            var fromBlock, toBlock, contract, events, historyEvents;
-            var _this = this;
+            var fromBlock, toBlock, contract, events, signatures, historyEvents;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        fromBlock = filter && filter.startBlock || 0;
+                        fromBlock = filter && filter.startBlock || 'earliest';
                         toBlock = filter && filter.endBlock || 'latest';
-                        contract = rawContracts_1.initPassportLogicContract(this.web3, passportAddress);
-                        return [4 /*yield*/, contract.getPastEvents('allEvents', {
+                        contract = rawContracts_1.initPassportLogicContract(this.harmony, passportAddress);
+                        return [4 /*yield*/, logs_1.getPastEvents(this.harmony, contract, 'allEvents', {
                                 fromBlock: fromBlock,
                                 toBlock: toBlock,
                             })];
                     case 1:
                         events = _a.sent();
+                        if (!factEventSignatures) {
+                            signatures = getEventSignatures(contract.abiCoder);
+                            factEventSignatures = signatures.factEvents;
+                        }
                         historyEvents = [];
                         events.forEach(function (event) {
                             if (!event) {
@@ -135,7 +135,7 @@ var PassportReader = /** @class */ (function () {
                                 return;
                             }
                             // Second argument is fact key
-                            var key = topics[2] ? _this.web3.utils.toAscii(topics[2]).replace(/\u0000/g, '') : '';
+                            var key = topics[2] ? contract_1.parseBytes32String(topics[2]) : '';
                             if (filter && filter.key && key.toLowerCase() !== filter.key.toLowerCase()) {
                                 return;
                             }
@@ -154,7 +154,7 @@ var PassportReader = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var passportContract;
             return __generator(this, function (_a) {
-                passportContract = rawContracts_1.initPassportContract(this.web3, passportAddress);
+                passportContract = rawContracts_1.initPassportContract(this.harmony, passportAddress);
                 return [2 /*return*/, passportContract.methods.getPassportLogicRegistry().call()];
             });
         });
@@ -162,7 +162,7 @@ var PassportReader = /** @class */ (function () {
     return PassportReader;
 }());
 exports.PassportReader = PassportReader;
-function getEventSignatures(web3) {
+function getEventSignatures(abiCoder) {
     var hashedSignatures = {};
     // Collect all event signatures from ABI file
     var abis = [PassportLogic_json_1.default, PassportFactory_json_1.default];
@@ -171,8 +171,8 @@ function getEventSignatures(web3) {
             if (item.type !== 'event') {
                 return;
             }
-            var rawSignature = item.name + "(" + item.inputs.map(function (i) { return i.type; }).join(',') + ")";
-            hashedSignatures[item.name] = web3.utils.sha3(rawSignature);
+            // const rawSignature = `${item.name}(${(item.inputs as any).map(i => i.type).join(',')})`;
+            hashedSignatures[item.name] = abiCoder.encodeEventSignature(item); //crypto.keccak256(rawSignature);
         });
     });
     var factEvents = {};

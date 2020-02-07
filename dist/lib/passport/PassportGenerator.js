@@ -34,17 +34,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var tx_1 = require("../utils/tx");
-var web3_1 = __importDefault(require("web3"));
 var rawContracts_1 = require("./rawContracts");
 var PassportGenerator = /** @class */ (function () {
-    function PassportGenerator(anyWeb3, passportFactoryAddress) {
-        this.web3 = new web3_1.default(anyWeb3.eth.currentProvider);
-        this.contract = rawContracts_1.initPassportFactoryContract(anyWeb3, passportFactoryAddress);
+    function PassportGenerator(harmony, passportFactoryAddress) {
+        this.harmony = harmony;
+        this.contract = rawContracts_1.initPassportFactoryContract(harmony, passportFactoryAddress);
     }
     /**
      * Utility to extract passport address from passport creation transaction receipt
@@ -68,10 +64,10 @@ var PassportGenerator = /** @class */ (function () {
      */
     PassportGenerator.prototype.createPassport = function (ownerAddress) {
         return __awaiter(this, void 0, void 0, function () {
-            var txData;
+            var method;
             return __generator(this, function (_a) {
-                txData = this.contract.methods.createPassport();
-                return [2 /*return*/, tx_1.prepareTxConfig(this.web3, ownerAddress, this.contract.address, txData)];
+                method = this.contract.methods.createPassport();
+                return [2 /*return*/, tx_1.configureSendMethod(this.harmony, method, ownerAddress)];
             });
         });
     };

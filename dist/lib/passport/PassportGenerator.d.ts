@@ -1,16 +1,16 @@
-import { TransactionReceipt } from 'web3-core';
+import { Harmony } from '@harmony-js/core';
+import { TransasctionReceipt } from '@harmony-js/transaction';
 import { Address } from '../models/Address';
-import { IWeb3 } from '../models/IWeb3';
 export declare class PassportGenerator {
     private contract;
-    private web3;
+    private harmony;
     /**
      * Utility to extract passport address from passport creation transaction receipt
      */
-    static getPassportAddressFromReceipt(passportCreationReceipt: TransactionReceipt): string;
-    constructor(anyWeb3: IWeb3, passportFactoryAddress: Address);
+    static getPassportAddressFromReceipt(passportCreationReceipt: TransasctionReceipt): string;
+    constructor(harmony: Harmony, passportFactoryAddress: Address);
     /**
      * Creates an empty passport and returns its address
      */
-    createPassport(ownerAddress: Address): Promise<import("web3-core").TransactionConfig>;
+    createPassport(ownerAddress: Address): Promise<import("../models/Method").IConfiguredContractMethod>;
 }

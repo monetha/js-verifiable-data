@@ -20,6 +20,7 @@ exports.hexToArray = hexToArray;
  * @param hexString
  */
 function hexToUnpaddedAscii(hexString) {
+    // TODO - remove web3-utils dependency
     return web3_utils_1.toAscii(hexString).replace(/\u0000/g, '');
 }
 exports.hexToUnpaddedAscii = hexToUnpaddedAscii;

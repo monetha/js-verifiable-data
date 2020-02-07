@@ -1,43 +1,30 @@
-import { IEthOptions } from 'lib/models/IEthOptions';
-import { hexToUnpaddedAscii } from 'lib/utils/conversion';
-import Web3 from 'web3';
+import { parseBytes32String } from '@harmony-js/contract';
+import { Harmony } from '@harmony-js/core';
+import { ErrorCode } from 'lib/errors/ErrorCode';
+import { createSdkError } from 'lib/errors/SdkError';
+import { IFactValue } from 'lib/proto';
 import { IIPFSClient } from '../models/IIPFSClient';
-import { IMethodInfo, getDecodedTx } from '../utils/tx';
+import { getDecodedTx, IMethodInfo } from '../utils/tx';
 import { IPrivateDataHashes } from './FactReader';
 import { PrivateFactReader } from './PrivateFactReader';
-import { createSdkError } from 'lib/errors/SdkError';
-import { ErrorCode } from 'lib/errors/ErrorCode';
-import { IWeb3 } from 'lib/models/IWeb3';
-
-// #region -------------- Interfaces -------------------------------------------------------------------
-
-export interface IFactValue<TValue> {
-  factProviderAddress: string;
-  passportAddress: string;
-  key: string;
-  value: TValue;
-}
-
-// #endregion
+import * as crypto from '@harmony-js/crypto';
 
 /**
  * Class to read historic fact changes from the passport
  */
 export class FactHistoryReader {
 
-  private web3: Web3;
-  private options: IEthOptions;
+  private harmony: Harmony;
 
-  constructor(anyWeb3: IWeb3, options?: IEthOptions) {
-    this.web3 = new Web3(anyWeb3.eth.currentProvider);
-    this.options = options || {};
+  constructor(harmony: Harmony) {
+    this.harmony = harmony;
   }
 
   /**
    * Read string type fact from transaction
    */
   public async getString(txHash: string): Promise<IFactValue<string>> {
-    const txInfo = await getDecodedTx(txHash, this.web3, this.options);
+    const txInfo = await getDecodedTx(this.harmony, txHash);
     const { methodInfo } = txInfo;
 
     this.validateMethodSignature(methodInfo, 'setString');
@@ -45,7 +32,7 @@ export class FactHistoryReader {
     return {
       factProviderAddress: txInfo.tx.from,
       passportAddress: txInfo.tx.to,
-      key: hexToUnpaddedAscii(methodInfo.params[0].value),
+      key: parseBytes32String(methodInfo.params[0].value),
       value: methodInfo.params[1].value,
     };
   }
@@ -54,7 +41,7 @@ export class FactHistoryReader {
    * Read bytes type fact from transaction
    */
   public async getBytes(txHash: string): Promise<IFactValue<number[]>> {
-    const txInfo = await getDecodedTx(txHash, this.web3, this.options);
+    const txInfo = await getDecodedTx(this.harmony, txHash);
     const { methodInfo } = txInfo;
 
     this.validateMethodSignature(methodInfo, 'setBytes');
@@ -62,13 +49,13 @@ export class FactHistoryReader {
     let value: number[] = [];
     const hexValue = methodInfo.params[1].value;
     if (hexValue) {
-      value = this.web3.utils.hexToBytes(hexValue);
+      value = Array.from(crypto.arrayify(hexValue));
     }
 
     return {
       factProviderAddress: txInfo.tx.from,
       passportAddress: txInfo.tx.to,
-      key: hexToUnpaddedAscii(methodInfo.params[0].value),
+      key: parseBytes32String(methodInfo.params[0].value),
       value,
     };
   }
@@ -77,7 +64,7 @@ export class FactHistoryReader {
    * Read address type fact from transaction
    */
   public async getAddress(txHash: string): Promise<IFactValue<string>> {
-    const txInfo = await getDecodedTx(txHash, this.web3, this.options);
+    const txInfo = await getDecodedTx(this.harmony, txHash);
     const { methodInfo } = txInfo;
 
     this.validateMethodSignature(methodInfo, 'setAddress');
@@ -85,7 +72,7 @@ export class FactHistoryReader {
     return {
       factProviderAddress: txInfo.tx.from,
       passportAddress: txInfo.tx.to,
-      key: hexToUnpaddedAscii(methodInfo.params[0].value),
+      key: parseBytes32String(methodInfo.params[0].value),
       value: methodInfo.params[1].value,
     };
   }
@@ -94,7 +81,7 @@ export class FactHistoryReader {
    * Read uint type fact from transaction
    */
   public async getUint(txHash: string): Promise<IFactValue<number>> {
-    const txInfo = await getDecodedTx(txHash, this.web3, this.options);
+    const txInfo = await getDecodedTx(this.harmony, txHash);
     const { methodInfo } = txInfo;
 
     this.validateMethodSignature(methodInfo, 'setUint');
@@ -102,7 +89,7 @@ export class FactHistoryReader {
     return {
       factProviderAddress: txInfo.tx.from,
       passportAddress: txInfo.tx.to,
-      key: hexToUnpaddedAscii(methodInfo.params[0].value),
+      key: parseBytes32String(methodInfo.params[0].value),
       value: parseInt(methodInfo.params[1].value, 10),
     };
   }
@@ -111,7 +98,7 @@ export class FactHistoryReader {
    * Read int type fact from transaction
    */
   public async getInt(txHash: string): Promise<IFactValue<number>> {
-    const txInfo = await getDecodedTx(txHash, this.web3, this.options);
+    const txInfo = await getDecodedTx(this.harmony, txHash);
     const { methodInfo } = txInfo;
 
     this.validateMethodSignature(methodInfo, 'setInt');
@@ -119,7 +106,7 @@ export class FactHistoryReader {
     return {
       factProviderAddress: txInfo.tx.from,
       passportAddress: txInfo.tx.to,
-      key: hexToUnpaddedAscii(methodInfo.params[0].value),
+      key: parseBytes32String(methodInfo.params[0].value),
       value: parseInt(methodInfo.params[1].value, 10),
     };
   }
@@ -128,7 +115,7 @@ export class FactHistoryReader {
    * Read boolean type fact from transaction
    */
   public async getBool(txHash: string): Promise<IFactValue<boolean>> {
-    const txInfo = await getDecodedTx(txHash, this.web3, this.options);
+    const txInfo = await getDecodedTx(this.harmony, txHash);
     const { methodInfo } = txInfo;
 
     this.validateMethodSignature(methodInfo, 'setBool');
@@ -136,7 +123,7 @@ export class FactHistoryReader {
     return {
       factProviderAddress: txInfo.tx.from,
       passportAddress: txInfo.tx.to,
-      key: hexToUnpaddedAscii(methodInfo.params[0].value),
+      key: parseBytes32String(methodInfo.params[0].value),
       value: methodInfo.params[1].value as any,
     };
   }
@@ -145,7 +132,7 @@ export class FactHistoryReader {
    * Read TX data type fact from transaction
    */
   public async getTxdata(txHash: string): Promise<IFactValue<number[]>> {
-    const txInfo = await getDecodedTx(txHash, this.web3, this.options);
+    const txInfo = await getDecodedTx(this.harmony, txHash);
     const { methodInfo } = txInfo;
 
     this.validateMethodSignature(methodInfo, 'setTxDataBlockNumber');
@@ -153,8 +140,8 @@ export class FactHistoryReader {
     return {
       factProviderAddress: txInfo.tx.from,
       passportAddress: txInfo.tx.to,
-      key: hexToUnpaddedAscii(methodInfo.params[0].value),
-      value: this.web3.utils.hexToBytes(methodInfo.params[1].value),
+      key: parseBytes32String(methodInfo.params[0].value),
+      value: Array.from(crypto.arrayify(methodInfo.params[1].value)),
     };
   }
 
@@ -165,7 +152,7 @@ export class FactHistoryReader {
    * @returns data stored in IPFS
    */
   public async getIPFSData(txHash: string, ipfs: IIPFSClient): Promise<IFactValue<any>> {
-    const txInfo = await getDecodedTx(txHash, this.web3, this.options);
+    const txInfo = await getDecodedTx(this.harmony, txHash);
     const { methodInfo } = txInfo;
 
     this.validateMethodSignature(methodInfo, 'setIPFSHash');
@@ -173,7 +160,7 @@ export class FactHistoryReader {
     return {
       factProviderAddress: txInfo.tx.from,
       passportAddress: txInfo.tx.to,
-      key: hexToUnpaddedAscii(methodInfo.params[0].value),
+      key: parseBytes32String(methodInfo.params[0].value),
       value: await ipfs.cat(methodInfo.params[1].value),
     };
   }
@@ -232,7 +219,7 @@ export class FactHistoryReader {
    * Read private data hashes fact from transaction
    */
   public async getPrivateDataHashes(txHash: string): Promise<IFactValue<IPrivateDataHashes>> {
-    const txInfo = await getDecodedTx(txHash, this.web3, this.options);
+    const txInfo = await getDecodedTx(this.harmony, txHash);
     const { methodInfo } = txInfo;
 
     this.validateMethodSignature(methodInfo, 'setPrivateDataHashes');
@@ -240,7 +227,7 @@ export class FactHistoryReader {
     return {
       factProviderAddress: txInfo.tx.from,
       passportAddress: txInfo.tx.to,
-      key: hexToUnpaddedAscii(methodInfo.params[0].value),
+      key: parseBytes32String(methodInfo.params[0].value),
       value: {
         dataIpfsHash: methodInfo.params[1].value,
         dataKeyHash: methodInfo.params[2].value,

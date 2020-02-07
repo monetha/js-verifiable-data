@@ -52,6 +52,7 @@
 		"typescript": "^3.5.3"
 	},
 	"dependencies": {
+		"@harmony-js/core": "0.1.32",
 		"abi-decoder": "^1.2.0",
 		"aes-js": "^3.1.2",
 		"bn.js": "^5.0.0",

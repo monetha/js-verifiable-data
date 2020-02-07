@@ -34,33 +34,29 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var ErrorCode_1 = require("../errors/ErrorCode");
 var SdkError_1 = require("../errors/SdkError");
-var web3_1 = __importDefault(require("web3"));
+var logs_1 = require("../utils/logs");
 var tx_1 = require("../utils/tx");
 var rawContracts_1 = require("./rawContracts");
 /**
  * Class to manage passport ownership
  */
 var PassportOwnership = /** @class */ (function () {
-    function PassportOwnership(anyWeb3, passportAddress, options) {
-        this.web3 = new web3_1.default(anyWeb3.eth.currentProvider);
-        this.contract = rawContracts_1.initPassportLogicContract(anyWeb3, passportAddress);
-        this.options = options || {};
+    function PassportOwnership(harmony, passportAddress) {
+        this.harmony = harmony;
+        this.contract = rawContracts_1.initPassportLogicContract(harmony, passportAddress);
     }
     /**
      * After the passport is created, the owner must call this method to become a full passport owner
      */
     PassportOwnership.prototype.claimOwnership = function (passportOwnerAddress) {
         return __awaiter(this, void 0, void 0, function () {
-            var txData;
+            var method;
             return __generator(this, function (_a) {
-                txData = this.contract.methods.claimOwnership();
-                return [2 /*return*/, tx_1.prepareTxConfig(this.web3, passportOwnerAddress, this.contract.address, txData)];
+                method = this.contract.methods.claimOwnership();
+                return [2 /*return*/, tx_1.configureSendMethod(this.harmony, method, passportOwnerAddress)];
             });
         });
     };
@@ -70,7 +66,7 @@ var PassportOwnership = /** @class */ (function () {
     PassportOwnership.prototype.getOwnerAddress = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.contract.methods.owner().call()];
+                return [2 /*return*/, tx_1.callMethod(this.contract.methods.owner())];
             });
         });
     };
@@ -80,7 +76,7 @@ var PassportOwnership = /** @class */ (function () {
     PassportOwnership.prototype.getPendingOwnerAddress = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.contract.methods.pendingOwner().call()];
+                return [2 /*return*/, tx_1.callMethod(this.contract.methods.pendingOwner())];
             });
         });
     };
@@ -105,7 +101,7 @@ var PassportOwnership = /** @class */ (function () {
                         if (!transferredEvent) {
                             throw SdkError_1.createSdkError(ErrorCode_1.ErrorCode.FailedToGetOwnershipEvent, 'Failed to get ownership transfer event');
                         }
-                        return [4 /*yield*/, tx_1.getDecodedTx(transferredEvent.transactionHash, this.web3, this.options)];
+                        return [4 /*yield*/, tx_1.getDecodedTx(this.harmony, transferredEvent.transactionHash)];
                     case 3:
                         tx = _a.sent();
                         return [2 /*return*/, Array.from(tx.senderPublicKey)];
@@ -118,9 +114,7 @@ var PassportOwnership = /** @class */ (function () {
             var events;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.contract.getPastEvents('OwnershipTransferred', {
-                            // TODO: We need to somehow get passport contract creation block address to scan from to increase performance
-                            fromBlock: 0,
+                    case 0: return [4 /*yield*/, logs_1.getPastEvents(this.harmony, this.contract, 'OwnershipTransferred', {
                             filter: {
                                 previousOwner: null,
                                 newOwner: newOwnerAddress,

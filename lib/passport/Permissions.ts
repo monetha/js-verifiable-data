@@ -1,5 +1,5 @@
 import { PassportLogic } from 'lib/types/web3-contracts/PassportLogic';
-import { prepareTxConfig } from 'lib/utils/tx';
+import { prepareMethod } from 'lib/utils/tx';
 import Web3 from 'web3';
 import { Address } from '../models/Address';
 import { initPassportLogicContract } from './rawContracts';
@@ -23,7 +23,7 @@ export class Permissions {
   public async addFactProviderToWhitelist(factProviderAddress: Address, passportOwnerAddress: Address) {
     const txData = this.contract.methods.addFactProviderToWhitelist(factProviderAddress);
 
-    return prepareTxConfig(this.web3, passportOwnerAddress, this.contract.address, txData);
+    return prepareMethod(this.web3, passportOwnerAddress, this.contract.address, txData);
   }
 
   /**
@@ -32,7 +32,7 @@ export class Permissions {
   public async removeFactProviderFromWhitelist(factProviderAddress: Address, passportOwnerAddress: Address) {
     const txData = this.contract.methods.removeFactProviderFromWhitelist(factProviderAddress);
 
-    return prepareTxConfig(this.web3, passportOwnerAddress, this.contract.address, txData);
+    return prepareMethod(this.web3, passportOwnerAddress, this.contract.address, txData);
   }
 
   /**
@@ -63,6 +63,6 @@ export class Permissions {
   public async setWhitelistOnlyPermission(onlyWhitelistedProviders: boolean, passportOwnerAddress: Address) {
     const txData = this.contract.methods.setWhitelistOnlyPermission(onlyWhitelistedProviders);
 
-    return prepareTxConfig(this.web3, passportOwnerAddress, this.contract.address, txData);
+    return prepareMethod(this.web3, passportOwnerAddress, this.contract.address, txData);
   }
 }

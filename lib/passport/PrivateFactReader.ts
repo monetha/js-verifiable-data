@@ -4,7 +4,7 @@ import { ECIES } from '../crypto/ecies/ecies';
 import { constantTimeCompare } from '../crypto/utils/compare';
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
-import { IFactValue } from './FactHistoryReader';
+import { IFactValue } from '../models/IFactValue';
 import { IPrivateDataHashes } from './FactReader';
 import { deriveSecretKeyringMaterial, ellipticCurveAlg, ipfsFileNames, unmarshalSecretKeyringMaterial } from './privateFactCommon';
 import { createSdkError } from 'lib/errors/SdkError';

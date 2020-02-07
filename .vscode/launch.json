@@ -17,57 +17,14 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Truffle (GANACHE) Current File",
-      "program": "${workspaceFolder}/integration-tests/node_modules/.bin/truffle",
-      "args": [
-        "test",
-        "${file}",
-        "--verbose"
-      ],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "windows": {
-        "program": "${workspaceFolder}\\integration-tests\\node_modules\\truffle\\build\\cli.bundled.js"
-      },
-      "cwd": "${workspaceFolder}\\integration-tests",
-      "outFiles": [
-        "${workspaceFolder}/integration-tests/test/**/*"
-      ]
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Truffle (QUORUM) Current File",
+      "name": "Truffle (HARMONY) Current File",
       "program": "${workspaceFolder}/integration-tests/node_modules/.bin/truffle",
       "args": [
         "test",
         "${file}",
         "--network",
-        "quorum",
+        "harmony_testnet",
         "--verbose"
-      ],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "windows": {
-        "program": "${workspaceFolder}\\integration-tests\\node_modules\\truffle\\build\\cli.bundled.js"
-      },
-      "cwd": "${workspaceFolder}\\integration-tests",
-      "outFiles": [
-        "${workspaceFolder}/integration-tests/test/**/*"
-      ]
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Truffle (QUORUM PRIVATE TX) Current File",
-      "program": "${workspaceFolder}/integration-tests/node_modules/.bin/truffle",
-      "args": [
-        "test",
-        "${file}",
-        "--network",
-        "quorum",
-        "--verbose",
-        "--private"
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",

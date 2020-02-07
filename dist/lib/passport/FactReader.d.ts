@@ -1,7 +1,6 @@
-import { IEthOptions } from '../models/IEthOptions';
 import { Address } from '../models/Address';
 import { IIPFSClient } from '../models/IIPFSClient';
-import { IWeb3 } from '../models/IWeb3';
+import { Harmony } from '@harmony-js/core';
 export interface IPrivateDataHashes {
     /**
      * IPFS hash where encrypted data with its metadata is stored
@@ -17,10 +16,9 @@ export interface IPrivateDataHashes {
  */
 export declare class FactReader {
     private contract;
-    private options;
-    private web3;
+    private harmony;
     readonly passportAddress: string;
-    constructor(anyWeb3: IWeb3, passportAddress: Address, options?: IEthOptions);
+    constructor(harmony: Harmony, passportAddress: Address);
     /**
      * Read string type fact from passport
      */
