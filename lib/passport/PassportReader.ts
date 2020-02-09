@@ -8,7 +8,7 @@ import { sanitizeAddress } from '../utils/sanitizeAddress';
 import { initPassportContract, initPassportFactoryContract, initPassportLogicContract } from './rawContracts';
 import * as crypto from '@harmony-js/crypto';
 import { Harmony } from '@harmony-js/core';
-import { getPastEvents } from 'lib/utils/logs';
+import { getPastEvents, getAllPastEvents } from 'lib/utils/logs';
 import { Contract, parseBytes32String } from '@harmony-js/contract';
 
 interface IFactEventSignatures {
@@ -68,7 +68,7 @@ export class PassportReader {
 
     // Event retrieval
     const contract = initPassportLogicContract(this.harmony, passportAddress);
-    const events = await getPastEvents(this.harmony, contract, 'allEvents', {
+    const events = await getAllPastEvents(this.harmony, contract, {
       fromBlock,
       toBlock,
     });

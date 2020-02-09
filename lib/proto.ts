@@ -2,8 +2,8 @@ import { PassportGenerator } from './passport/PassportGenerator';
 import { PassportOwnership } from './passport/PassportOwnership';
 import { FactReader, IPrivateDataHashes } from './passport/FactReader';
 import { FactWriter } from './passport/FactWriter';
-// import { FactRemover } from './passport/FactRemover';
-// import { Permissions } from './passport/Permissions';
+import { FactRemover } from './passport/FactRemover';
+import { Permissions } from './passport/Permissions';
 import { PassportReader } from './passport/PassportReader';
 import { PrivateFactReader } from './passport/PrivateFactReader';
 import { PrivateFactWriter } from './passport/PrivateFactWriter';
@@ -42,10 +42,10 @@ export {
   PassportReader,
   FactReader,
   FactWriter,
-  // FactRemover,
+  FactRemover,
   PrivateFactReader,
   PrivateFactWriter,
-  // Permissions,
+  Permissions,
   FactHistoryReader,
   // PrivateDataExchanger,
   // EventType,

@@ -1,20 +1,19 @@
-import { PassportLogic } from 'lib/types/web3-contracts/PassportLogic';
-import { prepareMethod } from 'lib/utils/tx';
-import Web3 from 'web3';
+import { Contract, formatBytes32String } from '@harmony-js/contract';
 import { Address } from '../models/Address';
 import { initPassportLogicContract } from './rawContracts';
-import { IWeb3 } from 'lib/models/IWeb3';
+import { Harmony } from '@harmony-js/core';
+import { configureSendMethod } from 'lib/utils/tx';
 
 /**
  * Class for fact deletion
  */
 export class FactRemover {
-  private contract: PassportLogic;
-  private web3: Web3;
+  private contract: Contract;
+  private harmony: Harmony;
 
-  constructor(anyWeb3: IWeb3, passportAddress: Address) {
-    this.web3 = new Web3(anyWeb3.eth.currentProvider);
-    this.contract = initPassportLogicContract(anyWeb3, passportAddress);
+  constructor(harmony: Harmony, passportAddress: Address) {
+    this.harmony = harmony;
+    this.contract = initPassportLogicContract(harmony, passportAddress);
   }
 
   /**
@@ -80,12 +79,12 @@ export class FactRemover {
     return this.delete('deletePrivateDataHashes', key, factProviderAddress);
   }
 
-  private async delete(method: keyof PassportLogic['methods'], key: string, factProviderAddress: Address) {
-    const preparedKey = this.web3.utils.fromAscii(key);
+  private async delete(methodName: string, key: string, factProviderAddress: Address) {
+    const preparedKey = formatBytes32String(key);
 
-    const func = this.contract.methods[method] as any;
-    const txData = func(preparedKey);
+    const func = this.contract.methods[methodName] as any;
+    const method = func(preparedKey);
 
-    return prepareMethod(this.web3, factProviderAddress, this.contract.address, txData);
+    return configureSendMethod(this.harmony, method, factProviderAddress);
   }
 }

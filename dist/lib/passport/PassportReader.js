@@ -107,7 +107,7 @@ var PassportReader = /** @class */ (function () {
                         fromBlock = filter && filter.startBlock || 'earliest';
                         toBlock = filter && filter.endBlock || 'latest';
                         contract = rawContracts_1.initPassportLogicContract(this.harmony, passportAddress);
-                        return [4 /*yield*/, logs_1.getPastEvents(this.harmony, contract, 'allEvents', {
+                        return [4 /*yield*/, logs_1.getAllPastEvents(this.harmony, contract, {
                                 fromBlock: fromBlock,
                                 toBlock: toBlock,
                             })];

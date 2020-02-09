@@ -324,8 +324,8 @@ var FactHistoryReader = /** @class */ (function () {
                         methodInfo = txInfo.methodInfo;
                         this.validateMethodSignature(methodInfo, 'setPrivateDataHashes');
                         return [2 /*return*/, {
-                                factProviderAddress: txInfo.tx.from,
-                                passportAddress: txInfo.tx.to,
+                                factProviderAddress: crypto.getAddress(txInfo.tx.from).basicHex,
+                                passportAddress: crypto.getAddress(txInfo.tx.to).basicHex,
                                 key: contract_1.parseBytes32String(methodInfo.params[0].value),
                                 value: {
                                     dataIpfsHash: methodInfo.params[1].value,

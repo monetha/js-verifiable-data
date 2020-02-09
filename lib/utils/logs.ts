@@ -30,8 +30,8 @@ export async function getAllPastEvents(harmony: Harmony, contract: Contract, opt
   // Call RPC
   const response = await harmony.messenger.send(RPCMethod.GetPastLogs,
     [finOptions],
-    this.harmony.messenger.chainType,
-    this.harmony.defaultShardID);
+    harmony.messenger.chainType,
+    harmony.defaultShardID);
   if (response.isError()) {
     throw createSdkError(ErrorCode.RPCFailure, response.error.message);
   }

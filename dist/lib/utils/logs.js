@@ -72,7 +72,7 @@ function getAllPastEvents(harmony, contract, options) {
                     if (!finOptions.topics) {
                         finOptions.topics = [];
                     }
-                    return [4 /*yield*/, harmony.messenger.send("hmy_getLogs" /* GetPastLogs */, [finOptions], this.harmony.messenger.chainType, this.harmony.defaultShardID)];
+                    return [4 /*yield*/, harmony.messenger.send("hmy_getLogs" /* GetPastLogs */, [finOptions], harmony.messenger.chainType, harmony.defaultShardID)];
                 case 1:
                     response = _a.sent();
                     if (response.isError()) {
