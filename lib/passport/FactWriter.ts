@@ -14,14 +14,18 @@ import { initPassportLogicContract } from './rawContracts';
  * Class to write facts to passport
  */
 export class FactWriter {
-  private contract: Contract;
+  private passAddress: Address;
   private harmony: Harmony;
 
-  public get passportAddress() { return this.contract.address; }
+  public get passportAddress() { return this.passAddress; }
 
   constructor(harmony: Harmony, passportAddress: Address) {
     this.harmony = harmony;
-    this.contract = initPassportLogicContract(harmony, passportAddress);
+    this.passAddress = passportAddress;
+  }
+
+  private getContract(): Contract {
+    return initPassportLogicContract(this.harmony, this.passportAddress);
   }
 
   /**
@@ -114,7 +118,7 @@ export class FactWriter {
   public async setPrivateDataHashes(key: string, value: IPrivateDataHashes, factProviderAddress: Address) {
     const preparedKey = formatBytes32String(key);
 
-    const method = this.contract.methods.setPrivateDataHashes(
+    const method = this.getContract().methods.setPrivateDataHashes(
       preparedKey,
       value.dataIpfsHash,
       value.dataKeyHash);
@@ -125,7 +129,7 @@ export class FactWriter {
   private async set(methodName: string, key: string, value: any, factProviderAddress: Address) {
     const preparedKey = formatBytes32String(key);
 
-    const func = this.contract.methods[methodName] as any;
+    const func = this.getContract().methods[methodName] as any;
     const method = func(preparedKey, value);
 
     return configureSendMethod(this.harmony, method, factProviderAddress);

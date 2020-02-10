@@ -1,13 +1,13 @@
 # verifiable-data
 
-SDK for managing verifiable data of digital identities on distributed ledger.
+SDK for managing verifiable data of digital identities on Harmony blockchain.
 
 Corresponds to [Verifiable data layer](https://github.com/monetha/reputation-layer) of [Monetha Platform](https://github.com/monetha/decentralized-reputation-framework)
 
-[![Build Status][1]][2]
+<!-- [![Build Status][1]][2]
 
 [1]: https://travis-ci.org/monetha/js-verifiable-data.svg?branch=master
-[2]: https://travis-ci.org/monetha/js-verifiable-data
+[2]: https://travis-ci.org/monetha/js-verifiable-data -->
 
 *NOTE*: Terms "Digital identity" and "Passport" has the same meaning and will be used interchangeably in this guide.
 
@@ -69,23 +69,14 @@ To bootstrap verifiable-data, we need to deploy three contracts:
 1. `PassportLogicRegistry` - responsible for telling digital identities, which behaviour version to use
 1. `PassportFactory` - responsible for digital identity creation
 
-Monetha has already deployed this set of contracts on Ropsten and Mainnet networks.
-
-The contract addresses deployed on Ropsten:
+Monetha has already deployed this set of contracts on Harmony testnet network.
 
 | Contract      | Address                                      |
 |---------------|----------------------------------------------|
-| `PassportLogic` | [`0xaa8e71D8Fb521eaEdE9F11d8fd5182920Cb03229`](https://ropsten.etherscan.io/address/0xaa8e71D8Fb521eaEdE9F11d8fd5182920Cb03229) |
-| `PassportLogicRegistry`  | [`0x11C96d40244d37ad3Bb788c15F6376cEfA28CF7c`](https://ropsten.etherscan.io/address/0x11C96d40244d37ad3Bb788c15F6376cEfA28CF7c) |
-| `PassportFactory` | [`0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2`](https://ropsten.etherscan.io/address/0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2) |
+| `PassportLogic` | [`0xe7f2E7fbB50C9Ec823c02e14CDaF70B639Faa996`](https://explorer.testnet.harmony.one/#/address/0xEEB7238dBF55d861986205c83130Ba1d0d4E3ADE) |
+| `PassportLogicRegistry`  | [`0xb4c31c9F4d3adfb89a2855f71A73e6a1AB3F3cbe`](https://explorer.testnet.harmony.one/#/address/0xb4c31c9F4d3adfb89a2855f71A73e6a1AB3F3cbe) |
+| `PassportFactory` | [`0xEEB7238dBF55d861986205c83130Ba1d0d4E3ADE`](https://explorer.testnet.harmony.one/#/address/0xEEB7238dBF55d861986205c83130Ba1d0d4E3ADE) |
 
-The contract addresses deployed on Mainnet:
-
-| Contract      | Address                                      |
-|---------------|----------------------------------------------|
-| `PassportLogic` | [`0xA9068B8E0D0a5B2c77dF601be3bB3d168c7fc3e2`](https://etherscan.io/address/0xA9068B8E0D0a5B2c77dF601be3bB3d168c7fc3e2) |
-| `PassportLogicRegistry`  | [`0x41c32A8387ff178659ED9B04190613623F545657`](https://etherscan.io/address/0x41c32A8387ff178659ED9B04190613623F545657) |
-| `PassportFactory` | [`0x53b21DC502b163Bcf3bD9a68d5db5e8E6110E1CC`](https://etherscan.io/address/0x53b21DC502b163Bcf3bD9a68d5db5e8E6110E1CC) |
 
 Consider the process of deploying your own set of these contracts to experiment with our implementation. If you are going to deploy your contracts, then you will have to support them yourself.
 

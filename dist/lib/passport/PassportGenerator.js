@@ -40,7 +40,7 @@ var rawContracts_1 = require("./rawContracts");
 var PassportGenerator = /** @class */ (function () {
     function PassportGenerator(harmony, passportFactoryAddress) {
         this.harmony = harmony;
-        this.contract = rawContracts_1.initPassportFactoryContract(harmony, passportFactoryAddress);
+        this.passFactoryAddress = passportFactoryAddress;
     }
     /**
      * Utility to extract passport address from passport creation transaction receipt
@@ -59,6 +59,9 @@ var PassportGenerator = /** @class */ (function () {
         }
         return "0x" + topics[1].slice(26);
     };
+    PassportGenerator.prototype.getContract = function () {
+        return rawContracts_1.initPassportFactoryContract(this.harmony, this.passFactoryAddress);
+    };
     /**
      * Creates an empty passport and returns its address
      */
@@ -66,7 +69,7 @@ var PassportGenerator = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var method;
             return __generator(this, function (_a) {
-                method = this.contract.methods.createPassport();
+                method = this.getContract().methods.createPassport();
                 return [2 /*return*/, tx_1.configureSendMethod(this.harmony, method, ownerAddress)];
             });
         });

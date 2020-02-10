@@ -32,14 +32,18 @@ export interface IPrivateDataHashes {
  * Class to read latest facts from the passport
  */
 export class FactReader {
-  private contract: Contract;
+  private passAddress: Address;
   private harmony: Harmony;
 
-  public get passportAddress() { return this.contract.address; }
+  public get passportAddress() { return this.passAddress; }
 
   constructor(harmony: Harmony, passportAddress: Address) {
     this.harmony = harmony;
-    this.contract = initPassportLogicContract(harmony, passportAddress);
+    this.passAddress = passportAddress;
+  }
+
+  private getContract(): Contract {
+    return initPassportLogicContract(this.harmony, this.passAddress);
   }
 
   /**
@@ -114,7 +118,7 @@ export class FactReader {
     // TODO: check if number format for block is OK
     const blockNum = toBN(data).toNumber();
 
-    const events = await getPastEvents(this.harmony, this.contract, 'TxDataUpdated', {
+    const events = await getPastEvents(this.harmony, this.getContract(), 'TxDataUpdated', {
       fromBlock: blockNum,
       toBlock: blockNum,
       filter: {
@@ -169,7 +173,7 @@ export class FactReader {
     return privateReader.getPrivateData(
       {
         factProviderAddress,
-        passportAddress: this.passportAddress,
+        passportAddress: this.passAddress,
         key,
         value: hashes,
       },
@@ -200,7 +204,7 @@ export class FactReader {
   public async getPrivateDataHashes(factProviderAddress: Address, key: string): Promise<IPrivateDataHashes> {
     const preparedKey = formatBytes32String(key);
 
-    const method = this.contract.methods.getPrivateDataHashes(factProviderAddress, preparedKey);
+    const method = this.getContract().methods.getPrivateDataHashes(factProviderAddress, preparedKey);
     const result = await callMethod(method);
 
     if (!result.success) {
@@ -216,7 +220,7 @@ export class FactReader {
   private async get(method: string, factProviderAddress: Address, key: string) {
     const preparedKey = formatBytes32String(key);
 
-    const func = this.contract.methods[method] as any;
+    const func = this.getContract().methods[method] as any;
     const result: [boolean, any] = await callMethod(func(factProviderAddress, preparedKey));
 
     // Return null in case if value was not initialized

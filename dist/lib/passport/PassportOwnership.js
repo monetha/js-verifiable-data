@@ -46,8 +46,11 @@ var rawContracts_1 = require("./rawContracts");
 var PassportOwnership = /** @class */ (function () {
     function PassportOwnership(harmony, passportAddress) {
         this.harmony = harmony;
-        this.contract = rawContracts_1.initPassportLogicContract(harmony, passportAddress);
+        this.passportAddress = passportAddress;
     }
+    PassportOwnership.prototype.getContract = function () {
+        return rawContracts_1.initPassportLogicContract(this.harmony, this.passportAddress);
+    };
     /**
      * After the passport is created, the owner must call this method to become a full passport owner
      */
@@ -55,7 +58,7 @@ var PassportOwnership = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var method;
             return __generator(this, function (_a) {
-                method = this.contract.methods.claimOwnership();
+                method = this.getContract().methods.claimOwnership();
                 return [2 /*return*/, tx_1.configureSendMethod(this.harmony, method, passportOwnerAddress)];
             });
         });
@@ -66,7 +69,7 @@ var PassportOwnership = /** @class */ (function () {
     PassportOwnership.prototype.getOwnerAddress = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, tx_1.callMethod(this.contract.methods.owner())];
+                return [2 /*return*/, tx_1.callMethod(this.getContract().methods.owner())];
             });
         });
     };
@@ -76,7 +79,7 @@ var PassportOwnership = /** @class */ (function () {
     PassportOwnership.prototype.getPendingOwnerAddress = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, tx_1.callMethod(this.contract.methods.pendingOwner())];
+                return [2 /*return*/, tx_1.callMethod(this.getContract().methods.pendingOwner())];
             });
         });
     };
@@ -114,7 +117,7 @@ var PassportOwnership = /** @class */ (function () {
             var events;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, logs_1.getPastEvents(this.harmony, this.contract, 'OwnershipTransferred', {
+                    case 0: return [4 /*yield*/, logs_1.getPastEvents(this.harmony, this.getContract(), 'OwnershipTransferred', {
                             filter: {
                                 previousOwner: null,
                                 newOwner: newOwnerAddress,

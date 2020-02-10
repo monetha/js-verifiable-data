@@ -1,11 +1,11 @@
-import { ContractMethod } from '@harmony-js/contract/dist/methods/method';
+
 import { Harmony } from '@harmony-js/core';
 import * as crypto from '@harmony-js/crypto';
 import * as abiDecoder from 'abi-decoder';
 import BN from 'bn.js';
 import elliptic from 'elliptic';
 import { createSdkError } from 'lib/errors/SdkError';
-import { IConfiguredContractMethod, ITxConfig } from 'lib/models/Method';
+import { IConfiguredContractMethod, ITxConfig, ContractMethod } from 'lib/models/Method';
 import { ErrorCode } from 'lib/proto';
 import passportLogicAbi from '../../config/PassportLogic.json';
 

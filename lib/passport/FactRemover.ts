@@ -8,12 +8,16 @@ import { configureSendMethod } from 'lib/utils/tx';
  * Class for fact deletion
  */
 export class FactRemover {
-  private contract: Contract;
+  private passportAddress: Address;
   private harmony: Harmony;
 
   constructor(harmony: Harmony, passportAddress: Address) {
     this.harmony = harmony;
-    this.contract = initPassportLogicContract(harmony, passportAddress);
+    this.passportAddress = passportAddress;
+  }
+
+  private getContract(): Contract {
+    return initPassportLogicContract(this.harmony, this.passportAddress);
   }
 
   /**
@@ -82,7 +86,7 @@ export class FactRemover {
   private async delete(methodName: string, key: string, factProviderAddress: Address) {
     const preparedKey = formatBytes32String(key);
 
-    const func = this.contract.methods[methodName] as any;
+    const func = this.getContract().methods[methodName] as any;
     const method = func(preparedKey);
 
     return configureSendMethod(this.harmony, method, factProviderAddress);

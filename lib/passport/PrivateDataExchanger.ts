@@ -22,7 +22,6 @@ import { deriveSecretKeyringMaterial, ellipticCurveAlg, ISKM } from './privateFa
 import { PrivateFactReader } from './PrivateFactReader';
 import { initPassportLogicContract } from './rawContracts';
 
-
 // TODO: It is not known for now what optimal limits are for Harmony
 // const gasLimits = {
 //   accept: 90000,

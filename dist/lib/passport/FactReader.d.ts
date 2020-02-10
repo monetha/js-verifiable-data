@@ -15,10 +15,11 @@ export interface IPrivateDataHashes {
  * Class to read latest facts from the passport
  */
 export declare class FactReader {
-    private contract;
+    private passAddress;
     private harmony;
     readonly passportAddress: string;
     constructor(harmony: Harmony, passportAddress: Address);
+    private getContract;
     /**
      * Read string type fact from passport
      */

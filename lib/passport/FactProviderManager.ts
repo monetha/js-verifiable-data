@@ -1,9 +1,7 @@
-import { Address } from 'lib/models/Address';
-import { FactProviderRegistry } from 'lib/types/web3-contracts/FactProviderRegistry';
-import { prepareMethod } from 'lib/utils/tx';
-import Web3 from 'web3';
+import { Harmony } from '@harmony-js/core';
+import { Address } from 'lib/proto';
 import { initFactProviderRegistryContract } from './rawContracts';
-import { IWeb3 } from 'lib/models/IWeb3';
+import { configureSendMethod, callMethod } from 'lib/utils/tx';
 
 // #region -------------- Interface -------------------------------------------------------------------
 
@@ -38,12 +36,16 @@ const emptyAddress = '0x0000000000000000000000000000000000000000';
  * Allows managing info about fact providers.
  */
 export class FactProviderManager {
-  private contract: FactProviderRegistry;
-  private web3: Web3;
+  private factProviderRegistryAddress: Address;
+  private harmony: Harmony;
 
-  constructor(anyWeb3: IWeb3, factProviderRegistryAddress: Address) {
-    this.web3 = new Web3(anyWeb3.eth.currentProvider);
-    this.contract = initFactProviderRegistryContract(anyWeb3, factProviderRegistryAddress);
+  constructor(harmony: Harmony, factProviderRegistryAddress: Address) {
+    this.harmony = harmony;
+    this.factProviderRegistryAddress = factProviderRegistryAddress;
+  }
+
+  private getContract() {
+    return initFactProviderRegistryContract(this.harmony, this.factProviderRegistryAddress);
   }
 
   /**
@@ -54,14 +56,14 @@ export class FactProviderManager {
    * @param registryOwner - address of fact provider registry owner
    */
   public setInfo(factProviderAddress: Address, info: IFactProviderInfo, registryOwner: Address) {
-    const txObj = this.contract.methods.setFactProviderInfo(
+    const method = this.getContract().methods.setFactProviderInfo(
       factProviderAddress,
       info.name,
       info.passport || emptyAddress,
       info.website || '',
     );
 
-    return prepareMethod(this.web3, registryOwner, this.contract.address, txObj);
+    return configureSendMethod(this.harmony, method, registryOwner);
   }
 
   /**
@@ -71,9 +73,9 @@ export class FactProviderManager {
    * @param registryOwner - address of fact provider registry owner
    */
   public deleteInfo(factProviderAddress: Address, registryOwner: Address) {
-    const txObj = this.contract.methods.deleteFactProviderInfo(factProviderAddress);
+    const method = this.getContract().methods.deleteFactProviderInfo(factProviderAddress);
 
-    return prepareMethod(this.web3, registryOwner, this.contract.address, txObj);
+    return configureSendMethod(this.harmony, method, registryOwner);
   }
 
   /**
@@ -83,7 +85,7 @@ export class FactProviderManager {
    * @param factProviderAddress - fact provider's address
    */
   public async getInfo(factProviderAddress: Address): Promise<IFactProviderInfo> {
-    const result = await this.contract.methods.factProviders(factProviderAddress).call();
+    const result = await callMethod(this.getContract().methods.factProviders(factProviderAddress));
 
     if (!result || !result.initialized) {
       return null;

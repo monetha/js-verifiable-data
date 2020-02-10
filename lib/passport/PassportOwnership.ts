@@ -11,19 +11,23 @@ import { initPassportLogicContract } from './rawContracts';
  * Class to manage passport ownership
  */
 export class PassportOwnership {
-  private contract: Contract;
   private harmony: Harmony;
+  private passportAddress: Address;
 
   constructor(harmony: Harmony, passportAddress: Address) {
     this.harmony = harmony;
-    this.contract = initPassportLogicContract(harmony, passportAddress);
+    this.passportAddress = passportAddress;
+  }
+
+  private getContract(): Contract {
+    return initPassportLogicContract(this.harmony, this.passportAddress);
   }
 
   /**
    * After the passport is created, the owner must call this method to become a full passport owner
    */
   public async claimOwnership(passportOwnerAddress: Address) {
-    const method = this.contract.methods.claimOwnership();
+    const method = this.getContract().methods.claimOwnership();
 
     return configureSendMethod(this.harmony, method, passportOwnerAddress);
   }
@@ -32,14 +36,14 @@ export class PassportOwnership {
    * Returns passport owner address
    */
   public async getOwnerAddress(): Promise<string> {
-    return callMethod(this.contract.methods.owner());
+    return callMethod(this.getContract().methods.owner());
   }
 
   /**
    * Returns passport pending owner address
    */
   public async getPendingOwnerAddress(): Promise<string> {
-    return callMethod(this.contract.methods.pendingOwner());
+    return callMethod(this.getContract().methods.pendingOwner());
   }
 
   /**
@@ -63,7 +67,7 @@ export class PassportOwnership {
   }
 
   private async getFirstOwnershipTransferredEvent(newOwnerAddress: string) {
-    const events = await getPastEvents(this.harmony, this.contract, 'OwnershipTransferred', {
+    const events = await getPastEvents(this.harmony, this.getContract(), 'OwnershipTransferred', {
       filter: {
         previousOwner: null,
         newOwner: newOwnerAddress,

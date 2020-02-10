@@ -47,13 +47,16 @@ var rawContracts_1 = require("./rawContracts");
 var FactWriter = /** @class */ (function () {
     function FactWriter(harmony, passportAddress) {
         this.harmony = harmony;
-        this.contract = rawContracts_1.initPassportLogicContract(harmony, passportAddress);
+        this.passAddress = passportAddress;
     }
     Object.defineProperty(FactWriter.prototype, "passportAddress", {
-        get: function () { return this.contract.address; },
+        get: function () { return this.passAddress; },
         enumerable: true,
         configurable: true
     });
+    FactWriter.prototype.getContract = function () {
+        return rawContracts_1.initPassportLogicContract(this.harmony, this.passportAddress);
+    };
     /**
      * Writes string type fact to passport
      */
@@ -173,7 +176,7 @@ var FactWriter = /** @class */ (function () {
             var preparedKey, method;
             return __generator(this, function (_a) {
                 preparedKey = contract_1.formatBytes32String(key);
-                method = this.contract.methods.setPrivateDataHashes(preparedKey, value.dataIpfsHash, value.dataKeyHash);
+                method = this.getContract().methods.setPrivateDataHashes(preparedKey, value.dataIpfsHash, value.dataKeyHash);
                 return [2 /*return*/, tx_1.configureSendMethod(this.harmony, method, factProviderAddress)];
             });
         });
@@ -183,7 +186,7 @@ var FactWriter = /** @class */ (function () {
             var preparedKey, func, method;
             return __generator(this, function (_a) {
                 preparedKey = contract_1.formatBytes32String(key);
-                func = this.contract.methods[methodName];
+                func = this.getContract().methods[methodName];
                 method = func(preparedKey, value);
                 return [2 /*return*/, tx_1.configureSendMethod(this.harmony, method, factProviderAddress)];
             });

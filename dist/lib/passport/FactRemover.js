@@ -44,8 +44,11 @@ var tx_1 = require("../utils/tx");
 var FactRemover = /** @class */ (function () {
     function FactRemover(harmony, passportAddress) {
         this.harmony = harmony;
-        this.contract = rawContracts_1.initPassportLogicContract(harmony, passportAddress);
+        this.passportAddress = passportAddress;
     }
+    FactRemover.prototype.getContract = function () {
+        return rawContracts_1.initPassportLogicContract(this.harmony, this.passportAddress);
+    };
     /**
      * Deletes string type fact from passport
      */
@@ -141,7 +144,7 @@ var FactRemover = /** @class */ (function () {
             var preparedKey, func, method;
             return __generator(this, function (_a) {
                 preparedKey = contract_1.formatBytes32String(key);
-                func = this.contract.methods[methodName];
+                func = this.getContract().methods[methodName];
                 method = func(preparedKey);
                 return [2 /*return*/, tx_1.configureSendMethod(this.harmony, method, factProviderAddress)];
             });

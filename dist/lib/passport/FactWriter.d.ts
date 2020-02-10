@@ -7,10 +7,11 @@ import { IPrivateDataHashes } from './FactReader';
  * Class to write facts to passport
  */
 export declare class FactWriter {
-    private contract;
+    private passAddress;
     private harmony;
     readonly passportAddress: string;
     constructor(harmony: Harmony, passportAddress: Address);
+    private getContract;
     /**
      * Writes string type fact to passport
      */

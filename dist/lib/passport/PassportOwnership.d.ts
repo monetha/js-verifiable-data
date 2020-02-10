@@ -4,9 +4,10 @@ import { Address } from '../models/Address';
  * Class to manage passport ownership
  */
 export declare class PassportOwnership {
-    private contract;
     private harmony;
+    private passportAddress;
     constructor(harmony: Harmony, passportAddress: Address);
+    private getContract;
     /**
      * After the passport is created, the owner must call this method to become a full passport owner
      */

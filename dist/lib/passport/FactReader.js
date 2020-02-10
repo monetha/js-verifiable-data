@@ -58,13 +58,16 @@ var crypto = __importStar(require("@harmony-js/crypto"));
 var FactReader = /** @class */ (function () {
     function FactReader(harmony, passportAddress) {
         this.harmony = harmony;
-        this.contract = rawContracts_1.initPassportLogicContract(harmony, passportAddress);
+        this.passAddress = passportAddress;
     }
     Object.defineProperty(FactReader.prototype, "passportAddress", {
-        get: function () { return this.contract.address; },
+        get: function () { return this.passAddress; },
         enumerable: true,
         configurable: true
     });
+    FactReader.prototype.getContract = function () {
+        return rawContracts_1.initPassportLogicContract(this.harmony, this.passAddress);
+    };
     /**
      * Read string type fact from passport
      */
@@ -168,7 +171,7 @@ var FactReader = /** @class */ (function () {
                         }
                         preparedKey = contract_1.formatBytes32String(key);
                         blockNum = conversion_1.toBN(data).toNumber();
-                        return [4 /*yield*/, logs_1.getPastEvents(this.harmony, this.contract, 'TxDataUpdated', {
+                        return [4 /*yield*/, logs_1.getPastEvents(this.harmony, this.getContract(), 'TxDataUpdated', {
                                 fromBlock: blockNum,
                                 toBlock: blockNum,
                                 filter: {
@@ -236,7 +239,7 @@ var FactReader = /** @class */ (function () {
                         }
                         return [2 /*return*/, privateReader.getPrivateData({
                                 factProviderAddress: factProviderAddress,
-                                passportAddress: this.passportAddress,
+                                passportAddress: this.passAddress,
                                 key: key,
                                 value: hashes,
                             }, passportOwnerPrivateKey, ipfs)];
@@ -278,7 +281,7 @@ var FactReader = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         preparedKey = contract_1.formatBytes32String(key);
-                        method = this.contract.methods.getPrivateDataHashes(factProviderAddress, preparedKey);
+                        method = this.getContract().methods.getPrivateDataHashes(factProviderAddress, preparedKey);
                         return [4 /*yield*/, tx_1.callMethod(method)];
                     case 1:
                         result = _a.sent();
@@ -300,7 +303,7 @@ var FactReader = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         preparedKey = contract_1.formatBytes32String(key);
-                        func = this.contract.methods[method];
+                        func = this.getContract().methods[method];
                         return [4 /*yield*/, tx_1.callMethod(func(factProviderAddress, preparedKey))];
                     case 1:
                         result = _a.sent();

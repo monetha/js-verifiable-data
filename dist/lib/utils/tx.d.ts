@@ -1,7 +1,6 @@
 /// <reference types="node" />
-import { ContractMethod } from '@harmony-js/contract/dist/methods/method';
 import { Harmony } from '@harmony-js/core';
-import { IConfiguredContractMethod, ITxConfig } from '../models/Method';
+import { IConfiguredContractMethod, ITxConfig, ContractMethod } from '../models/Method';
 export interface IMethodInfo {
     name: string;
     params: IMethodParam[];

@@ -4,9 +4,10 @@ import { Harmony } from '@harmony-js/core';
  * Class to change and check permissions for fact providers to any specific passport
  */
 export declare class Permissions {
-    private contract;
+    private passportAddress;
     private harmony;
     constructor(harmony: Harmony, passportAddress: Address);
+    private getContract;
     /**
      * Adds factProvider to whitelist
      */

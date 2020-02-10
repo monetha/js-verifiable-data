@@ -4,9 +4,10 @@ import { Harmony } from '@harmony-js/core';
  * Class for fact deletion
  */
 export declare class FactRemover {
-    private contract;
+    private passportAddress;
     private harmony;
     constructor(harmony: Harmony, passportAddress: Address);
+    private getContract;
     /**
      * Deletes string type fact from passport
      */

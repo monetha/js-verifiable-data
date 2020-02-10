@@ -43,8 +43,11 @@ var tx_1 = require("../utils/tx");
 var Permissions = /** @class */ (function () {
     function Permissions(harmony, passportAddress) {
         this.harmony = harmony;
-        this.contract = rawContracts_1.initPassportLogicContract(harmony, passportAddress);
+        this.passportAddress = passportAddress;
     }
+    Permissions.prototype.getContract = function () {
+        return rawContracts_1.initPassportLogicContract(this.harmony, this.passportAddress);
+    };
     /**
      * Adds factProvider to whitelist
      */
@@ -52,7 +55,7 @@ var Permissions = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var method;
             return __generator(this, function (_a) {
-                method = this.contract.methods.addFactProviderToWhitelist(factProviderAddress);
+                method = this.getContract().methods.addFactProviderToWhitelist(factProviderAddress);
                 return [2 /*return*/, tx_1.configureSendMethod(this.harmony, method, passportOwnerAddress)];
             });
         });
@@ -64,7 +67,7 @@ var Permissions = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var method;
             return __generator(this, function (_a) {
-                method = this.contract.methods.removeFactProviderFromWhitelist(factProviderAddress);
+                method = this.getContract().methods.removeFactProviderFromWhitelist(factProviderAddress);
                 return [2 /*return*/, tx_1.configureSendMethod(this.harmony, method, passportOwnerAddress)];
             });
         });
@@ -75,7 +78,7 @@ var Permissions = /** @class */ (function () {
     Permissions.prototype.isFactProviderInWhitelist = function (factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, tx_1.callMethod(this.contract.methods.isFactProviderInWhitelist(factProviderAddress))];
+                return [2 /*return*/, tx_1.callMethod(this.getContract().methods.isFactProviderInWhitelist(factProviderAddress))];
             });
         });
     };
@@ -86,7 +89,7 @@ var Permissions = /** @class */ (function () {
     Permissions.prototype.isWhitelistOnlyPermissionSet = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, tx_1.callMethod(this.contract.methods.isWhitelistOnlyPermissionSet())];
+                return [2 /*return*/, tx_1.callMethod(this.getContract().methods.isWhitelistOnlyPermissionSet())];
             });
         });
     };
@@ -96,7 +99,7 @@ var Permissions = /** @class */ (function () {
     Permissions.prototype.isAllowedFactProvider = function (factProviderAddress) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, tx_1.callMethod(this.contract.methods.isAllowedFactProvider(factProviderAddress))];
+                return [2 /*return*/, tx_1.callMethod(this.getContract().methods.isAllowedFactProvider(factProviderAddress))];
             });
         });
     };
@@ -107,7 +110,7 @@ var Permissions = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var method;
             return __generator(this, function (_a) {
-                method = this.contract.methods.setWhitelistOnlyPermission(onlyWhitelistedProviders);
+                method = this.getContract().methods.setWhitelistOnlyPermission(onlyWhitelistedProviders);
                 return [2 /*return*/, tx_1.configureSendMethod(this.harmony, method, passportOwnerAddress)];
             });
         });

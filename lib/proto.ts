@@ -24,7 +24,7 @@ import { ErrorCode } from './errors/ErrorCode';
 import { ISdkError } from './errors/SdkError';
 import { Address } from './models/Address';
 import { IFactValue } from './models/IFactValue';
-// import { toBN } from './utils/conversion';
+import { toBN } from './utils/conversion';
 import { RandomArrayGenerator } from './models/RandomArrayGenerator';
 import {
   initPassportFactoryContract,
@@ -35,7 +35,7 @@ import {
 } from './passport/rawContracts';
 import { ISKM } from './passport/privateFactCommon';
 import { TxExecutor } from './models/TxExecutor';
-// import { FactProviderManager, IFactProviderInfo } from './passport/FactProviderManager';
+import { FactProviderManager, IFactProviderInfo } from './passport/FactProviderManager';
 
 export {
   PassportGenerator,
@@ -68,7 +68,7 @@ export {
   ISdkError,
   Address,
   ExchangeState,
-  // toBN,
+  toBN,
   RandomArrayGenerator,
   initPassportFactoryContract,
   initPassportLogicContract,
@@ -77,7 +77,7 @@ export {
   initFactProviderRegistryContract,
   getExchangeIndexFromReceipt,
   ISKM,
-  // FactProviderManager,
-  // IFactProviderInfo,
+  FactProviderManager,
+  IFactProviderInfo,
   TxExecutor,
 };

@@ -1,4 +1,3 @@
-import { Contract } from '@harmony-js/contract';
 import { Harmony } from '@harmony-js/core';
 import { TransasctionReceipt } from '@harmony-js/transaction';
 import { configureSendMethod } from 'lib/utils/tx';
@@ -6,8 +5,8 @@ import { Address } from '../models/Address';
 import { initPassportFactoryContract } from './rawContracts';
 
 export class PassportGenerator {
-  private contract: Contract;
   private harmony: Harmony;
+  private passFactoryAddress: Address;
 
   /**
    * Utility to extract passport address from passport creation transaction receipt
@@ -32,14 +31,18 @@ export class PassportGenerator {
 
   constructor(harmony: Harmony, passportFactoryAddress: Address) {
     this.harmony = harmony;
-    this.contract = initPassportFactoryContract(harmony, passportFactoryAddress);
+    this.passFactoryAddress = passportFactoryAddress;
+  }
+
+  private getContract() {
+    return initPassportFactoryContract(this.harmony, this.passFactoryAddress);
   }
 
   /**
    * Creates an empty passport and returns its address
    */
   public async createPassport(ownerAddress: Address) {
-    const method = this.contract.methods.createPassport();
+    const method = this.getContract().methods.createPassport();
 
     return configureSendMethod(this.harmony, method, ownerAddress);
   }
