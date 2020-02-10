@@ -42,8 +42,6 @@ Corresponds to [Verifiable data layer](https://github.com/monetha/reputation-lay
     - [Setting data source information](#Setting-data-source-information)
     - [Deleting data source information](#Deleting-data-source-information)
     - [Reading data source information](#Reading-data-source-information)
-  - [Permissioned blockchains support](#Permissioned-blockchains-support)
-    - [Quorum](#Quorum)
 
 ## Building the source
 
@@ -93,24 +91,18 @@ In order to create a digital identity and start using it, you need to use auxili
 
 ### Deploying digital identity
 
-To create a digital identity contract you need to know the address of the `PassportFactory` contract. Let's try to create a digital identity in Ropsten
-using the `PassportFactory` contract deployed by Monetha ([`0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2`](https://ropsten.etherscan.io/address/0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2)):
+To create a digital identity contract you need to know the address of the `PassportFactory` contract. Let's try to create a digital identity in Harmony Testnet
+using the `PassportFactory` contract deployed by Monetha ([`0xEEB7238dBF55d861986205c83130Ba1d0d4E3ADE`](https://explorer.testnet.harmony.one/#/address/0xEEB7238dBF55d861986205c83130Ba1d0d4E3ADE)):
 
 ```js
 import { PassportGenerator } from 'verifiable-data';
-const generator = new PassportGenerator(web3, passportFactoryAddress);
+const generator = new PassportGenerator(harmony, passportFactoryAddress);
 
-// txConfig must be signed by `passportOwnerAddress` when sending it to network
-const txConfig = await generator.createPassport(passportOwnerAddress);
+// method must be signed by `passportOwnerAddress` when sending it to network
+const method = await generator.createPassport(passportOwnerAddress);
 ```
 
-You will get the transaction configuration object `txConfig` in output of the function, which have to be signed and submitted to network. SDK intentionally does not execute transaction itself because client may want to execute it in a specific way. For example, Quorum blockchain allows submitting transactions as private and requires setting a non-standard property `privateFor` for this.
-
-One of the ways to submit a transaction would be to use this web3 function with Metamask:
-
-```js
-const receipt = await web3.eth.sendTransaction(txConfig);
-```
+You will get the transaction send method `method` in output of the function, which have to be called by using `.send()`. SDK intentionally does not execute `send()` itself because client may want to execute it in a specific way, listen for specific events.
 
 Receipt will contain created digital identity address, which can be easily extracted using a helper utility:
 
@@ -124,9 +116,9 @@ After the digital identity is created, the owner must call the `claimOwnership` 
 
 ```js
 import { PassportOwnership } from 'verifiable-data';
-const ownership = new PassportOwnership(web3, passportAddress);
+const ownership = new PassportOwnership(harmony, passportAddress);
 
-const txConfig = await ownership.claimOwnership(passportOwnerAddress);
+const method = await ownership.claimOwnership(passportOwnerAddress);
 ```
 
 To return digital identity owner address call getOwnerAddress():
@@ -139,14 +131,14 @@ const passportOwnerAddress = await ownership.getOwnerAddress();
 
 The digital identity factory allows you to get a list of all digital identities that have been created using this particular identity factory.
 
-Let's try to get a list of all digital identities using the address of `PassportFactory` contract deployed by Monetha ([`0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2`](https://ropsten.etherscan.io/address/0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2))
-in Ropsten network:
+Let's try to get a list of all digital identities using the address of `PassportFactory` contract deployed by Monetha ([`0xEEB7238dBF55d861986205c83130Ba1d0d4E3ADE`](https://explorer.testnet.harmony.one/#/address/0xEEB7238dBF55d861986205c83130Ba1d0d4E3ADE))
+in Harmony Testnet network:
 
 ```js
 import { PassportReader } from 'verifiable-data';
-const reader = new PassportReader(web3);
+const reader = new PassportReader(harmony);
 
-const passports = await reader.getPassportsList('0x35Cb95Db8E6d56D1CF8D5877EB13e9EE74e457F2');
+const passports = await reader.getPassportsList('0xEEB7238dBF55d861986205c83130Ba1d0d4E3ADE');
 ```
 
 You should get something like this Array of objects:
@@ -178,23 +170,6 @@ Make sure that the data source has enough funds to write the facts.
 
 **Gas usage**
 
-Cumulative gas usage in simulated backend to store number of character of `a` under the key
-`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` using different data types:
-
-| Number of characters |     `ipfs*`, gas used    |     `txdata`, gas used    |  `bytes`, gas used |  `string`, gas used |
-|---------------------:|--------------------------:|--------------------------:|-------------------:|-------------------:|
-| 10 | 114245 | 70436 | 71079 | 71211 |
-| 100 | 114245 | 76598 | 157571 | 157703 |
-| 500 | 114245 | 103870 | 425756 | 425888 |
-| 1000 | 114245 | 138016 | 781119 | 781251 |
-| 5000 | 114245 | 410814 | 3563467 | 3563599 |
-| 10000 | 114245 | 751864 | 7036521 | 7036653 |
-| 50000 | 114245 | 3483963 | - | - |
-| 100000 | 114245 | 6907662 | - | - |
-| 110000 | 114245 | 7593621 | - | - |
-| 120000 | 114245 | 8279814 | - | - |
-| 130000 | 114245 | 8966537 | - | - |
-
 You can write up to 100KB of data in digital identity under one key when `txdata` data type is used. Supported data types that
 can be written to the digital identity: `string`, `bytes`, `address`, `uint`, `int`, `bool`, `txdata`, `ipfshash`. All types except `txdata`
 use Ethereum storage to store the data. `txdata` uses Ethereum storage only to save the block number, the data itself
@@ -209,9 +184,9 @@ Let's try to store string `hello` under the key `greetings` as `string` in digit
 
 ```js
 import { FactWriter } from 'verifiable-data';
-const writer = new FactWriter(web3, passportAddress);
+const writer = new FactWriter(harmony, passportAddress);
 
-const txConfig = await writer.setString('greetings', 'hello', factProviderAddress);
+const method = await writer.setString('greetings', 'hello', factProviderAddress);
 ```
 
 **Writing facts examples:**
@@ -219,49 +194,49 @@ const txConfig = await writer.setString('greetings', 'hello', factProviderAddres
 Writes address type fact to digital identity:
 
 ```js
-const txConfig = await writer.setAddress('address_1', '0x5A0b54D5dc17e0AadC383d2db43B0a0D3E029c4c', factProviderAddress);
+const method = await writer.setAddress('address_1', '0x5A0b54D5dc17e0AadC383d2db43B0a0D3E029c4c', factProviderAddress);
 ```
 
 Writes boolean type fact to digital identity:
 
 ```js
-const txConfig = await writer.setBool('barcelona_won_uefa', false, factProviderAddress);
+const method = await writer.setBool('barcelona_won_uefa', false, factProviderAddress);
 ```
 
 Writes bytes type fact to digital identity:
 
 ```js
-const txConfig = await writer.setBytes('bytes_data', [1, 2, 3], factProviderAddress);
+const method = await writer.setBytes('bytes_data', [1, 2, 3], factProviderAddress);
 ```
 
 Writes IPFS hash data type fact to digital identity:
 
 ```js
-const txConfig = await writer.setIPFSData('logo', 'QmaSjk86XyXQzeZ5JCVS2scNYiUBsmALyGBUjatEiQuc3q', factProviderAddress, ipfsClient);
+const method = await writer.setIPFSData('logo', 'QmaSjk86XyXQzeZ5JCVS2scNYiUBsmALyGBUjatEiQuc3q', factProviderAddress, ipfsClient);
 ```
 
 Writes int type fact to digital identity:
 
 ```js
-const txConfig = await writer.setInt('lt_population', 2848000, factProviderAddress);
+const method = await writer.setInt('lt_population', 2848000, factProviderAddress);
 ```
 
 Writes TX data type fact to digital identity:
 
 ```js
-const txConfig = await writer.setTxdata('tx_1', [1, 2, 3], factProviderAddress);
+const method = await writer.setTxdata('tx_1', [1, 2, 3], factProviderAddress);
 ```
 
 Writes uint type fact to digital identity:
 
 ```js
-const txConfig = await writer.setUint('jonas_rating', 4294100000, factProviderAddress);
+const method = await writer.setUint('jonas_rating', 4294100000, factProviderAddress);
 ```
 
 Writes private data type fact to digital identity (read more about private data in [Private data](#private-data)):
 
 ```js
-const txConfig = await writer.setPrivateData('secret_message', [1, 2, 3], factProviderAddress, ipfsClient);
+const method = await writer.setPrivateData('secret_message', [1, 2, 3], factProviderAddress, ipfsClient);
 ```
 
 ### Reading facts
@@ -277,7 +252,7 @@ Let's try to retrieve string from digital identity `<passportAddress>` that was 
 
 ```js
 import { FactReader } from 'verifiable-data';
-const reader = new FactReader(web3, passportAddress);
+const reader = new FactReader(harmony, passportAddress);
 
 const data = await reader.getString(factProviderAddress, 'greetings');
 ```
@@ -346,7 +321,7 @@ Let's read a string fact from transaction hash `0x123456789...`:
 
 ```js
 import { FactHistoryReader } from 'verifiable-data';
-const historyReader = new FactHistoryReader(web3);
+const historyReader = new FactHistoryReader(harmony);
 
 const factInfo = await historyReader.getString('0x123456789...');
 ```
@@ -426,9 +401,9 @@ Let's try to delete fact under the key `greetings` as `string` from digital iden
 
 ```js
 import { FactRemover } from 'verifiable-data';
-const remover = new FactRemover(web3, passportAddress);
+const remover = new FactRemover(harmony, passportAddress);
 
-const txConfig = await remover.deleteString('greetings', factProviderAddress);
+const method = await remover.deleteString('greetings', factProviderAddress);
 ```
 
 **Deleting facts examples:**
@@ -436,49 +411,49 @@ const txConfig = await remover.deleteString('greetings', factProviderAddress);
 Deletes address type fact from digital identity:
 
 ```js
-const txConfig = await remover.deleteAddress(factProviderAddress, 'address_1');
+const method = await remover.deleteAddress(factProviderAddress, 'address_1');
 ```
 
 Deletes bool type fact from digital identity:
 
 ```js
-const txConfig = await remover.deleteBool(factProviderAddress, 'barcelona_won_uefa');
+const method = await remover.deleteBool(factProviderAddress, 'barcelona_won_uefa');
 ```
 
 Deletes byte type fact from digital identity:
 
 ```js
-const txConfig = await remover.deleteBytes(factProviderAddress, 'bytes_data');
+const method = await remover.deleteBytes(factProviderAddress, 'bytes_data');
 ```
 
 Deletes IPFS hash type fact from digital identity:
 
 ```js
-const txConfig = await remover.deleteIPFSHash(factProviderAddress, 'logo', IIPFSClient);
+const method = await remover.deleteIPFSHash(factProviderAddress, 'logo', IIPFSClient);
 ```
 
 Deletes int type fact from digital identity:
 
 ```js
-const txConfig = await remover.deleteInt(factProviderAddress, 'lt_population');
+const method = await remover.deleteInt(factProviderAddress, 'lt_population');
 ```
 
 Deletes txdata type fact from digital identity:
 
 ```js
-const txConfig = await remover.deleteTxdata(factProviderAddress, 'tx_1');
+const method = await remover.deleteTxdata(factProviderAddress, 'tx_1');
 ```
 
 Deletes uint type fact from digital identity:
 
 ```js
-const txConfig = await remover.deleteUint(factProviderAddress, 'jonas_rating');
+const method = await remover.deleteUint(factProviderAddress, 'jonas_rating');
 ```
 
 Deletes private data type fact from digital identity (read more about private data in [Private data](#private-data)):
 
 ```js
-const txConfig = await remover.deletePrivateDataHashes('secret_message', factProviderAddress);
+const method = await remover.deletePrivateDataHashes('secret_message', factProviderAddress);
 ```
 
 ### Managing digital identity permissions
@@ -491,20 +466,20 @@ Consider an example of how owner `<passportOwnerAddress>` of a digital identity 
 
 ```js
 import { Permissions } from 'verifiable-data';
-const permissions = new Permissions(web3, passportAddress);
+const permissions = new Permissions(harmony, passportAddress);
 
-let txConfig = await permissions.setWhitelistOnlyPermission(true, passportOwnerAddress);
+let method = await permissions.setWhitelistOnlyPermission(true, passportOwnerAddress);
 
-// Sign and submit txConfig
+// Sign and submit method
 // ...
 
-txConfig = await permissions.addFactProviderToWhitelist(factProviderAddress, passportOwnerAddress);
+method = await permissions.addFactProviderToWhitelist(factProviderAddress, passportOwnerAddress);
 ```
 
 Also the digital identity owner can delete the data source from the list:
 
 ```js
-const txConfig = await permissions.removeFactProviderFromWhitelist(factProviderAddress, passportOwnerAddress);
+const method = await permissions.removeFactProviderFromWhitelist(factProviderAddress, passportOwnerAddress);
 ```
 
 Checks if factProvider is allowed:
@@ -529,12 +504,12 @@ const isWhitelistEnabled = await permissions.isWhitelistOnlyPermissionSet();
 
 The SDK allows you to see the history of absolutely all changes of facts in the digital identity.
 
-Let's try to retrieve the entire change history for the digital identity [`0x1C3A76a9A27470657BcBE7BfB47820457E4DB682`](https://ropsten.etherscan.io/address/0x1C3A76a9A27470657BcBE7BfB47820457E4DB682)
-in `Ropsten` network :
+Let's try to retrieve the entire change history for the digital identity [`0x1fba90b6cfec428e23143d5f2b94548d8200c5ef`](https://explorer.testnet.harmony.one/#/address/0x1fba90b6cfec428e23143d5f2b94548d8200c5ef)
+in Harmony Testnet network :
 
 ```js
 import { PassportReader } from 'verifiable-data';
-const reader = new PassportReader(web3);
+const reader = new PassportReader(harmony);
 const history = await reader.readPassportHistory(passportAddress);
 ```
 
@@ -545,10 +520,10 @@ const history = await reader.readPassportHistory(passportAddress);
   {
     eventType: 'Updated', // 'Updated' or 'Deleted'
     dataType: 'IPFSHash', // Fact type - 'String', 'Bool', ...
-    factProviderAddress: '0x5b2AE3b3A801469886Bb8f5349fc3744cAa6348d', // Data source address
+    factProviderAddress: '0x3aea49553ce2e478f1c0c5acc304a84f5f4d1f98', // Data source address
 
     // TX hash where change has occurred. Can be used with `FactHistoryReader` to read fact value
-    transactionHash: '0xd43201d6b23a18b90a53bf7ef1fffad0b04af603c039b6617601a225a129c632',
+    transactionHash: '0x123456...',
     blockNumber: ‭5233914‬, // Block nr where change has occurred
     key: 'monetha.jpg', // Fact key
   },
@@ -574,20 +549,19 @@ To store private data, use `FactWriter.setPrivateData` method.
 
 Let's try storing this data:
 
-- data source address: `0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E` (your address)
+- data source address: `0x3aea49553ce2e478f1c0c5acc304a84f5f4d1f98` (your address)
 - fact key: `secret_message`
 - fact value: `[1, 2, 3]` (value must be array of bytes)
 
-To this digital identity: `0x4026a67a2C4746b94F168bd4d082708f78d7b29f`
+To this digital identity: `0x3aea49553ce2e478f1c0c5acc304a84f5f4d1f98`
 
 ```js
 import { FactWriter } from 'verifiable-data';
 import IPFS from 'ipfs';
 
-// Prepare web3 object
 ...
 
-const writer = new FactWriter(web3, `0x4026a67a2C4746b94F168bd4d082708f78d7b29f`);
+const writer = new FactWriter(harmony, `0x1fba90b6cfec428e23143d5f2b94548d8200c5ef`);
 
 // ipfsClient can be any object that is able to communicate with IPFS as long as it implements
 // interface IIPFSClient in 'verifiable-data'
@@ -595,7 +569,7 @@ const ipfsClient = new IPFS();
 
 ipfsClient.on('ready', async () => {
 
-  const result = await writer.setPrivateData('secret_message', [1, 2, 3], '0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E', ipfsClient);
+  const result = await writer.setPrivateData('secret_message', [1, 2, 3], '0x3aea49553ce2e478f1c0c5acc304a84f5f4d1f98', ipfsClient);
 
   ...
 })
@@ -617,8 +591,8 @@ result variable will contain such object (with different values):
 
   // Generated transaction information, which is to be executed in blockchain
   tx: {
-    from: '0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E',
-    to: '0x4026a67a2C4746b94F168bd4d082708f78d7b29f',
+    from: '0x3aea49553ce2e478f1c0c5acc304a84f5f4d1f98',
+    to: '0x1fba90b6cfec428e23143d5f2b94548d8200c5ef',
     nonce: 12,
     gasPrice: '0x1',
     gasLimit: 21000,
@@ -632,7 +606,7 @@ result variable will contain such object (with different values):
 
 As we can see, data is stored publicly in IPFS at address `result.dataIpfsHash`. However, it can only be decrypted using digital identity owner's private key (only known by digital identity owner) or generated secret encryption key `result.dataKey` (only known by data source).
 
-At this stage data is stored to IPFS, but not yet in blockchain digital identity. To complete this - execute the transaction in blockchain using the transaction config provided in `result.tx`. SDK only generates information about transaction, but execution is left up to SDK consumer, because the ways how transaction can be submitted to blockchain can vary. One possibility is to use `web3.eth.sendTransaction({...})`.
+At this stage data is stored to IPFS, but not yet in blockchain digital identity. To complete this - execute the transaction in blockchain using the transaction config provided in `result.tx`, which provides properties `method` - a method to call `send()` on and `txConfig` - mandatory parameters to provide to `send(txConfig)`. SDK only generates information about transaction, but execution is left up to SDK consumer, because the ways how transaction can be submitted to blockchain can vary.
 
 #### Reading private data
 
@@ -645,18 +619,17 @@ After the data source has written the private data to the digital identity, the 
 - if the data is read by the owner of the digital identity, he needs to specify his private key
 
 Let's try retrieving private data using:
-- digital identity `0x4026a67a2C4746b94F168bd4d082708f78d7b29f`:
-- data source address: `0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E`
+- digital identity `0x1fba90b6cfec428e23143d5f2b94548d8200c5ef`:
+- data source address: `0x3aea49553ce2e478f1c0c5acc304a84f5f4d1f98`
 - fact key: `secret_message`
 
 ```js
 import { FactReader } from 'verifiable-data';
 import IPFS from 'ipfs';
 
-// Prepare web3 object
 ...
 
-const reader = new FactReader(web3, `0x4026a67a2C4746b94F168bd4d082708f78d7b29f`);
+const reader = new FactReader(harmony, `0x1fba90b6cfec428e23143d5f2b94548d8200c5ef`);
 
 // ipfsClient can be any object that is able to communicate with IPFS as long as it implements
 // interface IIPFSClient in 'verifiable-data'
@@ -666,13 +639,13 @@ ipfsClient.on('ready', async () => {
 
   // Read data as a DIGITAL IDENTITY OWNER using owner's Ethereum wallet private key
   const passportOwnerPrivateKey = '<digital identity owner private key>';
-  let result = await reader.getPrivateData('0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E', 'secret_message', passportOwnerPrivateKey, ipfsClient);
+  let result = await reader.getPrivateData('0x3aea49553ce2e478f1c0c5acc304a84f5f4d1f98', 'secret_message', passportOwnerPrivateKey, ipfsClient);
 
   ...
 
   // Read data as a DATA SOURCE using secret encryption key (from variable result.dataKey after fact writing)
   const secretEncryptionKey = '0x...';
-  result = await reader.getPrivateDataUsingSecretKey('0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E', 'secret_message', secretEncryptionKey, ipfsClient);
+  result = await reader.getPrivateDataUsingSecretKey('0x3aea49553ce2e478f1c0c5acc304a84f5f4d1f98', 'secret_message', secretEncryptionKey, ipfsClient);
 
   ...
 })
@@ -684,7 +657,7 @@ ipfsClient.on('ready', async () => {
 In order to read hashes which are only stored in blockchain (not data in IPFS), we can use:
 
 ```js
-result = await reader.getPrivateDataHashes('0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E', 'secret_message');
+result = await reader.getPrivateDataHashes('0x3aea49553ce2e478f1c0c5acc304a84f5f4d1f98', 'secret_message');
 ```
 
 This will return:
@@ -706,7 +679,7 @@ There is a possibility to read private data from blockchain transaction as well.
 import { FactHistoryReader } from 'verifiable-data';
 ...
 
-const historyReader = new FactHistoryReader(web3, `0x4026a67a2C4746b94F168bd4d082708f78d7b29f`);
+const historyReader = new FactHistoryReader(harmony, `0x1fba90b6cfec428e23143d5f2b94548d8200c5ef`);
 
 ...
 
@@ -730,8 +703,8 @@ result = await historyReader.getPrivateDataUsingSecretKey(txHash, secretEncrypti
 
 ```js
 {
-  factProviderAddress: '0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E',
-  passportAddress: '0x4026a67a2C4746b94F168bd4d082708f78d7b29f',
+  factProviderAddress: '0x3aea49553ce2e478f1c0c5acc304a84f5f4d1f98',
+  passportAddress: '0x1fba90b6cfec428e23143d5f2b94548d8200c5ef',
   key: 'secret_message',
   value: [1, 2, 3],
 }
@@ -746,8 +719,8 @@ result = await historyReader.getPrivateDataHashes(txHash);
 This will return:
 ```js
 {
-  factProviderAddress: '0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E',
-  passportAddress: '0x4026a67a2C4746b94F168bd4d082708f78d7b29f',
+  factProviderAddress: '0x3aea49553ce2e478f1c0c5acc304a84f5f4d1f98',
+  passportAddress: '0x1fba90b6cfec428e23143d5f2b94548d8200c5ef',
   key: 'secret_message',
   value: {
 
@@ -807,8 +780,8 @@ To initiate the exchange of private data, the data requester must use `PrivateDa
 - `txExecutor` - transaction executor function
 
 Let's try proposing exchange for private fact using following parameters:
-- digital identity address: `0x4026a67a2C4746b94F168bd4d082708f78d7b29f`,
-- data source address: `0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E`
+- digital identity address: `0x1fba90b6cfec428e23143d5f2b94548d8200c5ef`,
+- data source address: `0x3aea49553ce2e478f1c0c5acc304a84f5f4d1f98`
 - fact key: `secret_message`
 - wei to stake: `10000000000000000 wei` (which is equal to `0.01 ETH`).
 - requester address: `0xd2Bb3Aa3F2c0bdA6D8020f3228EabD4A89d8B951` (the one who will execute transaction)
@@ -818,17 +791,37 @@ import { PrivateDataExchanger } from 'verifiable-data';
 import BN from 'bn.js';
 import IPFS from 'ipfs';
 
-// Prepare web3 object
 ...
 
-const exchanger = new PrivateDataExchanger(web3, `0x4026a67a2C4746b94F168bd4d082708f78d7b29f`);
+const exchanger = new PrivateDataExchanger(harmony, `0x1fba90b6cfec428e23143d5f2b94548d8200c5ef`);
 
 // txExecutor must be function which takes TransactionConfig object as a parameter (transaction configuration to execute),
 // executes it and returns transaction receipt.
-const txExecutor = async (txConfig) => {
+const txExecutor = async ({ method, txConfig }) => {
 
-  // This is a simplified example of implementation
-  return web3.eth.sendTransaction(txConfig);
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (txConfig.from) {
+        method.wallet.setSigner(txConfig.from);
+      }
+
+      await method
+        .send(txConfig)
+        .on('receipt', receipt => {
+          if (receipt.status === '0x0') {
+            reject(new Error(`Transaction ${receipt.transactionHash} failed and has been reverted`));
+            return;
+          }
+
+          resolve(receipt);
+        })
+        .on('error', error => {
+          reject(error);
+        });
+    } catch (err) {
+      reject(err);
+    }
+  });
 };
 
 // ipfsClient can be any object that is able to communicate with IPFS as long as it implements
@@ -839,7 +832,7 @@ ipfsClient.on('ready', async () => {
 
   const result = await exchanger.propose(
     `secret_message`,
-    `0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E`,
+    `0x3aea49553ce2e478f1c0c5acc304a84f5f4d1f98`,
     new BN('10000000000000000', 10), // Because of long numbers BN library is used
     `0xd2Bb3Aa3F2c0bdA6D8020f3228EabD4A89d8B951`,
     txExecutor,
@@ -900,10 +893,10 @@ status variable will contain such object (with different values):
   factKey: 'secret_message',
 
   // Data source address
-  factProviderAddress: '0xd8CD4f4640D9Df7ae39aDdF08AE2c6871FcFf77E',
+  factProviderAddress: '0x3aea49553ce2e478f1c0c5acc304a84f5f4d1f98',
 
   // Digital identity owner address
-  passportOwnerAddress: '0xD101709569D2dEc41f88d874Badd9c7CF1106AF7',
+  passportOwnerAddress: '0x3aea49553ce2e478f1c0c5acc304a84f5f4d1f98',
 
   // Amount in WEI staked by passport owner. Since exchange was not accepted yet - amount will be 0
   passportOwnerStaked: /* BN object with value 0 */,
@@ -987,7 +980,7 @@ Here is how data requester or digital identity owner can finish the private data
 await exchanger.finish(new BN(1), `0xd2Bb3Aa3F2c0bdA6D8020f3228EabD4A89d8B951`, txExecutor);
 
 // OR for digital identity owner after 24h
-await exchanger.finish(new BN(1), `0xD101709569D2dEc41f88d874Badd9c7CF1106AF7`, txExecutor);
+await exchanger.finish(new BN(1), `0x3aea49553ce2e478f1c0c5acc304a84f5f4d1f98`, txExecutor);
 
 ...
 ```
@@ -1039,11 +1032,7 @@ Information about data sources can be written only by data source registry owner
 
 To manage your own list of data sources' info - deploy [`FactProviderRegistry`](https://github.com/monetha/reputation-contracts/blob/master/contracts/FactProviderRegistry.sol) contract.
 
-Monetha has already deployed this contract to Ropsten and Mainnet networks:
-| Network      | Address                                      |
-|---------------|----------------------------------------------|
-| Ropsten | [`0xf9dbC37BBdC68E0Ba03185F1877059C595DcF083`](https://ropsten.etherscan.io/address/0xf9dbC37BBdC68E0Ba03185F1877059C595DcF083) |
-| Mainnet  | [`0xD4666f08A40dFD0945Cac5aB83fF04625a60664C`](https://etherscan.io/address/0xD4666f08A40dFD0945Cac5aB83fF04625a60664C) |
+Monetha has already deployed this contract to Harmony Testnet: [`0xD5E89D998Ec151a8549fDEeEe776165Ce8237b24`](https://explorer.testnet.harmony.one/#/address/0xD5E89D998Ec151a8549fDEeEe776165Ce8237b24)
 
 SDK provides a `FactProviderManager` class, which allows easy creation, update, delection and reading of data source info from registry. For all operations you will have to know `registryAddress`, which is an address of data source registry contract.
 
@@ -1053,10 +1042,10 @@ Write data source information to registry using `FactProviderManager.setInfo` as
 
 ```js
 import { FactProviderManager } from 'verifiable-data';
-const manager = new FactProviderManager(web3, registryAddress);
+const manager = new FactProviderManager(harmony, registryAddress);
 
-// txConfig must be signed by `registryOwnerAddress` when sending it to network
-const txConfig = await manager.setInfo(factProviderAddress, {
+// method must be signed by `registryOwnerAddress` when sending it to network
+const method = await manager.setInfo(factProviderAddress, {
   name: 'Data source display name',
 
   // passport is an optional property which specifies data source's own digital identity
@@ -1065,7 +1054,7 @@ const txConfig = await manager.setInfo(factProviderAddress, {
   website: 'https://www.data-source-website.io',
 }, registryOwnerAddress);
 
-// ... submit txConfig in your code
+// ... submit method in your code
 ```
 
 The same method can be used for initial information writing as well as updating. Info can only be written by registry owner.
@@ -1076,12 +1065,12 @@ Delete data source information from registry using `FactProviderManager.deleteIn
 
 ```js
 import { FactProviderManager } from 'verifiable-data';
-const manager = new FactProviderManager(web3, registryAddress);
+const manager = new FactProviderManager(harmony, registryAddress);
 
-// txConfig must be signed by `registryOwnerAddress` when sending it to network
-const txConfig = await manager.deleteInfo(factProviderAddress, registryOwnerAddress);
+// method must be signed by `registryOwnerAddress` when sending it to network
+const method = await manager.deleteInfo(factProviderAddress, registryOwnerAddress);
 
-// ... submit txConfig in your code
+// ... submit method in your code
 ```
 
 NOTE: this is not real deletion, since it is impossible to delete anything from blockchain. This method just makes sure that if anyone tries to read info about this data source using `getInfo` - it will return `null`. However, historical info could still be reached through transaction history. Info can only be deleted by registry owner.
@@ -1092,7 +1081,7 @@ Read data source information from registry using `FactProviderManager.getInfo` a
 
 ```js
 import { FactProviderManager } from 'verifiable-data';
-const manager = new FactProviderManager(web3, registryAddress);
+const manager = new FactProviderManager(harmony, registryAddress);
 
 const info = await manager.getInfo(factProviderAddress);
 
@@ -1111,33 +1100,3 @@ where `info` will be like
 ```
 
 Info can be read by anyone.
-
-## Permissioned blockchains support
-
-### Quorum
-
-[Quorum](https://www.jpmorgan.com/global/Quorum)™ is an enterprise-focused version of [Ethereum](https://ethereum.org/).
-It's ideal for any application requiring high speed and high throughput processing of private transactions within a
-permissioned group of known participants.
-
-In order to play with our SDK on Quorum network, you need to run Quorum network somewhere. The easiest way to run Quorum
-network of 7 nodes locally is by using [example](https://docs.goquorum.com/en/latest/Getting%20Started/Quorum-Examples/) provided by Quorum.
-
-When nodes are up and running, you must deploy  `PassportLogic`, `PassportLogicRegistry` and `PassportFactory` smart contracts. You will find latest versions of those contracts in our contracts Github [repository](https://github.com/monetha/reputation-contracts/tree/master/contracts).
-
-To use SDK with Quorum's public transactions - no special configuration is needed for SDK and it can be used same was as with public Ethereum networks. However,  in order to use Quorum's private transactions, signing of transactions is done differently.
-
-Our SDK provides extension points where Quorum's custom behavior can be achieved. An example of SDK usage with Quotum can be seen in [`integration-tests/test/facts.ts`](integration-tests/test/facts.ts).
-
-If you run integration tests using using `npm run test:quorum-private`, then there are special options passed to `FactWriter`, `FactReader` and other constructors:
-
-```js
-import { ext } from 'verifiable-data';
-
-const options: IEthOptions = {
-
-  // Quorum modifies transactions after they were signed and then encodes them in Enclave.
-  // This extension takes care of returning transactions and decoding transactions, as well as recovering sender's public key.
-  txRetriever: ext.quorum.getPrivateTx,
-};
-```
