@@ -25,4 +25,4 @@ export declare function toBN(value: string | number | BN | any): BN;
 /**
  * Converts given value to date. Any numerical representation is expected to be UNIX timestamp
  */
-export declare function toDate(value: string | number | BN | any): Date;
+export declare function toDate(value: string): Date;

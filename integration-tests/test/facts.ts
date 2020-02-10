@@ -40,7 +40,7 @@ addAccountsFromPrivateKeys(harmony);
 const contractCreationParams: any = {};
 
 const txHashes: any = {};
-const txExecutor = createTxExecutor(harmony);
+const txExecutor = createTxExecutor();
 
 // padded hex of "FAKE_KEY_HASH"
 const dataKeyHash = '0x46414b455f4b45595f4841534800000000000000000000000000000000000000';

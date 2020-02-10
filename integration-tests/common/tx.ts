@@ -1,12 +1,15 @@
-import { Harmony } from '@harmony-js/core';
 import { TransasctionReceipt } from '@harmony-js/transaction';
-import { ContractMethod, IConfiguredContractMethod, ITxConfig } from 'lib/models/Method';
 import { createSdkError } from 'lib/errors/SdkError';
+import { ContractMethod, IConfiguredContractMethod, ITxConfig } from 'lib/models/Method';
 import { ErrorCode } from 'verifiable-data';
 
-export async function submitTransaction(harmony: Harmony, method: ContractMethod, txConfig: ITxConfig): Promise<TransasctionReceipt> {
+export async function submitContractTransaction(method: ContractMethod, txConfig: ITxConfig): Promise<TransasctionReceipt> {
   return new Promise(async (resolve, reject) => {
     try {
+      if (txConfig.from) {
+        method.wallet.setSigner(txConfig.from);
+      }
+
       await method
         .send(txConfig)
         .on('receipt', receipt => {
@@ -26,8 +29,8 @@ export async function submitTransaction(harmony: Harmony, method: ContractMethod
   });
 }
 
-export const createTxExecutor = (harmony: Harmony) => {
+export const createTxExecutor = () => {
   return async (cfgMethod: IConfiguredContractMethod): Promise<TransasctionReceipt> => {
-    return submitTransaction(harmony, cfgMethod.method, cfgMethod.txConfig);
+    return submitContractTransaction(cfgMethod.method, cfgMethod.txConfig);
   };
 };

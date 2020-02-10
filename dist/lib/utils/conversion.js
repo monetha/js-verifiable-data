@@ -77,28 +77,8 @@ exports.toBN = toBN;
  */
 function toDate(value) {
     if (value === null || value === undefined) {
-        return value;
+        return null;
     }
-    if (typeof value === 'string') {
-        return new Date(value);
-    }
-    if (typeof value === 'number') {
-        var adaptedValue = value;
-        // Check if value is represented as seconds
-        if (value < 1000000) {
-            adaptedValue *= 1000;
-        }
-        return new Date(adaptedValue);
-    }
-    var bnValue = toBN(value);
-    // If date occupies 4 bytes - it is seconds
-    if (bnValue.byteLength() <= 4) {
-        return new Date(bnValue.muln(1000).toNumber());
-    }
-    // If date occupies 8 bytes - it is nano seconds
-    if (bnValue.byteLength() >= 8) {
-        return new Date(bnValue.divn(1000000).toNumber());
-    }
-    return new Date(bnValue.toNumber());
+    return new Date(Number(value) * 1000);
 }
 exports.toDate = toDate;

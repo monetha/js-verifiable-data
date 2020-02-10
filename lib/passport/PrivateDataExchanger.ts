@@ -1,3 +1,6 @@
+import { Contract, formatBytes32String } from '@harmony-js/contract';
+import { Harmony } from '@harmony-js/core';
+import { TransasctionReceipt } from '@harmony-js/transaction';
 import * as abiDecoder from 'abi-decoder';
 import BN from 'bn.js';
 import { ec } from 'elliptic';
@@ -6,51 +9,47 @@ import { ECIES } from 'lib/crypto/ecies/ecies';
 import { constantTimeCompare } from 'lib/crypto/utils/compare';
 import { ErrorCode } from 'lib/errors/ErrorCode';
 import { createSdkError } from 'lib/errors/SdkError';
-import { IEthOptions } from 'lib/models/IEthOptions';
 import { IIPFSClient } from 'lib/models/IIPFSClient';
 import { RandomArrayGenerator } from 'lib/models/RandomArrayGenerator';
 import { PassportOwnership } from 'lib/proto';
-import { PassportLogic } from 'lib/types/web3-contracts/PassportLogic';
 import { hexToArray, hexToBoolean, hexToUnpaddedAscii, toBN, toDate } from 'lib/utils/conversion';
 import { ciEquals } from 'lib/utils/string';
-import { prepareMethod } from 'lib/utils/tx';
-import Web3 from 'web3';
+import { callMethod, configureSendMethod } from 'lib/utils/tx';
 import passportLogicAbi from '../../config/PassportLogic.json';
 import { Address } from '../models/Address';
 import { TxExecutor } from '../models/TxExecutor';
 import { deriveSecretKeyringMaterial, ellipticCurveAlg, ISKM } from './privateFactCommon';
 import { PrivateFactReader } from './PrivateFactReader';
 import { initPassportLogicContract } from './rawContracts';
-import { TransactionReceipt } from 'web3-core';
-import { IWeb3 } from 'lib/models/IWeb3';
 
-const gasLimits = {
-  accept: 90000,
-  dispute: 60000,
-  finish: 60000,
-  propose: 500000,
-  timeout: 60000,
-};
+
+// TODO: It is not known for now what optimal limits are for Harmony
+// const gasLimits = {
+//   accept: 90000,
+//   dispute: 60000,
+//   finish: 60000,
+//   propose: 500000,
+//   timeout: 60000,
+// };
 
 export class PrivateDataExchanger {
   private passportAddress: Address;
-  private web3: Web3;
-  private contract: PassportLogic;
+  private harmony: Harmony;
   private ec = new ec(ellipticCurveAlg);
   private getCurrentTime: CurrentTimeGetter;
-  private options: IEthOptions;
 
-  public constructor(anyWeb3: IWeb3, passportAddress: Address, currentTimeGetter?: CurrentTimeGetter, options?: IEthOptions) {
-    this.web3 = new Web3(anyWeb3.eth.currentProvider);
+  public constructor(harmony: Harmony, passportAddress: Address, currentTimeGetter?: CurrentTimeGetter) {
+    this.harmony = harmony;
     this.passportAddress = passportAddress;
-    this.contract = initPassportLogicContract(anyWeb3, passportAddress);
 
     this.getCurrentTime = currentTimeGetter;
     if (!currentTimeGetter) {
       this.getCurrentTime = () => new Date();
     }
+  }
 
-    this.options = options || {};
+  private getContract(): Contract {
+    return initPassportLogicContract(this.harmony, this.passportAddress);
   }
 
   // #region -------------- Propose -------------------------------------------------------------------
@@ -58,7 +57,7 @@ export class PrivateDataExchanger {
   /**
    * Creates private data exchange proposition
    * @param factKey - fact key name to request data for
-   * @param factProviderAddress - fact provider address
+   * @param factProviderAddress - fact provider address in hex
    * @param exchangeStakeWei - amount in WEI to stake
    * @param requesterAddress - data requester address (the one who will submit the transaction)
    * @param txExecutor - transaction executor function
@@ -76,7 +75,7 @@ export class PrivateDataExchanger {
   ): Promise<IProposeDataExchangeResult> {
 
     // Get owner public key
-    const ownerPublicKeyBytes = await new PassportOwnership(this.web3, this.passportAddress, this.options).getOwnerPublicKey();
+    const ownerPublicKeyBytes = await new PassportOwnership(this.harmony, this.passportAddress).getOwnerPublicKey();
     const ownerPubKeyPair = this.ec.keyFromPublic(Buffer.from(ownerPublicKeyBytes));
 
     // Create exchange key to be shared with passport owner
@@ -91,15 +90,19 @@ export class PrivateDataExchanger {
     }
 
     // Propose private data exchange
-    const txData = this.contract.methods.proposePrivateDataExchange(
+    const contract = this.getContract();
+    const method = contract.methods.proposePrivateDataExchange(
       factProviderAddress,
-      this.web3.utils.fromAscii(factKey),
+      formatBytes32String(factKey),
       `0x${Buffer.from(encryptedExchangeKey).toString('hex')}` as any,
       exchangeKeyData.skmHash,
     );
 
     // Execute transaction
-    const txConfig = await prepareMethod(this.web3, requesterAddress, this.passportAddress, txData, exchangeStakeWei, gasLimits.propose);
+    const txConfig = await configureSendMethod(this.harmony, method, requesterAddress, {
+      value: exchangeStakeWei,
+      // gasLimit: toBN(gasLimits.propose),
+    });
     const receipt = await txExecutor(txConfig);
 
     // Parse exchange index from tx receipt
@@ -140,7 +143,8 @@ export class PrivateDataExchanger {
 
     // Check if private key belongs to passport owner
     try {
-      const account = this.web3.eth.accounts.privateKeyToAccount(`0x${passportOwnerPrivateKey.replace('0x', '')}`);
+      // TODO: probably convert to  address from private key by not using `add` func
+      const account = this.harmony.wallet.addByPrivateKey(`0x${passportOwnerPrivateKey.replace('0x', '')}`);
       if (!ciEquals(account.address, status.passportOwnerAddress)) {
         throw new Error();
       }
@@ -195,17 +199,14 @@ export class PrivateDataExchanger {
     });
 
     // Accept private data exchange
-    const txData = this.contract.methods.acceptPrivateDataExchange(`0x${exchangeIndex.toString('hex')}`, encryptedDataSecretKey);
+    const contract = this.getContract();
+    const method = contract.methods.acceptPrivateDataExchange(exchangeIndex, encryptedDataSecretKey);
 
     // Execute transaction (owner stakes same amount as requester)
-    const txConfig = await prepareMethod(
-      this.web3,
-      status.passportOwnerAddress,
-      this.passportAddress,
-      txData,
-      status.requesterStaked,
-      gasLimits.accept,
-    );
+    const txConfig = await configureSendMethod(this.harmony, method, status.passportOwnerAddress, {
+      value: status.requesterStaked,
+      // gasLimit: toBN(gasLimits.accept),
+    });
 
     await txExecutor(txConfig);
   }
@@ -235,16 +236,12 @@ export class PrivateDataExchanger {
     }
 
     // Timeout private data exchange
-    const txData = this.contract.methods.timeoutPrivateDataExchange(`0x${exchangeIndex.toString('hex')}`);
+    const contract = this.getContract();
+    const method = contract.methods.timeoutPrivateDataExchange(exchangeIndex);
 
-    const txConfig = await prepareMethod(
-      this.web3,
-      status.requesterAddress,
-      this.passportAddress,
-      txData,
-      0,
-      gasLimits.timeout,
-    );
+    const txConfig = await configureSendMethod(this.harmony, method, status.requesterAddress, {
+      // gasLimit: toBN(gasLimits.timeout),
+    });
 
     await txExecutor(txConfig);
   }
@@ -281,16 +278,12 @@ export class PrivateDataExchanger {
     }
 
     // Dispute private data exchange
-    const txData = this.contract.methods.disputePrivateDataExchange(`0x${exchangeIndex.toString('hex')}`, exchangeKey);
+    const contract = this.getContract();
+    const method = contract.methods.disputePrivateDataExchange(exchangeIndex, exchangeKey);
 
-    const txConfig = await prepareMethod(
-      this.web3,
-      status.requesterAddress,
-      this.passportAddress,
-      txData,
-      0,
-      gasLimits.dispute,
-    );
+    const txConfig = await configureSendMethod(this.harmony, method, status.requesterAddress, {
+      // gasLimit: toBN(gasLimits.dispute),
+    });
 
     const receipt = await txExecutor(txConfig);
 
@@ -351,16 +344,13 @@ export class PrivateDataExchanger {
     }
 
     // Finish private data exchange
-    const txData = this.contract.methods.finishPrivateDataExchange(`0x${exchangeIndex.toString('hex')}`);
+    const contract = this.getContract();
+    const method = contract.methods.finishPrivateDataExchange(exchangeIndex);
 
-    const txConfig = await prepareMethod(
-      this.web3,
-      requesterOrPassOwnerAddress,
-      this.passportAddress,
-      txData,
-      0,
-      gasLimits.finish,
-    );
+    const txConfig = await configureSendMethod(this.harmony, method, requesterOrPassOwnerAddress, {
+      value: status.requesterStaked,
+      // gasLimit: toBN(gasLimits.finish),
+    });
 
     await txExecutor(txConfig);
   }
@@ -374,10 +364,12 @@ export class PrivateDataExchanger {
    * @param exchangeIndex - data exchange index
    */
   public async getStatus(exchangeIndex: BN): Promise<IDataExchangeStatus> {
-    const rawStatus = await this.contract.methods.privateDataExchanges(`0x${exchangeIndex.toString('hex')}`).call();
+    const contract = this.getContract();
+    const method = contract.methods.privateDataExchanges(exchangeIndex);
+    const rawStatus = await callMethod(method);
 
     if (!rawStatus) {
-      throw createSdkError(ErrorCode.ExchangeNotFound, `Data exchnage with index ${exchangeIndex.toString(10)} was not found`);
+      throw createSdkError(ErrorCode.ExchangeNotFound, `Data exchange with index ${exchangeIndex.toString(10)} was not found`);
     }
 
     const status: IDataExchangeStatus = {
@@ -497,7 +489,7 @@ export interface IDataExchangeStatus {
  * Extracts data exchange index from proposal receipt.
  * Returns null in case exchangeIdx was not found in receipt logs
  */
-export function getExchangeIndexFromReceipt(receipt: TransactionReceipt): string {
+export function getExchangeIndexFromReceipt(receipt: TransasctionReceipt): string {
   abiDecoder.addABI(passportLogicAbi);
 
   if (!receipt || !receipt.logs) {

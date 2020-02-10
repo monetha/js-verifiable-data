@@ -20,15 +20,18 @@ var PrivateFactWriter_1 = require("./passport/PrivateFactWriter");
 exports.PrivateFactWriter = PrivateFactWriter_1.PrivateFactWriter;
 var FactHistoryReader_1 = require("./passport/FactHistoryReader");
 exports.FactHistoryReader = FactHistoryReader_1.FactHistoryReader;
-// import { IPassportRef } from './models/IPassportRef';
-// import {
-//   PrivateDataExchanger,
-//   ExchangeState,
-//   IProposeDataExchangeResult,
-//   IDisputeDataExchangeResult,
-//   IDataExchangeStatus,
-//   CurrentTimeGetter,
-//   getExchangeIndexFromReceipt,
-// } from './passport/PrivateDataExchanger';
+var IHistoryEvent_1 = require("./models/IHistoryEvent");
+exports.EventType = IHistoryEvent_1.EventType;
+exports.DataType = IHistoryEvent_1.DataType;
+var PrivateDataExchanger_1 = require("./passport/PrivateDataExchanger");
+exports.PrivateDataExchanger = PrivateDataExchanger_1.PrivateDataExchanger;
+exports.ExchangeState = PrivateDataExchanger_1.ExchangeState;
+exports.getExchangeIndexFromReceipt = PrivateDataExchanger_1.getExchangeIndexFromReceipt;
 var ErrorCode_1 = require("./errors/ErrorCode");
 exports.ErrorCode = ErrorCode_1.ErrorCode;
+var rawContracts_1 = require("./passport/rawContracts");
+exports.initPassportFactoryContract = rawContracts_1.initPassportFactoryContract;
+exports.initPassportLogicContract = rawContracts_1.initPassportLogicContract;
+exports.initPassportContract = rawContracts_1.initPassportContract;
+exports.initPassportLogicRegistryContract = rawContracts_1.initPassportLogicRegistryContract;
+exports.initFactProviderRegistryContract = rawContracts_1.initFactProviderRegistryContract;
